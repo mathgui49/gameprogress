@@ -1,26 +1,99 @@
 @import "tailwindcss";
 
+/* ─── Stitch Design Tokens ─────────────────────────────── */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #0e0e0f;
+  --surface: #1a191b;
+  --surface-low: #131314;
+  --surface-high: #201f21;
+  --surface-bright: #2c2c2d;
+  --surface-highest: #262627;
+  --primary: #85adff;
+  --primary-dim: #699cff;
+  --primary-container: #6e9fff;
+  --secondary: #ac8aff;
+  --secondary-dim: #8455ef;
+  --secondary-container: #5516be;
+  --error: #ff6e84;
+  --on-surface: #ffffff;
+  --on-surface-variant: #adaaab;
+  --outline: #767576;
+  --outline-variant: #484849;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* ─── Scrollbar (Stitch spec) ──────────────────────────── */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--surface-highest) transparent;
 }
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--surface-highest); border-radius: 10px; }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+/* ─── Base ─────────────────────────────────────────────── */
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--on-surface-variant);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--on-surface);
+}
+
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* ─── Animations ───────────────────────────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-slide-up { animation: slideUp 0.35s ease-out forwards; }
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+.animate-scale-in { animation: scaleIn 0.25s ease-out forwards; }
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent 25%, rgba(133,173,255,0.08) 50%, transparent 75%);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+@keyframes xpPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(133,173,255,0.3); }
+  50% { box-shadow: 0 0 20px 4px rgba(133,173,255,0.15); }
+}
+.animate-xp-pulse { animation: xpPulse 2s ease-in-out infinite; }
+
+/* ─── Glass effect (Stitch spec) ───────────────────────── */
+.glass {
+  background: rgba(14, 14, 15, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+/* ─── Select styling ───────────────────────────────────── */
+select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='rgba(173,170,171,0.6)' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+}
+
+.no-scrollbar::-webkit-scrollbar { display: none; }

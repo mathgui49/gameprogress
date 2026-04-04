@@ -1,0 +1,92 @@
+"use client";
+
+import { useContacts } from "@/hooks/useContacts";
+import type { ContactStatus } from "@/types";
+import { STATUS_LABELS, STATUS_COLORS } from "@/types";
+import { Card } from "@/components/ui/Card";
+import { Badge } from "@/components/ui/Badge";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { Button } from "@/components/ui/Button";
+import { formatRelative } from "@/lib/utils";
+import Link from "next/link";
+
+const PIPELINE_ORDER: ContactStatus[] = ["new", "contacted", "replied", "date_planned", "date_done", "advanced", "archived"];
+
+export default function ContactsPage() {
+  const { contacts, loaded, updateStatus } = useContacts();
+
+  if (!loaded) {
+    return <div className="flex items-center justify-center h-screen"><div className="w-8 h-8 border-2 border-[#85adff]/30 border-t-[#85adff] rounded-full animate-spin" /></div>;
+  }
+
+  if (contacts.length === 0) {
+    return (
+      <div className="px-4 py-6 lg:px-8 lg:py-8 max-w-6xl mx-auto animate-fade-in">
+        <h1 className="text-2xl font-bold text-white tracking-tight mb-1">Pipeline</h1>
+        <EmptyState icon="👥" title="Aucun contact" description="Les contacts apparaissent ici quand tu obtiens un close lors d'une interaction." />
+      </div>
+    );
+  }
+
+  return (
+    <div className="px-4 py-6 lg:px-8 lg:py-8 max-w-[1400px] mx-auto animate-fade-in">
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-white tracking-tight mb-1">Pipeline</h1>
+        <p className="text-sm text-[#adaaab]">{contacts.length} contact{contacts.length > 1 ? "s" : ""}</p>
+      </div>
+
+      {/* Kanban board */}
+      <div className="flex gap-4 overflow-x-auto pb-4 no-scrollbar">
+        {PIPELINE_ORDER.map((status) => {
+          const items = contacts.filter((c) => c.status === status);
+          return (
+            <div key={status} className="min-w-[260px] lg:min-w-[280px] flex-shrink-0">
+              {/* Column header */}
+              <div className="flex items-center gap-2 mb-3 px-1">
+                <Badge className={STATUS_COLORS[status]}>{STATUS_LABELS[status]}</Badge>
+                <span className="text-xs text-[#484849]">{items.length}</span>
+              </div>
+
+              {/* Cards */}
+              <div className="space-y-2">
+                {items.map((contact) => (
+                  <Link key={contact.id} href={`/contacts/${contact.id}`}>
+                    <Card hover className="!p-4">
+                      <div className="flex items-start justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#85adff]/20 to-[#ac8aff]/20 flex items-center justify-center">
+                            <span className="text-xs font-bold text-[#85adff]">{contact.firstName[0]?.toUpperCase() || "?"}</span>
+                          </div>
+                          <div>
+                            <p className="text-sm font-semibold text-white">{contact.firstName}</p>
+                            <p className="text-[10px] text-[#484849]">{contact.method === "instagram" ? contact.methodValue : "Telephone"}</p>
+                          </div>
+                        </div>
+                      </div>
+                      {contact.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mb-2">
+                          {contact.tags.slice(0, 3).map((tag) => (
+                            <span key={tag} className="text-[10px] px-2 py-0.5 rounded-full bg-[#ac8aff]/10 text-[#ac8aff]">{tag}</span>
+                          ))}
+                        </div>
+                      )}
+                      {contact.reminders.filter((r) => !r.done).length > 0 && (
+                        <div className="flex items-center gap-1 text-[10px] text-amber-400">
+                          <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          {contact.reminders.filter((r) => !r.done).length} rappel(s)
+                        </div>
+                      )}
+                      <p className="text-[10px] text-[#484849] mt-2">{formatRelative(contact.lastInteractionDate)}</p>
+                    </Card>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
