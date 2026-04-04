@@ -16,7 +16,7 @@ const ALL_STATUSES: ContactStatus[] = ["new", "contacted", "replied", "date_plan
 export default function ContactDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();
-  const { getById, updateStatus, addNote, addReminder, remove, loaded } = useContacts();
+  const { getById, updateStatus, addNote, addReminder, toggleReminder, remove, loaded } = useContacts();
   const [noteInput, setNoteInput] = useState("");
   const [reminderLabel, setReminderLabel] = useState("");
   const [reminderDate, setReminderDate] = useState("");
@@ -123,10 +123,10 @@ export default function ContactDetailPage({ params }: { params: Promise<{ id: st
             ) : (
               <div className="space-y-2">
                 {contact.reminders.map((r) => (
-                  <div key={r.id} className={`flex items-center gap-2 px-3 py-2 rounded-lg bg-black/30 ${r.done ? "opacity-40" : ""}`}>
-                    <svg className="w-4 h-4 text-amber-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
+                  <div key={r.id} onClick={() => toggleReminder(id, r.id)} className={`flex items-center gap-2 px-3 py-2 rounded-lg bg-black/30 cursor-pointer hover:bg-black/40 transition-all ${r.done ? "opacity-40" : ""}`}>
+                    <div className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 transition-all ${r.done ? "bg-emerald-500 border-emerald-500" : "border-amber-400"}`}>
+                      {r.done && <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>}
+                    </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-xs text-white truncate">{r.label}</p>
                       <p className="text-[10px] text-[#484849]">{formatDate(r.date)}</p>

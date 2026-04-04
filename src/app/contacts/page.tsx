@@ -1,19 +1,27 @@
 "use client";
 
+import { useState } from "react";
 import { useContacts } from "@/hooks/useContacts";
-import type { ContactStatus } from "@/types";
+import type { ContactStatus, ContactMethod } from "@/types";
 import { STATUS_LABELS, STATUS_COLORS } from "@/types";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
+import { Select } from "@/components/ui/Select";
+import { Modal } from "@/components/ui/Modal";
 import { formatRelative } from "@/lib/utils";
 import Link from "next/link";
 
 const PIPELINE_ORDER: ContactStatus[] = ["new", "contacted", "replied", "date_planned", "date_done", "advanced", "archived"];
 
 export default function ContactsPage() {
-  const { contacts, loaded, updateStatus } = useContacts();
+  const { contacts, loaded, add } = useContacts();
+  const [showNew, setShowNew] = useState(false);
+  const [newName, setNewName] = useState("");
+  const [newMethod, setNewMethod] = useState<ContactMethod>("instagram");
+  const [newValue, setNewValue] = useState("");
 
   if (!loaded) {
     return <div className="flex items-center justify-center h-screen"><div className="w-8 h-8 border-2 border-[#85adff]/30 border-t-[#85adff] rounded-full animate-spin" /></div>;
@@ -30,9 +38,12 @@ export default function ContactsPage() {
 
   return (
     <div className="px-4 py-6 lg:px-8 lg:py-8 max-w-[1400px] mx-auto animate-fade-in">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-white tracking-tight mb-1">Pipeline</h1>
-        <p className="text-sm text-[#adaaab]">{contacts.length} contact{contacts.length > 1 ? "s" : ""}</p>
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-2xl font-bold text-white tracking-tight mb-1">Pipeline</h1>
+          <p className="text-sm text-[#adaaab]">{contacts.length} contact{contacts.length > 1 ? "s" : ""}</p>
+        </div>
+        <Button onClick={() => setShowNew(true)}>+ Contact</Button>
       </div>
 
       {/* Kanban board */}
@@ -87,6 +98,18 @@ export default function ContactsPage() {
           );
         })}
       </div>
+      {/* New contact modal */}
+      <Modal open={showNew} onClose={() => setShowNew(false)} title="Nouveau contact">
+        <div className="space-y-4">
+          <Input label="Prenom" placeholder="Prenom ou identifiant" value={newName} onChange={(e) => setNewName(e.target.value)} />
+          <Select label="Type de contact" options={[{ value: "instagram", label: "Instagram" }, { value: "phone", label: "Telephone" }, { value: "other", label: "Autre" }]} value={newMethod} onChange={(e) => setNewMethod(e.target.value as ContactMethod)} />
+          <Input label="Valeur" placeholder={newMethod === "instagram" ? "@pseudo" : "06..."} value={newValue} onChange={(e) => setNewValue(e.target.value)} />
+          <Button disabled={!newName.trim()} onClick={() => {
+            add({ firstName: newName.trim(), sourceInteractionId: "", method: newMethod, methodValue: newValue, status: "new", tags: [], notes: "" });
+            setNewName(""); setNewValue(""); setShowNew(false);
+          }}>Creer</Button>
+        </div>
+      </Modal>
     </div>
   );
 }

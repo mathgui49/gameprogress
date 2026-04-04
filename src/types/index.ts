@@ -123,6 +123,19 @@ export interface JournalEntry {
   createdAt: string;
 }
 
+// ─── Session ──────────────────────────────────────────────
+export interface Session {
+  id: string;
+  title: string;
+  date: string;
+  location: string;
+  wings: string[];
+  notes: string;
+  goals: { text: string; done: boolean }[];
+  interactionIds: string[];
+  createdAt: string;
+}
+
 // ─── Profile ──────────────────────────────────────────────
 export interface UserProfile {
   name: string;

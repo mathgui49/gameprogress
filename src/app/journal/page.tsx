@@ -15,8 +15,9 @@ import { EmptyState } from "@/components/ui/EmptyState";
 const ALL_TAGS: JournalTag[] = ["mindset", "progress", "fear", "reflection", "review", "motivation"];
 
 export default function JournalPage() {
-  const { entries, loaded, add, remove } = useJournal();
+  const { entries, loaded, add, update, remove } = useJournal();
   const [showNew, setShowNew] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [content, setContent] = useState("");
   const [tag, setTag] = useState<JournalTag | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -47,7 +48,10 @@ export default function JournalPage() {
                       <p className="text-xs text-[#484849]">{formatDate(entry.date)}</p>
                       {entry.tag && <Badge className={JOURNAL_TAG_COLORS[entry.tag]}>{JOURNAL_TAG_LABELS[entry.tag]}</Badge>}
                     </div>
-                    <button onClick={(e) => { e.stopPropagation(); remove(entry.id); }} className="text-[#484849] hover:text-[#ff6e84] transition-colors text-xs">✕</button>
+                    <div className="flex items-center gap-2">
+                      <button onClick={(e) => { e.stopPropagation(); setEditingId(entry.id); setContent(entry.content); setTag(entry.tag); setShowNew(true); }} className="text-[#484849] hover:text-[#85adff] transition-colors text-xs">✎</button>
+                      <button onClick={(e) => { e.stopPropagation(); remove(entry.id); }} className="text-[#484849] hover:text-[#ff6e84] transition-colors text-xs">✕</button>
+                    </div>
                   </div>
                   <p className={`text-sm text-[#adaaab] leading-relaxed ${expanded ? "" : "line-clamp-3"}`}>
                     {entry.content}
@@ -60,7 +64,7 @@ export default function JournalPage() {
       )}
 
       {/* New entry modal */}
-      <Modal open={showNew} onClose={() => setShowNew(false)} title="Nouvelle entree">
+      <Modal open={showNew} onClose={() => { setShowNew(false); setEditingId(null); setContent(""); setTag(null); }} title={editingId ? "Modifier l'entree" : "Nouvelle entree"}>
         <div className="space-y-4">
           <TextArea placeholder="Comment tu te sens aujourd'hui ? Qu'est-ce qui s'est passe ?..." rows={6} value={content} onChange={(e) => setContent(e.target.value)} className="text-base" />
           <div>
@@ -79,8 +83,11 @@ export default function JournalPage() {
               ))}
             </div>
           </div>
-          <Button disabled={!content.trim()} onClick={() => { add(content.trim(), tag); setContent(""); setTag(null); setShowNew(false); }}>
-            Enregistrer
+          <Button disabled={!content.trim()} onClick={() => {
+            if (editingId) { update(editingId, content.trim(), tag); } else { add(content.trim(), tag); }
+            setContent(""); setTag(null); setEditingId(null); setShowNew(false);
+          }}>
+            {editingId ? "Modifier" : "Enregistrer"}
           </Button>
         </div>
       </Modal>
