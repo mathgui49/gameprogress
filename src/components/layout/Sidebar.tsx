@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
@@ -23,10 +24,8 @@ export function Sidebar() {
     <aside className="hidden lg:flex flex-col w-[260px] min-h-screen glass border-r border-white/[0.04]">
       <div className="px-6 py-6">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#85adff] to-[#ac8aff] flex items-center justify-center shadow-lg shadow-[#85adff]/10">
-            <span className="text-sm font-bold text-white">G</span>
-          </div>
-          <span className="text-base font-bold text-white tracking-tight">GameProgress</span>
+          <Image src="/logo.png" alt="GameTrack" width={36} height={36} className="rounded-xl" />
+          <span className="text-base font-bold text-white tracking-tight">GameTrack</span>
         </div>
       </div>
 

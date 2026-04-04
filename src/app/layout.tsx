@@ -9,13 +9,13 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const manrope = Manrope({ subsets: ["latin"], variable: "--font-manrope" });
 
 export const metadata: Metadata = {
-  title: "GameProgress - Tracker de Progression",
+  title: "GameTrack - Tracker de Progression",
   description: "Application de tracking personnel et de progression sociale",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "GameProgress",
+    title: "GameTrack",
   },
 };
 

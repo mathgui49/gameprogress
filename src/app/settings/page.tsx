@@ -56,7 +56,7 @@ export default function SettingsPage() {
       {/* Install app */}
       <Card className="mb-4">
         <h2 className="text-base font-semibold text-white mb-3">Installer l&apos;app</h2>
-        <p className="text-xs text-[#adaaab] mb-3">Ajoute GameProgress sur ton ecran d&apos;accueil pour un acces rapide.</p>
+        <p className="text-xs text-[#adaaab] mb-3">Ajoute GameTrack sur ton ecran d&apos;accueil pour un acces rapide.</p>
         {installPrompt ? (
           <Button size="sm" onClick={() => { (installPrompt as any).prompt(); }}>Installer</Button>
         ) : (
