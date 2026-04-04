@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import { useSession, signOut } from "next-auth/react";
 import { cn } from "@/lib/utils";
 
 const NAV = [
@@ -20,6 +21,9 @@ const NAV = [
 
 export function Sidebar() {
   const pathname = usePathname();
+  const { data: session } = useSession();
+
+  if (pathname === "/login") return null;
 
   return (
     <aside className="hidden lg:flex flex-col w-[220px] min-h-screen bg-[#100e17] border-r border-[rgba(192,132,252,0.06)]">
@@ -61,7 +65,35 @@ export function Sidebar() {
         })}
       </nav>
 
-      <div className="px-4 py-4 border-t border-[rgba(192,132,252,0.04)]">
+      {/* User section */}
+      {session?.user && (
+        <div className="px-3 py-3 border-t border-[rgba(192,132,252,0.04)]">
+          <div className="flex items-center gap-3 px-2">
+            {session.user.image ? (
+              <img src={session.user.image} alt="" className="w-7 h-7 rounded-full" referrerPolicy="no-referrer" />
+            ) : (
+              <div className="w-7 h-7 rounded-full bg-[#c084fc]/20 flex items-center justify-center text-[10px] font-bold text-[#c084fc]">
+                {session.user.name?.[0]?.toUpperCase() || "?"}
+              </div>
+            )}
+            <div className="flex-1 min-w-0">
+              <p className="text-[11px] text-[#f0eef5] font-medium truncate">{session.user.name}</p>
+              <p className="text-[9px] text-[#6b6580] truncate">{session.user.email}</p>
+            </div>
+            <button
+              onClick={() => signOut({ redirectTo: "/login" })}
+              className="text-[#6b6580] hover:text-[#fb7185] transition-colors shrink-0"
+              title="Deconnexion"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      )}
+
+      <div className="px-4 py-3 border-t border-[rgba(192,132,252,0.04)]">
         <div className="text-[9px] text-[#3d3650] text-center tracking-[2px] uppercase font-[family-name:var(--font-grotesk)]">v1.0 MVP</div>
       </div>
     </aside>

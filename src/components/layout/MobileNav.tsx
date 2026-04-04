@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { cn } from "@/lib/utils";
 
 const MAIN_NAV = [
@@ -24,6 +25,9 @@ const MORE_NAV = [
 export function MobileNav() {
   const pathname = usePathname();
   const [showMore, setShowMore] = useState(false);
+  const { data: session } = useSession();
+
+  if (pathname === "/login") return null;
 
   return (
     <>

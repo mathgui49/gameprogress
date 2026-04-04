@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useInteractions } from "@/hooks/useInteractions";
 import { useContacts } from "@/hooks/useContacts";
 import type { ApproachType, ResultType, ContactMethod } from "@/types";
@@ -16,9 +17,12 @@ const ACTIONS = [
 ];
 
 export function QuickAddButton() {
+  const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [showQuick, setShowQuick] = useState(false);
   const { add } = useInteractions();
+
+  if (pathname === "/login") return null;
   const { add: addContact } = useContacts();
 
   const [qName, setQName] = useState("");
