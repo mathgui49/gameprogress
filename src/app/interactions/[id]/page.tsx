@@ -3,7 +3,7 @@
 import { use, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useInteractions } from "@/hooks/useInteractions";
-import { APPROACH_LABELS, RESULT_LABELS, RESULT_COLORS, TYPE_COLORS, DURATION_LABELS } from "@/types";
+import { APPROACH_LABELS, RESULT_LABELS, RESULT_COLORS, TYPE_COLORS, DURATION_LABELS, OBJECTION_LABELS } from "@/types";
 import { formatDate } from "@/lib/utils";
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
@@ -36,6 +36,8 @@ export default function InteractionDetailPage({ params }: { params: Promise<{ id
     );
   }
 
+  const displayName = interaction.firstName || interaction.memorableElement || "Anonyme";
+
   return (
     <div className="px-4 py-6 lg:px-8 lg:py-8 max-w-3xl mx-auto animate-fade-in">
       <button onClick={() => router.push("/interactions")} className="flex items-center gap-1 text-sm text-[#adaaab] hover:text-white transition-colors mb-6">
@@ -45,10 +47,18 @@ export default function InteractionDetailPage({ params }: { params: Promise<{ id
 
       <div className="flex items-start justify-between mb-6">
         <div>
-          <h1 className="text-2xl lg:text-3xl font-bold text-white tracking-tight mb-2">{interaction.firstName || "Anonyme"}</h1>
+          <h1 className="text-2xl lg:text-3xl font-bold text-white tracking-tight mb-2">{displayName}</h1>
+          {interaction.firstName && interaction.memorableElement && (
+            <p className="text-sm text-[#adaaab] mb-2 italic">{interaction.memorableElement}</p>
+          )}
           <div className="flex items-center gap-2 flex-wrap">
             <Badge className={TYPE_COLORS[interaction.type]}>{APPROACH_LABELS[interaction.type]}</Badge>
             <Badge className={RESULT_COLORS[interaction.result]}>{RESULT_LABELS[interaction.result]}</Badge>
+            {interaction.objection && (
+              <Badge className="bg-[#ff6e84]/15 text-[#ff6e84]">
+                {interaction.objection === "other" && interaction.objectionCustom ? interaction.objectionCustom : OBJECTION_LABELS[interaction.objection]}
+              </Badge>
+            )}
             <span className="text-xs text-[#484849]">{formatDate(interaction.date)}</span>
           </div>
         </div>
@@ -58,10 +68,19 @@ export default function InteractionDetailPage({ params }: { params: Promise<{ id
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-3 mb-6">
+      {/* Scores grid */}
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-6">
         <Card className="text-center !p-4">
           <p className="text-[10px] text-[#484849] uppercase tracking-wider mb-1">Ressenti</p>
           <p className="text-2xl font-bold text-[#85adff]">{interaction.feelingScore}<span className="text-sm text-[#484849]">/10</span></p>
+        </Card>
+        <Card className="text-center !p-4">
+          <p className="text-[10px] text-[#484849] uppercase tracking-wider mb-1">Note fille</p>
+          <p className="text-2xl font-bold text-[#ac8aff]">{interaction.womanScore ?? "-"}<span className="text-sm text-[#484849]">/10</span></p>
+        </Card>
+        <Card className="text-center !p-4">
+          <p className="text-[10px] text-[#484849] uppercase tracking-wider mb-1">Confiance</p>
+          <p className="text-2xl font-bold text-cyan-400">{interaction.confidenceScore ?? "-"}<span className="text-sm text-[#484849]">/10</span></p>
         </Card>
         <Card className="text-center !p-4">
           <p className="text-[10px] text-[#484849] uppercase tracking-wider mb-1">Duree</p>
@@ -73,6 +92,7 @@ export default function InteractionDetailPage({ params }: { params: Promise<{ id
         </Card>
       </div>
 
+      {/* Location */}
       {interaction.location && (
         <Card className="mb-4 !p-4">
           <div className="flex items-center gap-2 text-sm">
@@ -85,10 +105,40 @@ export default function InteractionDetailPage({ params }: { params: Promise<{ id
         </Card>
       )}
 
+      {/* Contact info */}
+      {interaction.contactMethod && interaction.contactValue && (
+        <Card className="mb-4 !p-4 border border-emerald-500/10">
+          <div className="flex items-center gap-2 text-sm">
+            <span className="text-emerald-400 font-medium">Contact:</span>
+            <span className="text-[#adaaab]">
+              {interaction.contactMethod === "instagram" ? interaction.contactValue : interaction.contactMethod === "phone" ? interaction.contactValue : interaction.contactValue}
+            </span>
+            <Badge className="bg-emerald-500/15 text-emerald-400 text-[10px]">{interaction.contactMethod}</Badge>
+          </div>
+        </Card>
+      )}
+
+      {/* Discussion topics */}
+      {interaction.discussionTopics && (
+        <Card className="mb-4">
+          <h3 className="text-xs font-semibold text-[#adaaab] uppercase tracking-wider mb-2">Sujets de discussion</h3>
+          <p className="text-sm text-[#adaaab] leading-relaxed whitespace-pre-wrap">{interaction.discussionTopics}</p>
+        </Card>
+      )}
+
+      {/* Notes */}
       {interaction.note && (
         <Card className="mb-4">
           <h3 className="text-xs font-semibold text-[#adaaab] uppercase tracking-wider mb-2">Notes</h3>
           <p className="text-sm text-[#adaaab] leading-relaxed whitespace-pre-wrap">{interaction.note}</p>
+        </Card>
+      )}
+
+      {/* Feedback */}
+      {interaction.feedback && (
+        <Card className="mb-4">
+          <h3 className="text-xs font-semibold text-[#adaaab] uppercase tracking-wider mb-2">Feedback personnel</h3>
+          <p className="text-sm text-[#adaaab] leading-relaxed whitespace-pre-wrap">{interaction.feedback}</p>
         </Card>
       )}
 

@@ -14,7 +14,7 @@ import { Modal } from "@/components/ui/Modal";
 import { formatRelative } from "@/lib/utils";
 import Link from "next/link";
 
-const PIPELINE_ORDER: ContactStatus[] = ["new", "contacted", "replied", "date_planned", "date_done", "advanced", "archived"];
+const PIPELINE_ORDER: ContactStatus[] = ["new", "contacted", "replied", "date_planned", "first_date", "second_date", "kissclose", "fuckclose", "advanced", "archived"];
 
 export default function ContactsPage() {
   const { contacts, loaded, add } = useContacts();

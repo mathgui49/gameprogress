@@ -6,6 +6,8 @@ import { getItem, setItem, STORAGE_KEYS } from "@/lib/storage";
 
 const DEFAULT_PROFILE: UserProfile = {
   name: "",
+  gameObjectives: "",
+  idealWoman: "",
   createdAt: new Date().toISOString(),
 };
 

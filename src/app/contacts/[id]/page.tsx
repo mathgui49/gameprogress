@@ -3,24 +3,28 @@
 import { use, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useContacts } from "@/hooks/useContacts";
-import { STATUS_LABELS, STATUS_COLORS, type ContactStatus } from "@/types";
+import { STATUS_LABELS, STATUS_COLORS, ARCHIVE_REASON_LABELS, type ContactStatus, type ArchiveReason } from "@/types";
 import { formatDate } from "@/lib/utils";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
+import { Select } from "@/components/ui/Select";
 
-const ALL_STATUSES: ContactStatus[] = ["new", "contacted", "replied", "date_planned", "date_done", "advanced", "archived"];
+const ALL_STATUSES: ContactStatus[] = ["new", "contacted", "replied", "date_planned", "first_date", "second_date", "kissclose", "fuckclose", "advanced", "archived"];
 
 export default function ContactDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();
-  const { getById, updateStatus, addNote, addReminder, toggleReminder, remove, loaded } = useContacts();
+  const { getById, updateStatus, archive, addNote, addReminder, toggleReminder, remove, loaded } = useContacts();
   const [noteInput, setNoteInput] = useState("");
   const [reminderLabel, setReminderLabel] = useState("");
   const [reminderDate, setReminderDate] = useState("");
   const [showReminder, setShowReminder] = useState(false);
+  const [showArchive, setShowArchive] = useState(false);
+  const [archiveReason, setArchiveReason] = useState<ArchiveReason>("ghosted");
+  const [archiveCustom, setArchiveCustom] = useState("");
 
   if (!loaded) return <div className="flex items-center justify-center h-screen"><div className="w-8 h-8 border-2 border-[#85adff]/30 border-t-[#85adff] rounded-full animate-spin" /></div>;
 
@@ -45,7 +49,10 @@ export default function ContactDetailPage({ params }: { params: Promise<{ id: st
             <p className="text-sm text-[#adaaab]">{contact.method === "instagram" ? contact.methodValue : contact.methodValue}</p>
           </div>
         </div>
-        <Button variant="danger" size="sm" onClick={() => { remove(id); router.push("/contacts"); }}>Supprimer</Button>
+        <div className="flex items-center gap-2">
+          {contact.status !== "archived" && <Button variant="secondary" size="sm" onClick={() => setShowArchive(true)}>Archiver</Button>}
+          <Button variant="danger" size="sm" onClick={() => { remove(id); router.push("/contacts"); }}>Supprimer</Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -139,12 +146,35 @@ export default function ContactDetailPage({ params }: { params: Promise<{ id: st
         </div>
       </div>
 
+      {/* Archive info display */}
+      {contact.status === "archived" && contact.archiveInfo && (
+        <Card className="mt-4 !p-4 border border-[#adaaab]/10">
+          <p className="text-xs font-semibold text-[#adaaab] uppercase tracking-wider mb-1">Motif d&apos;archivage</p>
+          <p className="text-sm text-[#adaaab]">
+            {contact.archiveInfo.reason === "other" && contact.archiveInfo.customReason
+              ? contact.archiveInfo.customReason
+              : ARCHIVE_REASON_LABELS[contact.archiveInfo.reason]}
+          </p>
+        </Card>
+      )}
+
       {/* Reminder modal */}
       <Modal open={showReminder} onClose={() => setShowReminder(false)} title="Nouveau rappel">
         <div className="space-y-4">
           <Input label="Label" placeholder="Ex: Relancer dans 48h" value={reminderLabel} onChange={(e) => setReminderLabel(e.target.value)} />
           <Input label="Date" type="datetime-local" value={reminderDate} onChange={(e) => setReminderDate(e.target.value)} />
           <Button disabled={!reminderLabel.trim() || !reminderDate} onClick={() => { addReminder(id, reminderLabel, reminderDate); setReminderLabel(""); setReminderDate(""); setShowReminder(false); }}>Ajouter</Button>
+        </div>
+      </Modal>
+
+      {/* Archive modal */}
+      <Modal open={showArchive} onClose={() => setShowArchive(false)} title="Archiver le contact">
+        <div className="space-y-4">
+          <Select label="Motif" options={Object.entries(ARCHIVE_REASON_LABELS).map(([v, l]) => ({ value: v, label: l }))} value={archiveReason} onChange={(e) => setArchiveReason(e.target.value as ArchiveReason)} />
+          {archiveReason === "other" && (
+            <Input label="Preciser" placeholder="Motif personnalise..." value={archiveCustom} onChange={(e) => setArchiveCustom(e.target.value)} />
+          )}
+          <Button variant="danger" onClick={() => { archive(id, archiveReason, archiveReason === "other" ? archiveCustom : undefined); setShowArchive(false); }}>Archiver</Button>
         </div>
       </Modal>
     </div>

@@ -3,24 +3,38 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSessions } from "@/hooks/useSessions";
+import { useWings } from "@/hooks/useWings";
 import { Button } from "@/components/ui/Button";
 import { Input, TextArea } from "@/components/ui/Input";
 
 export default function NewSessionPage() {
   const router = useRouter();
   const { add } = useSessions();
+  const { wings: allWings } = useWings();
   const [title, setTitle] = useState("");
   const [location, setLocation] = useState("");
-  const [wings, setWings] = useState("");
+  const [selectedWings, setSelectedWings] = useState<string[]>([]);
+  const [customWing, setCustomWing] = useState("");
   const [notes, setNotes] = useState("");
   const [goalsText, setGoalsText] = useState("");
   const [date, setDate] = useState(new Date().toISOString().slice(0, 16));
 
+  const toggleWing = (name: string) => {
+    setSelectedWings((prev) => prev.includes(name) ? prev.filter((w) => w !== name) : [...prev, name]);
+  };
+
+  const addCustomWing = () => {
+    const trimmed = customWing.trim();
+    if (trimmed && !selectedWings.includes(trimmed)) {
+      setSelectedWings((prev) => [...prev, trimmed]);
+      setCustomWing("");
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const goals = goalsText.split("\n").filter(Boolean).map((text) => ({ text: text.trim(), done: false }));
-    const wingsList = wings.split(",").map((w) => w.trim()).filter(Boolean);
-    add({ title, date: new Date(date).toISOString(), location, wings: wingsList, notes, goals, interactionIds: [] });
+    add({ title, date: new Date(date).toISOString(), location, wings: selectedWings, notes, goals, interactionIds: [] });
     router.push("/sessions");
   };
 
@@ -38,8 +52,41 @@ export default function NewSessionPage() {
           <Input label="Date" type="datetime-local" value={date} onChange={(e) => setDate(e.target.value)} />
           <Input label="Lieu" placeholder="Ex: Paris 1er" value={location} onChange={(e) => setLocation(e.target.value)} />
         </div>
-        <Input label="Wings (separes par virgule)" placeholder="Ex: Marc, Alex" value={wings} onChange={(e) => setWings(e.target.value)} />
-        <TextArea label="Objectifs (un par ligne)" placeholder="Faire 5 approches&#10;Tester une approche directe&#10;Rester plus de 3 min" rows={3} value={goalsText} onChange={(e) => setGoalsText(e.target.value)} />
+
+        {/* Wings selector */}
+        <div>
+          <p className="text-xs font-medium text-[#adaaab] mb-2">Wings</p>
+          {allWings.length > 0 && (
+            <div className="flex flex-wrap gap-2 mb-3">
+              {allWings.map((w) => (
+                <button key={w.id} type="button" onClick={() => toggleWing(w.name)}
+                  className={`text-xs px-3 py-1.5 rounded-full transition-all ${
+                    selectedWings.includes(w.name)
+                      ? "bg-[#85adff]/15 text-[#85adff]"
+                      : "bg-[#262627] text-[#adaaab] hover:bg-[#2c2c2d]"
+                  }`}>
+                  {w.name}
+                </button>
+              ))}
+            </div>
+          )}
+          <div className="flex gap-2">
+            <Input placeholder="Ajouter un wing..." value={customWing} onChange={(e) => setCustomWing(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addCustomWing(); } }} className="flex-1" />
+            <Button type="button" variant="secondary" size="sm" onClick={addCustomWing} disabled={!customWing.trim()}>+</Button>
+          </div>
+          {selectedWings.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 mt-2">
+              {selectedWings.map((w) => (
+                <span key={w} className="text-[10px] px-2 py-1 rounded-full bg-[#85adff]/10 text-[#85adff] flex items-center gap-1">
+                  {w}
+                  <button type="button" onClick={() => setSelectedWings((prev) => prev.filter((x) => x !== w))} className="hover:text-white">✕</button>
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <TextArea label="Objectifs (un par ligne)" placeholder={"Faire 5 approches\nTester une approche directe\nRester plus de 3 min"} rows={3} value={goalsText} onChange={(e) => setGoalsText(e.target.value)} />
         <TextArea label="Notes" placeholder="Notes de session..." rows={3} value={notes} onChange={(e) => setNotes(e.target.value)} />
         <div className="flex items-center gap-3 pt-2">
           <Button type="submit" size="lg">Creer la session</Button>

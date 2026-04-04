@@ -39,6 +39,7 @@ export const STORAGE_KEYS = {
   PROFILE: "gp_profile",
   SETTINGS: "gp_settings",
   SESSIONS: "gp_sessions",
+  WINGS: "gp_wings",
   ONBOARDED: "gp_onboarded",
   SEEDED: "gp_seeded",
 } as const;

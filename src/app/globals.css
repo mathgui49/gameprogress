@@ -97,3 +97,10 @@ select {
 }
 
 .no-scrollbar::-webkit-scrollbar { display: none; }
+
+/* ─── Print styles ────────────────────────────────────── */
+@media print {
+  body { background: #0e0e0f !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  aside, nav, .fixed { display: none !important; }
+  main { padding: 0 !important; margin: 0 !important; }
+}

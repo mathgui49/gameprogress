@@ -2,17 +2,28 @@
 export type ApproachType = "direct" | "indirect" | "situational";
 export type ResultType = "close" | "neutral" | "rejection";
 export type DurationType = "short" | "medium" | "long";
+export type ObjectionType = "in_relationship" | "not_interested" | "busy" | "too_young" | "too_old" | "other";
 
 export interface Interaction {
   id: string;
   date: string;
   firstName: string;
+  memorableElement: string;
   note: string;
   location: string;
   type: ApproachType;
   result: ResultType;
   duration: DurationType;
   feelingScore: number;
+  womanScore: number;
+  confidenceScore: number;
+  objection: ObjectionType | null;
+  objectionCustom: string;
+  discussionTopics: string;
+  feedback: string;
+  contactMethod: ContactMethod | null;
+  contactValue: string;
+  sessionId: string;
   createdAt: string;
 }
 
@@ -22,9 +33,20 @@ export type ContactStatus =
   | "contacted"
   | "replied"
   | "date_planned"
-  | "date_done"
+  | "first_date"
+  | "second_date"
+  | "kissclose"
+  | "fuckclose"
   | "advanced"
   | "archived";
+
+export type ArchiveReason = "no_interest" | "ghosted" | "taken" | "moved" | "other";
+
+export interface ArchiveInfo {
+  reason: ArchiveReason;
+  customReason?: string;
+  date: string;
+}
 
 export type ContactMethod = "phone" | "instagram" | "other";
 
@@ -55,6 +77,7 @@ export interface Contact {
   notes: string;
   timeline: ContactEvent[];
   reminders: Reminder[];
+  archiveInfo?: ArchiveInfo;
   createdAt: string;
   lastInteractionDate: string;
 }
@@ -136,9 +159,20 @@ export interface Session {
   createdAt: string;
 }
 
+// ─── Wing ────────────────────────────────────────────────
+export interface Wing {
+  id: string;
+  name: string;
+  notes: string;
+  sessionCount: number;
+  createdAt: string;
+}
+
 // ─── Profile ──────────────────────────────────────────────
 export interface UserProfile {
   name: string;
+  gameObjectives: string;
+  idealWoman: string;
   createdAt: string;
 }
 
@@ -178,7 +212,10 @@ export const STATUS_LABELS: Record<ContactStatus, string> = {
   contacted: "Contacte",
   replied: "Repondu",
   date_planned: "Date planifie",
-  date_done: "Date effectue",
+  first_date: "Premier date",
+  second_date: "Second date",
+  kissclose: "Kiss close",
+  fuckclose: "Fuck close",
   advanced: "Avance",
   archived: "Archive",
 };
@@ -188,9 +225,29 @@ export const STATUS_COLORS: Record<ContactStatus, string> = {
   contacted: "bg-amber-400/15 text-amber-400",
   replied: "bg-[#ac8aff]/15 text-[#ac8aff]",
   date_planned: "bg-cyan-400/15 text-cyan-400",
-  date_done: "bg-emerald-400/15 text-emerald-400",
-  advanced: "bg-pink-400/15 text-pink-400",
+  first_date: "bg-emerald-400/15 text-emerald-400",
+  second_date: "bg-emerald-500/15 text-emerald-300",
+  kissclose: "bg-pink-400/15 text-pink-400",
+  fuckclose: "bg-rose-500/15 text-rose-400",
+  advanced: "bg-orange-400/15 text-orange-400",
   archived: "bg-[#adaaab]/10 text-[#adaaab]",
+};
+
+export const OBJECTION_LABELS: Record<ObjectionType, string> = {
+  in_relationship: "En couple",
+  not_interested: "Pas interessee",
+  busy: "Pressee / pas le temps",
+  too_young: "Trop jeune",
+  too_old: "Trop vieux",
+  other: "Autre",
+};
+
+export const ARCHIVE_REASON_LABELS: Record<ArchiveReason, string> = {
+  no_interest: "Desinteret explicite",
+  ghosted: "Aucune nouvelle",
+  taken: "En couple entre temps",
+  moved: "A demenage",
+  other: "Autre",
 };
 
 export const JOURNAL_TAG_LABELS: Record<JournalTag, string> = {
@@ -210,6 +267,68 @@ export const JOURNAL_TAG_COLORS: Record<JournalTag, string> = {
   review: "bg-amber-400/15 text-amber-400",
   motivation: "bg-cyan-400/15 text-cyan-400",
 };
+
+// ─── Skill Rating ────────────────────────────────────────
+export type SkillRank = "debutant" | "apprenti" | "intermediaire" | "confirme" | "avance" | "expert" | "maitre";
+
+export const SKILL_RANK_LABELS: Record<SkillRank, string> = {
+  debutant: "Debutant",
+  apprenti: "Apprenti",
+  intermediaire: "Intermediaire",
+  confirme: "Confirme",
+  avance: "Avance",
+  expert: "Expert",
+  maitre: "Maitre",
+};
+
+export const SKILL_RANK_COLORS: Record<SkillRank, string> = {
+  debutant: "text-[#adaaab]",
+  apprenti: "text-[#85adff]",
+  intermediaire: "text-cyan-400",
+  confirme: "text-[#ac8aff]",
+  avance: "text-amber-400",
+  expert: "text-emerald-400",
+  maitre: "text-rose-400",
+};
+
+export const SKILL_RANK_THRESHOLDS: { rank: SkillRank; minScore: number }[] = [
+  { rank: "maitre", minScore: 85 },
+  { rank: "expert", minScore: 70 },
+  { rank: "avance", minScore: 55 },
+  { rank: "confirme", minScore: 40 },
+  { rank: "intermediaire", minScore: 25 },
+  { rank: "apprenti", minScore: 10 },
+  { rank: "debutant", minScore: 0 },
+];
+
+/** Compute skill score (0-100) from interaction stats. Ratios matter more than volume. */
+export function computeSkillScore(stats: {
+  totalInteractions: number;
+  closeRate: number;       // 0-1
+  avgFeelingScore: number; // 1-10
+  avgConfidence: number;   // 1-10
+  streak: number;
+}): number {
+  // Close rate: 40% weight (most important)
+  const closeScore = Math.min(stats.closeRate * 100, 100) * 0.40;
+  // Quality of interactions (feeling): 20% weight
+  const qualityScore = (stats.avgFeelingScore / 10) * 100 * 0.20;
+  // Confidence (self-assessed): 15% weight
+  const confidenceScore = (stats.avgConfidence / 10) * 100 * 0.15;
+  // Volume (logarithmic, caps around 200): 15% weight
+  const volumeScore = Math.min(Math.log10(Math.max(stats.totalInteractions, 1)) / Math.log10(200), 1) * 100 * 0.15;
+  // Streak consistency: 10% weight
+  const streakScore = Math.min(stats.streak / 30, 1) * 100 * 0.10;
+
+  return Math.round(closeScore + qualityScore + confidenceScore + volumeScore + streakScore);
+}
+
+export function getSkillRank(score: number): SkillRank {
+  for (const t of SKILL_RANK_THRESHOLDS) {
+    if (score >= t.minScore) return t.rank;
+  }
+  return "debutant";
+}
 
 // ─── XP config ────────────────────────────────────────────
 export const XP_VALUES = {

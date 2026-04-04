@@ -11,13 +11,15 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import Link from "next/link";
+import { InteractionForm } from "@/components/interactions/InteractionForm";
 
 export default function SessionDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();
-  const { getById, toggleGoal, remove, loaded } = useSessions();
-  const { interactions } = useInteractions();
+  const { getById, toggleGoal, addInteraction, remove, loaded } = useSessions();
+  const { interactions, add: addNewInteraction } = useInteractions();
   const [showDelete, setShowDelete] = useState(false);
+  const [showAddInteraction, setShowAddInteraction] = useState(false);
 
   if (!loaded) return <div className="flex items-center justify-center h-screen"><div className="w-8 h-8 border-2 border-[#85adff]/30 border-t-[#85adff] rounded-full animate-spin" /></div>;
 
@@ -89,6 +91,7 @@ export default function SessionDetailPage({ params }: { params: Promise<{ id: st
       <Card className="mb-4">
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-sm font-semibold text-white">Interactions ({sessionInteractions.length})</h2>
+          <Button variant="secondary" size="sm" onClick={() => setShowAddInteraction(true)}>+ Interaction</Button>
         </div>
         {sessionInteractions.length === 0 ? (
           <p className="text-xs text-[#484849]">Aucune interaction rattachee</p>
@@ -126,6 +129,19 @@ export default function SessionDetailPage({ params }: { params: Promise<{ id: st
           <Button variant="danger" onClick={() => { remove(id); router.push("/sessions"); }}>Supprimer</Button>
           <Button variant="ghost" onClick={() => setShowDelete(false)}>Annuler</Button>
         </div>
+      </Modal>
+
+      {/* Add interaction modal with session location pre-filled */}
+      <Modal open={showAddInteraction} onClose={() => setShowAddInteraction(false)} title="Nouvelle interaction">
+        <InteractionForm
+          defaultLocation={session.location}
+          defaultSessionId={session.id}
+          onSubmit={(data) => {
+            const interaction = addNewInteraction(data);
+            addInteraction(id, interaction.id);
+            setShowAddInteraction(false);
+          }}
+        />
       </Modal>
     </div>
   );

@@ -2,15 +2,16 @@
 
 import { useRouter } from "next/navigation";
 import { useInteractions } from "@/hooks/useInteractions";
+import { useContacts } from "@/hooks/useContacts";
 import { InteractionForm } from "@/components/interactions/InteractionForm";
 
 export default function NewInteractionPage() {
   const router = useRouter();
   const { add } = useInteractions();
+  const { add: addContact } = useContacts();
 
   return (
     <div className="px-4 py-6 lg:px-8 lg:py-8 max-w-2xl mx-auto animate-fade-in">
-      {/* Header */}
       <div className="mb-6">
         <button
           onClick={() => router.back()}
@@ -28,7 +29,19 @@ export default function NewInteractionPage() {
 
       <InteractionForm
         onSubmit={(data) => {
-          add(data);
+          const interaction = add(data);
+          // Auto-create contact if close + contact info provided
+          if (data.result === "close" && data.contactMethod && data.contactValue) {
+            addContact({
+              firstName: data.firstName || data.memorableElement || "Inconnue",
+              sourceInteractionId: interaction.id,
+              method: data.contactMethod,
+              methodValue: data.contactValue,
+              status: "new",
+              tags: [],
+              notes: "",
+            });
+          }
           router.push("/interactions");
         }}
       />
