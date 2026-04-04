@@ -21,7 +21,6 @@ export function QuickAddButton() {
   const { add } = useInteractions();
   const { add: addContact } = useContacts();
 
-  // Quick form state
   const [qName, setQName] = useState("");
   const [qLocation, setQLocation] = useState("");
   const [qType, setQType] = useState<ApproachType>("direct");
@@ -57,10 +56,9 @@ export function QuickAddButton() {
       {/* Menu */}
       {open && !showQuick && (
         <div className="absolute bottom-16 right-0 flex flex-col gap-2 animate-scale-in">
-          {/* Quick mode button */}
           <button
             onClick={() => { setOpen(false); setShowQuick(true); }}
-            className="flex items-center gap-3 px-4 py-2.5 bg-[#1a191b] border-t border-white/[0.06] rounded-xl text-sm text-emerald-400 hover:text-emerald-300 hover:bg-[#201f21] transition-all shadow-[0_24px_48px_rgba(0,0,0,0.4)] whitespace-nowrap"
+            className="flex items-center gap-3 px-4 py-2.5 bg-[#14111c] border-t border-[rgba(192,132,252,0.06)] rounded-xl text-sm text-emerald-400 hover:text-emerald-300 hover:bg-[#1a1626] transition-all shadow-[0_24px_48px_rgba(0,0,0,0.4)] whitespace-nowrap"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
@@ -72,9 +70,9 @@ export function QuickAddButton() {
               key={a.href}
               href={a.href}
               onClick={() => setOpen(false)}
-              className="flex items-center gap-3 px-4 py-2.5 bg-[#1a191b] border-t border-white/[0.06] rounded-xl text-sm text-[#adaaab] hover:text-white hover:bg-[#201f21] transition-all shadow-[0_24px_48px_rgba(0,0,0,0.4)] whitespace-nowrap"
+              className="flex items-center gap-3 px-4 py-2.5 bg-[#14111c] border-t border-[rgba(192,132,252,0.06)] rounded-xl text-sm text-[#a09bb2] hover:text-white hover:bg-[#1a1626] transition-all shadow-[0_24px_48px_rgba(0,0,0,0.4)] whitespace-nowrap"
             >
-              <svg className="w-4 h-4 text-[#85adff]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <svg className="w-4 h-4 text-[#c084fc]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d={a.icon} />
               </svg>
               {a.label}
@@ -85,15 +83,17 @@ export function QuickAddButton() {
 
       {/* Quick interaction form */}
       {showQuick && (
-        <div className="absolute bottom-16 right-0 w-[320px] bg-[#1a191b] border border-white/[0.06] rounded-2xl shadow-[0_24px_48px_rgba(0,0,0,0.5)] animate-scale-in p-4">
+        <div className="absolute bottom-16 right-0 w-[320px] bg-[#14111c] border border-[rgba(192,132,252,0.08)] rounded-2xl shadow-[0_24px_48px_rgba(0,0,0,0.5),0_0_24px_-8px_rgba(192,132,252,0.1)] animate-scale-in p-4">
           <div className="flex items-center justify-between mb-3">
-            <p className="text-sm font-semibold text-white flex items-center gap-2">
+            <p className="text-sm font-[family-name:var(--font-grotesk)] font-semibold text-white flex items-center gap-2">
               <svg className="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
               </svg>
               Interaction rapide
             </p>
-            <button onClick={() => { setShowQuick(false); resetQuick(); }} className="text-[#484849] hover:text-white transition-colors text-xs">✕</button>
+            <button onClick={() => { setShowQuick(false); resetQuick(); }} className="text-[#6b6580] hover:text-white transition-colors">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
           </div>
 
           {saved ? (
@@ -103,57 +103,53 @@ export function QuickAddButton() {
           ) : (
             <div className="space-y-3">
               <input placeholder="Prenom (optionnel)" value={qName} onChange={(e) => setQName(e.target.value)}
-                className="w-full rounded-lg bg-black px-3 py-2 text-sm text-white placeholder:text-[#484849] border border-transparent focus:border-[#85adff]/40 outline-none" />
+                className="w-full rounded-lg bg-[#0d0a12] px-3 py-2 text-sm text-white placeholder:text-[#3d3650] border border-transparent focus:border-[#c084fc]/40 outline-none" />
               <input placeholder="Lieu" value={qLocation} onChange={(e) => setQLocation(e.target.value)}
-                className="w-full rounded-lg bg-black px-3 py-2 text-sm text-white placeholder:text-[#484849] border border-transparent focus:border-[#85adff]/40 outline-none" />
+                className="w-full rounded-lg bg-[#0d0a12] px-3 py-2 text-sm text-white placeholder:text-[#3d3650] border border-transparent focus:border-[#c084fc]/40 outline-none" />
 
-              {/* Type pills */}
               <div className="flex gap-1.5">
                 {([["direct", "Direct"], ["indirect", "Indirect"], ["situational", "Situa."]] as const).map(([v, l]) => (
                   <button key={v} type="button" onClick={() => setQType(v)}
-                    className={`flex-1 text-[11px] py-1.5 rounded-lg font-medium transition-all ${qType === v ? "bg-[#85adff]/15 text-[#85adff]" : "bg-[#262627] text-[#adaaab]"}`}>
+                    className={`flex-1 text-[11px] py-1.5 rounded-lg font-medium transition-all ${qType === v ? "bg-[#c084fc]/15 text-[#c084fc]" : "bg-[#1a1626] text-[#a09bb2]"}`}>
                     {l}
                   </button>
                 ))}
               </div>
 
-              {/* Result pills */}
               <div className="flex gap-1.5">
-                {([["close", "Close", "bg-emerald-500/15 text-emerald-400"], ["neutral", "Neutre", "bg-amber-400/15 text-amber-400"], ["rejection", "Rejet", "bg-[#ff6e84]/15 text-[#ff6e84]"]] as const).map(([v, l, c]) => (
+                {([["close", "Close", "bg-emerald-500/15 text-emerald-400"], ["neutral", "Neutre", "bg-amber-400/15 text-amber-400"], ["rejection", "Rejet", "bg-[#fb7185]/15 text-[#fb7185]"]] as const).map(([v, l, c]) => (
                   <button key={v} type="button" onClick={() => setQResult(v)}
-                    className={`flex-1 text-[11px] py-1.5 rounded-lg font-medium transition-all ${qResult === v ? c : "bg-[#262627] text-[#adaaab]"}`}>
+                    className={`flex-1 text-[11px] py-1.5 rounded-lg font-medium transition-all ${qResult === v ? c : "bg-[#1a1626] text-[#a09bb2]"}`}>
                     {l}
                   </button>
                 ))}
               </div>
 
-              {/* Contact if close */}
               {qResult === "close" && (
                 <div className="p-2 rounded-lg bg-emerald-500/5 border border-emerald-500/10 space-y-2">
                   <div className="flex gap-1.5">
                     {([["instagram", "Insta"], ["phone", "Tel"], ["other", "Autre"]] as [ContactMethod, string][]).map(([v, l]) => (
                       <button key={v} type="button" onClick={() => setQContactMethod(qContactMethod === v ? null : v)}
-                        className={`flex-1 text-[10px] py-1 rounded-md font-medium transition-all ${qContactMethod === v ? "bg-emerald-500/15 text-emerald-400" : "bg-[#262627] text-[#adaaab]"}`}>
+                        className={`flex-1 text-[10px] py-1 rounded-md font-medium transition-all ${qContactMethod === v ? "bg-emerald-500/15 text-emerald-400" : "bg-[#1a1626] text-[#a09bb2]"}`}>
                         {l}
                       </button>
                     ))}
                   </div>
                   {qContactMethod && (
                     <input placeholder={qContactMethod === "instagram" ? "@pseudo" : "06..."} value={qContactValue} onChange={(e) => setQContactValue(e.target.value)}
-                      className="w-full rounded-md bg-black px-3 py-1.5 text-xs text-white placeholder:text-[#484849] border border-transparent focus:border-emerald-400/40 outline-none" />
+                      className="w-full rounded-md bg-[#0d0a12] px-3 py-1.5 text-xs text-white placeholder:text-[#3d3650] border border-transparent focus:border-emerald-400/40 outline-none" />
                   )}
                 </div>
               )}
 
-              {/* Note with voice */}
               <div className="flex items-end gap-2">
                 <input placeholder="Note rapide..." value={qNote} onChange={(e) => setQNote(e.target.value)}
-                  className="flex-1 rounded-lg bg-black px-3 py-2 text-sm text-white placeholder:text-[#484849] border border-transparent focus:border-[#85adff]/40 outline-none" />
+                  className="flex-1 rounded-lg bg-[#0d0a12] px-3 py-2 text-sm text-white placeholder:text-[#3d3650] border border-transparent focus:border-[#c084fc]/40 outline-none" />
                 <VoiceInput onResult={(t) => setQNote((prev) => prev ? `${prev} ${t}` : t)} />
               </div>
 
               <button onClick={submitQuick}
-                className="w-full py-2.5 rounded-xl bg-gradient-to-r from-[#85adff] to-[#ac8aff] text-sm font-semibold text-white hover:opacity-90 transition-all">
+                className="w-full py-2.5 rounded-xl bg-gradient-to-r from-[#c084fc] to-[#f472b6] text-sm font-semibold text-white hover:opacity-90 hover:shadow-[0_0_20px_-4px_rgba(192,132,252,0.5)] transition-all">
                 Enregistrer
               </button>
             </div>
@@ -165,7 +161,7 @@ export function QuickAddButton() {
       <button
         onClick={() => { if (showQuick) { setShowQuick(false); resetQuick(); } else { setOpen(!open); } }}
         className={cn(
-          "w-14 h-14 rounded-2xl bg-gradient-to-br from-[#85adff] to-[#ac8aff] flex items-center justify-center shadow-lg shadow-[#85adff]/20 hover:shadow-[#85adff]/30 hover:scale-105 transition-all duration-200",
+          "w-14 h-14 rounded-2xl bg-gradient-to-br from-[#c084fc] to-[#f472b6] flex items-center justify-center shadow-lg shadow-[#c084fc]/20 hover:shadow-[0_0_24px_-4px_rgba(192,132,252,0.5)] hover:scale-105 transition-all duration-200",
           (open || showQuick) && "rotate-45"
         )}
       >

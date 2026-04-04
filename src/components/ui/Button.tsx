@@ -6,16 +6,16 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variants = {
-  primary: "bg-gradient-to-r from-[#85adff] to-[#6e9fff] text-[#002c66] hover:shadow-lg hover:shadow-[#85adff]/20 font-semibold",
-  secondary: "bg-[#262627] text-[#adaaab] hover:bg-[#2c2c2d] hover:text-white",
-  ghost: "text-[#adaaab] hover:text-white hover:bg-white/5",
-  danger: "bg-[#ff6e84]/10 text-[#ff6e84] hover:bg-[#ff6e84]/20",
+  primary: "bg-gradient-to-r from-[#c084fc] to-[#f472b6] text-white hover:shadow-[0_0_20px_-4px_rgba(192,132,252,0.5)] font-semibold",
+  secondary: "bg-[#1a1626] border border-[rgba(192,132,252,0.1)] text-[#a09bb2] hover:bg-[#231e30] hover:text-[#f0eef5] hover:border-[rgba(192,132,252,0.2)]",
+  ghost: "text-[#a09bb2] hover:text-[#f0eef5] hover:bg-[rgba(192,132,252,0.06)]",
+  danger: "bg-[#fb7185]/10 text-[#fb7185] hover:bg-[#fb7185]/20",
 };
 
 const sizes = {
   sm: "px-3 py-1.5 text-xs rounded-lg",
-  md: "px-4 py-2.5 text-sm rounded-xl",
-  lg: "px-6 py-3 text-sm rounded-xl",
+  md: "px-4 py-2.5 text-sm rounded-lg",
+  lg: "px-6 py-3 text-sm rounded-lg",
 };
 
 export function Button({ variant = "primary", size = "md", className, children, ...props }: ButtonProps) {

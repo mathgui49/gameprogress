@@ -15,9 +15,9 @@ export function Card({ children, className, hover, onClick, glass }: CardProps) 
       className={cn(
         "rounded-xl p-5",
         glass
-          ? "glass border-t border-white/[0.06]"
-          : "bg-[#1a191b] border-t border-white/[0.04]",
-        hover && "cursor-pointer transition-all duration-200 hover:bg-[#201f21] hover:scale-[1.005]",
+          ? "glass border border-[rgba(192,132,252,0.06)]"
+          : "bg-[#1a1626] border border-[rgba(192,132,252,0.06)]",
+        hover && "cursor-pointer transition-all duration-200 hover:bg-[#231e30] hover:border-[rgba(192,132,252,0.12)] hover:shadow-[0_0_24px_-8px_rgba(192,132,252,0.1)]",
         onClick && "cursor-pointer",
         className
       )}

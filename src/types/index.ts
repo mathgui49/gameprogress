@@ -198,12 +198,12 @@ export const DURATION_LABELS: Record<DurationType, string> = {
 export const RESULT_COLORS: Record<ResultType, string> = {
   close: "bg-emerald-500/20 text-emerald-400",
   neutral: "bg-amber-500/20 text-amber-400",
-  rejection: "bg-[#ff6e84]/20 text-[#ff6e84]",
+  rejection: "bg-[#fb7185]/20 text-[#fb7185]",
 };
 
 export const TYPE_COLORS: Record<ApproachType, string> = {
-  direct: "bg-[#85adff]/15 text-[#85adff]",
-  indirect: "bg-[#ac8aff]/15 text-[#ac8aff]",
+  direct: "bg-[#c084fc]/15 text-[#c084fc]",
+  indirect: "bg-[#818cf8]/15 text-[#818cf8]",
   situational: "bg-cyan-400/15 text-cyan-400",
 };
 
@@ -221,16 +221,16 @@ export const STATUS_LABELS: Record<ContactStatus, string> = {
 };
 
 export const STATUS_COLORS: Record<ContactStatus, string> = {
-  new: "bg-[#85adff]/15 text-[#85adff]",
+  new: "bg-[#c084fc]/15 text-[#c084fc]",
   contacted: "bg-amber-400/15 text-amber-400",
-  replied: "bg-[#ac8aff]/15 text-[#ac8aff]",
+  replied: "bg-[#818cf8]/15 text-[#818cf8]",
   date_planned: "bg-cyan-400/15 text-cyan-400",
   first_date: "bg-emerald-400/15 text-emerald-400",
   second_date: "bg-emerald-500/15 text-emerald-300",
-  kissclose: "bg-pink-400/15 text-pink-400",
+  kissclose: "bg-[#f472b6]/15 text-[#f472b6]",
   fuckclose: "bg-rose-500/15 text-rose-400",
   advanced: "bg-orange-400/15 text-orange-400",
-  archived: "bg-[#adaaab]/10 text-[#adaaab]",
+  archived: "bg-[#a09bb2]/10 text-[#a09bb2]",
 };
 
 export const OBJECTION_LABELS: Record<ObjectionType, string> = {
@@ -260,10 +260,10 @@ export const JOURNAL_TAG_LABELS: Record<JournalTag, string> = {
 };
 
 export const JOURNAL_TAG_COLORS: Record<JournalTag, string> = {
-  mindset: "bg-[#85adff]/15 text-[#85adff]",
+  mindset: "bg-[#c084fc]/15 text-[#c084fc]",
   progress: "bg-emerald-400/15 text-emerald-400",
-  fear: "bg-[#ff6e84]/15 text-[#ff6e84]",
-  reflection: "bg-[#ac8aff]/15 text-[#ac8aff]",
+  fear: "bg-[#fb7185]/15 text-[#fb7185]",
+  reflection: "bg-[#818cf8]/15 text-[#818cf8]",
   review: "bg-amber-400/15 text-amber-400",
   motivation: "bg-cyan-400/15 text-cyan-400",
 };
@@ -282,13 +282,13 @@ export const SKILL_RANK_LABELS: Record<SkillRank, string> = {
 };
 
 export const SKILL_RANK_COLORS: Record<SkillRank, string> = {
-  debutant: "text-[#adaaab]",
-  apprenti: "text-[#85adff]",
+  debutant: "text-[#a09bb2]",
+  apprenti: "text-[#c084fc]",
   intermediaire: "text-cyan-400",
-  confirme: "text-[#ac8aff]",
+  confirme: "text-[#818cf8]",
   avance: "text-amber-400",
   expert: "text-emerald-400",
-  maitre: "text-rose-400",
+  maitre: "text-[#f472b6]",
 };
 
 export const SKILL_RANK_THRESHOLDS: { rank: SkillRank; minScore: number }[] = [

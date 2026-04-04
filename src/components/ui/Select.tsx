@@ -9,22 +9,22 @@ export function Select({ label, options, className, id, ...props }: SelectProps)
   return (
     <div className="space-y-1.5">
       {label && (
-        <label htmlFor={id} className="block text-xs font-medium text-[#adaaab]">
+        <label htmlFor={id} className="block text-xs font-medium text-[#a09bb2]">
           {label}
         </label>
       )}
       <select
         id={id}
         className={cn(
-          "w-full rounded-xl bg-black px-4 py-2.5 text-sm text-white",
-          "border border-transparent outline-none transition-all appearance-none",
-          "focus:border-[#85adff]/40 focus:shadow-[0_0_0_3px_rgba(133,173,255,0.08)]",
+          "w-full rounded-lg bg-[#100e17] px-4 py-2.5 text-sm text-[#f0eef5]",
+          "border border-[rgba(192,132,252,0.06)] outline-none transition-all appearance-none",
+          "focus:border-[#c084fc]/30 focus:shadow-[0_0_0_3px_rgba(192,132,252,0.06)]",
           className
         )}
         {...props}
       >
         {options.map((opt) => (
-          <option key={opt.value} value={opt.value} className="bg-[#1a191b]">
+          <option key={opt.value} value={opt.value} className="bg-[#14111c]">
             {opt.label}
           </option>
         ))}

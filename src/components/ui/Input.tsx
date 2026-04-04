@@ -8,16 +8,16 @@ export function Input({ label, className, id, ...props }: InputProps) {
   return (
     <div className="space-y-1.5">
       {label && (
-        <label htmlFor={id} className="block text-xs font-medium text-[#adaaab]">
+        <label htmlFor={id} className="block text-xs font-medium text-[#a09bb2]">
           {label}
         </label>
       )}
       <input
         id={id}
         className={cn(
-          "w-full rounded-xl bg-black px-4 py-2.5 text-sm text-white placeholder:text-[#484849]",
-          "border border-transparent outline-none transition-all",
-          "focus:border-[#85adff]/40 focus:shadow-[0_0_0_3px_rgba(133,173,255,0.08)]",
+          "w-full rounded-lg bg-[#100e17] px-4 py-2.5 text-sm text-[#f0eef5] placeholder:text-[#3d3650]",
+          "border border-[rgba(192,132,252,0.06)] outline-none transition-all",
+          "focus:border-[#c084fc]/30 focus:shadow-[0_0_0_3px_rgba(192,132,252,0.06)]",
           className
         )}
         {...props}
@@ -34,16 +34,16 @@ export function TextArea({ label, className, id, ...props }: TextAreaProps) {
   return (
     <div className="space-y-1.5">
       {label && (
-        <label htmlFor={id} className="block text-xs font-medium text-[#adaaab]">
+        <label htmlFor={id} className="block text-xs font-medium text-[#a09bb2]">
           {label}
         </label>
       )}
       <textarea
         id={id}
         className={cn(
-          "w-full rounded-xl bg-black px-4 py-3 text-sm text-white placeholder:text-[#484849]",
-          "border border-transparent outline-none transition-all resize-none",
-          "focus:border-[#85adff]/40 focus:shadow-[0_0_0_3px_rgba(133,173,255,0.08)]",
+          "w-full rounded-lg bg-[#100e17] px-4 py-3 text-sm text-[#f0eef5] placeholder:text-[#3d3650]",
+          "border border-[rgba(192,132,252,0.06)] outline-none transition-all resize-none",
+          "focus:border-[#c084fc]/30 focus:shadow-[0_0_0_3px_rgba(192,132,252,0.06)]",
           className
         )}
         {...props}

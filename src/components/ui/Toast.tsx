@@ -4,8 +4,8 @@ import type { Toast as ToastType } from "@/hooks/useToast";
 
 const COLORS = {
   success: "bg-emerald-500/15 text-emerald-400 border-emerald-500/20",
-  error: "bg-[#ff6e84]/15 text-[#ff6e84] border-[#ff6e84]/20",
-  info: "bg-[#85adff]/15 text-[#85adff] border-[#85adff]/20",
+  error: "bg-[#fb7185]/15 text-[#fb7185] border-[#fb7185]/20",
+  info: "bg-[#c084fc]/15 text-[#c084fc] border-[#c084fc]/20",
 };
 
 interface ToastContainerProps {

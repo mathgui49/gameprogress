@@ -1,27 +1,34 @@
 @import "tailwindcss";
 
-/* ─── Stitch Design Tokens ─────────────────────────────── */
+/* ─── Design Tokens (Cosmic + Neon + Electric) ───────── */
 :root {
-  --bg: #0e0e0f;
-  --surface: #1a191b;
-  --surface-low: #131314;
-  --surface-high: #201f21;
-  --surface-bright: #2c2c2d;
-  --surface-highest: #262627;
-  --primary: #85adff;
-  --primary-dim: #699cff;
-  --primary-container: #6e9fff;
-  --secondary: #ac8aff;
-  --secondary-dim: #8455ef;
-  --secondary-container: #5516be;
-  --error: #ff6e84;
-  --on-surface: #ffffff;
-  --on-surface-variant: #adaaab;
-  --outline: #767576;
-  --outline-variant: #484849;
+  --bg: #0d0a12;
+  --surface: #14111c;
+  --surface-low: #100e17;
+  --surface-high: #1a1626;
+  --surface-bright: #231e30;
+  --surface-highest: #2a2438;
+  --primary: #c084fc;
+  --primary-dim: #a855f7;
+  --primary-container: #9333ea;
+  --secondary: #f472b6;
+  --secondary-dim: #ec4899;
+  --secondary-container: #db2777;
+  --tertiary: #818cf8;
+  --tertiary-dim: #6366f1;
+  --error: #fb7185;
+  --success: #34d399;
+  --on-surface: #f0eef5;
+  --on-surface-variant: #a09bb2;
+  --outline: #6b6580;
+  --outline-variant: #3d3650;
+  --border: rgba(192, 132, 252, 0.06);
+  --neon-purple: rgba(192, 132, 252, 0.4);
+  --neon-pink: rgba(244, 114, 182, 0.4);
+  --neon-blue: rgba(129, 140, 248, 0.4);
 }
 
-/* ─── Scrollbar (Stitch spec) ──────────────────────────── */
+/* ─── Scrollbar ───────────────────────────────────────── */
 * {
   scrollbar-width: thin;
   scrollbar-color: var(--surface-highest) transparent;
@@ -40,6 +47,7 @@ body {
 
 h1, h2, h3, h4, h5, h6 {
   color: var(--on-surface);
+  font-family: var(--font-grotesk), var(--font-inter), sans-serif;
 }
 
 .safe-area-bottom {
@@ -70,27 +78,45 @@ h1, h2, h3, h4, h5, h6 {
   100% { background-position: 200% 0; }
 }
 .animate-shimmer {
-  background: linear-gradient(90deg, transparent 25%, rgba(133,173,255,0.08) 50%, transparent 75%);
+  background: linear-gradient(90deg, transparent 25%, rgba(192,132,252,0.08) 50%, transparent 75%);
   background-size: 200% 100%;
   animation: shimmer 2s infinite;
 }
 
+@keyframes neonPulse {
+  0%, 100% { box-shadow: 0 0 8px 0 var(--neon-purple), 0 0 24px -4px var(--neon-pink); }
+  50% { box-shadow: 0 0 16px 2px var(--neon-purple), 0 0 40px -2px var(--neon-pink); }
+}
+.animate-neon-pulse { animation: neonPulse 2.5s ease-in-out infinite; }
+
 @keyframes xpPulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(133,173,255,0.3); }
-  50% { box-shadow: 0 0 20px 4px rgba(133,173,255,0.15); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(192,132,252,0.3); }
+  50% { box-shadow: 0 0 20px 4px rgba(192,132,252,0.15); }
 }
 .animate-xp-pulse { animation: xpPulse 2s ease-in-out infinite; }
 
-/* ─── Glass effect (Stitch spec) ───────────────────────── */
-.glass {
-  background: rgba(14, 14, 15, 0.7);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+@keyframes glowBorder {
+  0%, 100% { border-color: rgba(192,132,252,0.1); }
+  50% { border-color: rgba(192,132,252,0.2); }
 }
 
-/* ─── Select styling ───────────────────────────────────── */
+/* ─── Glass effect ────────────────────────────────────── */
+.glass {
+  background: rgba(13, 10, 18, 0.75);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+}
+
+/* ─── Neon utilities ──────────────────────────────────── */
+.neon-glow-purple { box-shadow: 0 0 12px -2px var(--neon-purple), 0 0 4px -1px var(--neon-purple); }
+.neon-glow-pink { box-shadow: 0 0 12px -2px var(--neon-pink), 0 0 4px -1px var(--neon-pink); }
+.neon-glow-blue { box-shadow: 0 0 12px -2px var(--neon-blue), 0 0 4px -1px var(--neon-blue); }
+.neon-text-purple { text-shadow: 0 0 12px var(--neon-purple); }
+.neon-text-pink { text-shadow: 0 0 12px var(--neon-pink); }
+
+/* ─── Select styling ──────────────────────────────────── */
 select {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='rgba(173,170,171,0.6)' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='rgba(160,155,178,0.6)' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 12px center;
   padding-right: 36px;
@@ -100,7 +126,7 @@ select {
 
 /* ─── Print styles ────────────────────────────────────── */
 @media print {
-  body { background: #0e0e0f !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { background: #0d0a12 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   aside, nav, .fixed { display: none !important; }
   main { padding: 0 !important; margin: 0 !important; }
 }

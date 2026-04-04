@@ -40,7 +40,7 @@ export default function NewSessionPage() {
 
   return (
     <div className="px-4 py-6 lg:px-8 lg:py-8 max-w-2xl mx-auto animate-fade-in">
-      <button onClick={() => router.back()} className="flex items-center gap-1 text-sm text-[#adaaab] hover:text-white transition-colors mb-4">
+      <button onClick={() => router.back()} className="flex items-center gap-1 text-sm text-[#a09bb2] hover:text-white transition-colors mb-4">
         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
         Retour
       </button>
@@ -55,15 +55,15 @@ export default function NewSessionPage() {
 
         {/* Wings selector */}
         <div>
-          <p className="text-xs font-medium text-[#adaaab] mb-2">Wings</p>
+          <p className="text-xs font-medium text-[#a09bb2] mb-2">Wings</p>
           {allWings.length > 0 && (
             <div className="flex flex-wrap gap-2 mb-3">
               {allWings.map((w) => (
                 <button key={w.id} type="button" onClick={() => toggleWing(w.name)}
                   className={`text-xs px-3 py-1.5 rounded-full transition-all ${
                     selectedWings.includes(w.name)
-                      ? "bg-[#85adff]/15 text-[#85adff]"
-                      : "bg-[#262627] text-[#adaaab] hover:bg-[#2c2c2d]"
+                      ? "bg-[#c084fc]/15 text-[#c084fc]"
+                      : "bg-[#1a1626] text-[#a09bb2] hover:bg-[#231e30]"
                   }`}>
                   {w.name}
                 </button>
@@ -77,7 +77,7 @@ export default function NewSessionPage() {
           {selectedWings.length > 0 && (
             <div className="flex flex-wrap gap-1.5 mt-2">
               {selectedWings.map((w) => (
-                <span key={w} className="text-[10px] px-2 py-1 rounded-full bg-[#85adff]/10 text-[#85adff] flex items-center gap-1">
+                <span key={w} className="text-[10px] px-2 py-1 rounded-full bg-[#c084fc]/10 text-[#c084fc] flex items-center gap-1">
                   {w}
                   <button type="button" onClick={() => setSelectedWings((prev) => prev.filter((x) => x !== w))} className="hover:text-white">✕</button>
                 </span>

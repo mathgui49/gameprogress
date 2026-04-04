@@ -49,8 +49,8 @@ export function VoiceInput({ onResult, className = "" }: VoiceInputProps) {
       onClick={toggle}
       className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${
         listening
-          ? "bg-[#ff6e84]/20 text-[#ff6e84] animate-pulse"
-          : "bg-[#262627] text-[#adaaab] hover:bg-[#2c2c2d] hover:text-white"
+          ? "bg-[#fb7185]/20 text-[#fb7185] animate-pulse"
+          : "bg-[#1a1626] text-[#a09bb2] hover:bg-[#231e30] hover:text-white"
       } ${className}`}
       title={listening ? "Arreter" : "Dicter"}
     >

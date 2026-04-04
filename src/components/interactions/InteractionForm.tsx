@@ -80,13 +80,13 @@ export function InteractionForm({ initial, defaultLocation, defaultSessionId, on
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       {/* Mode toggle */}
-      <div className="flex items-center gap-1 p-1 bg-[#131314] rounded-xl w-fit">
+      <div className="flex items-center gap-1 p-1 bg-[#100e17] rounded-xl w-fit">
         <button type="button" onClick={() => setQuickMode(false)}
-          className={`px-4 py-2 rounded-lg text-xs font-medium transition-all ${!quickMode ? "bg-[#85adff]/15 text-[#85adff]" : "text-[#484849] hover:text-[#adaaab]"}`}>
+          className={`px-4 py-2 rounded-lg text-xs font-medium transition-all ${!quickMode ? "bg-[#c084fc]/15 text-[#c084fc]" : "text-[#6b6580] hover:text-[#a09bb2]"}`}>
           Complet
         </button>
         <button type="button" onClick={() => setQuickMode(true)}
-          className={`px-4 py-2 rounded-lg text-xs font-medium transition-all ${quickMode ? "bg-[#85adff]/15 text-[#85adff]" : "text-[#484849] hover:text-[#adaaab]"}`}>
+          className={`px-4 py-2 rounded-lg text-xs font-medium transition-all ${quickMode ? "bg-[#c084fc]/15 text-[#c084fc]" : "text-[#6b6580] hover:text-[#a09bb2]"}`}>
           Rapide
         </button>
       </div>
