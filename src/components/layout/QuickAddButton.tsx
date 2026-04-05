@@ -49,7 +49,7 @@ export function QuickAddButton() {
       type: qType, result: qResult, duration: "medium", feelingScore: 7,
       womanScore: 7, confidenceScore: 5, objection: null, objectionCustom: "",
       discussionTopics: "", feedback: "", contactMethod: qContactMethod, contactValue: qContactValue,
-      sessionId: "", date: new Date().toISOString(),
+      sessionId: "", tags: [], contextPhoto: null, date: new Date().toISOString(),
     });
     addXP(XP_VALUES.interaction_created, "Interaction rapide");
     if (qNote) addXP(XP_VALUES.interaction_with_note, "Note ajoutée");

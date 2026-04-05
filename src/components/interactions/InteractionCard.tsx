@@ -10,6 +10,7 @@ import { Card } from "@/components/ui/Card";
 export function InteractionCard({ interaction }: { interaction: Interaction }) {
   const displayName = interaction.firstName || interaction.memorableElement || "Anonyme";
   const subtitle = interaction.firstName && interaction.memorableElement ? interaction.memorableElement : null;
+  const tags = interaction.tags ?? [];
 
   return (
     <Link href={`/interactions/${interaction.id}`}>
@@ -21,13 +22,21 @@ export function InteractionCard({ interaction }: { interaction: Interaction }) {
               <Badge className={TYPE_COLORS[interaction.type]}>{APPROACH_LABELS[interaction.type]}</Badge>
             </div>
             {subtitle && <p className="text-[10px] text-[var(--tertiary)] mb-1 italic">{subtitle}</p>}
-            {interaction.note && <p className="text-xs text-[var(--on-surface-variant)] mb-2 line-clamp-2">{interaction.note}</p>}
+            {interaction.note && <p className="text-xs text-[var(--on-surface-variant)] mb-1.5 line-clamp-2">{interaction.note}</p>}
+            {tags.length > 0 && (
+              <div className="flex flex-wrap gap-1 mb-1.5">
+                {tags.slice(0, 3).map((t) => (
+                  <span key={t} className="text-[9px] px-1.5 py-0.5 rounded-full bg-[var(--primary)]/10 text-[var(--primary)]">#{t}</span>
+                ))}
+                {tags.length > 3 && <span className="text-[9px] text-[var(--outline)]">+{tags.length - 3}</span>}
+              </div>
+            )}
             <div className="flex items-center gap-3 text-[10px] text-[var(--outline)]">
               {interaction.location && (
                 <span className="flex items-center gap-1">
                   <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
                   </svg>
                   {interaction.location}
                 </span>

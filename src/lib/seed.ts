@@ -1,7 +1,7 @@
 import type { Interaction, Contact, Mission, JournalEntry, GamificationState, Badge, Milestone, BadgeCategory } from "@/types";
 import { generateId } from "./utils";
 
-const DEFAULTS = { memorableElement: "", womanScore: 7, confidenceScore: 5, objection: null, objectionCustom: "", discussionTopics: "", feedback: "", contactMethod: null, contactValue: "", sessionId: "" } as const;
+const DEFAULTS = { memorableElement: "", womanScore: 7, confidenceScore: 5, objection: null, objectionCustom: "", discussionTopics: "", feedback: "", contactMethod: null, contactValue: "", sessionId: "", tags: [] as string[], contextPhoto: null } as const;
 
 export function generateSeedInteractions(): Interaction[] {
   const now = new Date();

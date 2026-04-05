@@ -24,6 +24,8 @@ export interface Interaction {
   contactMethod: ContactMethod | null;
   contactValue: string;
   sessionId: string;
+  tags: string[];
+  contextPhoto: string | null;
   createdAt: string;
 }
 
