@@ -73,3 +73,13 @@ export async function deleteRow(table: string, id: string) {
   const { error } = await supabase.from(table).delete().eq("id", id);
   if (error) console.error(`delete ${table}:`, error);
 }
+
+const ALL_TABLES = ["interactions", "contacts", "sessions", "wings", "missions", "journal_entries", "profiles", "gamification"];
+
+export async function clearAllUserData(userId: string) {
+  await Promise.all(
+    ALL_TABLES.map((table) =>
+      supabase.from(table).delete().eq("user_id", userId)
+    )
+  );
+}
