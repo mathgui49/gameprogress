@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input, TextArea } from "@/components/ui/Input";
 import { MapPicker } from "@/components/ui/MapPicker";
+import { uploadImageAction } from "@/actions/db";
 
 type PrivacyOption = "off" | "wings" | "public";
 
@@ -80,9 +81,12 @@ export default function ProfilPage() {
                     onChange={(e) => {
                       const file = e.target.files?.[0];
                       if (!file) return;
-                      if (file.size > 500_000) { alert("Photo trop lourde (max 500 Ko)"); return; }
+                      if (file.size > 5_000_000) { alert("Photo trop lourde (max 5 Mo)"); return; }
                       const reader = new FileReader();
-                      reader.onload = () => { save({ profilePhoto: reader.result as string }); flash(); };
+                      reader.onload = async () => {
+                        const url = await uploadImageAction(reader.result as string, "profiles");
+                        if (url) { save({ profilePhoto: url }); flash(); }
+                      };
                       reader.readAsDataURL(file);
                     }}
                   />

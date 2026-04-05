@@ -5,6 +5,34 @@ import * as db from "@/lib/db";
 
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? "";
 
+// ─── Rate limiting (server actions) ───────────────────
+const rateBuckets = new Map<string, { count: number; resetAt: number }>();
+
+// Cleanup stale entries every 5 min
+if (typeof setInterval !== "undefined") {
+  setInterval(() => {
+    const now = Date.now();
+    for (const [k, v] of rateBuckets) {
+      if (v.resetAt < now) rateBuckets.delete(k);
+    }
+  }, 300_000);
+}
+
+/** Throws if user exceeds limit. key = "userId:action" */
+function checkRate(userId: string, action: string, limit = 30, windowSec = 60) {
+  const key = `${userId}:${action}`;
+  const now = Date.now();
+  const entry = rateBuckets.get(key);
+  if (!entry || entry.resetAt < now) {
+    rateBuckets.set(key, { count: 1, resetAt: now + windowSec * 1000 });
+    return;
+  }
+  entry.count++;
+  if (entry.count > limit) {
+    throw new Error("Rate limit exceeded");
+  }
+}
+
 // ─── Sanitization ─────────────────────────────────────
 /** Strip HTML/script tags from all string values in an object (deep) */
 function sanitizeObj<T>(obj: T): T {
@@ -17,6 +45,42 @@ function sanitizeObj<T>(obj: T): T {
   }
   return obj;
 }
+
+// ─── Input validation ─────────────────────────────────
+function assertString(val: unknown, name: string, maxLen = 5000): string {
+  if (typeof val !== "string") throw new Error(`${name} must be a string`);
+  if (val.length > maxLen) throw new Error(`${name} exceeds max length (${maxLen})`);
+  return val;
+}
+
+function assertEnum<T extends string>(val: unknown, name: string, allowed: readonly T[]): T {
+  if (!allowed.includes(val as T)) throw new Error(`${name} must be one of: ${allowed.join(", ")}`);
+  return val as T;
+}
+
+function assertInt(val: unknown, name: string, min = 0, max = 10000): number {
+  const n = typeof val === "number" ? val : Number(val);
+  if (!Number.isInteger(n) || n < min || n > max) throw new Error(`${name} must be integer ${min}-${max}`);
+  return n;
+}
+
+function assertArray(val: unknown, name: string, maxLen = 100): unknown[] {
+  if (!Array.isArray(val)) throw new Error(`${name} must be an array`);
+  if (val.length > maxLen) throw new Error(`${name} exceeds max items (${maxLen})`);
+  return val;
+}
+
+function assertStringArray(val: unknown, name: string, maxLen = 100, maxItemLen = 500): string[] {
+  const arr = assertArray(val, name, maxLen);
+  return arr.map((item, i) => assertString(item, `${name}[${i}]`, maxItemLen));
+}
+
+// Allowed tables for generic CRUD (prevent accessing arbitrary tables)
+const ALLOWED_TABLES = new Set([
+  "interactions", "contacts", "sessions", "wings", "missions",
+  "journal_entries", "profiles", "gamification", "public_profiles",
+  "subscriptions", "push_subscriptions",
+]);
 
 // ─── Auth helper ───────────────────────────────────────
 async function getAuthUserId(): Promise<string> {
@@ -34,34 +98,53 @@ async function requireAdmin(): Promise<string> {
 // ─── Generic CRUD (auth-scoped) ────────────────────────
 
 export async function fetchAllAction<T>(table: string): Promise<T[]> {
+  if (!ALLOWED_TABLES.has(table)) throw new Error("Invalid table");
   const userId = await getAuthUserId();
   return db.fetchAll<T>(table, userId);
 }
 
+export async function fetchPaginatedAction<T>(table: string, page = 0, pageSize = 50): Promise<{ items: T[]; total: number; hasMore: boolean }> {
+  if (!ALLOWED_TABLES.has(table)) throw new Error("Invalid table");
+  assertInt(page, "page", 0, 10000);
+  assertInt(pageSize, "pageSize", 1, 200);
+  const userId = await getAuthUserId();
+  return db.fetchPaginated<T>(table, userId, page, pageSize);
+}
+
 export async function fetchOneAction<T>(table: string): Promise<T | null> {
+  if (!ALLOWED_TABLES.has(table)) throw new Error("Invalid table");
   const userId = await getAuthUserId();
   return db.fetchOne<T>(table, userId);
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function insertRowAction(table: string, obj: any) {
+  if (!ALLOWED_TABLES.has(table)) throw new Error("Invalid table");
   const userId = await getAuthUserId();
+  checkRate(userId, `insert:${table}`, 30, 60);
   await db.insertRow(table, userId, sanitizeObj(obj));
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function updateRowAction(table: string, id: string, obj: any) {
+  if (!ALLOWED_TABLES.has(table)) throw new Error("Invalid table");
+  assertString(id, "id", 200);
   const userId = await getAuthUserId();
+  checkRate(userId, `update:${table}`, 30, 60);
   await db.updateRow(table, id, sanitizeObj(obj), userId);
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function upsertRowAction(table: string, obj: any) {
+  if (!ALLOWED_TABLES.has(table)) throw new Error("Invalid table");
   const userId = await getAuthUserId();
+  checkRate(userId, `upsert:${table}`, 30, 60);
   await db.upsertRow(table, userId, sanitizeObj(obj));
 }
 
 export async function deleteRowAction(table: string, id: string) {
+  if (!ALLOWED_TABLES.has(table)) throw new Error("Invalid table");
+  assertString(id, "id", 200);
   const userId = await getAuthUserId();
   await db.deleteRow(table, id, userId);
 }
@@ -75,6 +158,7 @@ export async function fetchWingRequestsAction() {
 
 export async function sendWingRequestAction(toUserId: string) {
   const userId = await getAuthUserId();
+  checkRate(userId, "wingRequest", 10, 60);
   if (toUserId === userId) return;
   const row = db.toRow({
     id: crypto.randomUUID(),
@@ -176,7 +260,10 @@ export async function fetchSessionCommentsAction(sessionId: string) {
 
 export async function addSessionCommentAction(sessionId: string, content: string) {
   const userId = await getAuthUserId();
-  await db.addSessionComment(sessionId, userId, content);
+  checkRate(userId, "sessionComment", 20, 60);
+  assertString(sessionId, "sessionId", 200);
+  assertString(content, "content", 3000);
+  await db.addSessionComment(sessionId, userId, sanitizeObj(content));
 }
 
 export async function fetchPublicSessionsAction() {
@@ -213,7 +300,14 @@ export async function createPostAction(post: {
   linkedSessionId: string | null;
 }) {
   const userId = await getAuthUserId();
-  return db.createPost(userId, post);
+  checkRate(userId, "createPost", 10, 60);
+  assertString(post.content, "content", 10000);
+  assertEnum(post.visibility, "visibility", ["wings", "public"] as const);
+  assertEnum(post.postType, "postType", ["field_report", "tip", "question", "story", "other"] as const);
+  assertArray(post.images, "images", 10);
+  assertStringArray(post.hashtags, "hashtags", 20, 100);
+  assertStringArray(post.mentions, "mentions", 20, 200);
+  return db.createPost(userId, sanitizeObj(post));
 }
 
 export async function deletePostAction(postId: string) {
@@ -228,7 +322,10 @@ export async function togglePinPostAction(postId: string) {
 
 export async function reportPostAction(postId: string, reason: string) {
   const userId = await getAuthUserId();
-  await db.reportPost(postId, userId, reason);
+  checkRate(userId, "report", 5, 60);
+  assertString(postId, "postId", 200);
+  assertString(reason, "reason", 500);
+  await db.reportPost(postId, userId, sanitizeObj(reason));
 }
 
 export async function hidePostAction(postId: string) {
@@ -238,6 +335,7 @@ export async function hidePostAction(postId: string) {
 
 export async function togglePostReactionAction(postId: string, reaction: string) {
   const userId = await getAuthUserId();
+  checkRate(userId, "reaction", 30, 60);
   return db.togglePostReaction(postId, userId, reaction);
 }
 
@@ -253,7 +351,10 @@ export async function fetchPostCommentsAction(postId: string) {
 
 export async function addPostCommentAction(postId: string, content: string) {
   const userId = await getAuthUserId();
-  await db.addPostComment(postId, userId, content);
+  checkRate(userId, "postComment", 20, 60);
+  assertString(postId, "postId", 200);
+  assertString(content, "content", 3000);
+  await db.addPostComment(postId, userId, sanitizeObj(content));
 }
 
 // ─── User public data ──────────────────────────────────
@@ -382,6 +483,10 @@ export async function fetchGroupMessagesAction(groupId: string) {
 
 export async function sendMessageAction(toUserId: string | null, groupId: string | null, content: string) {
   const userId = await getAuthUserId();
+  checkRate(userId, "sendMessage", 30, 60);
+  assertString(content, "content", 5000);
+  if (toUserId) assertString(toUserId, "toUserId", 200);
+  if (groupId) assertString(groupId, "groupId", 200);
   return db.sendMessage(userId, toUserId, groupId, content);
 }
 
@@ -404,6 +509,9 @@ export async function fetchConversationListAction() {
 
 export async function createMessageGroupAction(name: string, memberIds: string[]) {
   const userId = await getAuthUserId();
+  checkRate(userId, "createGroup", 5, 60);
+  assertString(name, "name", 100);
+  assertStringArray(memberIds, "memberIds", 50, 200);
   return db.createMessageGroup(userId, name, memberIds);
 }
 
@@ -414,6 +522,8 @@ export async function fetchUserGroupsAction() {
 
 export async function renameMessageGroupAction(groupId: string, newName: string) {
   const userId = await getAuthUserId();
+  assertString(groupId, "groupId", 200);
+  assertString(newName, "newName", 100);
   return db.renameMessageGroup(userId, groupId, newName);
 }
 
@@ -421,6 +531,7 @@ export async function renameMessageGroupAction(groupId: string, newName: string)
 
 export async function upsertWingStatusAction(status: string) {
   const userId = await getAuthUserId();
+  assertEnum(status, "status", ["available", "in_session", "busy", "offline"] as const);
   await db.upsertWingStatus(userId, status);
 }
 
@@ -450,6 +561,7 @@ export async function fetchWingChallengesAction() {
 
 export async function createWingChallengeAction(challenge: Record<string, unknown>) {
   const userId = await getAuthUserId();
+  checkRate(userId, "createChallenge", 5, 60);
   return db.createWingChallenge(userId, sanitizeObj(challenge));
 }
 
@@ -462,6 +574,10 @@ export async function updateWingChallengeAction(challengeId: string, updates: Re
 
 export async function createWingPingAction(message: string, location: string, date: string) {
   const userId = await getAuthUserId();
+  checkRate(userId, "ping", 5, 300); // 5 pings per 5 min
+  assertString(message, "message", 500);
+  assertString(location, "location", 200);
+  assertString(date, "date", 30);
   return db.createWingPing(userId, message, location, date);
 }
 
@@ -550,4 +666,15 @@ export async function fetchLeaderboardWithXpDetailsAction(location?: string) {
 export async function fetchSharedSessionsAction(wingUserId: string) {
   const userId = await getAuthUserId();
   return db.fetchSharedSessions(userId, wingUserId);
+}
+
+// ─── Image Upload ───────��────────────────────────────
+
+export async function uploadImageAction(base64Data: string, folder: "photos" | "profiles" | "posts"): Promise<string | null> {
+  const userId = await getAuthUserId();
+  checkRate(userId, "upload", 10, 60);
+  assertString(base64Data, "base64Data", 7_000_000); // ~5MB base64
+  assertEnum(folder, "folder", ["photos", "profiles", "posts"] as const);
+  const { uploadImage } = await import("@/lib/upload");
+  return uploadImage(userId, base64Data, folder);
 }

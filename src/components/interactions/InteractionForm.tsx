@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { Input, TextArea } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { VoiceInput } from "@/components/ui/VoiceInput";
+import { uploadImageAction } from "@/actions/db";
 
 interface InteractionFormProps {
   initial?: Interaction | null;
@@ -162,12 +163,14 @@ export function InteractionForm({ initial, defaultLocation, defaultSessionId, on
     input.type = "file";
     input.accept = "image/*";
     input.capture = "environment";
-    input.onchange = (e) => {
+    input.onchange = async (e) => {
       const file = (e.target as HTMLInputElement).files?.[0];
-      if (!file) return;
+      if (!file || file.size > 5 * 1024 * 1024) return;
       const reader = new FileReader();
-      reader.onload = () => {
-        if (typeof reader.result === "string") setContextPhoto(reader.result);
+      reader.onload = async () => {
+        if (typeof reader.result !== "string") return;
+        const url = await uploadImageAction(reader.result, "photos");
+        if (url) setContextPhoto(url);
       };
       reader.readAsDataURL(file);
     };

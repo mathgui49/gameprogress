@@ -21,6 +21,7 @@ import {
   addPostCommentAction,
   reportPostAction,
   hidePostAction,
+  uploadImageAction,
 } from "@/actions/db";
 import { formatRelative } from "@/lib/utils";
 import { useWingRequests } from "@/hooks/useWingRequests";
@@ -177,18 +178,19 @@ function PostComposer({ onPost, userProfile }: { onPost: () => void; userProfile
     input.type = "file";
     input.accept = "image/*";
     input.multiple = true;
-    input.onchange = (e) => {
+    input.onchange = async (e) => {
       const files = (e.target as HTMLInputElement).files;
       if (!files) return;
-      Array.from(files).forEach((file) => {
+      for (const file of Array.from(files)) {
+        if (file.size > 5 * 1024 * 1024) continue;
         const reader = new FileReader();
-        reader.onload = () => {
-          if (typeof reader.result === "string") {
-            setImages((prev) => [...prev, reader.result as string]);
-          }
-        };
-        reader.readAsDataURL(file);
-      });
+        const dataUrl: string = await new Promise((resolve) => {
+          reader.onload = () => resolve(reader.result as string);
+          reader.readAsDataURL(file);
+        });
+        const url = await uploadImageAction(dataUrl, "posts");
+        if (url) setImages((prev) => [...prev, url]);
+      }
     };
     input.click();
   };

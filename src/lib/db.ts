@@ -48,6 +48,30 @@ export async function fetchAll<T>(table: string, userId: string, orderBy = "crea
   return (data || []).map((r) => fromRow<T>(r));
 }
 
+/** Paginated fetch — returns { items, total, hasMore } */
+export async function fetchPaginated<T>(
+  table: string,
+  userId: string,
+  page = 0,
+  pageSize = 50,
+  orderBy = "created_at",
+): Promise<{ items: T[]; total: number; hasMore: boolean }> {
+  const from = page * pageSize;
+  const to = from + pageSize - 1;
+
+  const { data, error, count } = await supabase
+    .from(table)
+    .select("*", { count: "exact" })
+    .eq("user_id", userId)
+    .order(orderBy, { ascending: false })
+    .range(from, to);
+
+  if (error) { console.error(`fetchPaginated ${table}:`, error); return { items: [], total: 0, hasMore: false }; }
+  const items = (data || []).map((r) => fromRow<T>(r));
+  const total = count ?? 0;
+  return { items, total, hasMore: from + items.length < total };
+}
+
 export async function fetchOne<T>(table: string, userId: string): Promise<T | null> {
   const { data, error } = await supabase
     .from(table)
@@ -468,50 +492,40 @@ export async function fetchActivityFeed(
 ) {
   const scope = options?.scope || "all";
   const limit = options?.limit || 30;
-  const fetchLimit = limit + (options?.offset || 0) + 10; // fetch extra for pagination
+  const fetchLimit = limit + (options?.offset || 0) + 10;
 
-  // 1. Fetch sessions
-  let sessionsData: any[] = [];
-  if (scope !== "wings") {
-    const { data } = await supabase.from("sessions").select("*").eq("is_public", true)
-      .order("created_at", { ascending: false }).limit(fetchLimit);
-    sessionsData = data || [];
-  }
+  // ── Phase 1: Parallel content fetches ──────────────────
+  const fetchSessions = scope !== "wings"
+    ? supabase.from("sessions").select("*").eq("is_public", true).order("created_at", { ascending: false }).limit(fetchLimit)
+    : Promise.resolve({ data: [] });
 
-  // 2. Fetch journal entries
-  let journalData: any[] = [];
-  if (scope !== "wings") {
-    const { data } = await supabase.from("journal_entries").select("*")
-      .eq("visibility", "public").neq("user_id", userId)
-      .order("created_at", { ascending: false }).limit(fetchLimit);
-    journalData = data || [];
-  }
-  if ((scope === "all" || scope === "wings") && wingIds.length > 0) {
-    const { data } = await supabase.from("journal_entries").select("*")
-      .eq("visibility", "wings").in("user_id", wingIds)
-      .order("created_at", { ascending: false }).limit(fetchLimit);
-    journalData = [...journalData, ...(data || [])];
-  }
+  const fetchPublicJournal = scope !== "wings"
+    ? supabase.from("journal_entries").select("*").eq("visibility", "public").neq("user_id", userId).order("created_at", { ascending: false }).limit(fetchLimit)
+    : Promise.resolve({ data: [] });
 
-  // 3. Fetch posts
-  let postsData: any[] = [];
-  if (scope !== "wings") {
-    const { data } = await supabase.from("posts").select("*")
-      .eq("visibility", "public").neq("user_id", userId)
-      .order("created_at", { ascending: false }).limit(fetchLimit);
-    postsData = data || [];
-  }
-  if ((scope === "all" || scope === "wings") && wingIds.length > 0) {
-    const { data } = await supabase.from("posts").select("*")
-      .eq("visibility", "wings").in("user_id", wingIds)
-      .order("created_at", { ascending: false }).limit(fetchLimit);
-    postsData = [...postsData, ...(data || [])];
-  }
-  // Also fetch user's own posts
-  const { data: myPosts } = await supabase.from("posts").select("*")
-    .eq("user_id", userId)
-    .order("created_at", { ascending: false }).limit(20);
-  postsData = [...postsData, ...(myPosts || [])];
+  const fetchWingJournal = (scope === "all" || scope === "wings") && wingIds.length > 0
+    ? supabase.from("journal_entries").select("*").eq("visibility", "wings").in("user_id", wingIds).order("created_at", { ascending: false }).limit(fetchLimit)
+    : Promise.resolve({ data: [] });
+
+  const fetchPublicPosts = scope !== "wings"
+    ? supabase.from("posts").select("*").eq("visibility", "public").neq("user_id", userId).order("created_at", { ascending: false }).limit(fetchLimit)
+    : Promise.resolve({ data: [] });
+
+  const fetchWingPosts = (scope === "all" || scope === "wings") && wingIds.length > 0
+    ? supabase.from("posts").select("*").eq("visibility", "wings").in("user_id", wingIds).order("created_at", { ascending: false }).limit(fetchLimit)
+    : Promise.resolve({ data: [] });
+
+  const fetchMyPosts = supabase.from("posts").select("*").eq("user_id", userId).order("created_at", { ascending: false }).limit(20);
+
+  const fetchHidden = supabase.from("post_hides").select("post_id").eq("user_id", userId);
+
+  const [sessionsRes, pubJournalRes, wingJournalRes, pubPostsRes, wingPostsRes, myPostsRes, hiddenRes] =
+    await Promise.all([fetchSessions, fetchPublicJournal, fetchWingJournal, fetchPublicPosts, fetchWingPosts, fetchMyPosts, fetchHidden]);
+
+  const sessionsData: any[] = sessionsRes.data || [];
+  let journalData: any[] = [...(pubJournalRes.data || []), ...(wingJournalRes.data || [])];
+  let postsData: any[] = [...(pubPostsRes.data || []), ...(wingPostsRes.data || []), ...(myPostsRes.data || [])];
+  const hiddenIds = new Set((hiddenRes.data || []).map((h: any) => h.post_id));
 
   // Deduplicate
   const seen = new Set<string>();
@@ -519,35 +533,32 @@ export async function fetchActivityFeed(
   seen.clear();
   journalData = journalData.filter((j) => { if (seen.has(j.id)) return false; seen.add(j.id); return true; });
 
-  // Gather all user IDs
+  // Gather user IDs for profiles
   const allItems = [...sessionsData, ...journalData, ...postsData];
   const allUserIds = [...new Set(allItems.map((i: any) => i.user_id))];
   if (allUserIds.length === 0) return [];
 
-  const { data: profiles } = await supabase.from("public_profiles").select("*").in("user_id", allUserIds);
-  const profileMap: Record<string, any> = {};
-  (profiles || []).forEach((p: any) => { profileMap[p.user_id] = fromRow(p); });
-
-  // Session like/comment counts
+  // ── Phase 2: Parallel metadata fetches ─────────────────
   const sessionIds = sessionsData.map((s: any) => s.id);
-  let sesLikeCounts: Record<string, number> = {};
-  let sesCommentCounts: Record<string, number> = {};
-  if (sessionIds.length > 0) {
-    const { data: likes } = await supabase.from("session_likes").select("session_id").in("session_id", sessionIds);
-    const { data: comments } = await supabase.from("session_comments").select("session_id").in("session_id", sessionIds);
-    (likes || []).forEach((l: any) => { sesLikeCounts[l.session_id] = (sesLikeCounts[l.session_id] || 0) + 1; });
-    (comments || []).forEach((c: any) => { sesCommentCounts[c.session_id] = (sesCommentCounts[c.session_id] || 0) + 1; });
-  }
-
-  // Post reaction/comment counts
   const postIds = postsData.map((p: any) => p.id);
-  const postReactionCounts = await fetchPostReactionCounts(postIds);
-  const postCommentCounts = await fetchPostCommentCounts(postIds);
-  const userReactions = await fetchUserReactions(postIds, userId);
 
-  // Hidden posts
-  const { data: hiddenData } = await supabase.from("post_hides").select("post_id").eq("user_id", userId);
-  const hiddenIds = new Set((hiddenData || []).map((h: any) => h.post_id));
+  const [profilesRes, sesLikesRes, sesCommentsRes, postReactionCounts, postCommentCounts, userReactions] =
+    await Promise.all([
+      supabase.from("public_profiles").select("*").in("user_id", allUserIds),
+      sessionIds.length > 0 ? supabase.from("session_likes").select("session_id").in("session_id", sessionIds) : Promise.resolve({ data: [] }),
+      sessionIds.length > 0 ? supabase.from("session_comments").select("session_id").in("session_id", sessionIds) : Promise.resolve({ data: [] }),
+      fetchPostReactionCounts(postIds),
+      fetchPostCommentCounts(postIds),
+      fetchUserReactions(postIds, userId),
+    ]);
+
+  const profileMap: Record<string, any> = {};
+  (profilesRes.data || []).forEach((p: any) => { profileMap[p.user_id] = fromRow(p); });
+
+  const sesLikeCounts: Record<string, number> = {};
+  const sesCommentCounts: Record<string, number> = {};
+  (sesLikesRes.data || []).forEach((l: any) => { sesLikeCounts[l.session_id] = (sesLikeCounts[l.session_id] || 0) + 1; });
+  (sesCommentsRes.data || []).forEach((c: any) => { sesCommentCounts[c.session_id] = (sesCommentCounts[c.session_id] || 0) + 1; });
 
   // Build unified feed
   const feed: any[] = [];
