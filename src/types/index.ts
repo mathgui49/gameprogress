@@ -189,11 +189,52 @@ export interface JournalEntry {
 }
 
 // ─── Post ────────────────────────────────────────────────
+export type PostType = "text" | "photo" | "session_share" | "field_report" | "milestone" | "badge";
+export type ReactionType = "fire" | "bravo" | "crown" | "force" | "respect";
+
+export const REACTION_EMOJIS: Record<ReactionType, string> = {
+  fire: "\ud83d\udd25",
+  bravo: "\ud83d\udc4f",
+  crown: "\ud83d\udc51",
+  force: "\ud83d\udcaa",
+  respect: "\ud83e\udd1d",
+};
+
 export interface Post {
   id: string;
   userId: string;
   content: string;
   visibility: "wings" | "public";
+  postType: PostType;
+  images: string[];
+  hashtags: string[];
+  mentions: string[];
+  linkedSessionId: string | null;
+  isPinned: boolean;
+  createdAt: string;
+}
+
+export interface PostReaction {
+  id: string;
+  postId: string;
+  userId: string;
+  reaction: ReactionType;
+  createdAt: string;
+}
+
+export interface PostComment {
+  id: string;
+  postId: string;
+  userId: string;
+  content: string;
+  createdAt: string;
+}
+
+export interface PostReport {
+  id: string;
+  postId: string;
+  userId: string;
+  reason: string;
   createdAt: string;
 }
 

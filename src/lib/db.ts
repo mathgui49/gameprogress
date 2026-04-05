@@ -176,6 +176,33 @@ export async function fetchPublicSessions() {
   return (data || []).map((r) => fromRow<any>(r));
 }
 
+export async function joinPublicSession(sessionId: string, userId: string) {
+  // Check if already a participant
+  const { data: existing } = await supabase
+    .from("session_participants")
+    .select("id")
+    .eq("session_id", sessionId)
+    .eq("user_id", userId)
+    .single();
+  if (existing) return; // already joined
+  await supabase.from("session_participants").insert({
+    id: crypto.randomUUID(),
+    session_id: sessionId,
+    user_id: userId,
+    owner_user_id: userId,
+    status: "accepted",
+    created_at: new Date().toISOString(),
+  });
+}
+
+export async function leaveSession(sessionId: string, userId: string) {
+  await supabase
+    .from("session_participants")
+    .delete()
+    .eq("session_id", sessionId)
+    .eq("user_id", userId);
+}
+
 export async function fetchSessionParticipants(sessionId: string) {
   const { data, error } = await supabase
     .from("session_participants")
@@ -273,41 +300,221 @@ export async function fetchLeaderboard(location?: string) {
   }).sort((a: any, b: any) => (b.level * 10000 + b.xp) - (a.level * 10000 + a.xp));
 }
 
+// ─── Posts CRUD ─────────────────────────────────────────
+
+export async function createPost(userId: string, post: {
+  content: string;
+  visibility: "wings" | "public";
+  postType: string;
+  images: string[];
+  hashtags: string[];
+  mentions: string[];
+  linkedSessionId: string | null;
+}) {
+  const safeContent = sanitize(post.content, 5000);
+  if (!safeContent) return null;
+  const id = crypto.randomUUID();
+  const { error } = await supabase.from("posts").insert({
+    id,
+    user_id: userId,
+    content: safeContent,
+    visibility: post.visibility,
+    post_type: post.postType,
+    images: post.images,
+    hashtags: post.hashtags,
+    mentions: post.mentions,
+    linked_session_id: post.linkedSessionId,
+    is_pinned: false,
+    created_at: new Date().toISOString(),
+  });
+  if (error) { console.error("create post:", error); return null; }
+  return id;
+}
+
+export async function togglePinPost(postId: string, userId: string) {
+  const { data } = await supabase.from("posts").select("is_pinned").eq("id", postId).eq("user_id", userId).single();
+  if (!data) return;
+  await supabase.from("posts").update({ is_pinned: !data.is_pinned }).eq("id", postId);
+}
+
+export async function deletePost(postId: string, userId: string) {
+  await supabase.from("posts").delete().eq("id", postId).eq("user_id", userId);
+}
+
+export async function reportPost(postId: string, userId: string, reason: string) {
+  await supabase.from("post_reports").insert({
+    id: crypto.randomUUID(),
+    post_id: postId,
+    user_id: userId,
+    reason: sanitize(reason, 500),
+    created_at: new Date().toISOString(),
+  });
+}
+
+export async function hidePost(postId: string, userId: string) {
+  await supabase.from("post_hides").insert({
+    id: crypto.randomUUID(),
+    post_id: postId,
+    user_id: userId,
+    created_at: new Date().toISOString(),
+  });
+}
+
+// ─── Post Reactions ─────────────────────────────────────
+
+export async function togglePostReaction(postId: string, userId: string, reaction: string) {
+  const { data: existing } = await supabase.from("post_reactions")
+    .select("id, reaction")
+    .eq("post_id", postId)
+    .eq("user_id", userId)
+    .single();
+
+  if (existing) {
+    if (existing.reaction === reaction) {
+      // Remove reaction
+      await supabase.from("post_reactions").delete().eq("id", existing.id);
+      return null;
+    }
+    // Change reaction
+    await supabase.from("post_reactions").update({ reaction }).eq("id", existing.id);
+    return reaction;
+  }
+  // Add reaction
+  await supabase.from("post_reactions").insert({
+    id: crypto.randomUUID(),
+    post_id: postId,
+    user_id: userId,
+    reaction,
+    created_at: new Date().toISOString(),
+  });
+  return reaction;
+}
+
+export async function fetchPostReactions(postId: string) {
+  const { data } = await supabase.from("post_reactions")
+    .select("*")
+    .eq("post_id", postId);
+  return (data || []).map((r: any) => fromRow(r));
+}
+
+export async function fetchPostReactionCounts(postIds: string[]) {
+  if (postIds.length === 0) return {};
+  const { data } = await supabase.from("post_reactions")
+    .select("post_id, reaction")
+    .in("post_id", postIds);
+  const counts: Record<string, Record<string, number>> = {};
+  (data || []).forEach((r: any) => {
+    if (!counts[r.post_id]) counts[r.post_id] = {};
+    counts[r.post_id][r.reaction] = (counts[r.post_id][r.reaction] || 0) + 1;
+  });
+  return counts;
+}
+
+export async function fetchUserReactions(postIds: string[], userId: string) {
+  if (postIds.length === 0) return {};
+  const { data } = await supabase.from("post_reactions")
+    .select("post_id, reaction")
+    .in("post_id", postIds)
+    .eq("user_id", userId);
+  const map: Record<string, string> = {};
+  (data || []).forEach((r: any) => { map[r.post_id] = r.reaction; });
+  return map;
+}
+
+// ─── Post Comments ──────────────────────────────────────
+
+export async function fetchPostComments(postId: string) {
+  const { data } = await supabase.from("post_comments")
+    .select("*")
+    .eq("post_id", postId)
+    .order("created_at", { ascending: true });
+  return (data || []).map((r: any) => fromRow(r));
+}
+
+export async function addPostComment(postId: string, userId: string, content: string) {
+  const safeContent = sanitize(content, 1000);
+  if (!safeContent) return;
+  await supabase.from("post_comments").insert({
+    id: crypto.randomUUID(),
+    post_id: postId,
+    user_id: userId,
+    content: safeContent,
+    created_at: new Date().toISOString(),
+  });
+}
+
+export async function fetchPostCommentCounts(postIds: string[]) {
+  if (postIds.length === 0) return {};
+  const { data } = await supabase.from("post_comments")
+    .select("post_id")
+    .in("post_id", postIds);
+  const counts: Record<string, number> = {};
+  (data || []).forEach((r: any) => { counts[r.post_id] = (counts[r.post_id] || 0) + 1; });
+  return counts;
+}
+
 // ─── Feed ───────────────────────────────────────────────
 
-export async function fetchActivityFeed(userId: string, wingIds: string[], location?: string) {
-  // 1. Fetch public sessions
-  const { data: sessions } = await supabase.from("sessions").select("*").eq("is_public", true)
-    .order("created_at", { ascending: false }).limit(20);
+export async function fetchActivityFeed(
+  userId: string,
+  wingIds: string[],
+  options?: { scope?: "all" | "wings" | "public"; location?: string; limit?: number; offset?: number }
+) {
+  const scope = options?.scope || "all";
+  const limit = options?.limit || 30;
+  const fetchLimit = limit + (options?.offset || 0) + 10; // fetch extra for pagination
 
-  // 2. Fetch visible journal entries: public for everyone + wings for my wings
-  const { data: publicJournal } = await supabase.from("journal_entries").select("*")
-    .eq("visibility", "public").neq("user_id", userId)
-    .order("created_at", { ascending: false }).limit(20);
+  // 1. Fetch sessions
+  let sessionsData: any[] = [];
+  if (scope !== "wings") {
+    const { data } = await supabase.from("sessions").select("*").eq("is_public", true)
+      .order("created_at", { ascending: false }).limit(fetchLimit);
+    sessionsData = data || [];
+  }
 
-  let wingsJournal: any[] = [];
-  if (wingIds.length > 0) {
+  // 2. Fetch journal entries
+  let journalData: any[] = [];
+  if (scope !== "wings") {
+    const { data } = await supabase.from("journal_entries").select("*")
+      .eq("visibility", "public").neq("user_id", userId)
+      .order("created_at", { ascending: false }).limit(fetchLimit);
+    journalData = data || [];
+  }
+  if ((scope === "all" || scope === "wings") && wingIds.length > 0) {
     const { data } = await supabase.from("journal_entries").select("*")
       .eq("visibility", "wings").in("user_id", wingIds)
-      .order("created_at", { ascending: false }).limit(20);
-    wingsJournal = data || [];
+      .order("created_at", { ascending: false }).limit(fetchLimit);
+    journalData = [...journalData, ...(data || [])];
   }
 
-  // 3. Fetch visible posts: public for everyone + wings for my wings
-  const { data: publicPosts } = await supabase.from("posts").select("*")
-    .eq("visibility", "public").neq("user_id", userId)
-    .order("created_at", { ascending: false }).limit(20);
-
-  let wingsPosts: any[] = [];
-  if (wingIds.length > 0) {
+  // 3. Fetch posts
+  let postsData: any[] = [];
+  if (scope !== "wings") {
+    const { data } = await supabase.from("posts").select("*")
+      .eq("visibility", "public").neq("user_id", userId)
+      .order("created_at", { ascending: false }).limit(fetchLimit);
+    postsData = data || [];
+  }
+  if ((scope === "all" || scope === "wings") && wingIds.length > 0) {
     const { data } = await supabase.from("posts").select("*")
       .eq("visibility", "wings").in("user_id", wingIds)
-      .order("created_at", { ascending: false }).limit(20);
-    wingsPosts = data || [];
+      .order("created_at", { ascending: false }).limit(fetchLimit);
+    postsData = [...postsData, ...(data || [])];
   }
+  // Also fetch user's own posts
+  const { data: myPosts } = await supabase.from("posts").select("*")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false }).limit(20);
+  postsData = [...postsData, ...(myPosts || [])];
 
-  // Gather all user IDs for profiles
-  const allItems = [...(sessions || []), ...(publicJournal || []), ...wingsJournal, ...(publicPosts || []), ...wingsPosts];
+  // Deduplicate
+  const seen = new Set<string>();
+  postsData = postsData.filter((p) => { if (seen.has(p.id)) return false; seen.add(p.id); return true; });
+  seen.clear();
+  journalData = journalData.filter((j) => { if (seen.has(j.id)) return false; seen.add(j.id); return true; });
+
+  // Gather all user IDs
+  const allItems = [...sessionsData, ...journalData, ...postsData];
   const allUserIds = [...new Set(allItems.map((i: any) => i.user_id))];
   if (allUserIds.length === 0) return [];
 
@@ -316,43 +523,72 @@ export async function fetchActivityFeed(userId: string, wingIds: string[], locat
   (profiles || []).forEach((p: any) => { profileMap[p.user_id] = fromRow(p); });
 
   // Session like/comment counts
-  const sessionIds = (sessions || []).map((s: any) => s.id);
-  let likeCounts: Record<string, number> = {};
-  let commentCounts: Record<string, number> = {};
+  const sessionIds = sessionsData.map((s: any) => s.id);
+  let sesLikeCounts: Record<string, number> = {};
+  let sesCommentCounts: Record<string, number> = {};
   if (sessionIds.length > 0) {
     const { data: likes } = await supabase.from("session_likes").select("session_id").in("session_id", sessionIds);
     const { data: comments } = await supabase.from("session_comments").select("session_id").in("session_id", sessionIds);
-    (likes || []).forEach((l: any) => { likeCounts[l.session_id] = (likeCounts[l.session_id] || 0) + 1; });
-    (comments || []).forEach((c: any) => { commentCounts[c.session_id] = (commentCounts[c.session_id] || 0) + 1; });
+    (likes || []).forEach((l: any) => { sesLikeCounts[l.session_id] = (sesLikeCounts[l.session_id] || 0) + 1; });
+    (comments || []).forEach((c: any) => { sesCommentCounts[c.session_id] = (sesCommentCounts[c.session_id] || 0) + 1; });
   }
 
-  // Build unified feed items
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // Post reaction/comment counts
+  const postIds = postsData.map((p: any) => p.id);
+  const postReactionCounts = await fetchPostReactionCounts(postIds);
+  const postCommentCounts = await fetchPostCommentCounts(postIds);
+  const userReactions = await fetchUserReactions(postIds, userId);
+
+  // Hidden posts
+  const { data: hiddenData } = await supabase.from("post_hides").select("post_id").eq("user_id", userId);
+  const hiddenIds = new Set((hiddenData || []).map((h: any) => h.post_id));
+
+  // Build unified feed
   const feed: any[] = [];
 
-  (sessions || []).forEach((s: any) => {
-    feed.push({ type: "session", data: fromRow(s), profile: profileMap[s.user_id] || null, likeCount: likeCounts[s.id] || 0, commentCount: commentCounts[s.id] || 0, createdAt: s.created_at });
-  });
-
-  [...(publicJournal || []), ...wingsJournal].forEach((j: any) => {
-    feed.push({ type: "journal", data: fromRow(j), profile: profileMap[j.user_id] || null, createdAt: j.created_at });
-  });
-
-  [...(publicPosts || []), ...wingsPosts].forEach((p: any) => {
-    feed.push({ type: "post", data: fromRow(p), profile: profileMap[p.user_id] || null, createdAt: p.created_at });
-  });
-
-  // Sort by createdAt descending, then filter by location if set
-  feed.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-
-  if (location) {
-    return feed.filter((item) => {
-      if (!item.profile) return false;
-      return item.profile.location?.toLowerCase().includes(location.toLowerCase());
+  sessionsData.forEach((s: any) => {
+    feed.push({
+      type: "session", data: fromRow(s), profile: profileMap[s.user_id] || null,
+      likeCount: sesLikeCounts[s.id] || 0, commentCount: sesCommentCounts[s.id] || 0,
+      createdAt: s.created_at,
     });
+  });
+
+  journalData.forEach((j: any) => {
+    feed.push({
+      type: "journal", data: fromRow(j), profile: profileMap[j.user_id] || null,
+      createdAt: j.created_at,
+    });
+  });
+
+  postsData.forEach((p: any) => {
+    if (hiddenIds.has(p.id)) return;
+    feed.push({
+      type: "post", data: fromRow(p), profile: profileMap[p.user_id] || null,
+      reactions: postReactionCounts[p.id] || {},
+      commentCount: postCommentCounts[p.id] || 0,
+      userReaction: userReactions[p.id] || null,
+      createdAt: p.created_at,
+    });
+  });
+
+  // Sort: pinned first, then by date
+  feed.sort((a, b) => {
+    const aPinned = a.type === "post" && a.data.isPinned ? 1 : 0;
+    const bPinned = b.type === "post" && b.data.isPinned ? 1 : 0;
+    if (aPinned !== bPinned) return bPinned - aPinned;
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+  });
+
+  // Filter by location
+  let result = feed;
+  if (options?.location) {
+    result = feed.filter((item) => item.profile?.location?.toLowerCase().includes(options.location!.toLowerCase()));
   }
 
-  return feed;
+  // Paginate
+  const offset = options?.offset || 0;
+  return result.slice(offset, offset + limit);
 }
 
 // ─── User public data (for profile pages) ──────────────

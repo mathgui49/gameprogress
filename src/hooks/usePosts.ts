@@ -22,7 +22,7 @@ export function usePosts() {
 
   const add = useCallback(
     (content: string, visibility: "wings" | "public") => {
-      const item: Post = { id: generateId(), userId, content, visibility, createdAt: new Date().toISOString() };
+      const item: Post = { id: generateId(), userId, content, visibility, postType: "text", images: [], hashtags: [], mentions: [], linkedSessionId: null, isPinned: false, createdAt: new Date().toISOString() };
       setPosts((prev) => [item, ...prev]);
       insertRowAction("posts", item);
       return item;

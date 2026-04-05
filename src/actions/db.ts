@@ -156,9 +156,12 @@ export async function fetchSessionsByIdsAction(sessionIds: string[]) {
 
 // ─── Feed & Social ─────────────────────────────────────
 
-export async function fetchActivityFeedAction(wingIds: string[], location?: string) {
+export async function fetchActivityFeedAction(
+  wingIds: string[],
+  options?: { scope?: "all" | "wings" | "public"; location?: string; limit?: number; offset?: number },
+) {
   const userId = await getAuthUserId();
-  return db.fetchActivityFeed(userId, wingIds, location);
+  return db.fetchActivityFeed(userId, wingIds, options);
 }
 
 export async function toggleSessionLikeAction(sessionId: string) {
@@ -176,11 +179,81 @@ export async function addSessionCommentAction(sessionId: string, content: string
   await db.addSessionComment(sessionId, userId, content);
 }
 
+export async function fetchPublicSessionsAction() {
+  await getAuthUserId();
+  return db.fetchPublicSessions();
+}
+
+export async function joinPublicSessionAction(sessionId: string) {
+  const userId = await getAuthUserId();
+  await db.joinPublicSession(sessionId, userId);
+}
+
+export async function leaveSessionAction(sessionId: string) {
+  const userId = await getAuthUserId();
+  await db.leaveSession(sessionId, userId);
+}
+
 // ─── Leaderboard ───────────────────────────────────────
 
 export async function fetchLeaderboardAction(location?: string) {
   await getAuthUserId();
   return db.fetchLeaderboard(location);
+}
+
+// ─── Posts ────────────────────────────────────────────
+
+export async function createPostAction(post: {
+  content: string;
+  visibility: "wings" | "public";
+  postType: string;
+  images: string[];
+  hashtags: string[];
+  mentions: string[];
+  linkedSessionId: string | null;
+}) {
+  const userId = await getAuthUserId();
+  return db.createPost(userId, post);
+}
+
+export async function deletePostAction(postId: string) {
+  const userId = await getAuthUserId();
+  await db.deletePost(postId, userId);
+}
+
+export async function togglePinPostAction(postId: string) {
+  const userId = await getAuthUserId();
+  await db.togglePinPost(postId, userId);
+}
+
+export async function reportPostAction(postId: string, reason: string) {
+  const userId = await getAuthUserId();
+  await db.reportPost(postId, userId, reason);
+}
+
+export async function hidePostAction(postId: string) {
+  const userId = await getAuthUserId();
+  await db.hidePost(postId, userId);
+}
+
+export async function togglePostReactionAction(postId: string, reaction: string) {
+  const userId = await getAuthUserId();
+  return db.togglePostReaction(postId, userId, reaction);
+}
+
+export async function fetchPostReactionsAction(postId: string) {
+  await getAuthUserId();
+  return db.fetchPostReactions(postId);
+}
+
+export async function fetchPostCommentsAction(postId: string) {
+  await getAuthUserId();
+  return db.fetchPostComments(postId);
+}
+
+export async function addPostCommentAction(postId: string, content: string) {
+  const userId = await getAuthUserId();
+  await db.addPostComment(postId, userId, content);
 }
 
 // ─── User public data ──────────────────────────────────
