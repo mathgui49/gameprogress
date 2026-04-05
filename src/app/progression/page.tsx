@@ -1,7 +1,13 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { useGamification } from "@/hooks/useGamification";
 import { useInteractions } from "@/hooks/useInteractions";
+import { useContacts } from "@/hooks/useContacts";
+import { useSessions } from "@/hooks/useSessions";
+import { useJournal } from "@/hooks/useJournal";
+import { useWingRequests } from "@/hooks/useWingRequests";
+import { useMissions } from "@/hooks/useMissions";
 import { computeSkillScore, getSkillRank, SKILL_RANK_LABELS, SKILL_RANK_COLORS } from "@/types";
 import { Card } from "@/components/ui/Card";
 import { IconFlame, IconAward, IconTrendingUp, IconLock, IconTarget } from "@/components/ui/Icons";
@@ -9,6 +15,67 @@ import { IconFlame, IconAward, IconTrendingUp, IconLock, IconTarget } from "@/co
 export default function ProgressionPage() {
   const gam = useGamification();
   const { interactions } = useInteractions();
+  const { contacts } = useContacts();
+  const { sessions } = useSessions();
+  const { entries: journal } = useJournal();
+  const { wingProfiles } = useWingRequests();
+  const { missions } = useMissions();
+  const syncedRef = useRef(false);
+
+  // Auto-sync milestones and badges from real data
+  useEffect(() => {
+    if (!gam.loaded || syncedRef.current) return;
+    syncedRef.current = true;
+
+    const totalInteractions = interactions.length;
+    const closes = interactions.filter((i) => i.result === "close").length;
+    const dates = contacts.filter((c) => ["date_planned", "first_date", "second_date", "kissclose", "fuckclose", "advanced"].includes(c.status)).length;
+    const completedMissions = missions.filter((m) => m.completed).length;
+    const wingsCount = wingProfiles.length;
+    const journalCount = journal.length;
+    const sessionCount = sessions.length;
+    const contactCount = contacts.length;
+
+    // Milestone value map: milestoneId -> current value
+    const milestoneValues: Record<string, number> = {
+      m1: totalInteractions, m2: totalInteractions, m3: totalInteractions,
+      m4: closes, m5: closes, m6: closes,
+      m7: dates, m8: dates,
+      m9: sessionCount, m10: sessionCount,
+      m11: journalCount, m12: journalCount,
+      m13: wingsCount,
+      m14: gam.bestStreak,
+      m15: gam.level,
+      m16: contactCount,
+    };
+
+    for (const [id, value] of Object.entries(milestoneValues)) {
+      const existing = gam.milestones.find((m) => m.id === id);
+      if (existing && existing.current !== value) {
+        gam.updateMilestone(id, value);
+      }
+    }
+
+    // Badge condition map: badgeId -> met?
+    const badgeConditions: Record<string, boolean> = {
+      b1: totalInteractions >= 1, b2: totalInteractions >= 10, b7: totalInteractions >= 50,
+      b3: closes >= 1, b4: closes >= 5,
+      b5: gam.bestStreak >= 7, b6: gam.bestStreak >= 30,
+      b8: completedMissions >= 1,
+      b9: sessionCount >= 1, b10: sessionCount >= 10,
+      b11: journalCount >= 1, b12: journalCount >= 20,
+      b13: wingsCount >= 1, b14: wingsCount >= 5,
+      b15: contactCount >= 1, b16: dates >= 1,
+      b17: gam.level >= 5, b18: gam.level >= 10,
+    };
+
+    for (const [id, met] of Object.entries(badgeConditions)) {
+      const existing = gam.badges.find((b) => b.id === id);
+      if (met && existing && !existing.unlockedAt) {
+        gam.unlockBadge(id);
+      }
+    }
+  }, [gam.loaded, interactions, contacts, sessions, journal, wingProfiles, missions]);
 
   if (!gam.loaded) return <div className="flex items-center justify-center h-screen"><div className="w-8 h-8 border-2 border-[#c084fc]/30 border-t-[#c084fc] rounded-full animate-spin" /></div>;
 

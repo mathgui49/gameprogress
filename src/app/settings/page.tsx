@@ -9,7 +9,6 @@ import { useSessions } from "@/hooks/useSessions";
 import { useWings } from "@/hooks/useWings";
 import { useMissions } from "@/hooks/useMissions";
 import { useJournal } from "@/hooks/useJournal";
-import { usePublicProfile } from "@/hooks/usePublicProfile";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input, TextArea } from "@/components/ui/Input";
@@ -26,10 +25,8 @@ export default function SettingsPage() {
   const { wings } = useWings();
   const { missions } = useMissions();
   const { entries: journal } = useJournal();
-  const { profile: publicProfile, save: savePublic } = usePublicProfile();
   const [showClear, setShowClear] = useState(false);
   const [saved, setSaved] = useState(false);
-  const [publicSaved, setPublicSaved] = useState(false);
   const [installPrompt, setInstallPrompt] = useState<Event | null>(null);
 
   useEffect(() => {
@@ -59,37 +56,13 @@ export default function SettingsPage() {
       </div>
 
       <Card className="mb-4">
-        <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-white mb-4">Profil</h2>
+        <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-white mb-4">Profil prive</h2>
         <div className="space-y-4">
           <Input label="Nom" id="pn" placeholder="Ton prenom ou pseudo" value={profile.name} onChange={(e) => handleSaveName(e.target.value)} />
           <TextArea label="Objectifs game" id="go" placeholder="Tes objectifs en game (ex: 10 dates ce mois, oser les directs...)" rows={3} value={profile.gameObjectives ?? ""} onChange={(e) => { updateProfile({ gameObjectives: e.target.value }); setSaved(true); setTimeout(() => setSaved(false), 2000); }} />
           <TextArea label="Femme ideale" id="iw" placeholder="Decris le type de femme que tu recherches..." rows={3} value={profile.idealWoman ?? ""} onChange={(e) => { updateProfile({ idealWoman: e.target.value }); setSaved(true); setTimeout(() => setSaved(false), 2000); }} />
         </div>
         {saved && <p className="text-xs text-emerald-400 mt-2 animate-fade-in">Sauvegarde !</p>}
-      </Card>
-
-      <Card className="mb-4">
-        <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-white mb-4">Profil public</h2>
-        <p className="text-xs text-[#a09bb2] mb-4">Visible par les autres utilisateurs dans l&apos;onglet Wings. Configure ton identite sociale.</p>
-        <div className="space-y-4">
-          <Input label="Nom d'utilisateur" id="pu" placeholder="ex: mathieu_75" value={publicProfile?.username ?? ""} onChange={(e) => { savePublic({ username: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, "") }); setPublicSaved(true); setTimeout(() => setPublicSaved(false), 2000); }} />
-          <Input label="Prenom" id="pfn" placeholder="Ton prenom" value={publicProfile?.firstName ?? ""} onChange={(e) => { savePublic({ firstName: e.target.value }); setPublicSaved(true); setTimeout(() => setPublicSaved(false), 2000); }} />
-          <Input label="Ville" id="ploc" placeholder="ex: Paris, Lyon, Marseille..." value={publicProfile?.location ?? ""} onChange={(e) => { savePublic({ location: e.target.value }); setPublicSaved(true); setTimeout(() => setPublicSaved(false), 2000); }} />
-          <TextArea label="Bio" id="pbio" placeholder="Quelques mots sur toi et ta game..." rows={2} value={publicProfile?.bio ?? ""} onChange={(e) => { savePublic({ bio: e.target.value }); setPublicSaved(true); setTimeout(() => setPublicSaved(false), 2000); }} />
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-[#a09bb2]">Profil visible publiquement</p>
-              <p className="text-[10px] text-[#6b6580]">Les autres utilisateurs pourront te trouver dans Decouvrir</p>
-            </div>
-            <button
-              onClick={() => { savePublic({ isPublic: !(publicProfile?.isPublic) }); setPublicSaved(true); setTimeout(() => setPublicSaved(false), 2000); }}
-              className={`relative w-11 h-6 rounded-full transition-colors ${publicProfile?.isPublic ? "bg-[#c084fc]" : "bg-[#3d3650]"}`}
-            >
-              <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white transition-transform ${publicProfile?.isPublic ? "translate-x-5" : ""}`} />
-            </button>
-          </div>
-        </div>
-        {publicSaved && <p className="text-xs text-emerald-400 mt-2 animate-fade-in">Sauvegarde !</p>}
       </Card>
 
       <Card className="mb-4">

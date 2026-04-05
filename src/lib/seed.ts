@@ -54,34 +54,70 @@ export function generateSeedMissions(): Mission[] {
 export function generateSeedJournal(): JournalEntry[] {
   const now = new Date();
   return [
-    { id: generateId(), date: new Date(now.getTime() - 24 * 3600000).toISOString(), content: "Bonne journee aujourd'hui. J'ai reussi a faire 3 approches dont une directe qui s'est super bien passee. Je sens que je progresse sur la confiance.", tag: "progress", createdAt: new Date(now.getTime() - 24 * 3600000).toISOString() },
-    { id: generateId(), date: new Date(now.getTime() - 72 * 3600000).toISOString(), content: "Grosse peur avant de sortir aujourd'hui. J'ai quand meme fait 2 approches. La premiere etait maladroite mais la deuxieme beaucoup mieux.", tag: "fear", createdAt: new Date(now.getTime() - 72 * 3600000).toISOString() },
-    { id: generateId(), date: new Date(now.getTime() - 168 * 3600000).toISOString(), content: "Bilan de la semaine : 8 interactions, 3 closes. Je suis content de ma regularite. Il faut que je travaille sur la duree des conversations.", tag: "review", createdAt: new Date(now.getTime() - 168 * 3600000).toISOString() },
+    { id: generateId(), date: new Date(now.getTime() - 24 * 3600000).toISOString(), content: "Bonne journee aujourd'hui. J'ai reussi a faire 3 approches dont une directe qui s'est super bien passee. Je sens que je progresse sur la confiance.", tag: "progress", visibility: "private", createdAt: new Date(now.getTime() - 24 * 3600000).toISOString() },
+    { id: generateId(), date: new Date(now.getTime() - 72 * 3600000).toISOString(), content: "Grosse peur avant de sortir aujourd'hui. J'ai quand meme fait 2 approches. La premiere etait maladroite mais la deuxieme beaucoup mieux.", tag: "fear", visibility: "private", createdAt: new Date(now.getTime() - 72 * 3600000).toISOString() },
+    { id: generateId(), date: new Date(now.getTime() - 168 * 3600000).toISOString(), content: "Bilan de la semaine : 8 interactions, 3 closes. Je suis content de ma regularite. Il faut que je travaille sur la duree des conversations.", tag: "review", visibility: "private", createdAt: new Date(now.getTime() - 168 * 3600000).toISOString() },
   ];
 }
 
 export function generateDefaultBadges(): Badge[] {
   return [
-    { id: "b1", name: "Premiere interaction", description: "Cree ta premiere interaction", icon: "🎯", condition: "interactions >= 1", unlockedAt: new Date(Date.now() - 168 * 3600000).toISOString() },
-    { id: "b2", name: "10 interactions", description: "Atteins 10 interactions", icon: "🔥", condition: "interactions >= 10", unlockedAt: new Date(Date.now() - 24 * 3600000).toISOString() },
-    { id: "b3", name: "Premier close", description: "Obtiens ton premier close", icon: "✨", condition: "closes >= 1", unlockedAt: new Date(Date.now() - 144 * 3600000).toISOString() },
-    { id: "b4", name: "5 closes", description: "Obtiens 5 closes", icon: "💎", condition: "closes >= 5", unlockedAt: new Date(Date.now() - 48 * 3600000).toISOString() },
+    // Interactions
+    { id: "b1", name: "Premiere interaction", description: "Cree ta premiere interaction", icon: "🎯", condition: "interactions >= 1", unlockedAt: null },
+    { id: "b2", name: "10 interactions", description: "Atteins 10 interactions", icon: "🔥", condition: "interactions >= 10", unlockedAt: null },
+    { id: "b7", name: "50 interactions", description: "Atteins 50 interactions", icon: "🏆", condition: "interactions >= 50", unlockedAt: null },
+    // Closes
+    { id: "b3", name: "Premier close", description: "Obtiens ton premier close", icon: "✨", condition: "closes >= 1", unlockedAt: null },
+    { id: "b4", name: "5 closes", description: "Obtiens 5 closes", icon: "💎", condition: "closes >= 5", unlockedAt: null },
+    // Streak
     { id: "b5", name: "7 jours actif", description: "Sois actif 7 jours d'affilee", icon: "⚡", condition: "streak >= 7", unlockedAt: null },
     { id: "b6", name: "30 jours actif", description: "Sois actif 30 jours d'affilee", icon: "👑", condition: "streak >= 30", unlockedAt: null },
-    { id: "b7", name: "50 interactions", description: "Atteins 50 interactions", icon: "🏆", condition: "interactions >= 50", unlockedAt: null },
+    // Missions
     { id: "b8", name: "Premiere mission", description: "Complete ta premiere mission", icon: "🎖️", condition: "missions >= 1", unlockedAt: null },
+    // Sessions
+    { id: "b9", name: "Premiere session", description: "Cree ta premiere session", icon: "📅", condition: "sessions >= 1", unlockedAt: null },
+    { id: "b10", name: "10 sessions", description: "Cree 10 sessions", icon: "📆", condition: "sessions >= 10", unlockedAt: null },
+    // Journal
+    { id: "b11", name: "Premiere entree", description: "Ecris ta premiere entree journal", icon: "📝", condition: "journal >= 1", unlockedAt: null },
+    { id: "b12", name: "Journal regulier", description: "Ecris 20 entrees journal", icon: "📖", condition: "journal >= 20", unlockedAt: null },
+    // Social
+    { id: "b13", name: "Premier wing", description: "Ajoute ton premier wing", icon: "🤝", condition: "wings >= 1", unlockedAt: null },
+    { id: "b14", name: "Equipe de wings", description: "Ajoute 5 wings", icon: "👥", condition: "wings >= 5", unlockedAt: null },
+    // Contacts
+    { id: "b15", name: "Premier contact", description: "Ajoute ton premier contact", icon: "📱", condition: "contacts >= 1", unlockedAt: null },
+    { id: "b16", name: "Premier date", description: "Planifie ton premier date", icon: "❤️", condition: "dates >= 1", unlockedAt: null },
+    // Level
+    { id: "b17", name: "Niveau 5", description: "Atteins le niveau 5", icon: "⭐", condition: "level >= 5", unlockedAt: null },
+    { id: "b18", name: "Niveau 10", description: "Atteins le niveau 10", icon: "🌟", condition: "level >= 10", unlockedAt: null },
   ];
 }
 
 export function generateDefaultMilestones(): Milestone[] {
   return [
-    { id: "m1", name: "10 interactions", target: 10, current: 10, icon: "📊", unlockedAt: new Date(Date.now() - 24 * 3600000).toISOString() },
-    { id: "m2", name: "50 interactions", target: 50, current: 10, icon: "📈", unlockedAt: null },
-    { id: "m3", name: "100 interactions", target: 100, current: 10, icon: "🚀", unlockedAt: null },
-    { id: "m4", name: "5 closes", target: 5, current: 5, icon: "💫", unlockedAt: new Date(Date.now() - 48 * 3600000).toISOString() },
-    { id: "m5", name: "10 closes", target: 10, current: 5, icon: "⭐", unlockedAt: null },
-    { id: "m6", name: "10 dates", target: 10, current: 1, icon: "❤️", unlockedAt: null },
-    { id: "m7", name: "30 jours actifs", target: 30, current: 5, icon: "🔥", unlockedAt: null },
+    // Interactions
+    { id: "m1", name: "10 interactions", target: 10, current: 0, icon: "📊", unlockedAt: null },
+    { id: "m2", name: "50 interactions", target: 50, current: 0, icon: "📈", unlockedAt: null },
+    { id: "m3", name: "100 interactions", target: 100, current: 0, icon: "🚀", unlockedAt: null },
+    // Closes
+    { id: "m4", name: "5 closes", target: 5, current: 0, icon: "💫", unlockedAt: null },
+    { id: "m5", name: "10 closes", target: 10, current: 0, icon: "⭐", unlockedAt: null },
+    { id: "m6", name: "25 closes", target: 25, current: 0, icon: "💎", unlockedAt: null },
+    // Dates
+    { id: "m7", name: "5 dates", target: 5, current: 0, icon: "❤️", unlockedAt: null },
+    { id: "m8", name: "10 dates", target: 10, current: 0, icon: "💕", unlockedAt: null },
+    // Sessions
+    { id: "m9", name: "5 sessions", target: 5, current: 0, icon: "📅", unlockedAt: null },
+    { id: "m10", name: "20 sessions", target: 20, current: 0, icon: "📆", unlockedAt: null },
+    // Journal
+    { id: "m11", name: "10 entrees journal", target: 10, current: 0, icon: "📝", unlockedAt: null },
+    { id: "m12", name: "50 entrees journal", target: 50, current: 0, icon: "📖", unlockedAt: null },
+    // Social
+    { id: "m13", name: "3 wings", target: 3, current: 0, icon: "🤝", unlockedAt: null },
+    // Streak
+    { id: "m14", name: "30 jours actifs", target: 30, current: 0, icon: "🔥", unlockedAt: null },
+    { id: "m15", name: "Niveau 10", target: 10, current: 0, icon: "🌟", unlockedAt: null },
+    // Contacts
+    { id: "m16", name: "10 contacts", target: 10, current: 0, icon: "📱", unlockedAt: null },
   ];
 }
 

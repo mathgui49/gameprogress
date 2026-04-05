@@ -138,11 +138,23 @@ export interface Mission {
 // ─── Journal ──────────────────────────────────────────────
 export type JournalTag = "mindset" | "progress" | "fear" | "reflection" | "review" | "motivation";
 
+export type Visibility = "private" | "wings" | "public";
+
 export interface JournalEntry {
   id: string;
   date: string;
   content: string;
   tag: JournalTag | null;
+  visibility: Visibility;
+  createdAt: string;
+}
+
+// ─── Post ────────────────────────────────────────────────
+export interface Post {
+  id: string;
+  userId: string;
+  content: string;
+  visibility: "wings" | "public";
   createdAt: string;
 }
 
@@ -204,6 +216,24 @@ export interface UserProfile {
 }
 
 // ─── Public Profile (Social) ─────────────────────────────
+export interface PrivacySettings {
+  showInWingList: boolean;
+  showInLeaderboardPublic: boolean;
+  showInLeaderboardWings: boolean;
+  shareReportsWithWings: boolean;
+  shareStatsPublic: boolean;
+  shareStatsWings: boolean;
+}
+
+export const DEFAULT_PRIVACY: PrivacySettings = {
+  showInWingList: true,
+  showInLeaderboardPublic: true,
+  showInLeaderboardWings: true,
+  shareReportsWithWings: false,
+  shareStatsPublic: false,
+  shareStatsWings: true,
+};
+
 export interface PublicProfile {
   userId: string;
   username: string;
@@ -211,6 +241,7 @@ export interface PublicProfile {
   location: string;
   bio: string;
   isPublic: boolean;
+  privacy: PrivacySettings;
   createdAt: string;
 }
 

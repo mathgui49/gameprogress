@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import type { PublicProfile } from "@/types";
+import { DEFAULT_PRIVACY } from "@/types";
 import { fetchOne, upsertRow, searchPublicProfiles, findProfileByUsername } from "@/lib/db";
 
 export function usePublicProfile() {
@@ -28,6 +29,7 @@ export function usePublicProfile() {
         location: profile?.location ?? "",
         bio: profile?.bio ?? "",
         isPublic: profile?.isPublic ?? false,
+        privacy: profile?.privacy ?? DEFAULT_PRIVACY,
         createdAt: profile?.createdAt ?? new Date().toISOString(),
         ...updates,
       };
