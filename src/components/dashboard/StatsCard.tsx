@@ -27,7 +27,7 @@ export function StatsCard({ label, value, subtitle, accent, icon, tooltip }: Sta
   );
 
   if (tooltip) {
-    return <Tooltip text={tooltip} position="bottom">{content}</Tooltip>;
+    return <div className="w-full h-full"><Tooltip text={tooltip} position="bottom">{content}</Tooltip></div>;
   }
   return content;
 }
