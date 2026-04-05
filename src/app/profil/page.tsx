@@ -6,13 +6,14 @@ import type { PrivacySettings } from "@/types";
 import { DEFAULT_PRIVACY } from "@/types";
 import { Card } from "@/components/ui/Card";
 import { Input, TextArea } from "@/components/ui/Input";
+import { MapPicker } from "@/components/ui/MapPicker";
 
 type PrivacyOption = "off" | "wings" | "public";
 
-const PRIVACY_GROUPS: { label: string; hint: string; publicKey: keyof PrivacySettings; wingsKey?: keyof PrivacySettings }[] = [
+const PRIVACY_GROUPS: { label: string; hint: string; publicKey: keyof PrivacySettings; wingsKey?: keyof PrivacySettings; noPublic?: boolean }[] = [
   { label: "Classement", hint: "Apparaitre dans le classement", publicKey: "showInLeaderboardPublic", wingsKey: "showInLeaderboardWings" },
-  { label: "Statistiques", hint: "Partager tes stats", publicKey: "shareStatsPublic", wingsKey: "shareStatsWings" },
-  { label: "Rapports", hint: "Partager tes rapports", publicKey: "shareReportsWithWings" },
+  { label: "Statistiques", hint: "Partager tes stats", publicKey: "shareStatsWings", noPublic: true },
+  { label: "Rapports", hint: "Partager tes rapports", publicKey: "shareReportsWithWings", noPublic: true },
   { label: "Liste Wings", hint: "Visible dans Decouvrir", publicKey: "showInWingList" },
 ];
 
@@ -25,15 +26,22 @@ export default function ProfilPage() {
   const privacy = profile?.privacy ?? DEFAULT_PRIVACY;
 
   const getGroupValue = (g: typeof PRIVACY_GROUPS[number]): PrivacyOption => {
-    if (privacy[g.publicKey]) return "public";
+    if (!g.noPublic && privacy[g.publicKey]) return "public";
+    if (g.noPublic && privacy[g.publicKey]) return "wings";
     if (g.wingsKey && privacy[g.wingsKey]) return "wings";
     return "off";
   };
 
   const setGroupValue = (g: typeof PRIVACY_GROUPS[number], v: PrivacyOption) => {
-    const updates: Partial<PrivacySettings> = { [g.publicKey]: v === "public" };
-    if (g.wingsKey) updates[g.wingsKey] = v === "wings" || v === "public";
-    save({ privacy: { ...privacy, ...updates } });
+    if (g.noPublic) {
+      // Only off/wings for these groups
+      const updates: Partial<PrivacySettings> = { [g.publicKey]: v === "wings" };
+      save({ privacy: { ...privacy, ...updates } });
+    } else {
+      const updates: Partial<PrivacySettings> = { [g.publicKey]: v === "public" };
+      if (g.wingsKey) updates[g.wingsKey] = v === "wings" || v === "public";
+      save({ privacy: { ...privacy, ...updates } });
+    }
     flash();
   };
 
@@ -52,7 +60,14 @@ export default function ProfilPage() {
         <div className="space-y-4">
           <Input label="Nom d'utilisateur" id="pu" placeholder="ex: mathieu_75" value={profile?.username ?? ""} onChange={(e) => { save({ username: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, "") }); flash(); }} />
           <Input label="Prenom" id="pfn" placeholder="Ton prenom" value={profile?.firstName ?? ""} onChange={(e) => { save({ firstName: e.target.value }); flash(); }} />
-          <Input label="Ville" id="ploc" placeholder="ex: Paris, Lyon, Marseille..." value={profile?.location ?? ""} onChange={(e) => { save({ location: e.target.value }); flash(); }} />
+          <MapPicker
+            label="Ville"
+            lat={profile?.lat ?? 48.8566}
+            lng={profile?.lng ?? 2.3522}
+            address={profile?.location ?? ""}
+            onAddressChange={(loc) => { save({ location: loc }); flash(); }}
+            onCoordsChange={(newLat, newLng) => { save({ lat: newLat, lng: newLng }); flash(); }}
+          />
           <TextArea label="Bio" id="pbio" placeholder="Quelques mots sur toi et ta game..." rows={2} value={profile?.bio ?? ""} onChange={(e) => { save({ bio: e.target.value }); flash(); }} />
           <div className="flex items-center justify-between">
             <div>
@@ -79,7 +94,7 @@ export default function ProfilPage() {
             const options: { value: PrivacyOption; label: string; activeClass: string }[] = [
               { value: "off", label: "Prive", activeClass: "bg-[#a09bb2]/20 text-[#a09bb2]" },
               ...(g.wingsKey ? [{ value: "wings" as PrivacyOption, label: "Wings", activeClass: "bg-[#818cf8]/20 text-[#818cf8]" }] : []),
-              { value: "public", label: "Public", activeClass: "bg-emerald-400/20 text-emerald-400" },
+              ...(!g.noPublic ? [{ value: "public" as PrivacyOption, label: "Public", activeClass: "bg-emerald-400/20 text-emerald-400" }] : []),
             ];
             return (
               <div key={g.publicKey}>

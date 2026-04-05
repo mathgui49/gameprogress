@@ -164,6 +164,9 @@ export interface Session {
   title: string;
   date: string;
   location: string;
+  address: string;
+  lat: number | null;
+  lng: number | null;
   wings: string[];
   notes: string;
   goals: { text: string; done: boolean }[];
@@ -239,6 +242,8 @@ export interface PublicProfile {
   username: string;
   firstName: string;
   location: string;
+  lat: number | null;
+  lng: number | null;
   bio: string;
   isPublic: boolean;
   privacy: PrivacySettings;

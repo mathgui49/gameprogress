@@ -6,6 +6,7 @@ import { useSessions } from "@/hooks/useSessions";
 import { useWings } from "@/hooks/useWings";
 import { Button } from "@/components/ui/Button";
 import { Input, TextArea } from "@/components/ui/Input";
+import { MapPicker } from "@/components/ui/MapPicker";
 
 export default function NewSessionPage() {
   const router = useRouter();
@@ -18,6 +19,9 @@ export default function NewSessionPage() {
   const [notes, setNotes] = useState("");
   const [goalsText, setGoalsText] = useState("");
   const [date, setDate] = useState(new Date().toISOString().slice(0, 16));
+  const [address, setAddress] = useState("");
+  const [lat, setLat] = useState<number>(48.8566);
+  const [lng, setLng] = useState<number>(2.3522);
   const [isPublic, setIsPublic] = useState(false);
   const [maxParticipants, setMaxParticipants] = useState(0);
 
@@ -36,7 +40,7 @@ export default function NewSessionPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const goals = goalsText.split("\n").filter(Boolean).map((text) => ({ text: text.trim(), done: false }));
-    add({ title, date: new Date(date).toISOString(), location, wings: selectedWings, notes, goals, interactionIds: [], isPublic, maxParticipants });
+    add({ title, date: new Date(date).toISOString(), location, address, lat, lng, wings: selectedWings, notes, goals, interactionIds: [], isPublic, maxParticipants });
     router.push("/sessions");
   };
 
@@ -52,8 +56,17 @@ export default function NewSessionPage() {
         <Input label="Titre" placeholder="Ex: Session Centre-ville" value={title} onChange={(e) => setTitle(e.target.value)} />
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Input label="Date" type="datetime-local" value={date} onChange={(e) => setDate(e.target.value)} />
-          <Input label="Lieu" placeholder="Ex: Paris 1er" value={location} onChange={(e) => setLocation(e.target.value)} />
+          <Input label="Lieu (ville / quartier)" placeholder="Ex: Paris 1er" value={location} onChange={(e) => setLocation(e.target.value)} />
         </div>
+
+        <MapPicker
+          label="Point de rassemblement"
+          lat={lat}
+          lng={lng}
+          address={address}
+          onAddressChange={setAddress}
+          onCoordsChange={(newLat, newLng) => { setLat(newLat); setLng(newLng); }}
+        />
 
         {/* Wings selector */}
         <div>

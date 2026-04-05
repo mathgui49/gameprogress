@@ -252,38 +252,84 @@ export async function fetchLeaderboard(location?: string) {
 
 // ─── Feed ───────────────────────────────────────────────
 
-export async function fetchActivityFeed(location?: string) {
-  // Fetch recent public sessions as feed items
-  let query = supabase.from("sessions").select("*").eq("is_public", true);
-  const { data: sessions } = await query.order("created_at", { ascending: false }).limit(30);
-  if (!sessions || sessions.length === 0) return [];
+export async function fetchActivityFeed(userId: string, wingIds: string[], location?: string) {
+  // 1. Fetch public sessions
+  const { data: sessions } = await supabase.from("sessions").select("*").eq("is_public", true)
+    .order("created_at", { ascending: false }).limit(20);
 
-  // Get user profiles for these sessions
-  const userIds = [...new Set(sessions.map((s: any) => s.user_id))];
-  const { data: profiles } = await supabase.from("public_profiles").select("*").in("user_id", userIds);
+  // 2. Fetch visible journal entries: public for everyone + wings for my wings
+  const { data: publicJournal } = await supabase.from("journal_entries").select("*")
+    .eq("visibility", "public").neq("user_id", userId)
+    .order("created_at", { ascending: false }).limit(20);
 
-  // Get like counts
-  const sessionIds = sessions.map((s: any) => s.id);
-  const { data: likes } = await supabase.from("session_likes").select("session_id").in("session_id", sessionIds);
-  const { data: comments } = await supabase.from("session_comments").select("session_id").in("session_id", sessionIds);
+  let wingsJournal: any[] = [];
+  if (wingIds.length > 0) {
+    const { data } = await supabase.from("journal_entries").select("*")
+      .eq("visibility", "wings").in("user_id", wingIds)
+      .order("created_at", { ascending: false }).limit(20);
+    wingsJournal = data || [];
+  }
 
-  const likeCounts: Record<string, number> = {};
-  const commentCounts: Record<string, number> = {};
-  (likes || []).forEach((l: any) => { likeCounts[l.session_id] = (likeCounts[l.session_id] || 0) + 1; });
-  (comments || []).forEach((c: any) => { commentCounts[c.session_id] = (commentCounts[c.session_id] || 0) + 1; });
+  // 3. Fetch visible posts: public for everyone + wings for my wings
+  const { data: publicPosts } = await supabase.from("posts").select("*")
+    .eq("visibility", "public").neq("user_id", userId)
+    .order("created_at", { ascending: false }).limit(20);
 
+  let wingsPosts: any[] = [];
+  if (wingIds.length > 0) {
+    const { data } = await supabase.from("posts").select("*")
+      .eq("visibility", "wings").in("user_id", wingIds)
+      .order("created_at", { ascending: false }).limit(20);
+    wingsPosts = data || [];
+  }
+
+  // Gather all user IDs for profiles
+  const allItems = [...(sessions || []), ...(publicJournal || []), ...wingsJournal, ...(publicPosts || []), ...wingsPosts];
+  const allUserIds = [...new Set(allItems.map((i: any) => i.user_id))];
+  if (allUserIds.length === 0) return [];
+
+  const { data: profiles } = await supabase.from("public_profiles").select("*").in("user_id", allUserIds);
   const profileMap: Record<string, any> = {};
   (profiles || []).forEach((p: any) => { profileMap[p.user_id] = fromRow(p); });
 
-  return sessions.map((s: any) => ({
-    session: fromRow(s),
-    profile: profileMap[s.user_id] || null,
-    likeCount: likeCounts[s.id] || 0,
-    commentCount: commentCounts[s.id] || 0,
-  })).filter((item: any) => {
-    if (!location || !item.profile) return true;
-    return item.profile.location?.toLowerCase().includes(location.toLowerCase());
+  // Session like/comment counts
+  const sessionIds = (sessions || []).map((s: any) => s.id);
+  let likeCounts: Record<string, number> = {};
+  let commentCounts: Record<string, number> = {};
+  if (sessionIds.length > 0) {
+    const { data: likes } = await supabase.from("session_likes").select("session_id").in("session_id", sessionIds);
+    const { data: comments } = await supabase.from("session_comments").select("session_id").in("session_id", sessionIds);
+    (likes || []).forEach((l: any) => { likeCounts[l.session_id] = (likeCounts[l.session_id] || 0) + 1; });
+    (comments || []).forEach((c: any) => { commentCounts[c.session_id] = (commentCounts[c.session_id] || 0) + 1; });
+  }
+
+  // Build unified feed items
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const feed: any[] = [];
+
+  (sessions || []).forEach((s: any) => {
+    feed.push({ type: "session", data: fromRow(s), profile: profileMap[s.user_id] || null, likeCount: likeCounts[s.id] || 0, commentCount: commentCounts[s.id] || 0, createdAt: s.created_at });
   });
+
+  [...(publicJournal || []), ...wingsJournal].forEach((j: any) => {
+    feed.push({ type: "journal", data: fromRow(j), profile: profileMap[j.user_id] || null, createdAt: j.created_at });
+  });
+
+  [...(publicPosts || []), ...wingsPosts].forEach((p: any) => {
+    feed.push({ type: "post", data: fromRow(p), profile: profileMap[p.user_id] || null, createdAt: p.created_at });
+  });
+
+  // Sort by createdAt descending, then filter by location if set
+  feed.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+  if (location) {
+    return feed.filter((item) => {
+      if (!item.profile) return false;
+      return item.profile.location?.toLowerCase().includes(location.toLowerCase());
+    });
+  }
+
+  return feed;
 }
 
 const ALL_TABLES = ["interactions", "contacts", "sessions", "wings", "missions", "journal_entries", "profiles", "gamification"];

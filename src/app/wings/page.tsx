@@ -9,10 +9,12 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { IconUsers } from "@/components/ui/Icons";
+import { MapView } from "@/components/ui/MapView";
+import type { MapMarker } from "@/components/ui/MapView";
 import type { PublicProfile } from "@/types";
 import { formatDate } from "@/lib/utils";
 
-type Tab = "wings" | "discover" | "invitations";
+type Tab = "wings" | "discover" | "map" | "invitations";
 
 export default function WingsPage() {
   const { profile: myProfile, discoverProfiles, findByUsername } = usePublicProfile();
@@ -49,9 +51,20 @@ export default function WingsPage() {
     setDiscoverLoaded(true);
   };
 
+  // Build map markers from wings + discover results
+  const mapMarkers: MapMarker[] = [
+    ...wingProfiles
+      .filter((p) => p.lat && p.lng)
+      .map((p) => ({ lat: p.lat!, lng: p.lng!, label: p.firstName || p.username, sublabel: `@${p.username}`, isWing: true })),
+    ...discoverResults
+      .filter((p) => p.lat && p.lng && !isWing(p.userId))
+      .map((p) => ({ lat: p.lat!, lng: p.lng!, label: p.firstName || p.username, sublabel: `@${p.username} · ${p.location}` })),
+  ];
+
   const tabs: { key: Tab; label: string; count?: number }[] = [
     { key: "wings", label: "Mes Wings", count: wingProfiles.length },
     { key: "discover", label: "Decouvrir" },
+    { key: "map", label: "Carte" },
     { key: "invitations", label: "Invitations", count: pendingReceived.length },
   ];
 
@@ -188,6 +201,39 @@ export default function WingsPage() {
                   />
                 </div>
               ))}
+            </div>
+          </Card>
+        </>
+      )}
+
+      {/* TAB: Carte */}
+      {tab === "map" && (
+        <>
+          <Card className="mb-4">
+            <h3 className="text-sm font-semibold text-white mb-3">Communaute sur la carte</h3>
+            <p className="text-xs text-[#a09bb2] mb-4">Tes wings et les membres publics de la communaute.</p>
+            {!discoverLoaded && (
+              <div className="mb-3">
+                <Button size="sm" onClick={async () => { const results = await discoverProfiles(); setDiscoverResults(results); setDiscoverLoaded(true); }}>
+                  Charger les profils publics
+                </Button>
+              </div>
+            )}
+            <div className="h-[400px] rounded-xl overflow-hidden border border-[rgba(192,132,252,0.08)]">
+              <MapView
+                markers={mapMarkers}
+                center={myProfile?.lat && myProfile?.lng ? [myProfile.lat, myProfile.lng] : undefined}
+              />
+            </div>
+            <div className="flex items-center gap-4 mt-3">
+              <div className="flex items-center gap-1.5">
+                <div className="w-2.5 h-2.5 rounded-full bg-[#c084fc]" />
+                <span className="text-[10px] text-[#a09bb2]">Wings ({wingProfiles.filter((p) => p.lat && p.lng).length})</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <div className="w-2.5 h-2.5 rounded-full bg-[#818cf8]" />
+                <span className="text-[10px] text-[#a09bb2]">Communaute ({discoverResults.filter((p) => p.lat && p.lng && !isWing(p.userId)).length})</span>
+              </div>
             </div>
           </Card>
         </>
