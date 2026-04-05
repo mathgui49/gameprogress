@@ -50,18 +50,16 @@ const NOTIF_ICONS: Record<string, string> = {
   wing: "M17 20h5v-2a3 3 0 00-5.356-1.857M9 20H4v-2a3 3 0 015.356-1.857M13 7a4 4 0 11-8 0 4 4 0 018 0zm6 3a2 2 0 11-4 0 2 2 0 014 0z",
 };
 
-// Page title mapping
-const PAGE_TITLES: Record<string, string> = {
-  "/": "Dashboard",
-  "/interactions": "Interactions",
-  "/sessions": "Sessions",
-  "/contacts": "Pipeline",
-  "/wings": "Wings",
-  "/feed": "Feed",
-  "/leaderboard": "Classement",
-  "/missions": "Missions",
-  "/progression": "Progression",
-  "/journal": "Journal",
+// Section title mapping for mobile header (shows group name, not page name)
+const SECTION_TITLES: { paths: string[]; title: string }[] = [
+  { paths: ["/interactions", "/sessions", "/contacts"], title: "Game" },
+  { paths: ["/wings", "/feed", "/leaderboard"], title: "Social" },
+  { paths: ["/missions", "/progression", "/journal"], title: "Moi" },
+];
+
+// Standalone page titles (for pages not in a tab group)
+const STANDALONE_TITLES: Record<string, string> = {
+  "/": "Home",
   "/calendrier": "Calendrier",
   "/profil": "Profil",
   "/settings": "Paramètres",
@@ -69,10 +67,14 @@ const PAGE_TITLES: Record<string, string> = {
   "/admin": "Admin",
 };
 
-function getPageTitle(pathname: string): string {
-  if (PAGE_TITLES[pathname]) return PAGE_TITLES[pathname];
-  // Handle dynamic routes like /interactions/xxx, /contacts/xxx, etc.
-  for (const [path, title] of Object.entries(PAGE_TITLES)) {
+function getMobileTitle(pathname: string): string {
+  // Check section groups first
+  for (const section of SECTION_TITLES) {
+    if (section.paths.some((p) => pathname.startsWith(p))) return section.title;
+  }
+  // Standalone pages
+  if (STANDALONE_TITLES[pathname]) return STANDALONE_TITLES[pathname];
+  for (const [path, title] of Object.entries(STANDALONE_TITLES)) {
     if (pathname.startsWith(path + "/")) return title;
   }
   return "GameProgress";
@@ -162,7 +164,7 @@ export function TopBar() {
   });
 
   gam.badges.filter((b) => b.unlockedAt).sort((a, b) => new Date(b.unlockedAt!).getTime() - new Date(a.unlockedAt!).getTime()).slice(0, 3).forEach((b) => {
-    allNotifications.push({ id: `badge-${b.id}`, icon: NOTIF_ICONS.badge, text: `Badge débloqué : ${b.name}`, date: b.unlockedAt!, color: "text-amber-400" });
+    allNotifications.push({ id: `badge-${b.id}`, icon: NOTIF_ICONS.badge, text: `Badge débloqué : ${b.name}`, date: b.unlockedAt!, color: "text-[var(--secondary)]" });
   });
 
   gam.milestones.filter((m) => m.unlockedAt).sort((a, b) => new Date(b.unlockedAt!).getTime() - new Date(a.unlockedAt!).getTime()).slice(0, 3).forEach((m) => {
@@ -181,7 +183,7 @@ export function TopBar() {
     return Date.now() - d.getTime() < 24 * 3600 * 1000;
   }).length);
 
-  const pageTitle = getPageTitle(pathname);
+  const pageTitle = getMobileTitle(pathname);
 
   return (
     <>
