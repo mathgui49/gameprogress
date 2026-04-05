@@ -509,6 +509,12 @@ export const XP_VALUES = {
   mission_completed: 30,
   streak_bonus: 10,
   journal_entry: 5,
+  pipeline_contacted: 5,
+  pipeline_replied: 10,
+  pipeline_date_planned: 15,
+  pipeline_first_date: 20,
+  pipeline_kissclose: 30,
+  pipeline_fuckclose: 40,
 } as const;
 
 export function xpForLevel(level: number): number {

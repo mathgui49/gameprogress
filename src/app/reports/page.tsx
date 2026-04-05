@@ -414,25 +414,121 @@ export default function ReportsPage() {
         </div>
       )}
 
-      {/* Pipeline summary */}
+      {/* Pipeline — Conversion Funnel */}
       <Card>
-        <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-[var(--on-surface)] mb-3">
-          Pipeline
+        <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-[var(--on-surface)] mb-4">
+          Pipeline — Entonnoir de conversion
         </h2>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          {[
-            { label: "Contacts actifs", val: contacts.filter((c) => c.status !== "archived").length, color: "text-[var(--primary)]" },
-            { label: "Date planifié", val: contacts.filter((c) => c.status === "date_planned").length, color: "text-cyan-400" },
-            { label: "Closes", val: contacts.filter((c) => ["kissclose", "fuckclose"].includes(c.status)).length, color: "text-emerald-400" },
-            { label: "Archivés", val: contacts.filter((c) => c.status === "archived").length, color: "text-[var(--outline)]" },
-          ].map((m) => (
-            <div key={m.label} className="text-center">
-              <p className={`text-2xl font-bold ${m.color}`}>{m.val}</p>
-              <p className="text-xs text-[var(--outline)] mt-1">{m.label}</p>
+        {(() => {
+          const funnelSteps: { key: string; label: string; color: string }[] = [
+            { key: "total", label: "Total closes", color: "bg-[var(--primary)]" },
+            { key: "contacted", label: "Contacte", color: "bg-cyan-400" },
+            { key: "replied", label: "Repondu", color: "bg-[var(--tertiary)]" },
+            { key: "date_planned", label: "Date planifie", color: "bg-amber-400" },
+            { key: "first_date", label: "Premier date", color: "bg-emerald-400" },
+            { key: "kissclose", label: "Kiss close", color: "bg-[#f472b6]" },
+            { key: "fuckclose", label: "Fuck close", color: "bg-rose-400" },
+          ];
+          const statusOrder = ["new", "contacted", "replied", "date_planned", "first_date", "second_date", "kissclose", "fuckclose", "advanced", "archived"];
+          const total = contacts.length;
+          const funnelCounts = funnelSteps.map((step) => {
+            if (step.key === "total") return { ...step, count: total };
+            const stepIdx = statusOrder.indexOf(step.key);
+            const count = contacts.filter((c) => statusOrder.indexOf(c.status) >= stepIdx).length;
+            return { ...step, count };
+          });
+          const maxCount = Math.max(total, 1);
+
+          return (
+            <div className="space-y-2">
+              {funnelCounts.map((step, idx) => {
+                const pct = total > 0 ? Math.round((step.count / total) * 100) : 0;
+                const widthPct = Math.max((step.count / maxCount) * 100, 8);
+                return (
+                  <div key={step.key} className="flex items-center gap-3">
+                    <span className="text-[10px] text-[var(--outline)] w-24 text-right shrink-0">{step.label}</span>
+                    <div className="flex-1 h-6 bg-[var(--surface-high)] rounded-lg overflow-hidden relative">
+                      <div className={`h-full ${step.color} rounded-lg transition-all duration-500`} style={{ width: `${widthPct}%` }} />
+                      <span className="absolute inset-0 flex items-center justify-center text-[10px] font-medium text-[var(--on-surface)]">
+                        {step.count} {idx > 0 ? `(${pct}%)` : ""}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
-          ))}
-        </div>
+          );
+        })()}
       </Card>
+
+      {/* Pipeline — Temps moyen par etape + methode stats */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <Card>
+          <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-[var(--on-surface)] mb-3">
+            Temps moyen par etape
+          </h2>
+          {(() => {
+            const steps = ["new", "contacted", "replied", "date_planned", "first_date", "second_date", "kissclose", "fuckclose"];
+            const stepLabels: Record<string, string> = { new: "Close → Contact", contacted: "Contact → Reponse", replied: "Reponse → Date", date_planned: "Date → 1er RDV", first_date: "1er → 2e RDV", second_date: "2e RDV → Kiss", kissclose: "Kiss → Fuck" };
+            const durations: { label: string; avg: number }[] = [];
+
+            contacts.forEach((c) => {
+              const sorted = [...c.timeline].filter((e) => e.type === "status_change").sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+              for (let i = 1; i < sorted.length; i++) {
+                const days = Math.floor((new Date(sorted[i].date).getTime() - new Date(sorted[i - 1].date).getTime()) / 86400000);
+                const prevLabel = stepLabels[steps[i - 1]] || `Etape ${i}`;
+                const existing = durations.find((d) => d.label === prevLabel);
+                if (existing) { existing.avg = (existing.avg + days) / 2; }
+                else { durations.push({ label: prevLabel, avg: days }); }
+              }
+            });
+
+            if (durations.length === 0) return <p className="text-xs text-[var(--outline)]">Pas assez de donnees</p>;
+            return (
+              <div className="space-y-2">
+                {durations.slice(0, 6).map((d) => (
+                  <div key={d.label} className="flex items-center justify-between">
+                    <span className="text-xs text-[var(--on-surface-variant)]">{d.label}</span>
+                    <span className="text-xs font-bold text-[var(--primary)]">{d.avg.toFixed(1)}j</span>
+                  </div>
+                ))}
+              </div>
+            );
+          })()}
+        </Card>
+
+        <Card>
+          <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-[var(--on-surface)] mb-3">
+            Taux de reponse par methode
+          </h2>
+          {(() => {
+            const methods = ["instagram", "phone", "other"] as const;
+            const methodLabels = { instagram: "Instagram", phone: "Telephone", other: "Autre" };
+            const stats = methods.map((m) => {
+              const total = contacts.filter((c) => c.method === m).length;
+              const replied = contacts.filter((c) => c.method === m && ["replied", "date_planned", "first_date", "second_date", "kissclose", "fuckclose", "advanced"].includes(c.status)).length;
+              return { method: m, label: methodLabels[m], total, replied, rate: total > 0 ? Math.round((replied / total) * 100) : 0 };
+            }).filter((s) => s.total > 0);
+
+            if (stats.length === 0) return <p className="text-xs text-[var(--outline)]">Pas assez de donnees</p>;
+            return (
+              <div className="space-y-3">
+                {stats.map((s) => (
+                  <div key={s.method}>
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-xs text-[var(--on-surface-variant)]">{s.label}</span>
+                      <span className="text-xs font-bold text-[var(--tertiary)]">{s.rate}% ({s.replied}/{s.total})</span>
+                    </div>
+                    <div className="h-2 bg-[var(--surface-high)] rounded-full overflow-hidden">
+                      <div className="h-full bg-[var(--tertiary)] rounded-full transition-all" style={{ width: `${s.rate}%` }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            );
+          })()}
+        </Card>
+      </div>
     </div>
   );
 }
