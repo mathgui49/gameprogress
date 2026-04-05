@@ -332,7 +332,7 @@ export async function fetchActivityFeed(userId: string, wingIds: string[], locat
   return feed;
 }
 
-const ALL_TABLES = ["interactions", "contacts", "sessions", "wings", "missions", "journal_entries", "profiles", "gamification"];
+const ALL_TABLES = ["interactions", "contacts", "sessions", "wings", "missions", "journal_entries", "profiles", "gamification", "public_profiles", "wing_requests", "posts", "session_likes", "session_comments", "session_participants"];
 
 export async function clearAllUserData(userId: string) {
   await Promise.all(
@@ -340,4 +340,55 @@ export async function clearAllUserData(userId: string) {
       supabase.from(table).delete().eq("user_id", userId)
     )
   );
+}
+
+// ─── Admin ──────────────────────────────────────────────
+
+export async function adminGetStats() {
+  const tables = ["interactions", "contacts", "sessions", "journal_entries", "posts", "missions"];
+  const counts: Record<string, number> = {};
+  await Promise.all(tables.map(async (t) => {
+    const { count } = await supabase.from(t).select("*", { count: "exact", head: true });
+    counts[t] = count ?? 0;
+  }));
+
+  // User count from public_profiles
+  const { count: userCount } = await supabase.from("public_profiles").select("*", { count: "exact", head: true });
+  counts.users = userCount ?? 0;
+
+  return counts;
+}
+
+export async function adminGetAllProfiles() {
+  const { data } = await supabase.from("public_profiles").select("*").order("created_at", { ascending: false });
+  return (data || []).map((r: any) => fromRow(r));
+}
+
+export async function adminGetAllSessions() {
+  const { data } = await supabase.from("sessions").select("*").eq("is_public", true).order("created_at", { ascending: false }).limit(50);
+  return (data || []).map((r: any) => fromRow(r));
+}
+
+export async function adminDeleteUser(userId: string) {
+  await clearAllUserData(userId);
+}
+
+export async function adminDeleteSession(sessionId: string) {
+  await supabase.from("sessions").delete().eq("id", sessionId);
+  await supabase.from("session_likes").delete().eq("session_id", sessionId);
+  await supabase.from("session_comments").delete().eq("session_id", sessionId);
+  await supabase.from("session_participants").delete().eq("session_id", sessionId);
+}
+
+export async function adminGetAnnouncement() {
+  const { data } = await supabase.from("admin_settings").select("*").eq("key", "announcement").single();
+  return data?.value ?? null;
+}
+
+export async function adminSetAnnouncement(message: string | null) {
+  if (!message) {
+    await supabase.from("admin_settings").delete().eq("key", "announcement");
+  } else {
+    await supabase.from("admin_settings").upsert({ key: "announcement", value: message });
+  }
 }

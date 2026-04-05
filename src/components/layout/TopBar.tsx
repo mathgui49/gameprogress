@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useGamification } from "@/hooks/useGamification";
 import { useWingRequests } from "@/hooks/useWingRequests";
+import { adminGetAnnouncement } from "@/lib/db";
 import { Modal } from "@/components/ui/Modal";
 import { Card } from "@/components/ui/Card";
 import { formatRelative } from "@/lib/utils";
@@ -12,8 +13,14 @@ import { formatRelative } from "@/lib/utils";
 export function TopBar() {
   const pathname = usePathname();
   const [showNotifs, setShowNotifs] = useState(false);
+  const [announcement, setAnnouncement] = useState<string | null>(null);
+  const [dismissedAnnouncement, setDismissedAnnouncement] = useState(false);
   const gam = useGamification();
   const { pendingReceived } = useWingRequests();
+
+  useEffect(() => {
+    adminGetAnnouncement().then(setAnnouncement);
+  }, []);
 
   if (pathname === "/login") return null;
 
@@ -49,6 +56,15 @@ export function TopBar() {
 
   return (
     <>
+      {announcement && !dismissedAnnouncement && (
+        <div className="flex items-center gap-3 px-4 py-2 bg-amber-400/10 border-b border-amber-400/20">
+          <span className="text-amber-400 text-sm">📢</span>
+          <p className="flex-1 text-xs text-amber-400 font-medium">{announcement}</p>
+          <button onClick={() => setDismissedAnnouncement(true)} className="text-amber-400/60 hover:text-amber-400 transition-colors">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+          </button>
+        </div>
+      )}
       <div className="flex items-center justify-end gap-2 px-4 pt-4 lg:px-8 lg:pt-6">
         <Link
           href="/calendrier"
