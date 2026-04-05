@@ -510,6 +510,63 @@ export async function upsertSubscription(userId: string, fields: Partial<Record<
   if (error) console.error("upsert subscription:", error);
 }
 
+// ─── Community benchmarks (anonymous) ──────────────────
+
+export interface CommunityBenchmarks {
+  avgCloseRate: number;
+  avgFeelingScore: number;
+  avgConfidence: number;
+  avgInteractionsPerWeek: number;
+  avgLevel: number;
+  totalUsers: number;
+}
+
+export async function fetchCommunityBenchmarks(): Promise<CommunityBenchmarks> {
+  // Get all interactions (aggregate only, no personal data exposed)
+  const { data: allInteractions } = await supabase
+    .from("interactions")
+    .select("result, feeling_score, confidence_score, user_id, created_at");
+
+  const { data: allGam } = await supabase
+    .from("gamification")
+    .select("level, user_id");
+
+  const interactions = allInteractions || [];
+  const gamData = allGam || [];
+
+  // Unique users
+  const userIds = new Set(interactions.map((i: any) => i.user_id));
+  const totalUsers = Math.max(userIds.size, 1);
+
+  // Close rate
+  const totalCount = interactions.length;
+  const closeCount = interactions.filter((i: any) => i.result === "close").length;
+  const avgCloseRate = totalCount > 0 ? Math.round((closeCount / totalCount) * 100) : 0;
+
+  // Feeling score
+  const avgFeelingScore = totalCount > 0
+    ? Math.round((interactions.reduce((s: number, i: any) => s + (i.feeling_score ?? 0), 0) / totalCount) * 10) / 10
+    : 0;
+
+  // Confidence
+  const withConf = interactions.filter((i: any) => (i.confidence_score ?? 0) > 0);
+  const avgConfidence = withConf.length > 0
+    ? Math.round((withConf.reduce((s: number, i: any) => s + i.confidence_score, 0) / withConf.length) * 10) / 10
+    : 0;
+
+  // Interactions per week (last 4 weeks average across all users)
+  const fourWeeksAgo = new Date(Date.now() - 28 * 86400000).toISOString();
+  const recentCount = interactions.filter((i: any) => i.created_at >= fourWeeksAgo).length;
+  const avgInteractionsPerWeek = totalUsers > 0 ? Math.round((recentCount / totalUsers / 4) * 10) / 10 : 0;
+
+  // Average level
+  const avgLevel = gamData.length > 0
+    ? Math.round((gamData.reduce((s: number, g: any) => s + (g.level ?? 1), 0) / gamData.length) * 10) / 10
+    : 1;
+
+  return { avgCloseRate, avgFeelingScore, avgConfidence, avgInteractionsPerWeek, avgLevel, totalUsers };
+}
+
 const ALL_TABLES = ["interactions", "contacts", "sessions", "wings", "missions", "journal_entries", "profiles", "gamification", "public_profiles", "wing_requests", "posts", "session_likes", "session_comments", "session_participants"];
 
 export async function clearAllUserData(userId: string) {

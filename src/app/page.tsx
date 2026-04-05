@@ -11,6 +11,8 @@ import { ActivityFeed } from "@/components/dashboard/ActivityFeed";
 import { Card } from "@/components/ui/Card";
 import { Tooltip } from "@/components/ui/Tooltip";
 import { IconMapPin, IconBarChart, IconSparkles, IconStar, IconFlame, IconUsers, IconPlus, IconTarget } from "@/components/ui/Icons";
+import { BenchmarkCard } from "@/components/dashboard/BenchmarkCard";
+import { useBenchmarks } from "@/hooks/useBenchmarks";
 import Link from "next/link";
 
 export default function DashboardPage() {
@@ -18,6 +20,7 @@ export default function DashboardPage() {
   const gam = useGamification();
   const { contacts, allReminders } = useContacts();
   const { active: activeMissions } = useMissions();
+  const { benchmarks } = useBenchmarks();
 
   const today = useMemo(() => interactions.filter((i) => isToday(i.date)), [interactions]);
   const thisWeek = useMemo(() => interactions.filter((i) => isThisWeek(i.date)), [interactions]);
@@ -184,6 +187,22 @@ export default function DashboardPage() {
               </div>
             </Card>
           </Link>
+
+          {/* Benchmarks */}
+          {benchmarks && interactions.length > 0 && (
+            <BenchmarkCard
+              benchmarks={benchmarks}
+              userCloseRate={closeRate}
+              userAvgFeeling={parseFloat(avgFeeling as string) || 0}
+              userAvgConfidence={
+                (() => {
+                  const wc = interactions.filter((i) => (i.confidenceScore ?? 0) > 0);
+                  return wc.length > 0 ? wc.reduce((s, i) => s + (i.confidenceScore ?? 0), 0) / wc.length : 0;
+                })()
+              }
+              userLevel={gam.level}
+            />
+          )}
 
           {/* Quick add */}
           <Link href="/interactions/new">

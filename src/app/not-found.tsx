@@ -39,11 +39,6 @@ export default function NotFound() {
           </p>
         </div>
 
-        {/* Sub text */}
-        <p className="text-sm text-[var(--outline)] mb-8">
-          Cette page n&apos;existe pas. Mais toi, tu existes — et ta progression t&apos;attend.
-        </p>
-
         {/* CTA */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
           <Link

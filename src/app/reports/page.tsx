@@ -13,6 +13,8 @@ import { BarChart } from "@/components/charts/BarChart";
 import { DonutChart } from "@/components/charts/DonutChart";
 import { HeatmapChart } from "@/components/charts/HeatmapChart";
 import { ExportButton } from "@/components/reports/ExportButton";
+import { BenchmarkCard } from "@/components/dashboard/BenchmarkCard";
+import { useBenchmarks } from "@/hooks/useBenchmarks";
 
 type Period = "month" | "quarter" | "all";
 
@@ -43,6 +45,7 @@ export default function ReportsPage() {
   const { completed: completedMissions } = useMissions();
   const [period, setPeriod] = useState<Period>("month");
   const reportRef = useRef<HTMLDivElement>(null);
+  const { benchmarks } = useBenchmarks();
 
   const analytics = useMemo(() => {
     if (!loaded) return null;
@@ -426,6 +429,19 @@ export default function ReportsPage() {
           )}
         </Card>
       </div>
+
+      {/* Benchmarks */}
+      {benchmarks && interactions.length > 0 && (
+        <div className="mb-6">
+          <BenchmarkCard
+            benchmarks={benchmarks}
+            userCloseRate={Math.round(analytics.tmCloseRate)}
+            userAvgFeeling={analytics.tmAvgFeel}
+            userAvgConfidence={analytics.avgConfidence}
+            userLevel={gam.level}
+          />
+        </div>
+      )}
 
       {/* Pipeline summary */}
       <Card>

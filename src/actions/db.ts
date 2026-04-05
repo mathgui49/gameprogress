@@ -260,3 +260,10 @@ export async function adminGetAnnouncementAction() {
   await requireAdmin();
   return db.adminGetAnnouncement();
 }
+
+// ─── Community Benchmarks (anonymous) ─────────────────
+
+export async function fetchCommunityBenchmarksAction() {
+  await getAuthUserId(); // Must be authenticated
+  return db.fetchCommunityBenchmarks();
+}
