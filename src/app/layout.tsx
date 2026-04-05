@@ -17,9 +17,33 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "sw
 const grotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-grotesk", display: "swap" });
 
 export const metadata: Metadata = {
-  title: "GameProgress - Tracker de Progression",
-  description: "Application de tracking personnel et de progression sociale",
+  title: {
+    default: "GameProgress - Tracker de Progression Sociale",
+    template: "%s | GameProgress",
+  },
+  description: "Application gamifiée de développement personnel et de progression sociale. Suivez vos interactions, définissez des missions et montez en niveau.",
   manifest: "/manifest.json",
+  keywords: ["développement personnel", "gamification", "progression", "social skills", "tracker"],
+  authors: [{ name: "Mathieu Guicheteau" }],
+  creator: "MathBusiness",
+  openGraph: {
+    type: "website",
+    locale: "fr_FR",
+    siteName: "GameProgress",
+    title: "GameProgress - Tracker de Progression Sociale",
+    description: "Application gamifiée de développement personnel. Suivez vos interactions, montez en niveau et déverrouillez des badges.",
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "GameProgress" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "GameProgress - Tracker de Progression Sociale",
+    description: "Application gamifiée de développement personnel. Suivez vos interactions, montez en niveau et déverrouillez des badges.",
+    images: ["/og-image.png"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",

@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/Button";
 import { Input, TextArea } from "@/components/ui/Input";
 import { MapPicker } from "@/components/ui/MapPicker";
 import type { PublicProfile } from "@/types";
+import { useToast } from "@/hooks/useToast";
 
 export default function NewSessionPage() {
   const router = useRouter();
@@ -17,6 +18,7 @@ export default function NewSessionPage() {
   const userId = authSession?.user?.email ?? "";
   const { add } = useSessions();
   const { wingProfiles } = useWingRequests();
+  const toast = useToast();
 
   const [title, setTitle] = useState("");
   const [location, setLocation] = useState("");
@@ -89,6 +91,7 @@ export default function NewSessionPage() {
       await inviteWingsToSessionAction(session.id, selectedWingIds);
     }
 
+    toast.show("Session créée !");
     router.push("/sessions");
   };
 

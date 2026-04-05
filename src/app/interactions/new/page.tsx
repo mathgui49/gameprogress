@@ -6,6 +6,7 @@ import { useInteractions } from "@/hooks/useInteractions";
 import { useContacts } from "@/hooks/useContacts";
 import { useSessions } from "@/hooks/useSessions";
 import { useGamification } from "@/hooks/useGamification";
+import { useToast } from "@/hooks/useToast";
 import { InteractionForm } from "@/components/interactions/InteractionForm";
 
 export default function NewInteractionPage() {
@@ -14,6 +15,7 @@ export default function NewInteractionPage() {
   const { add: addContact } = useContacts();
   const { allSessions, addInteraction: linkToSession } = useSessions();
   const { addInteractionXP, updateStreak } = useGamification();
+  const toast = useToast();
 
   // Auto-detect active session: session between -30min and +4h from now
   const autoSession = useMemo(() => {
@@ -72,6 +74,7 @@ export default function NewInteractionPage() {
               notes: "",
             });
           }
+          toast.show("Interaction enregistrée !");
           router.push("/interactions");
         }}
       />

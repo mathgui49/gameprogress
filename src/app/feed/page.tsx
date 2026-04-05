@@ -27,6 +27,7 @@ import { formatRelative } from "@/lib/utils";
 import { useWingRequests } from "@/hooks/useWingRequests";
 import type { PublicProfile, SessionComment, ReactionType, PostComment } from "@/types";
 import { JOURNAL_TAG_LABELS, JOURNAL_TAG_COLORS, REACTION_EMOJIS } from "@/types";
+import { useToast } from "@/hooks/useToast";
 
 // ─── Types ────────────────────────────────────────────
 interface FeedItem {
@@ -581,10 +582,11 @@ export default function FeedPage() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [scope, setScope] = useState<FeedScope>("all");
-  const [cityFilter, setCityFilter] = useState("");
   const [refreshing, setRefreshing] = useState(false);
+  const [userPos, setUserPos] = useState<{ lat: number; lng: number } | null>(null);
   const [myProfile, setMyProfile] = useState<PublicProfile | null>(null);
   const feedRef = useRef<HTMLDivElement>(null);
+  const toast = useToast();
   const offsetRef = useRef(0);
 
   // Trending hashtags
@@ -608,6 +610,17 @@ export default function FeedPage() {
     });
   }, [userId]);
 
+  // Get user geolocation for proximity filtering (50km)
+  useEffect(() => {
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => setUserPos({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+        () => {}, // silently fail — we'll show all posts if no location
+        { enableHighAccuracy: false, timeout: 5000, maximumAge: 600_000 }
+      );
+    }
+  }, []);
+
   // Load feed
   const loadFeed = useCallback(async (reset = true) => {
     if (!userId) return;
@@ -617,7 +630,8 @@ export default function FeedPage() {
     try {
       const data = await fetchActivityFeedAction(wingIds, {
         scope,
-        location: cityFilter || undefined,
+        userLat: userPos?.lat,
+        userLng: userPos?.lng,
         limit: PAGE_SIZE,
         offset: reset ? 0 : offsetRef.current,
       }) as FeedItem[];
@@ -633,9 +647,9 @@ export default function FeedPage() {
       setLoading(false);
       setLoadingMore(false);
     }
-  }, [userId, wingIds.join(","), scope, cityFilter]);
+  }, [userId, wingIds.join(","), scope, userPos?.lat, userPos?.lng]);
 
-  useEffect(() => { if (userId) loadFeed(true); }, [userId, wingProfiles.length, scope]);
+  useEffect(() => { if (userId) loadFeed(true); }, [userId, wingProfiles.length, scope, userPos]);
 
   // Pull to refresh
   const pullStartY = useRef(0);
@@ -713,22 +727,6 @@ export default function FeedPage() {
         ))}
       </div>
 
-      {/* City filter */}
-      <div className="flex gap-2 mb-4">
-        <input
-          placeholder="Filtrer par ville..."
-          value={cityFilter}
-          onChange={(e) => setCityFilter(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && loadFeed(true)}
-          className="flex-1 bg-[var(--surface-high)] border border-[var(--border)] rounded-lg px-3 py-2 text-xs text-[var(--on-surface)] placeholder:text-[var(--outline)] outline-none focus:ring-1 focus:ring-[var(--primary)]/30"
-        />
-        {cityFilter && (
-          <button onClick={() => { setCityFilter(""); setTimeout(() => loadFeed(true), 0); }} className="px-2 text-[var(--outline)] hover:text-[var(--on-surface)] transition-colors">
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
-          </button>
-        )}
-      </div>
-
       {/* Trending hashtags */}
       {trending.length > 0 && (
         <div className="flex items-center gap-2 mb-4 overflow-x-auto pb-1">
@@ -742,7 +740,7 @@ export default function FeedPage() {
       )}
 
       {/* Post composer */}
-      <PostComposer onPost={() => loadFeed(true)} userProfile={myProfile} />
+      <PostComposer onPost={() => { toast.show("Post publié !"); loadFeed(true); }} userProfile={myProfile} />
 
       {/* Feed content */}
       {loading ? (

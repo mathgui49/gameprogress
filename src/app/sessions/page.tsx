@@ -267,21 +267,21 @@ export default function SessionsPage() {
 
   return (
     <div className="px-4 py-6 lg:px-8 lg:py-8 max-w-4xl mx-auto animate-fade-in">
-      <div className="flex items-center justify-between mb-4">
-        <div>
+      <div className="mb-4">
+        <div className="mb-3">
           <h1 className="text-2xl font-[family-name:var(--font-grotesk)] font-bold tracking-tight mb-1"><span className="bg-gradient-to-r from-[#818cf8] to-[#c084fc] bg-clip-text text-transparent">Sessions</span></h1>
           <p className="text-sm text-[var(--on-surface-variant)]">Organise et rejoins des sessions de game — {allSessions.length} session{allSessions.length !== 1 ? "s" : ""}</p>
         </div>
         <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1 p-1 bg-[var(--surface-low)] rounded-xl">
+          <div className="flex items-center gap-1 p-1 bg-[var(--surface-low)] rounded-xl flex-1 min-w-0">
             {(["list", "calendar", "map"] as ViewMode[]).map((v) => (
               <button key={v} onClick={() => setView(v)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${view === v ? "bg-[var(--primary)]/15 text-[var(--primary)]" : "text-[var(--outline)] hover:text-[var(--on-surface-variant)]"}`}>
+                className={`flex-1 px-2 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap ${view === v ? "bg-[var(--primary)]/15 text-[var(--primary)]" : "text-[var(--outline)] hover:text-[var(--on-surface-variant)]"}`}>
                 {v === "list" ? "Liste" : v === "calendar" ? "Calendrier" : "Carte"}
               </button>
             ))}
           </div>
-          <Link href="/sessions/new"><Button>+ Session</Button></Link>
+          <Link href="/sessions/new" className="shrink-0"><Button className="whitespace-nowrap">+ Session</Button></Link>
         </div>
       </div>
 

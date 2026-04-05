@@ -17,6 +17,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { Tooltip } from "@/components/ui/Tooltip";
 import { VoiceInput } from "@/components/ui/VoiceInput";
 import { IconPenLine } from "@/components/ui/Icons";
+import { useToast } from "@/hooks/useToast";
 
 const ALL_TAGS: JournalTag[] = ["mindset", "progress", "fear", "reflection", "review", "motivation"];
 const VISIBILITY_LABELS: Record<Visibility, string> = { private: "Privé", wings: "Wings", public: "Public" };
@@ -73,6 +74,7 @@ export default function JournalPage() {
   const { addXP } = useGamification();
   const { interactions } = useInteractions();
   const { wingProfiles } = useWingRequests();
+  const toast = useToast();
 
   // View state
   const [viewMode, setViewMode] = useState<ViewMode>("list");
@@ -237,6 +239,7 @@ export default function JournalPage() {
       // Remove draft after publishing
       if (draftId) removeDraft(draftId);
     }
+    toast.show(editingId ? "Entrée modifiée" : "Entrée publiée !");
     setShowNew(false);
     setEditingId(null);
     setAttachments([]);

@@ -196,9 +196,9 @@ export function TopBar() {
   return (
     <>
       {/* ═══ Mobile Header: logo | title | icons ═══ */}
-      <div className="lg:hidden flex items-center justify-between px-4 pt-4 pb-2">
+      <div className="lg:hidden grid grid-cols-[auto_1fr_auto] items-center px-4 pt-4 pb-2">
         {/* Left: Logo — links to landing page */}
-        <div className="flex items-center gap-2 min-w-[40px]">
+        <div className="flex items-center">
           <Link href="/landing">
             <div className="w-8 h-8 rounded-[10px] border border-[var(--primary)]/30 flex items-center justify-center animate-logo-pulse">
               <Image src="/logo.webp" alt="GameProgress" width={20} height={20} className="rounded-[5px]" priority />
@@ -207,12 +207,12 @@ export function TopBar() {
         </div>
 
         {/* Center: Page title */}
-        <h1 className="text-[15px] font-[family-name:var(--font-grotesk)] font-bold text-[var(--on-surface)] tracking-tight truncate">
+        <h1 className="text-[15px] font-[family-name:var(--font-grotesk)] font-bold text-[var(--on-surface)] tracking-tight truncate text-center">
           {pageTitle}
         </h1>
 
         {/* Right: Icons */}
-        <div className="flex items-center gap-0.5 min-w-[40px] justify-end">
+        <div className="flex items-center gap-0.5 justify-end">
           <Link
             href="/messages"
             aria-label="Messages"

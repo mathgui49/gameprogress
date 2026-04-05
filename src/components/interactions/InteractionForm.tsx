@@ -13,7 +13,7 @@ interface InteractionFormProps {
   initial?: Interaction | null;
   defaultLocation?: string;
   defaultSessionId?: string;
-  onSubmit: (data: Omit<Interaction, "id" | "createdAt">) => void;
+  onSubmit: (data: Omit<Interaction, "id" | "createdAt">) => void | Promise<void>;
 }
 
 const typeOptions = [
@@ -186,24 +186,35 @@ export function InteractionForm({ initial, defaultLocation, defaultSessionId, on
 
   const removeTag = (tag: string) => setTags(tags.filter((t) => t !== tag));
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit({
-      firstName, memorableElement, note, location,
-      type: type || "direct",
-      result: result || "neutral",
-      duration: duration || "medium",
-      feelingScore,
-      womanScore,
-      confidenceScore: 0,
-      objection, objectionCustom,
-      discussionTopics, feedback,
-      contactMethod, contactValue,
-      sessionId: initial?.sessionId ?? defaultSessionId ?? "",
-      tags,
-      contextPhoto,
-      date: new Date(date).toISOString(),
-    });
+    setSubmitting(true);
+    setSubmitError("");
+    try {
+      await onSubmit({
+        firstName, memorableElement, note, location,
+        type: type || "direct",
+        result: result || "neutral",
+        duration: duration || "medium",
+        feelingScore,
+        womanScore,
+        confidenceScore: 0,
+        objection, objectionCustom,
+        discussionTopics, feedback,
+        contactMethod, contactValue,
+        sessionId: initial?.sessionId ?? defaultSessionId ?? "",
+        tags,
+        contextPhoto,
+        date: new Date(date).toISOString(),
+      });
+    } catch (err) {
+      setSubmitError(err instanceof Error ? err.message : "Erreur lors de l'enregistrement");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -384,8 +395,11 @@ export function InteractionForm({ initial, defaultLocation, defaultSessionId, on
         )}
       </div>
 
+      {submitError && (
+        <p className="text-sm text-[var(--error)] bg-[var(--error)]/10 rounded-xl px-3 py-2">{submitError}</p>
+      )}
       <div className="flex items-center gap-3 pt-2">
-        <Button type="submit" size="lg">{initial ? "Modifier" : "Ajouter"}</Button>
+        <Button type="submit" size="lg" disabled={submitting}>{submitting ? "Enregistrement..." : initial ? "Modifier" : "Ajouter"}</Button>
         <Button type="button" variant="ghost" size="lg" onClick={() => router.back()}>Annuler</Button>
       </div>
     </form>

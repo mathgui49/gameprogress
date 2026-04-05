@@ -652,6 +652,11 @@ export default function LandingPage() {
               <a href="#gamification" className="text-xs text-[#8a839e] hover:text-[#a09bb2] transition-colors">Gamification</a>
               <a href="#how" className="text-xs text-[#8a839e] hover:text-[#a09bb2] transition-colors">Comment ça marche</a>
             </div>
+            <div className="flex items-center gap-6">
+              <a href="/cgu" className="text-xs text-[#8a839e] hover:text-[#a09bb2] transition-colors">CGU</a>
+              <a href="/rgpd" className="text-xs text-[#8a839e] hover:text-[#a09bb2] transition-colors">Confidentialité</a>
+              <a href="/mentions-legales" className="text-xs text-[#8a839e] hover:text-[#a09bb2] transition-colors">Mentions légales</a>
+            </div>
             <div className="text-center">
               <p className="text-xs text-[#3d3650]">&copy; 2025 GameProgress</p>
               <p className="text-[10px] text-[#3d3650] mt-1">Développé par Mathieu Guicheteau, propulsé par MathBusiness</p>

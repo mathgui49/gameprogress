@@ -6,6 +6,24 @@ import Link from "next/link";
 export default function Error({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
   useEffect(() => {
     console.error("App error:", error);
+    // Basic error tracking: send to server action (fire-and-forget)
+    try {
+      const payload = {
+        message: error.message,
+        stack: error.stack?.slice(0, 2000),
+        digest: error.digest,
+        url: window.location.href,
+        timestamp: new Date().toISOString(),
+        userAgent: navigator.userAgent,
+      };
+      fetch("/api/error-report", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      }).catch(() => {});
+    } catch {
+      // Tracking itself should never throw
+    }
   }, [error]);
 
   return (

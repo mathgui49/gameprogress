@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { Modal } from "@/components/ui/Modal";
+import { useToast } from "@/hooks/useToast";
 import { IconUsers } from "@/components/ui/Icons";
 import { formatRelative } from "@/lib/utils";
 import Link from "next/link";
@@ -181,6 +182,7 @@ export default function ContactsPage() {
   const { contacts, loaded, add, updateStatus, archive, remove, addNote } = useContacts();
   const { interactions } = useInteractions();
   const { updatePipelineXP } = useGamification();
+  const toast = useToast();
   const [viewMode, setViewMode] = useState<ViewMode>("kanban");
   const [showNew, setShowNew] = useState(false);
   const [newName, setNewName] = useState("");
@@ -273,11 +275,13 @@ export default function ContactsPage() {
 
   const handleBulkDelete = async () => {
     for (const id of selected) await remove(id);
+    toast.show(`${selected.size} contact(s) supprimé(s)`);
     setSelected(new Set()); setBulkMode(false); setShowBulkAction(null);
   };
 
   const handleBulkStatus = async () => {
     for (const id of selected) await updateStatus(id, bulkTargetStatus);
+    toast.show(`${selected.size} contact(s) mis à jour`);
     setSelected(new Set()); setBulkMode(false); setShowBulkAction(null);
   };
 
@@ -466,28 +470,28 @@ export default function ContactsPage() {
         <EmptyState icon={<IconUsers size={28} />} title="Aucun resultat" description="Essaie d'ajuster tes filtres." />
       ) : viewMode === "kanban" ? (
         /* ── KANBAN VIEW ── */
-        <div className="flex flex-col lg:flex-row lg:gap-3 lg:overflow-x-auto lg:pb-4 lg:no-scrollbar gap-6" onDragEnd={handleDragEnd}>
+        <div className="flex flex-col md:flex-row md:gap-3 md:overflow-x-auto md:pb-4 md:no-scrollbar gap-6" onDragEnd={handleDragEnd}>
           {(showArchived ? ALL_STATUSES : PIPELINE_ORDER).map((status) => {
             const items = filtered.filter((c) => c.status === status);
             return (
               <div
                 key={status}
-                className={`lg:min-w-[260px] lg:max-w-[260px] lg:flex-shrink-0 transition-all ${dragOverStatus === status ? "ring-2 ring-[var(--primary)]/30 rounded-xl" : ""}`}
+                className={`md:min-w-[240px] md:max-w-[260px] md:flex-shrink-0 transition-all ${dragOverStatus === status ? "ring-2 ring-[var(--primary)]/30 rounded-xl" : ""}`}
                 onDragOver={handleDragOver(status)}
                 onDragLeave={() => setDragOverStatus(null)}
                 onDrop={handleDrop(status)}
               >
-                <div className="flex items-center gap-2 mb-2 px-1 sticky top-0 bg-[var(--background)] z-10 py-1">
+                <div className="flex items-center gap-2 mb-2 px-1 md:sticky md:top-0 bg-[var(--background)] z-10 py-1">
                   <Badge className={STATUS_COLORS[status]}>{STATUS_LABELS[status]}</Badge>
                   <span className="text-[10px] text-[var(--outline)]">{items.length}</span>
                 </div>
-                <div className="flex lg:flex-col gap-2 overflow-x-auto lg:overflow-visible pb-2 lg:pb-0 no-scrollbar min-h-[60px]">
+                <div className="flex md:flex-col gap-2 overflow-x-auto md:overflow-visible pb-2 md:pb-0 no-scrollbar min-h-[60px]">
                   {items.length === 0 ? (
-                    <div className="hidden lg:flex items-center justify-center h-16 rounded-xl border-2 border-dashed border-[var(--border)] text-[10px] text-[var(--outline)]">
+                    <div className="hidden md:flex items-center justify-center h-16 rounded-xl border-2 border-dashed border-[var(--border)] text-[10px] text-[var(--outline)]">
                       Glisser ici
                     </div>
                   ) : items.map((contact) => (
-                    <div key={contact.id} className="min-w-[220px] lg:min-w-0">
+                    <div key={contact.id} className="min-w-[220px] md:min-w-0">
                       <ContactCard
                         contact={contact}
                         onQuickStatus={handleQuickStatus}

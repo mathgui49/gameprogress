@@ -13,11 +13,13 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input, TextArea } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
-import { clearAllUserDataAction } from "@/actions/db";
+import { clearAllUserDataAction, deleteAccountAction } from "@/actions/db";
+import { signOut } from "next-auth/react";
 import { useTheme } from "@/hooks/useTheme";
 import { useSubscription } from "@/hooks/useSubscription";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { Badge } from "@/components/ui/Badge";
+import { useToast } from "@/hooks/useToast";
 import { TutorialResetButton } from "@/components/layout/Tutorial";
 
 export default function SettingsPage() {
@@ -35,7 +37,12 @@ export default function SettingsPage() {
   const [clearConfirmText, setClearConfirmText] = useState("");
   const [saved, setSaved] = useState(false);
   const [installPrompt, setInstallPrompt] = useState<Event | null>(null);
+  const [showDeleteAccount, setShowDeleteAccount] = useState(false);
+  const [deleteStep, setDeleteStep] = useState<1 | 2>(1);
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [deleting, setDeleting] = useState(false);
   const { theme, toggle: toggleTheme } = useTheme();
+  const toast = useToast();
   const { subscription, isPremium, loaded: subLoaded, checkout, openPortal } = useSubscription();
   const push = usePushNotifications();
   const [checkoutResult, setCheckoutResult] = useState<string | null>(null);
@@ -57,6 +64,7 @@ export default function SettingsPage() {
 
   const handleSaveName = (name: string) => {
     updateProfile({ name });
+    toast.show("Profil sauvegardé");
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };
@@ -64,10 +72,23 @@ export default function SettingsPage() {
   const handleClearAll = async () => {
     if (!userId) return;
     await clearAllUserDataAction();
+    toast.show("Toutes les données ont été effacées", "info");
     setShowClear(false);
     setClearStep(1);
     setClearConfirmText("");
     window.location.reload();
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!userId) return;
+    setDeleting(true);
+    try {
+      await deleteAccountAction();
+      await signOut({ callbackUrl: "/landing" });
+    } catch {
+      toast.show("Erreur lors de la suppression", "error");
+      setDeleting(false);
+    }
   };
 
   return (
@@ -260,7 +281,7 @@ export default function SettingsPage() {
         <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-[var(--on-surface)] mb-4">Actions</h2>
         <div className="flex items-center justify-between">
           <div><p className="text-sm text-[var(--on-surface-variant)]">Effacer tout</p><p className="text-[10px] text-[var(--outline)]">Supprime toutes les donnees (interactions, contacts, sessions, missions, journal...)</p></div>
-          <Button variant="danger" size="sm" onClick={() => setShowClear(true)}>Reset</Button>
+          <Button variant="danger" size="sm" onClick={() => setShowClear(true)}>Réinitialiser</Button>
         </div>
       </Card>
 
@@ -290,6 +311,64 @@ export default function SettingsPage() {
           </>
         )}
       </Modal>
+
+      {/* Account deletion */}
+      <div className="glass-card rounded-2xl p-5 mt-6 border border-red-500/10">
+        <h2 className="text-sm font-semibold mb-2 text-red-400">Supprimer mon compte</h2>
+        <p className="text-xs text-[var(--on-surface-variant)] mb-3">
+          Cette action est irréversible. Toutes tes données, photos et contenus seront définitivement supprimés.
+        </p>
+        <Button variant="danger" size="sm" onClick={() => setShowDeleteAccount(true)}>
+          Supprimer mon compte
+        </Button>
+      </div>
+
+      <Modal open={showDeleteAccount} onClose={() => { setShowDeleteAccount(false); setDeleteStep(1); setDeleteConfirmText(""); }} title="Supprimer mon compte">
+        {deleteStep === 1 && (
+          <>
+            <p className="text-sm text-[var(--on-surface-variant)] mb-4">
+              Es-tu sûr de vouloir supprimer ton compte ? Toutes tes données seront effacées définitivement :
+              interactions, contacts, journal, messages, XP, badges...
+            </p>
+            <div className="flex items-center gap-3">
+              <Button variant="danger" onClick={() => setDeleteStep(2)}>Oui, continuer</Button>
+              <Button variant="ghost" onClick={() => setShowDeleteAccount(false)}>Annuler</Button>
+            </div>
+          </>
+        )}
+        {deleteStep === 2 && (
+          <>
+            <p className="text-sm text-[var(--on-surface-variant)] mb-3">
+              Pour confirmer, écris <strong className="text-[var(--error)]">SUPPRIMER</strong> ci-dessous :
+            </p>
+            <Input
+              placeholder="Écris SUPPRIMER"
+              value={deleteConfirmText}
+              onChange={(e) => setDeleteConfirmText(e.target.value)}
+            />
+            <div className="flex items-center gap-3 mt-4">
+              <Button
+                variant="danger"
+                disabled={deleteConfirmText !== "SUPPRIMER" || deleting}
+                onClick={handleDeleteAccount}
+              >
+                {deleting ? "Suppression..." : "Supprimer définitivement"}
+              </Button>
+              <Button variant="ghost" onClick={() => { setShowDeleteAccount(false); setDeleteStep(1); setDeleteConfirmText(""); }}>Annuler</Button>
+            </div>
+          </>
+        )}
+      </Modal>
+
+      {/* Legal links */}
+      <div className="glass-card rounded-2xl p-5 mt-6">
+        <h2 className="text-sm font-semibold mb-3">Informations légales</h2>
+        <div className="flex flex-wrap gap-4 text-xs">
+          <a href="/cgu" className="text-[#c084fc] hover:underline">Conditions Générales d&apos;Utilisation</a>
+          <a href="/rgpd" className="text-[#c084fc] hover:underline">Politique de Confidentialité</a>
+          <a href="/mentions-legales" className="text-[#c084fc] hover:underline">Mentions Légales</a>
+        </div>
+      </div>
     </div>
   );
 }

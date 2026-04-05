@@ -1,7 +1,7 @@
 "use client";
 
 const DB_NAME = "gameprogress-offline";
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 const CACHE_STORE = "cache";
 const QUEUE_STORE = "syncQueue";
 
@@ -13,6 +13,16 @@ export interface SyncEntry {
   /** Secondary ID for update/delete */
   rowId?: string;
   createdAt: number;
+  /** Retry tracking */
+  retryCount: number;
+  lastError?: string;
+}
+
+/** Sync result reported to the UI */
+export interface SyncReport {
+  synced: number;
+  failed: number;
+  errors: string[];
 }
 
 function openDb(): Promise<IDBDatabase> {
@@ -66,13 +76,42 @@ export async function setCachedData<T>(key: string, data: T[]): Promise<void> {
 
 // ─── Sync queue ──────────────────────────────────────────
 
-export async function addToSyncQueue(entry: Omit<SyncEntry, "id" | "createdAt">): Promise<void> {
+const MAX_RETRIES = 5;
+
+/**
+ * Add an entry to the sync queue. Deduplicates update/upsert actions
+ * for the same table+rowId by replacing the old entry (last-write-wins).
+ */
+export async function addToSyncQueue(entry: Omit<SyncEntry, "id" | "createdAt" | "retryCount">): Promise<void> {
   try {
     const db = await openDb();
+
+    // Deduplicate: if there's already a pending update/upsert for same table+rowId, replace it
+    if ((entry.action === "update" || entry.action === "upsert") && entry.rowId) {
+      const existing = await findEntryByTableAndRow(db, entry.table, entry.rowId);
+      if (existing && (existing.action === "update" || existing.action === "upsert")) {
+        // Merge payloads (new values override old), keep the original createdAt
+        const merged: SyncEntry = {
+          ...existing,
+          payload: { ...existing.payload, ...entry.payload },
+          action: entry.action,
+          retryCount: 0,
+          lastError: undefined,
+        };
+        return new Promise((resolve) => {
+          const tx = db.transaction(QUEUE_STORE, "readwrite");
+          tx.objectStore(QUEUE_STORE).put(merged);
+          tx.oncomplete = () => resolve();
+          tx.onerror = () => resolve();
+        });
+      }
+    }
+
     const item: SyncEntry = {
       ...entry,
       id: crypto.randomUUID(),
       createdAt: Date.now(),
+      retryCount: 0,
     };
     return new Promise((resolve) => {
       const tx = db.transaction(QUEUE_STORE, "readwrite");
@@ -81,8 +120,23 @@ export async function addToSyncQueue(entry: Omit<SyncEntry, "id" | "createdAt">)
       tx.onerror = () => resolve();
     });
   } catch {
-    // Silently fail
+    // Best-effort queue
   }
+}
+
+/** Find an existing queue entry matching table + rowId */
+function findEntryByTableAndRow(db: IDBDatabase, table: string, rowId: string): Promise<SyncEntry | null> {
+  return new Promise((resolve) => {
+    const tx = db.transaction(QUEUE_STORE, "readonly");
+    const req = tx.objectStore(QUEUE_STORE).getAll();
+    req.onsuccess = () => {
+      const match = (req.result as SyncEntry[]).find(
+        (e) => e.table === table && e.rowId === rowId
+      );
+      resolve(match ?? null);
+    };
+    req.onerror = () => resolve(null);
+  });
 }
 
 export async function getSyncQueue(): Promise<SyncEntry[]> {
@@ -113,6 +167,21 @@ export async function removeSyncEntry(id: string): Promise<void> {
   }
 }
 
+/** Update an entry in place (for retry tracking) */
+export async function updateSyncEntry(entry: SyncEntry): Promise<void> {
+  try {
+    const db = await openDb();
+    return new Promise((resolve) => {
+      const tx = db.transaction(QUEUE_STORE, "readwrite");
+      tx.objectStore(QUEUE_STORE).put(entry);
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => resolve();
+    });
+  } catch {
+    // Silently fail
+  }
+}
+
 export async function clearSyncQueue(): Promise<void> {
   try {
     const db = await openDb();
@@ -126,6 +195,8 @@ export async function clearSyncQueue(): Promise<void> {
     // Silently fail
   }
 }
+
+export { MAX_RETRIES };
 
 // ─── Optimistic local update ─────────────────────────────
 

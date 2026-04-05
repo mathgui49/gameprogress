@@ -87,7 +87,10 @@ export async function insertRow(table: string, userId: string, obj: any) {
   const row = toRow(obj);
   row.user_id = userId;
   const { error } = await supabase.from(table).insert(row);
-  if (error) console.error(`insert ${table}:`, error);
+  if (error) {
+    console.error(`insert ${table}:`, error);
+    throw new Error(`Insert failed: ${error.message}`);
+  }
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -99,7 +102,10 @@ export async function updateRow(table: string, id: string, obj: any, userId?: st
   // Scope update to the owner — prevents cross-user modification
   if (userId) query = query.eq("user_id", userId);
   const { error } = await query;
-  if (error) console.error(`update ${table}:`, error);
+  if (error) {
+    console.error(`update ${table}:`, error);
+    throw new Error(`Update failed: ${error.message}`);
+  }
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -107,7 +113,10 @@ export async function upsertRow(table: string, userId: string, obj: any) {
   const row = toRow(obj);
   row.user_id = userId;
   const { error } = await supabase.from(table).upsert(row);
-  if (error) console.error(`upsert ${table}:`, error);
+  if (error) {
+    console.error(`upsert ${table}:`, error);
+    throw new Error(`Upsert failed: ${error.message}`);
+  }
 }
 
 export async function deleteRow(table: string, id: string, userId?: string) {
@@ -485,10 +494,19 @@ export async function fetchPostCommentCounts(postIds: string[]) {
 
 // ─── Feed ───────────────────────────────────────────────
 
+/** Haversine distance in km between two lat/lng points */
+function haversineKm(lat1: number, lng1: number, lat2: number, lng2: number): number {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLng = (lng2 - lng1) * Math.PI / 180;
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLng / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
 export async function fetchActivityFeed(
   userId: string,
   wingIds: string[],
-  options?: { scope?: "all" | "wings" | "public"; location?: string; limit?: number; offset?: number }
+  options?: { scope?: "all" | "wings" | "public"; userLat?: number; userLng?: number; limit?: number; offset?: number }
 ) {
   const scope = options?.scope || "all";
   const limit = options?.limit || 30;
@@ -597,10 +615,21 @@ export async function fetchActivityFeed(
     return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
   });
 
-  // Filter by location
+  // Filter public content by 50km radius; wings always shown regardless of distance
   let result = feed;
-  if (options?.location) {
-    result = feed.filter((item) => item.profile?.location?.toLowerCase().includes(options.location!.toLowerCase()));
+  if (options?.userLat != null && options?.userLng != null) {
+    const MAX_KM = 50;
+    result = feed.filter((item) => {
+      // Always show wing content regardless of distance
+      if (wingIds.includes(item.data?.userId ?? item.data?.user_id ?? "")) return true;
+      // Always show own content
+      if ((item.data?.userId ?? item.data?.user_id) === userId) return true;
+      // For public content: filter by profile proximity
+      const pLat = item.profile?.lat;
+      const pLng = item.profile?.lng;
+      if (pLat == null || pLng == null) return true; // no location = show anyway
+      return haversineKm(options.userLat!, options.userLng!, pLat, pLng) <= MAX_KM;
+    });
   }
 
   // Paginate

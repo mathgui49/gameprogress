@@ -242,7 +242,7 @@ export async function fetchSessionsByIdsAction(sessionIds: string[]) {
 
 export async function fetchActivityFeedAction(
   wingIds: string[],
-  options?: { scope?: "all" | "wings" | "public"; location?: string; limit?: number; offset?: number },
+  options?: { scope?: "all" | "wings" | "public"; userLat?: number; userLng?: number; limit?: number; offset?: number },
 ) {
   const userId = await getAuthUserId();
   return db.fetchActivityFeed(userId, wingIds, options);
@@ -389,6 +389,25 @@ export async function fetchUserLeaderboardRankAction(targetUserId: string) {
 export async function clearAllUserDataAction() {
   const userId = await getAuthUserId();
   await db.clearAllUserData(userId);
+}
+
+export async function deleteAccountAction() {
+  const userId = await getAuthUserId();
+  await db.clearAllUserData(userId);
+  // Storage cleanup is best-effort
+  try {
+    const { supabaseServer } = await import("@/lib/supabase-server");
+    for (const folder of ["profiles", "photos", "posts"]) {
+      const { data: files } = await supabaseServer.storage
+        .from("uploads").list(`${folder}/${userId}`);
+      if (files?.length) {
+        await supabaseServer.storage.from("uploads")
+          .remove(files.map((f) => `${folder}/${userId}/${f.name}`));
+      }
+    }
+  } catch {
+    // Non-critical
+  }
 }
 
 // ─── Announcement (public read) ────────────────────────
