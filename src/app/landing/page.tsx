@@ -64,7 +64,7 @@ const FEATURES = [
   {
     icon: "M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5m0 0l-.5 1.5",
     title: "Dashboard Intelligent",
-    desc: "Vue d'ensemble instantanee : interactions du jour, XP, streak, close rate, missions actives. Tout en un coup d'oeil.",
+    desc: "Vue d'ensemble instantanée : interactions du jour, XP, streak, close rate, missions actives. Tout en un coup d'oeil.",
     color: "from-[#c084fc] to-[#818cf8]",
   },
   {
@@ -144,7 +144,7 @@ export default function LandingPage() {
           </div>
           <div className="hidden md:flex items-center gap-8">
             <a href="#features" className="text-sm text-[#a09bb2] hover:text-[#c084fc] transition-colors">Features</a>
-            <a href="#showcase" className="text-sm text-[#a09bb2] hover:text-[#c084fc] transition-colors">Apercu</a>
+            <a href="#showcase" className="text-sm text-[#a09bb2] hover:text-[#c084fc] transition-colors">Aperçu</a>
             <a href="#gamification" className="text-sm text-[#a09bb2] hover:text-[#c084fc] transition-colors">Gamification</a>
             <a href="#how" className="text-sm text-[#a09bb2] hover:text-[#c084fc] transition-colors">Comment ca marche</a>
           </div>
@@ -189,7 +189,7 @@ export default function LandingPage() {
 
           <Section delay={200}>
             <p className="text-lg sm:text-xl text-[#a09bb2] max-w-2xl mx-auto mb-10 leading-relaxed">
-              L&apos;app gamifiee qui track, analyse et booste tes competences sociales.
+              L&apos;app gamifiée qui track, analyse et booste tes compétences sociales.
               XP, missions, classements — ta progression n&apos;a jamais ete aussi claire.
             </p>
           </Section>
@@ -308,9 +308,9 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto relative">
           <Section>
             <div className="text-center mb-12">
-              <span className="text-xs font-semibold tracking-widest uppercase text-[#818cf8] mb-3 block">Apercu</span>
+              <span className="text-xs font-semibold tracking-widest uppercase text-[#818cf8] mb-3 block">Aperçu</span>
               <h2 className="text-3xl sm:text-4xl font-[family-name:var(--font-grotesk)] font-bold mb-4">
-                Decouvre l&apos;experience{" "}
+                Découvre l&apos;experience{" "}
                 <span className="bg-gradient-to-r from-[#818cf8] to-[#67e8f9] bg-clip-text text-transparent">GameProgress</span>
               </h2>
             </div>

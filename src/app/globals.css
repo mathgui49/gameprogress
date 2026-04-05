@@ -38,32 +38,32 @@
   --bg: #f8f7fc;
   --surface: #ffffff;
   --surface-low: #f3f1f9;
-  --surface-high: #eeeaf5;
+  --surface-high: #f0ecf7;
   --surface-bright: #e8e4f0;
   --surface-highest: #ddd8e8;
-  --primary: #9333ea;
-  --primary-dim: #a855f7;
-  --primary-container: #c084fc;
-  --secondary: #db2777;
-  --secondary-dim: #ec4899;
-  --secondary-container: #f472b6;
-  --tertiary: #6366f1;
-  --tertiary-dim: #818cf8;
-  --error: #e11d48;
-  --success: #059669;
+  --primary: #7c3aed;
+  --primary-dim: #8b5cf6;
+  --primary-container: #a78bfa;
+  --secondary: #be185d;
+  --secondary-dim: #db2777;
+  --secondary-container: #ec4899;
+  --tertiary: #4f46e5;
+  --tertiary-dim: #6366f1;
+  --error: #be123c;
+  --success: #047857;
   --on-surface: #1a1626;
-  --on-surface-variant: #5c5670;
-  --outline: #8a849c;
+  --on-surface-variant: #4a4560;
+  --outline: #6b6580;
   --outline-variant: #c4bfd4;
-  --border: rgba(107, 33, 168, 0.1);
-  --border-hover: rgba(107, 33, 168, 0.18);
-  --border-focus: rgba(147, 51, 234, 0.3);
-  --neon-purple: rgba(147, 51, 234, 0.15);
-  --neon-pink: rgba(219, 39, 119, 0.15);
-  --neon-blue: rgba(99, 102, 241, 0.15);
-  --backdrop: rgba(0, 0, 0, 0.3);
+  --border: rgba(107, 33, 168, 0.12);
+  --border-hover: rgba(107, 33, 168, 0.22);
+  --border-focus: rgba(124, 58, 237, 0.35);
+  --neon-purple: rgba(124, 58, 237, 0.12);
+  --neon-pink: rgba(190, 24, 93, 0.12);
+  --neon-blue: rgba(79, 70, 229, 0.12);
+  --backdrop: rgba(0, 0, 0, 0.25);
   --card-hover: #e8e4f0;
-  --input-placeholder: #b0aabe;
+  --input-placeholder: #9590a8;
 }
 
 /* ─── Scrollbar ───────────────────────────────────────── */
@@ -120,6 +120,10 @@ h1, h2, h3, h4, h5, h6 {
   background-size: 200% 100%;
   animation: shimmer 2s infinite;
 }
+[data-theme="light"] .animate-shimmer {
+  background: linear-gradient(90deg, transparent 25%, rgba(124,58,237,0.06) 50%, transparent 75%);
+  background-size: 200% 100%;
+}
 
 @keyframes neonPulse {
   0%, 100% { box-shadow: 0 0 8px 0 var(--neon-purple), 0 0 24px -4px var(--neon-pink); }
@@ -145,8 +149,44 @@ h1, h2, h3, h4, h5, h6 {
   -webkit-backdrop-filter: blur(24px);
 }
 [data-theme="light"] .glass {
-  background: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.85);
+  border-color: var(--border);
 }
+
+/* ─── Light mode: boost Tailwind accent colors for contrast ── */
+[data-theme="light"] .text-emerald-400 { color: #047857; }
+[data-theme="light"] .text-emerald-300 { color: #059669; }
+[data-theme="light"] .text-amber-400 { color: #b45309; }
+[data-theme="light"] .text-amber-400\/60 { color: rgba(180, 83, 9, 0.6); }
+[data-theme="light"] .text-cyan-400 { color: #0e7490; }
+[data-theme="light"] .text-rose-400 { color: #be123c; }
+[data-theme="light"] .text-\[\#fb7185\] { color: #be123c; }
+[data-theme="light"] .text-\[\#f472b6\] { color: #be185d; }
+[data-theme="light"] .text-\[\#c084fc\] { color: #7c3aed; }
+[data-theme="light"] .text-\[\#818cf8\] { color: #4f46e5; }
+[data-theme="light"] .text-\[\#8b7ec8\] { color: #5b4fa0; }
+
+/* Light mode: adjust semi-transparent backgrounds */
+[data-theme="light"] .bg-emerald-500\/20,
+[data-theme="light"] .bg-emerald-500\/15,
+[data-theme="light"] .bg-emerald-400\/15,
+[data-theme="light"] .bg-emerald-500\/5 { background-color: rgba(4, 120, 87, 0.08); }
+[data-theme="light"] .bg-amber-500\/20,
+[data-theme="light"] .bg-amber-400\/15 { background-color: rgba(180, 83, 9, 0.08); }
+[data-theme="light"] .bg-cyan-400\/15 { background-color: rgba(14, 116, 144, 0.08); }
+[data-theme="light"] .bg-\[\#fb7185\]\/20,
+[data-theme="light"] .bg-\[\#fb7185\]\/15 { background-color: rgba(190, 18, 60, 0.08); }
+[data-theme="light"] .bg-\[\#f472b6\]\/15 { background-color: rgba(190, 24, 93, 0.08); }
+[data-theme="light"] .bg-rose-500\/15 { background-color: rgba(190, 18, 60, 0.08); }
+[data-theme="light"] .bg-orange-400\/15 { background-color: rgba(194, 65, 12, 0.08); }
+
+/* Light mode: notification badge contrast */
+[data-theme="light"] .bg-\[var\(--error\)\] { color: white; }
+
+/* Light mode: gradient buttons — softer glow */
+[data-theme="light"] .shadow-\[\#c084fc\]\/20 { box-shadow: 0 4px 14px -4px rgba(124, 58, 237, 0.15); }
+[data-theme="light"] .hover\:shadow-\[0_0_24px_-4px_var\(--neon-purple\)\]:hover { box-shadow: 0 4px 20px -4px rgba(124, 58, 237, 0.18); }
+[data-theme="light"] .hover\:shadow-\[0_0_20px_-4px_var\(--neon-purple\)\]:hover { box-shadow: 0 4px 16px -4px rgba(124, 58, 237, 0.15); }
 
 /* ─── Neon utilities ──────────────────────────────────── */
 .neon-glow-purple { box-shadow: 0 0 12px -2px var(--neon-purple), 0 0 4px -1px var(--neon-purple); }
@@ -154,6 +194,15 @@ h1, h2, h3, h4, h5, h6 {
 .neon-glow-blue { box-shadow: 0 0 12px -2px var(--neon-blue), 0 0 4px -1px var(--neon-blue); }
 .neon-text-purple { text-shadow: 0 0 12px var(--neon-purple); }
 .neon-text-pink { text-shadow: 0 0 12px var(--neon-pink); }
+
+/* Light mode: disable neon effects (they look bad on light backgrounds) */
+[data-theme="light"] .neon-glow-purple,
+[data-theme="light"] .neon-glow-pink,
+[data-theme="light"] .neon-glow-blue { box-shadow: 0 1px 4px -1px rgba(0,0,0,0.08); }
+[data-theme="light"] .neon-text-purple,
+[data-theme="light"] .neon-text-pink { text-shadow: none; }
+[data-theme="light"] .animate-neon-pulse { animation: none; box-shadow: 0 2px 8px -2px rgba(124,58,237,0.12); }
+[data-theme="light"] .animate-xp-pulse { animation: none; }
 
 /* ─── Select styling ──────────────────────────────────── */
 select {

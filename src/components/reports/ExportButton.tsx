@@ -19,7 +19,7 @@ export function ExportButton({ targetRef }: ExportButtonProps) {
     const canvas = await html2canvas(targetRef.current, {
       scale: 2,
       useCORS: true,
-      backgroundColor: "#0f0a1e",
+      backgroundColor: document.documentElement.getAttribute("data-theme") === "light" ? "#f8f7fc" : "#0f0a1e",
       width: 794,
       windowWidth: 794,
     });

@@ -5,6 +5,19 @@ import * as db from "@/lib/db";
 
 const ADMIN_EMAIL = "mathieu.guicheteau7@gmail.com";
 
+// ─── Sanitization ─────────────────────────────────────
+/** Strip HTML/script tags from all string values in an object (deep) */
+function sanitizeObj<T>(obj: T): T {
+  if (typeof obj === "string") return obj.replace(/<[^>]*>/g, "").trim() as unknown as T;
+  if (Array.isArray(obj)) return obj.map(sanitizeObj) as unknown as T;
+  if (obj && typeof obj === "object" && !(obj instanceof Date)) {
+    const out: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(obj)) out[k] = sanitizeObj(v);
+    return out as T;
+  }
+  return obj;
+}
+
 // ─── Auth helper ───────────────────────────────────────
 async function getAuthUserId(): Promise<string> {
   const session = await auth();
@@ -33,19 +46,19 @@ export async function fetchOneAction<T>(table: string): Promise<T | null> {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function insertRowAction(table: string, obj: any) {
   const userId = await getAuthUserId();
-  await db.insertRow(table, userId, obj);
+  await db.insertRow(table, userId, sanitizeObj(obj));
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function updateRowAction(table: string, id: string, obj: any) {
   const userId = await getAuthUserId();
-  await db.updateRow(table, id, obj, userId);
+  await db.updateRow(table, id, sanitizeObj(obj), userId);
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function upsertRowAction(table: string, obj: any) {
   const userId = await getAuthUserId();
-  await db.upsertRow(table, userId, obj);
+  await db.upsertRow(table, userId, sanitizeObj(obj));
 }
 
 export async function deleteRowAction(table: string, id: string) {

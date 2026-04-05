@@ -114,7 +114,7 @@ export default function ProgressionPage() {
         <div className="relative">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <p className="text-xs text-[var(--on-surface-variant)] uppercase tracking-wider mb-1 font-[family-name:var(--font-grotesk)]">Rang de competence</p>
+              <p className="text-xs text-[var(--on-surface-variant)] uppercase tracking-wider mb-1 font-[family-name:var(--font-grotesk)]">Rang de compétence</p>
               <p className={`text-2xl font-bold font-[family-name:var(--font-grotesk)] ${SKILL_RANK_COLORS[skillRank]}`}>{SKILL_RANK_LABELS[skillRank]}</p>
             </div>
             {/* Frosted conic ring for skill score */}
