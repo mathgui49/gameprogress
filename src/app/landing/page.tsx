@@ -632,7 +632,10 @@ export default function LandingPage() {
               <a href="#gamification" className="text-xs text-[#6b6580] hover:text-[#a09bb2] transition-colors">Gamification</a>
               <a href="#how" className="text-xs text-[#6b6580] hover:text-[#a09bb2] transition-colors">Comment ca marche</a>
             </div>
-            <p className="text-xs text-[#3d3650]">Made with 💜 for the community &middot; &copy; 2024 GameProgress</p>
+            <div className="text-center">
+              <p className="text-xs text-[#3d3650]">&copy; 2025 GameProgress</p>
+              <p className="text-[10px] text-[#3d3650] mt-1">Developpe par Mathieu Guicheteau, propulse par MathBusiness</p>
+            </div>
           </div>
         </div>
       </footer>
