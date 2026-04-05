@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import Image from "next/image";
 import Link from "next/link";
 
 /* ── Intersection Observer hook for scroll animations ── */
@@ -138,11 +139,7 @@ export default function LandingPage() {
       <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrollY > 50 ? "bg-[#0d0a12]/80 backdrop-blur-xl border-b border-[rgba(192,132,252,0.06)]" : ""}`}>
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#c084fc] to-[#f472b6] flex items-center justify-center shadow-[0_0_16px_-4px_rgba(192,132,252,0.4)]">
-              <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
-              </svg>
-            </div>
+            <Image src="/logo.png" alt="GameProgress" width={32} height={32} className="rounded-lg shadow-[0_0_16px_-4px_rgba(192,132,252,0.4)]" />
             <span className="font-[family-name:var(--font-grotesk)] font-bold text-lg">GameProgress</span>
           </div>
           <div className="hidden md:flex items-center gap-8">
@@ -171,6 +168,9 @@ export default function LandingPage() {
         <div className="relative max-w-4xl mx-auto text-center">
           {/* Badge */}
           <Section>
+            <div className="mb-6">
+              <Image src="/logo.png" alt="GameProgress" width={72} height={72} className="mx-auto rounded-2xl shadow-[0_0_32px_-8px_rgba(192,132,252,0.5)]" />
+            </div>
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#c084fc]/10 border border-[#c084fc]/20 mb-8">
               <span className="w-2 h-2 rounded-full bg-[#34d399] animate-pulse" />
               <span className="text-xs font-medium text-[#c084fc]">100% gratuit &middot; Open source</span>
@@ -604,7 +604,7 @@ export default function LandingPage() {
           <Section>
             <h2 className="text-3xl sm:text-5xl font-[family-name:var(--font-grotesk)] font-bold mb-6">
               Pret a transformer{" "}
-              <span className="bg-gradient-to-r from-[#c084fc] via-[#f472b6] to-[#818cf8] bg-clip-text text-transparent">ta game</span> ?
+              <span className="bg-gradient-to-r from-[#c084fc] via-[#f472b6] to-[#818cf8] bg-clip-text text-transparent">ton game</span> ?
             </h2>
             <p className="text-lg text-[#a09bb2] mb-10">
               Rejoins GameProgress et commence a tracker ta progression des aujourd&apos;hui.
@@ -623,11 +623,7 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#c084fc] to-[#f472b6] flex items-center justify-center">
-                <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
-                </svg>
-              </div>
+              <Image src="/logo.png" alt="GameProgress" width={32} height={32} className="rounded-lg" />
               <span className="font-[family-name:var(--font-grotesk)] font-bold">GameProgress</span>
             </div>
             <div className="flex items-center gap-8">
