@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Badge } from "@/components/ui/Badge";
+import { Tooltip } from "@/components/ui/Tooltip";
 import { IconTarget } from "@/components/ui/Icons";
 import type { MissionTrackingType } from "@/types";
 import { MISSION_TRACKING_LABELS } from "@/types";
@@ -96,9 +97,11 @@ export default function MissionsPage() {
                         </div>
                         <div className="flex items-center gap-2">
                           <span className="text-xs font-semibold text-[var(--primary)]">+{m.xpReward} XP</span>
-                          <button onClick={() => remove(m.id)} className="text-[var(--outline)] hover:text-[#fb7185] transition-colors">
-                            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
-                          </button>
+                          <Tooltip text="Supprimer la mission" position="bottom">
+                            <button onClick={() => remove(m.id)} className="text-[var(--outline)] hover:text-[#fb7185] transition-colors">
+                              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                            </button>
+                          </Tooltip>
                         </div>
                       </div>
                       <div className="flex items-center gap-3">
@@ -108,7 +111,7 @@ export default function MissionsPage() {
                           </div>
                         </div>
                         <span className="text-xs text-[var(--on-surface-variant)] w-12 text-right">{m.current}/{m.target}</span>
-                        {!isAuto && <Button variant="secondary" size="sm" onClick={() => progress(m.id)}>+1</Button>}
+                        {!isAuto && <Tooltip text="Avancer la progression manuellement" position="left"><Button variant="secondary" size="sm" onClick={() => progress(m.id)}>+1</Button></Tooltip>}
                       </div>
                     </Card>
                   );

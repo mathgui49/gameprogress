@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { Tooltip } from "@/components/ui/Tooltip";
 import { IconCalendar } from "@/components/ui/Icons";
 import Link from "next/link";
 
@@ -103,13 +104,17 @@ export default function SessionsPage() {
       ) : (
         <Card>
           <div className="flex items-center justify-between mb-4">
-            <button onClick={() => setCalMonth(new Date(calMonth.getFullYear(), calMonth.getMonth() - 1, 1))} className="text-[var(--on-surface-variant)] hover:text-[var(--on-surface)] transition-colors p-1">
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
-            </button>
+            <Tooltip text="Mois precedent" position="bottom">
+              <button onClick={() => setCalMonth(new Date(calMonth.getFullYear(), calMonth.getMonth() - 1, 1))} className="text-[var(--on-surface-variant)] hover:text-[var(--on-surface)] transition-colors p-1">
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
+              </button>
+            </Tooltip>
             <h2 className="text-sm font-[family-name:var(--font-grotesk)] font-semibold text-[var(--on-surface)] capitalize">{monthLabel}</h2>
-            <button onClick={() => setCalMonth(new Date(calMonth.getFullYear(), calMonth.getMonth() + 1, 1))} className="text-[var(--on-surface-variant)] hover:text-[var(--on-surface)] transition-colors p-1">
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
-            </button>
+            <Tooltip text="Mois suivant" position="bottom">
+              <button onClick={() => setCalMonth(new Date(calMonth.getFullYear(), calMonth.getMonth() + 1, 1))} className="text-[var(--on-surface-variant)] hover:text-[var(--on-surface)] transition-colors p-1">
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
+              </button>
+            </Tooltip>
           </div>
 
           <div className="grid grid-cols-7 gap-1 mb-1">

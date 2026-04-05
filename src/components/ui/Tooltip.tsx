@@ -30,7 +30,7 @@ export function Tooltip({ text, children, position = "top", delay = 300 }: Toolt
   };
 
   return (
-    <span className="relative inline-flex" onMouseEnter={show} onMouseLeave={hide} onFocus={show} onBlur={hide}>
+    <div className="relative flex h-full" onMouseEnter={show} onMouseLeave={hide} onFocus={show} onBlur={hide}>
       {children}
       {visible && (
         <span
@@ -40,6 +40,6 @@ export function Tooltip({ text, children, position = "top", delay = 300 }: Toolt
           {text}
         </span>
       )}
-    </span>
+    </div>
   );
 }

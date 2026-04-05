@@ -12,6 +12,7 @@ import { TextArea } from "@/components/ui/Input";
 import { Badge } from "@/components/ui/Badge";
 import { Modal } from "@/components/ui/Modal";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { Tooltip } from "@/components/ui/Tooltip";
 import { IconPenLine } from "@/components/ui/Icons";
 
 const ALL_TAGS: JournalTag[] = ["mindset", "progress", "fear", "reflection", "review", "motivation"];
@@ -58,12 +59,16 @@ export default function JournalPage() {
                       )}
                     </div>
                     <div className="flex items-center gap-2">
-                      <button onClick={(e) => { e.stopPropagation(); setEditingId(entry.id); setContent(entry.content); setTag(entry.tag); setVisibility(entry.visibility ?? "private"); setShowNew(true); }} className="text-[var(--outline)] hover:text-[var(--primary)] transition-colors text-xs">
-                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487z" /></svg>
-                      </button>
-                      <button onClick={(e) => { e.stopPropagation(); remove(entry.id); }} className="text-[var(--outline)] hover:text-[#fb7185] transition-colors text-xs">
-                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
-                      </button>
+                      <Tooltip text="Modifier" position="bottom">
+                        <button onClick={(e) => { e.stopPropagation(); setEditingId(entry.id); setContent(entry.content); setTag(entry.tag); setVisibility(entry.visibility ?? "private"); setShowNew(true); }} className="text-[var(--outline)] hover:text-[var(--primary)] transition-colors text-xs">
+                          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487z" /></svg>
+                        </button>
+                      </Tooltip>
+                      <Tooltip text="Supprimer" position="bottom">
+                        <button onClick={(e) => { e.stopPropagation(); remove(entry.id); }} className="text-[var(--outline)] hover:text-[#fb7185] transition-colors text-xs">
+                          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                        </button>
+                      </Tooltip>
                     </div>
                   </div>
                   <p className={`text-sm text-[var(--on-surface-variant)] leading-relaxed ${expanded ? "" : "line-clamp-3"}`}>

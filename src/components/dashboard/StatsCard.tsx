@@ -12,7 +12,7 @@ interface StatsCardProps {
 
 export function StatsCard({ label, value, subtitle, accent, icon, tooltip }: StatsCardProps) {
   const content = (
-    <Card>
+    <Card className="h-full">
       <div className="flex items-start justify-between mb-3">
         <p className="text-[10px] font-medium text-[var(--on-surface-variant)] uppercase tracking-wider">{label}</p>
         {icon && (

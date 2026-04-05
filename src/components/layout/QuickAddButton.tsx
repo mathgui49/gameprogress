@@ -9,6 +9,7 @@ import { useGamification } from "@/hooks/useGamification";
 import type { ApproachType, ResultType, ContactMethod } from "@/types";
 import { XP_VALUES } from "@/types";
 import { VoiceInput } from "@/components/ui/VoiceInput";
+import { Tooltip } from "@/components/ui/Tooltip";
 
 const ACTIONS = [
   { href: "/interactions/new", label: "Interaction (complet)", icon: "M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" },
@@ -104,9 +105,11 @@ export function QuickAddButton() {
               </svg>
               Interaction rapide
             </p>
-            <button onClick={() => { setShowQuick(false); resetQuick(); }} className="text-[var(--outline)] hover:text-[var(--on-surface)] transition-colors">
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
-            </button>
+            <Tooltip text="Fermer" position="left">
+              <button onClick={() => { setShowQuick(false); resetQuick(); }} className="text-[var(--outline)] hover:text-[var(--on-surface)] transition-colors">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+            </Tooltip>
           </div>
 
           {saved ? (
@@ -171,18 +174,19 @@ export function QuickAddButton() {
       )}
 
       {/* FAB */}
-      <button
-        title="Ajouter une interaction, un contact, une session..."
-        onClick={() => { if (showQuick) { setShowQuick(false); resetQuick(); } else { setOpen(!open); } }}
-        className={cn(
-          "w-14 h-14 rounded-2xl bg-gradient-to-br from-[#c084fc] to-[#f472b6] flex items-center justify-center shadow-lg shadow-[#c084fc]/20 hover:shadow-[0_0_24px_-4px_var(--neon-purple)] hover:scale-105 transition-all duration-200",
-          (open || showQuick) && "rotate-45"
-        )}
-      >
-        <svg className="w-7 h-7 text-white transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-        </svg>
-      </button>
+      <Tooltip text="Ajout rapide" position="left">
+        <button
+          onClick={() => { if (showQuick) { setShowQuick(false); resetQuick(); } else { setOpen(!open); } }}
+          className={cn(
+            "w-14 h-14 rounded-2xl bg-gradient-to-br from-[#c084fc] to-[#f472b6] flex items-center justify-center shadow-lg shadow-[#c084fc]/20 hover:shadow-[0_0_24px_-4px_var(--neon-purple)] hover:scale-105 transition-all duration-200",
+            (open || showQuick) && "rotate-45"
+          )}
+        >
+          <svg className="w-7 h-7 text-white transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+          </svg>
+        </button>
+      </Tooltip>
     </div>
   );
 }
