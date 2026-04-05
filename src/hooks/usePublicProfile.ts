@@ -12,13 +12,22 @@ export function usePublicProfile() {
   const [profile, setProfile] = useState<PublicProfile | null>(null);
   const [loaded, setLoaded] = useState(false);
 
+  const googleImage = session?.user?.image ?? null;
+
   useEffect(() => {
     if (!userId) return;
     fetchOneAction<PublicProfile>("public_profiles").then((data) => {
-      setProfile(data);
+      // Auto-set Google profile photo as default if no custom photo exists
+      if (data && !data.profilePhoto && googleImage) {
+        const updated = { ...data, profilePhoto: googleImage };
+        setProfile(updated);
+        upsertRowAction("public_profiles", updated);
+      } else {
+        setProfile(data);
+      }
       setLoaded(true);
     });
-  }, [userId]);
+  }, [userId, googleImage]);
 
   const save = useCallback(
     (updates: Partial<Omit<PublicProfile, "userId" | "createdAt">>) => {

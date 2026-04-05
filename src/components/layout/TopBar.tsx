@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { useGamification } from "@/hooks/useGamification";
 import { useWingRequests } from "@/hooks/useWingRequests";
+import { usePublicProfile } from "@/hooks/usePublicProfile";
 import { fetchSessionInvitesForUserAction, updateSessionInviteStatusAction, fetchProfilesByIdsAction } from "@/actions/db";
 import { Modal } from "@/components/ui/Modal";
 import { Card } from "@/components/ui/Card";
@@ -91,6 +92,11 @@ export function TopBar() {
   const [readNotifs, setReadNotifs] = useState(false);
   const gam = useGamification();
   const { pendingReceived } = useWingRequests();
+  const { profile: publicProfile } = usePublicProfile();
+
+  // Use profile photo from public profile, fall back to Google auth image
+  const avatarUrl = publicProfile?.profilePhoto || authSession?.user?.image || null;
+  const avatarInitial = publicProfile?.firstName?.[0]?.toUpperCase() || authSession?.user?.name?.[0]?.toUpperCase() || "?";
 
   const loadSessionInvites = useCallback(async () => {
     if (!userId) return;
@@ -224,11 +230,11 @@ export function TopBar() {
               aria-label="Mon compte"
               className="relative p-1 rounded-[12px] hover:bg-[var(--border)] transition-colors"
             >
-              {authSession.user.image ? (
-                <img src={authSession.user.image} alt="" className="w-7 h-7 rounded-full" referrerPolicy="no-referrer" />
+              {avatarUrl ? (
+                <img src={avatarUrl} alt="" className="w-7 h-7 rounded-full object-cover" referrerPolicy="no-referrer" />
               ) : (
                 <div className="w-7 h-7 rounded-full bg-[var(--primary)]/20 flex items-center justify-center text-[10px] font-bold text-[var(--primary)]">
-                  {authSession.user.name?.[0]?.toUpperCase() || "?"}
+                  {avatarInitial}
                 </div>
               )}
             </button>
@@ -274,11 +280,11 @@ export function TopBar() {
               aria-label="Mon compte"
               className="relative p-1 rounded-[12px] hover:bg-[var(--border)] transition-colors"
             >
-              {authSession.user.image ? (
-                <img src={authSession.user.image} alt="" className="w-7 h-7 rounded-full" referrerPolicy="no-referrer" />
+              {avatarUrl ? (
+                <img src={avatarUrl} alt="" className="w-7 h-7 rounded-full object-cover" referrerPolicy="no-referrer" />
               ) : (
                 <div className="w-7 h-7 rounded-full bg-[var(--primary)]/20 flex items-center justify-center text-[10px] font-bold text-[var(--primary)]">
-                  {authSession.user.name?.[0]?.toUpperCase() || "?"}
+                  {avatarInitial}
                 </div>
               )}
             </button>
@@ -292,11 +298,11 @@ export function TopBar() {
           <div className="absolute top-14 right-4 lg:right-8 glass-card p-4 w-64 shadow-xl z-50" onClick={(e) => e.stopPropagation()}>
             {/* User info */}
             <div className="flex items-center gap-3 mb-3 pb-3 border-b border-[var(--glass-border)]">
-              {authSession.user.image ? (
-                <img src={authSession.user.image} alt="" className="w-10 h-10 rounded-full" referrerPolicy="no-referrer" />
+              {avatarUrl ? (
+                <img src={avatarUrl} alt="" className="w-10 h-10 rounded-full object-cover" referrerPolicy="no-referrer" />
               ) : (
                 <div className="w-10 h-10 rounded-full bg-[var(--primary)]/20 flex items-center justify-center text-sm font-bold text-[var(--primary)]">
-                  {authSession.user.name?.[0]?.toUpperCase() || "?"}
+                  {avatarInitial}
                 </div>
               )}
               <div className="flex-1 min-w-0">
