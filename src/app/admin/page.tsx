@@ -8,13 +8,13 @@ import { Button } from "@/components/ui/Button";
 import { Input, TextArea } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
 import { Badge } from "@/components/ui/Badge";
-import { adminGetStatsAction, adminGetAllProfilesAction, adminGetAllSessionsAction, adminDeleteUserAction, adminDeleteSessionAction, adminGetAnnouncementAction, adminSetAnnouncementAction } from "@/actions/db";
+import { adminGetStatsAction, adminGetAllProfilesAction, adminGetAllSessionsAction, adminDeleteUserAction, adminDeleteSessionAction, adminGetAnnouncementAction, adminSetAnnouncementAction, adminGetReportsAction, adminResolveReportAction, adminDeletePostAction, adminSendPushAction } from "@/actions/db";
 import { formatDate, formatRelative } from "@/lib/utils";
 import type { PublicProfile, Session } from "@/types";
 
 const ADMIN_EMAIL = process.env.NEXT_PUBLIC_ADMIN_EMAIL ?? "";
 
-type AdminTab = "stats" | "users" | "sessions" | "announce";
+type AdminTab = "stats" | "users" | "sessions" | "announce" | "moderation" | "push";
 
 export default function AdminPage() {
   const { data: authSession } = useSession();
@@ -32,6 +32,18 @@ export default function AdminPage() {
   const [confirmAction, setConfirmAction] = useState<{ type: string; id: string; label: string } | null>(null);
   const [searchUser, setSearchUser] = useState("");
 
+  // Moderation
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [reports, setReports] = useState<any[]>([]);
+  const [resolvingId, setResolvingId] = useState<string | null>(null);
+
+  // Push
+  const [pushTitle, setPushTitle] = useState("");
+  const [pushBody, setPushBody] = useState("");
+  const [pushUrl, setPushUrl] = useState("");
+  const [pushSending, setPushSending] = useState(false);
+  const [pushResult, setPushResult] = useState<{ sent: number; failed: number; total: number } | null>(null);
+
   // Auth guard
   useEffect(() => {
     if (authSession && userId !== ADMIN_EMAIL) {
@@ -46,18 +58,51 @@ export default function AdminPage() {
   }, [userId]);
 
   const loadAll = async () => {
-    const [s, p, sess, ann] = await Promise.all([
+    const [s, p, sess, ann, rep] = await Promise.all([
       adminGetStatsAction(),
       adminGetAllProfilesAction(),
       adminGetAllSessionsAction(),
       adminGetAnnouncementAction(),
+      adminGetReportsAction(),
     ]);
     setStats(s);
     setProfiles(p as PublicProfile[]);
     setSessions(sess as (Session & { userId?: string })[]);
     setCurrentAnnouncement(ann);
     setAnnouncement(ann || "");
+    setReports(rep);
     setLoaded(true);
+  };
+
+  const handleResolveReport = async (reportId: string) => {
+    setResolvingId(reportId);
+    await adminResolveReportAction(reportId);
+    setReports((prev) => prev.filter((r) => r.id !== reportId));
+    setResolvingId(null);
+  };
+
+  const handleDeletePostFromReport = async (postId: string, reportId: string) => {
+    setResolvingId(reportId);
+    await adminDeletePostAction(postId);
+    // Remove all reports for this post
+    setReports((prev) => prev.filter((r) => r.postId !== postId));
+    setResolvingId(null);
+  };
+
+  const handleSendPush = async () => {
+    if (!pushTitle.trim() || !pushBody.trim()) return;
+    setPushSending(true);
+    setPushResult(null);
+    try {
+      const result = await adminSendPushAction(pushTitle.trim(), pushBody.trim(), pushUrl.trim() || undefined);
+      setPushResult(result);
+      setPushTitle("");
+      setPushBody("");
+      setPushUrl("");
+    } catch (e: any) {
+      setPushResult({ sent: 0, failed: 0, total: -1 });
+    }
+    setPushSending(false);
   };
 
   const handleDeleteUser = async (targetUserId: string) => {
@@ -99,6 +144,8 @@ export default function AdminPage() {
     { key: "users", label: `Utilisateurs (${profiles.length})` },
     { key: "sessions", label: `Sessions (${sessions.length})` },
     { key: "announce", label: "Annonce" },
+    { key: "moderation", label: `Signalements (${reports.length})` },
+    { key: "push", label: "Push" },
   ];
 
   return (
@@ -242,6 +289,64 @@ export default function AdminPage() {
             <div className="flex gap-2 mt-3">
               <Button onClick={handleSetAnnouncement} disabled={!announcement.trim()}>Publier l&apos;annonce</Button>
             </div>
+          </Card>
+        </div>
+      )}
+
+      {/* MODERATION */}
+      {tab === "moderation" && (
+        <div className="space-y-3">
+          {reports.length === 0 && <p className="text-sm text-[var(--outline)] text-center py-8">Aucun signalement en attente.</p>}
+          {reports.map((r: any) => (
+            <Card key={r.id} className="!p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Badge className="bg-[#fb7185]/15 text-[#fb7185]">Signalement</Badge>
+                    <span className="text-[10px] text-[var(--outline)]">{formatRelative(r.createdAt)}</span>
+                  </div>
+                  <p className="text-xs text-[var(--on-surface-variant)] mb-1"><span className="text-[var(--outline)]">Raison :</span> {r.reason || "—"}</p>
+                  <p className="text-[10px] text-[var(--outline)]">Post ID: {r.postId}</p>
+                  <p className="text-[10px] text-[var(--outline)]">Signalé par: {r.userId}</p>
+                </div>
+                <div className="flex flex-col gap-1.5 shrink-0">
+                  <Button size="sm" variant="danger" disabled={resolvingId === r.id}
+                    onClick={() => handleDeletePostFromReport(r.postId, r.id)}>
+                    Supprimer le post
+                  </Button>
+                  <Button size="sm" variant="ghost" disabled={resolvingId === r.id}
+                    onClick={() => handleResolveReport(r.id)}>
+                    Ignorer
+                  </Button>
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
+      )}
+
+      {/* PUSH NOTIFICATIONS */}
+      {tab === "push" && (
+        <div className="space-y-4">
+          <Card>
+            <h3 className="text-sm font-semibold text-[var(--on-surface)] mb-1">Notification personnalisée</h3>
+            <p className="text-xs text-[var(--on-surface-variant)] mb-4">Envoyer une notification push à tous les utilisateurs abonnés.</p>
+            <div className="space-y-3">
+              <Input placeholder="Titre de la notification" value={pushTitle} onChange={(e) => setPushTitle(e.target.value)} />
+              <TextArea placeholder="Corps du message..." rows={3} value={pushBody} onChange={(e) => setPushBody(e.target.value)} />
+              <Input placeholder="URL de redirection (optionnel, ex: /feed)" value={pushUrl} onChange={(e) => setPushUrl(e.target.value)} />
+              <Button onClick={handleSendPush} disabled={pushSending || !pushTitle.trim() || !pushBody.trim()}>
+                {pushSending ? "Envoi en cours..." : "Envoyer la notification"}
+              </Button>
+            </div>
+            {pushResult && (
+              <div className={`mt-3 p-3 rounded-lg text-xs ${pushResult.total === -1 ? "bg-[#fb7185]/10 text-[#fb7185]" : "bg-emerald-400/10 text-emerald-400"}`}>
+                {pushResult.total === -1
+                  ? "Erreur lors de l'envoi. Vérifiez que les clés VAPID sont configurées."
+                  : `Envoyé: ${pushResult.sent} / ${pushResult.total} — Échoué: ${pushResult.failed}`
+                }
+              </div>
+            )}
           </Card>
         </div>
       )}

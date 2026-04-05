@@ -454,6 +454,70 @@ export async function adminGetAnnouncementAction() {
   return db.adminGetAnnouncement();
 }
 
+export async function adminGetReportsAction() {
+  await requireAdmin();
+  return db.adminGetReports();
+}
+
+export async function adminResolveReportAction(reportId: string) {
+  await requireAdmin();
+  assertString(reportId, "reportId", 200);
+  await db.adminResolveReport(reportId);
+}
+
+export async function adminDeletePostAction(postId: string) {
+  await requireAdmin();
+  assertString(postId, "postId", 200);
+  await db.adminDeletePost(postId);
+}
+
+export async function adminSendPushAction(title: string, body: string, url?: string) {
+  await requireAdmin();
+  assertString(title, "title", 200);
+  assertString(body, "body", 500);
+  if (url) assertString(url, "url", 500);
+
+  const subs = await db.adminGetAllPushSubscriptions();
+  if (subs.length === 0) return { sent: 0, failed: 0, total: 0 };
+
+  const webPush = (await import("web-push")).default;
+  const pub = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ?? "";
+  const priv = process.env.VAPID_PRIVATE_KEY ?? "";
+  const email = process.env.VAPID_EMAIL ?? "mailto:contact@gameprogress.app";
+  if (!pub || !priv) throw new Error("VAPID keys not configured");
+  webPush.setVapidDetails(email, pub, priv);
+
+  const payload = JSON.stringify({
+    title,
+    body,
+    tag: "admin-custom",
+    url: url || "/",
+  });
+
+  let sent = 0;
+  let failed = 0;
+
+  await Promise.allSettled(
+    subs.map(async (sub) => {
+      try {
+        await webPush.sendNotification(
+          { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.authKey } },
+          payload,
+        );
+        sent++;
+      } catch (err: unknown) {
+        failed++;
+        const status = (err as { statusCode?: number }).statusCode;
+        if (status === 410 || status === 404) {
+          await db.deletePushSubscription(sub.userId, sub.endpoint);
+        }
+      }
+    }),
+  );
+
+  return { sent, failed, total: subs.length };
+}
+
 // ─── Community Benchmarks (anonymous) ─────────────────
 
 export async function fetchCommunityBenchmarksAction() {

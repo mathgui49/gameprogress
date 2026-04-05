@@ -914,6 +914,33 @@ export async function adminSetAnnouncement(message: string | null) {
   }
 }
 
+export async function adminGetReports() {
+  const { data } = await supabase
+    .from("post_reports")
+    .select("*")
+    .order("created_at", { ascending: false })
+    .limit(100);
+  return (data || []).map((r: any) => fromRow(r));
+}
+
+export async function adminResolveReport(reportId: string) {
+  await supabase.from("post_reports").delete().eq("id", reportId);
+}
+
+export async function adminDeletePost(postId: string) {
+  // Delete related data first, then the post
+  await supabase.from("post_comments").delete().eq("post_id", postId);
+  await supabase.from("post_reactions").delete().eq("post_id", postId);
+  await supabase.from("post_reports").delete().eq("post_id", postId);
+  await supabase.from("post_hides").delete().eq("post_id", postId);
+  await supabase.from("posts").delete().eq("id", postId);
+}
+
+export async function adminGetAllPushSubscriptions(): Promise<PushSubscriptionRow[]> {
+  const { data } = await supabase.from("push_subscriptions").select("*");
+  return (data || []).map((r: any) => fromRow<PushSubscriptionRow>(r));
+}
+
 // ─── Push Subscriptions ──────────────────────────────────
 
 export interface PushSubscriptionRow {
