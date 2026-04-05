@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import { useJournal } from "@/hooks/useJournal";
+import { useGamification } from "@/hooks/useGamification";
 import type { JournalTag } from "@/types";
-import { JOURNAL_TAG_LABELS, JOURNAL_TAG_COLORS } from "@/types";
+import { JOURNAL_TAG_LABELS, JOURNAL_TAG_COLORS, XP_VALUES } from "@/types";
 import { formatDate } from "@/lib/utils";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -17,6 +18,7 @@ const ALL_TAGS: JournalTag[] = ["mindset", "progress", "fear", "reflection", "re
 
 export default function JournalPage() {
   const { entries, loaded, add, update, remove } = useJournal();
+  const { addXP } = useGamification();
   const [showNew, setShowNew] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [content, setContent] = useState("");
@@ -88,7 +90,7 @@ export default function JournalPage() {
             </div>
           </div>
           <Button disabled={!content.trim()} onClick={() => {
-            if (editingId) { update(editingId, content.trim(), tag); } else { add(content.trim(), tag); }
+            if (editingId) { update(editingId, content.trim(), tag); } else { add(content.trim(), tag); addXP(XP_VALUES.journal_entry, "Entree journal"); }
             setContent(""); setTag(null); setEditingId(null); setShowNew(false);
           }}>
             {editingId ? "Modifier" : "Enregistrer"}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useSession } from "next-auth/react";
 import type { GamificationState, XPEvent } from "@/types";
 import { xpForLevel } from "@/types";
@@ -13,6 +13,8 @@ export function useGamification() {
   const userId = authSession?.user?.email ?? "";
   const [state, setState] = useState<GamificationState>(generateDefaultGamification());
   const [loaded, setLoaded] = useState(false);
+  const stateRef = useRef(state);
+  stateRef.current = state;
 
   useEffect(() => {
     if (!userId) return;
@@ -22,9 +24,10 @@ export function useGamification() {
     });
   }, [userId]);
 
-  const save = useCallback(
+  const persist = useCallback(
     (updated: GamificationState) => {
       setState(updated);
+      stateRef.current = updated;
       upsertRow("gamification", userId, updated);
     },
     [userId]
@@ -32,56 +35,62 @@ export function useGamification() {
 
   const addXP = useCallback(
     (amount: number, reason: string) => {
+      const current = stateRef.current;
       const event: XPEvent = { id: generateId(), amount, reason, date: new Date().toISOString() };
-      let newXP = state.xp + amount;
-      let newLevel = state.level;
+      let newXP = current.xp + amount;
+      let newLevel = current.level;
       while (newXP >= xpForLevel(newLevel)) {
         newXP -= xpForLevel(newLevel);
         newLevel++;
       }
-      save({ ...state, xp: newXP, level: newLevel, xpEvents: [event, ...state.xpEvents.slice(0, 49)] });
+      const updated = { ...current, xp: newXP, level: newLevel, xpEvents: [event, ...current.xpEvents.slice(0, 49)] };
+      persist(updated);
     },
-    [state, save]
+    [persist]
   );
 
   const updateStreak = useCallback(() => {
+    const current = stateRef.current;
     const today = new Date().toISOString().split("T")[0];
-    if (state.lastActiveDate === today) return;
+    if (current.lastActiveDate === today) return;
 
     const yesterday = new Date(Date.now() - 86400000).toISOString().split("T")[0];
-    const newStreak = state.lastActiveDate === yesterday ? state.streak + 1 : 1;
-    save({
-      ...state,
+    const newStreak = current.lastActiveDate === yesterday ? current.streak + 1 : 1;
+    const updated = {
+      ...current,
       streak: newStreak,
-      bestStreak: Math.max(newStreak, state.bestStreak),
+      bestStreak: Math.max(newStreak, current.bestStreak),
       lastActiveDate: today,
-    });
-  }, [state, save]);
+    };
+    persist(updated);
+  }, [persist]);
 
   const unlockBadge = useCallback(
     (badgeId: string) => {
-      save({
-        ...state,
-        badges: state.badges.map((b) =>
+      const current = stateRef.current;
+      persist({
+        ...current,
+        badges: current.badges.map((b) =>
           b.id === badgeId && !b.unlockedAt ? { ...b, unlockedAt: new Date().toISOString() } : b
         ),
       });
     },
-    [state, save]
+    [persist]
   );
 
   const updateMilestone = useCallback(
     (milestoneId: string, current: number) => {
-      save({
-        ...state,
-        milestones: state.milestones.map((m) => {
+      const s = stateRef.current;
+      persist({
+        ...s,
+        milestones: s.milestones.map((m) => {
           if (m.id !== milestoneId) return m;
           const unlocked = current >= m.target && !m.unlockedAt;
           return { ...m, current, unlockedAt: unlocked ? new Date().toISOString() : m.unlockedAt };
         }),
       });
     },
-    [state, save]
+    [persist]
   );
 
   const xpForNext = xpForLevel(state.level);

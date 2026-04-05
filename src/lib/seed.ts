@@ -87,12 +87,12 @@ export function generateDefaultMilestones(): Milestone[] {
 
 export function generateDefaultGamification(): GamificationState {
   return {
-    xp: 285,
-    level: 4,
+    xp: 0,
+    level: 1,
     xpEvents: [],
-    streak: 5,
-    bestStreak: 5,
-    lastActiveDate: new Date().toISOString().split("T")[0],
+    streak: 0,
+    bestStreak: 0,
+    lastActiveDate: "",
     badges: generateDefaultBadges(),
     milestones: generateDefaultMilestones(),
   };
