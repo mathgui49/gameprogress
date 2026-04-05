@@ -41,3 +41,7 @@ yarn-error.log*
 next-env.d.ts
 
 .vercel
+
+# Capacitor native projects (rebuild locally with `npx cap add`)
+/android/
+/ios/
