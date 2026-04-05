@@ -13,6 +13,7 @@ import { BADGE_CATEGORIES } from "@/lib/seed";
 import { Card } from "@/components/ui/Card";
 import { Tooltip } from "@/components/ui/Tooltip";
 import { IconFlame, IconAward, IconTrendingUp, IconLock, IconTarget } from "@/components/ui/Icons";
+import { BadgeIcon } from "@/components/ui/BadgeIcon";
 
 export default function ProgressionPage() {
   const gam = useGamification();
@@ -118,7 +119,7 @@ export default function ProgressionPage() {
     <div className="px-4 py-6 lg:px-8 lg:py-8 max-w-4xl mx-auto animate-fade-in">
       <div className="mb-8">
         <h1 className="text-2xl font-[family-name:var(--font-grotesk)] font-bold tracking-tight mb-1"><span className="bg-gradient-to-r from-[#c084fc] via-[#f472b6] to-[#818cf8] bg-clip-text text-transparent">Progression</span></h1>
-        <p className="text-sm text-[var(--on-surface-variant)]">Ton parcours de progression</p>
+        <p className="text-sm text-[var(--on-surface-variant)]">Suis ton niveau, tes badges et tes stats de performance</p>
       </div>
 
       {/* Skill Rating hero with conic ring */}
@@ -214,7 +215,7 @@ export default function ProgressionPage() {
 
       {/* Progressive Badges */}
       <div>
-        <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-[var(--on-surface)] mb-4">Badges ({totalUnlocked}/{totalTiers})</h2>
+        <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-[var(--on-surface)] mb-4">Progressions ({totalUnlocked}/{totalTiers})</h2>
         <div className="space-y-3">
           {BADGE_CATEGORIES.map((cat) => {
             const value = categoryValues[cat.key] ?? 0;
@@ -239,11 +240,11 @@ export default function ProgressionPage() {
               <Card key={cat.id} className="!p-4">
                 <div className="flex items-center gap-3">
                   {/* Current badge icon */}
-                  <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 text-xl ${currentTier ? (maxed ? "bg-amber-400/10" : "bg-[var(--primary)]/10") : "bg-[var(--outline-variant)]/10"}`}>
-                    {currentTier ? currentTier.icon : <IconLock size={18} className="text-[var(--on-surface-variant)]" />}
+                  <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${currentTier ? (maxed ? "bg-amber-400/10 text-amber-400" : "bg-[var(--primary)]/10") : "bg-[var(--outline-variant)]/10"}`}>
+                    {currentTier ? <BadgeIcon icon={currentTier.icon} size={22} /> : <IconLock size={18} className="text-[var(--on-surface-variant)]" />}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between mb-1">
+                    <div className="flex items-center justify-between mb-0.5">
                       <div className="flex items-center gap-2 min-w-0">
                         <p className="text-xs text-[var(--on-surface-variant)] uppercase tracking-wider font-[family-name:var(--font-grotesk)]">{cat.label}</p>
                         {currentTier && (
@@ -254,18 +255,37 @@ export default function ProgressionPage() {
                         {maxed ? "MAX" : nextTier ? `${value}/${nextTier.threshold}` : `${value}/${cat.tiers[0].threshold}`}
                       </span>
                     </div>
-                    {/* Progress bar */}
-                    <div className="w-full h-2 rounded-full bg-[var(--surface-highest)] overflow-hidden">
+                    {/* Description */}
+                    <p className="text-[10px] text-[var(--outline)] mb-1.5">
+                      {currentTier?.description ?? cat.description ?? ""}
+                    </p>
+                    {/* Progress bar with step markers */}
+                    <div className="relative w-full h-2 rounded-full bg-[var(--surface-highest)] overflow-hidden">
                       <div
                         className={`h-full rounded-full transition-all duration-500 ${maxed ? "bg-gradient-to-r from-amber-400 to-amber-500 shadow-[0_0_8px_rgba(251,191,36,0.4)]" : "bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)]"}`}
                         style={{ width: `${pct}%` }}
                       />
                     </div>
-                    {/* Tier dots */}
+                    {/* Step indicators */}
+                    <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
+                      {cat.tiers.map((tier, i) => {
+                        const unlocked = value >= tier.threshold;
+                        const isCurrent = i === currentTierIdx;
+                        return (
+                          <Tooltip key={i} text={`${tier.name} — ${tier.description || tier.threshold}`} position="top">
+                            <div className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[9px] transition-all ${isCurrent ? "bg-[var(--primary)]/15 text-[var(--primary)] font-semibold" : unlocked ? "bg-[var(--surface-highest)] text-[var(--on-surface-variant)]" : "bg-transparent text-[var(--outline-variant)]"}`}>
+                              <BadgeIcon icon={tier.icon} size={12} />
+                              <span>{tier.threshold}</span>
+                            </div>
+                          </Tooltip>
+                        );
+                      })}
+                    </div>
+                    {/* Next tier info */}
                     {nextTier && (
-                      <div className="flex items-center gap-1 mt-1.5">
+                      <div className="flex items-center gap-1.5 mt-1">
                         <span className="text-[10px] text-[var(--outline)]">Prochain :</span>
-                        <span className="text-[10px] font-medium text-[var(--on-surface-variant)]">{nextTier.icon} {nextTier.name}</span>
+                        <span className="text-[10px] font-medium text-[var(--on-surface-variant)] flex items-center gap-1"><BadgeIcon icon={nextTier.icon} size={12} /> {nextTier.name}</span>
                       </div>
                     )}
                     {maxed && (

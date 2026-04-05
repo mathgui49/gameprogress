@@ -98,7 +98,8 @@ export default function NewSessionPage() {
         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
         Retour
       </button>
-      <h1 className="text-2xl font-bold text-[var(--on-surface)] tracking-tight mb-6">Nouvelle session</h1>
+      <h1 className="text-2xl font-bold text-[var(--on-surface)] tracking-tight mb-1">Nouvelle session</h1>
+      <p className="text-sm text-[var(--on-surface-variant)] mb-6">Planifie une sortie et invite tes wings</p>
 
       <form onSubmit={handleSubmit} className="space-y-5">
         <Input label="Titre (optionnel)" placeholder="Ex: Session Centre-ville (auto si vide)" value={title} onChange={(e) => setTitle(e.target.value)} />

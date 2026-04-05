@@ -128,7 +128,7 @@ export default function JournalPage() {
       <div className="flex items-center justify-between mb-4">
         <div>
           <h1 className="text-2xl font-[family-name:var(--font-grotesk)] font-bold tracking-tight mb-1"><span className="bg-gradient-to-r from-[#67e8f9] to-[#c084fc] bg-clip-text text-transparent">Journal</span></h1>
-          <p className="text-sm text-[var(--on-surface-variant)]">{entries.length} entrée{entries.length > 1 ? "s" : ""}</p>
+          <p className="text-sm text-[var(--on-surface-variant)]">Ecris tes reflexions, bilans et field reports — {entries.length} entrée{entries.length > 1 ? "s" : ""}</p>
         </div>
         <Button onClick={() => openEditor()}>+ Écrire</Button>
       </div>

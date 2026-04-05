@@ -66,7 +66,7 @@ export default function MissionsPage() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-[family-name:var(--font-grotesk)] font-bold tracking-tight mb-1"><span className="bg-gradient-to-r from-[#f472b6] to-[#c084fc] bg-clip-text text-transparent">Missions</span></h1>
-          <p className="text-sm text-[var(--on-surface-variant)]">{active.length} active{active.length > 1 ? "s" : ""}, {completed.length} terminée{completed.length > 1 ? "s" : ""}</p>
+          <p className="text-sm text-[var(--on-surface-variant)]">Defis quotidiens et hebdomadaires pour gagner de l'XP — {active.length} active{active.length > 1 ? "s" : ""}</p>
         </div>
         <Button onClick={() => setShowNew(true)}>+ Mission</Button>
       </div>

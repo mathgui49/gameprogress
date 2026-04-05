@@ -112,12 +112,14 @@ export interface BadgeTier {
   threshold: number;
   name: string;
   icon: string;
+  description?: string;
 }
 
 export interface BadgeCategory {
   id: string;
   label: string;
   key: string;
+  description?: string;
   tiers: BadgeTier[];
 }
 
@@ -414,7 +416,7 @@ export const SKILL_RANK_COLORS: Record<SkillRank, string> = {
   apprenti: "text-[var(--primary)]",
   intermediaire: "text-cyan-400",
   confirme: "text-[var(--tertiary)]",
-  avance: "text-amber-400",
+  avance: "text-[var(--tertiary)]",
   expert: "text-emerald-400",
   maitre: "text-[var(--secondary)]",
 };

@@ -40,6 +40,7 @@ export default function NewInteractionPage() {
         <h1 className="text-2xl font-bold text-[var(--on-surface)] tracking-tight font-[family-name:var(--font-manrope)]">
           Nouvelle interaction
         </h1>
+        <p className="text-sm text-[var(--on-surface-variant)] mt-1">Enregistre les details de ta derniere approche</p>
         {autoSession && (
           <p className="text-xs text-[var(--primary)] mt-1">
             Rattachée automatiquement à : {autoSession.title || "Session en cours"}

@@ -89,7 +89,7 @@ export default function FeedPage() {
     <div className="px-4 py-6 lg:px-8 lg:py-8 max-w-2xl mx-auto animate-fade-in">
       <div className="mb-6">
         <h1 className="text-2xl font-[family-name:var(--font-grotesk)] font-bold tracking-tight mb-1"><span className="bg-gradient-to-r from-[#f472b6] to-[#818cf8] bg-clip-text text-transparent">Feed</span></h1>
-        <p className="text-sm text-[var(--on-surface-variant)]">Activité de la communauté et de tes wings</p>
+        <p className="text-sm text-[var(--on-surface-variant)]">Partage et decouvre l'activite de tes wings et de la communaute</p>
       </div>
 
       <div className="flex gap-2 mb-6">

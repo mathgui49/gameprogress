@@ -43,7 +43,7 @@ export default function ContactsPage() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-[family-name:var(--font-grotesk)] font-bold tracking-tight mb-1"><span className="bg-gradient-to-r from-[#c084fc] to-[#34d399] bg-clip-text text-transparent">Pipeline</span></h1>
-          <p className="text-sm text-[var(--on-surface-variant)]">{contacts.length} contact{contacts.length > 1 ? "s" : ""}</p>
+          <p className="text-sm text-[var(--on-surface-variant)]">Suis tes contacts du close jusqu'au date — {contacts.length} contact{contacts.length > 1 ? "s" : ""}</p>
         </div>
         <Button onClick={() => setShowNew(true)}>+ Contact</Button>
       </div>

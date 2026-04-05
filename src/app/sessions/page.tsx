@@ -127,7 +127,7 @@ export default function SessionsPage() {
       <div className="flex items-center justify-between mb-4">
         <div>
           <h1 className="text-2xl font-[family-name:var(--font-grotesk)] font-bold tracking-tight mb-1"><span className="bg-gradient-to-r from-[#818cf8] to-[#c084fc] bg-clip-text text-transparent">Sessions</span></h1>
-          <p className="text-sm text-[var(--on-surface-variant)]">{allSessions.length} session{allSessions.length !== 1 ? "s" : ""}</p>
+          <p className="text-sm text-[var(--on-surface-variant)]">Organise et rejoins des sessions de game — {allSessions.length} session{allSessions.length !== 1 ? "s" : ""}</p>
         </div>
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-1 p-1 bg-[var(--surface-low)] rounded-xl">

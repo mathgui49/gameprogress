@@ -70,7 +70,7 @@ export default function SettingsPage() {
     <div className="px-4 py-6 lg:px-8 lg:py-8 max-w-2xl mx-auto animate-fade-in">
       <div className="mb-8">
         <h1 className="text-2xl lg:text-3xl font-[family-name:var(--font-grotesk)] font-bold tracking-tight mb-1"><span className="bg-gradient-to-r from-[#8a839e] to-[#c084fc] bg-clip-text text-transparent">Paramètres</span></h1>
-        <p className="text-sm text-[var(--on-surface-variant)]">Configuration</p>
+        <p className="text-sm text-[var(--on-surface-variant)]">Gere ton compte, ta confidentialite et tes preferences</p>
       </div>
 
       <Card className="mb-4">

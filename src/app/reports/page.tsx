@@ -201,7 +201,7 @@ export default function ReportsPage() {
               Rapport & Analytics
             </span>
           </h1>
-          <p className="text-sm text-[var(--on-surface-variant)] capitalize">{monthName}</p>
+          <p className="text-sm text-[var(--on-surface-variant)]">Analyse detaillee de tes performances et tendances — <span className="capitalize">{monthName}</span></p>
         </div>
         <div className="flex items-center gap-2">
           <div className="flex bg-[var(--surface-highest)] rounded-lg p-0.5">
