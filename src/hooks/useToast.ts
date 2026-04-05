@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, createContext, useContext } from "react";
 
 export interface Toast {
   id: string;
@@ -8,7 +8,23 @@ export interface Toast {
   type: "success" | "error" | "info";
 }
 
+interface ToastContextType {
+  toasts: Toast[];
+  show: (message: string, type?: Toast["type"]) => void;
+  dismiss: (id: string) => void;
+}
+
+export const ToastContext = createContext<ToastContextType>({
+  toasts: [],
+  show: () => {},
+  dismiss: () => {},
+});
+
 export function useToast() {
+  return useContext(ToastContext);
+}
+
+export function useToastState() {
   const [toasts, setToasts] = useState<Toast[]>([]);
 
   const show = useCallback((message: string, type: Toast["type"] = "success") => {

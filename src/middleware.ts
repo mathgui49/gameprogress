@@ -1,15 +1,27 @@
 import { auth } from "@/lib/auth";
 import { NextResponse } from "next/server";
 
+const ADMIN_EMAIL = "mathieu.guicheteau7@gmail.com";
+
 export default auth((req) => {
   const { nextUrl, auth: session } = req;
 
   const isLoggedIn = !!session;
   const isLoginPage = nextUrl.pathname === "/login";
+  const isLandingPage = nextUrl.pathname === "/landing";
   const isAuthRoute = nextUrl.pathname.startsWith("/api/auth");
+  const isAdminRoute = nextUrl.pathname.startsWith("/admin");
 
   // Always allow auth API routes
   if (isAuthRoute) return NextResponse.next();
+
+  // Allow landing page without auth
+  if (isLandingPage) return NextResponse.next();
+
+  // Block admin route for non-admin users (server-side)
+  if (isAdminRoute && isLoggedIn && session?.user?.email !== ADMIN_EMAIL) {
+    return NextResponse.redirect(new URL("/", nextUrl));
+  }
 
   // Redirect logged-in users away from login page
   if (isLoginPage && isLoggedIn) {

@@ -13,7 +13,6 @@ import { formatDate, formatRelative } from "@/lib/utils";
 import type { PublicProfile, Session } from "@/types";
 
 const ADMIN_EMAIL = "mathieu.guicheteau7@gmail.com";
-const ADMIN_PASSWORD = "miel49450";
 
 type AdminTab = "stats" | "users" | "sessions" | "announce";
 
@@ -21,10 +20,6 @@ export default function AdminPage() {
   const { data: authSession } = useSession();
   const router = useRouter();
   const userId = authSession?.user?.email ?? "";
-
-  const [authenticated, setAuthenticated] = useState(false);
-  const [passwordInput, setPasswordInput] = useState("");
-  const [passwordError, setPasswordError] = useState(false);
 
   const [tab, setTab] = useState<AdminTab>("stats");
   const [stats, setStats] = useState<Record<string, number>>({});
@@ -91,31 +86,6 @@ export default function AdminPage() {
 
   if (userId !== ADMIN_EMAIL) {
     return <div className="flex items-center justify-center h-screen"><p className="text-[#fb7185]">Acces refuse.</p></div>;
-  }
-
-  if (!authenticated) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <Card className="w-full max-w-xs text-center">
-          <div className="w-12 h-12 rounded-2xl bg-[var(--primary)]/10 flex items-center justify-center mx-auto mb-4">
-            <svg className="w-6 h-6 text-[var(--primary)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" /></svg>
-          </div>
-          <h2 className="text-lg font-[family-name:var(--font-grotesk)] font-bold text-[var(--on-surface)] mb-1">Admin</h2>
-          <p className="text-xs text-[var(--on-surface-variant)] mb-4">Entrez le mot de passe administrateur</p>
-          <form onSubmit={(e) => { e.preventDefault(); if (passwordInput === ADMIN_PASSWORD) { setAuthenticated(true); setPasswordError(false); } else { setPasswordError(true); } }}>
-            <Input
-              type="password"
-              placeholder="Mot de passe"
-              value={passwordInput}
-              onChange={(e) => { setPasswordInput(e.target.value); setPasswordError(false); }}
-              className="mb-3"
-            />
-            {passwordError && <p className="text-xs text-[#fb7185] mb-2">Mot de passe incorrect.</p>}
-            <Button type="submit" className="w-full">Acceder</Button>
-          </form>
-        </Card>
-      </div>
-    );
   }
 
   if (!loaded) return <div className="flex items-center justify-center h-screen"><div className="w-8 h-8 border-2 border-[var(--primary)]/30 border-t-[var(--primary)] rounded-full animate-spin" /></div>;

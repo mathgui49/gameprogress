@@ -9,6 +9,7 @@ import { Tutorial } from "@/components/layout/Tutorial";
 import { TopBar } from "@/components/layout/TopBar";
 import { AnnouncementBar } from "@/components/layout/AnnouncementBar";
 import { AuthProvider } from "@/components/layout/AuthProvider";
+import { ToastProvider } from "@/components/ui/Toast";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const grotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-grotesk" });
@@ -40,18 +41,20 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="font-[family-name:var(--font-inter)] antialiased">
         <AuthProvider>
-          <AnnouncementBar />
-          <div className="flex min-h-screen">
-            <Sidebar />
-            <main className="flex-1 min-w-0 pb-20 lg:pb-0">
-              <TopBar />
-              {children}
-            </main>
-          </div>
-          <QuickAddButton />
-          <MobileNav />
-          <InstallPrompt />
-          <Tutorial />
+          <ToastProvider>
+            <AnnouncementBar />
+            <div className="flex min-h-screen">
+              <Sidebar />
+              <main className="flex-1 min-w-0 pb-20 lg:pb-0">
+                <TopBar />
+                {children}
+              </main>
+            </div>
+            <QuickAddButton />
+            <MobileNav />
+            <InstallPrompt />
+            <Tutorial />
+          </ToastProvider>
         </AuthProvider>
       </body>
     </html>
