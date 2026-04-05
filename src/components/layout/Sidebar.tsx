@@ -24,14 +24,14 @@ export function Sidebar() {
   if (pathname === "/login") return null;
 
   return (
-    <aside className="hidden lg:flex flex-col w-[220px] min-h-screen bg-[#100e17] border-r border-[rgba(192,132,252,0.06)]">
+    <aside className="hidden lg:flex flex-col w-[220px] min-h-screen bg-[var(--surface-low)] border-r border-[var(--border)]">
       {/* Logo */}
       <div className="px-5 py-6">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg border-2 border-[#c084fc] flex items-center justify-center shadow-[0_0_12px_-2px_rgba(192,132,252,0.4)]">
+          <div className="w-8 h-8 rounded-lg border-2 border-[var(--primary)] flex items-center justify-center shadow-[0_0_12px_-2px_var(--neon-purple)]">
             <Image src="/logo.png" alt="GameTrack" width={20} height={20} className="rounded-[4px]" />
           </div>
-          <span className="text-[15px] font-[family-name:var(--font-grotesk)] font-bold text-[#f0eef5] tracking-tight">GameTrack</span>
+          <span className="text-[15px] font-[family-name:var(--font-grotesk)] font-bold text-[var(--on-surface)] tracking-tight">GameTrack</span>
         </div>
       </div>
 
@@ -46,13 +46,13 @@ export function Sidebar() {
               className={cn(
                 "flex items-center gap-3 px-3 py-2.5 rounded-lg text-[12px] font-medium tracking-wide transition-all duration-200",
                 active
-                  ? "text-[#f0eef5] bg-transparent font-semibold"
-                  : "text-[#6b6580] hover:text-[#a09bb2] hover:bg-[rgba(192,132,252,0.04)]"
+                  ? "text-[var(--on-surface)] bg-transparent font-semibold"
+                  : "text-[var(--outline)] hover:text-[var(--on-surface-variant)] hover:bg-[var(--border)]"
               )}
             >
               <div className={cn(
                 "w-1.5 h-1.5 rounded-full transition-all",
-                active ? "bg-[#c084fc] shadow-[0_0_8px_rgba(192,132,252,0.6)]" : "bg-current opacity-50"
+                active ? "bg-[var(--primary)] shadow-[0_0_8px_var(--neon-purple)]" : "bg-current opacity-50"
               )} />
               <svg className="w-[16px] h-[16px] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d={item.icon} />
@@ -63,8 +63,8 @@ export function Sidebar() {
         })}
       </nav>
 
-      <div className="px-4 py-3 border-t border-[rgba(192,132,252,0.04)]">
-        <div className="text-[9px] text-[#3d3650] text-center tracking-[2px] uppercase font-[family-name:var(--font-grotesk)]">v1.0 MVP</div>
+      <div className="px-4 py-3 border-t border-[var(--border)]">
+        <div className="text-[9px] text-[var(--outline-variant)] text-center tracking-[2px] uppercase font-[family-name:var(--font-grotesk)]">v1.0 MVP</div>
       </div>
     </aside>
   );

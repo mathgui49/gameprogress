@@ -6,10 +6,10 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variants = {
-  primary: "bg-gradient-to-r from-[#c084fc] to-[#f472b6] text-white hover:shadow-[0_0_20px_-4px_rgba(192,132,252,0.5)] font-semibold",
-  secondary: "bg-[#1a1626] border border-[rgba(192,132,252,0.1)] text-[#a09bb2] hover:bg-[#231e30] hover:text-[#f0eef5] hover:border-[rgba(192,132,252,0.2)]",
-  ghost: "text-[#a09bb2] hover:text-[#f0eef5] hover:bg-[rgba(192,132,252,0.06)]",
-  danger: "bg-[#fb7185]/10 text-[#fb7185] hover:bg-[#fb7185]/20",
+  primary: "bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] text-white hover:shadow-[0_0_20px_-4px_var(--neon-purple)] font-semibold",
+  secondary: "bg-[var(--surface-high)] border border-[var(--border)] text-[var(--on-surface-variant)] hover:bg-[var(--surface-bright)] hover:text-[var(--on-surface)] hover:border-[var(--border-hover)]",
+  ghost: "text-[var(--on-surface-variant)] hover:text-[var(--on-surface)] hover:bg-[var(--border)]",
+  danger: "bg-[var(--error)]/10 text-[var(--error)] hover:bg-[var(--error)]/20",
 };
 
 const sizes = {

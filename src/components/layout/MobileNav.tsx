@@ -32,8 +32,8 @@ export function MobileNav() {
       {/* More menu overlay */}
       {showMore && (
         <div className="lg:hidden fixed inset-0 z-50">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowMore(false)} />
-          <div className="absolute bottom-[68px] left-3 right-3 bg-[#14111c] border border-[rgba(192,132,252,0.08)] rounded-2xl p-3 animate-slide-up z-50 safe-area-bottom">
+          <div className="absolute inset-0 bg-[var(--backdrop)] backdrop-blur-sm" onClick={() => setShowMore(false)} />
+          <div className="absolute bottom-[68px] left-3 right-3 bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-3 animate-slide-up z-50 safe-area-bottom">
             <div className="grid grid-cols-3 gap-1">
               {MORE_NAV.map((item) => {
                 const active = pathname.startsWith(item.href);
@@ -44,7 +44,7 @@ export function MobileNav() {
                     onClick={() => setShowMore(false)}
                     className={cn(
                       "flex flex-col items-center gap-1.5 py-3 px-2 rounded-xl transition-all",
-                      active ? "text-[#c084fc] bg-[rgba(192,132,252,0.08)]" : "text-[#6b6580]"
+                      active ? "text-[var(--primary)] bg-[var(--border)]" : "text-[var(--outline)]"
                     )}
                   >
                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -60,7 +60,7 @@ export function MobileNav() {
       )}
 
       {/* Bottom nav */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[rgba(13,10,18,0.85)] backdrop-blur-xl border-t border-[rgba(192,132,252,0.06)] safe-area-bottom">
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[color-mix(in_srgb,var(--bg)_85%,transparent)] backdrop-blur-xl border-t border-[var(--border)] safe-area-bottom">
         <div className="flex items-center justify-around py-1.5 px-2">
           {MAIN_NAV.map((item) => {
             const active = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
@@ -70,10 +70,10 @@ export function MobileNav() {
                 href={item.href}
                 className={cn(
                   "flex flex-col items-center gap-0.5 py-1.5 px-3 rounded-xl transition-all min-w-[48px]",
-                  active ? "text-[#c084fc]" : "text-[#3d3650]"
+                  active ? "text-[var(--primary)]" : "text-[var(--outline-variant)]"
                 )}
               >
-                <svg className={cn("w-5 h-5", active && "drop-shadow-[0_0_6px_rgba(192,132,252,0.5)]")} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <svg className={cn("w-5 h-5", active && "drop-shadow-[0_0_6px_var(--neon-purple)]")} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d={item.icon} />
                 </svg>
                 <span className="text-[9px] font-medium">{item.label}</span>
@@ -85,7 +85,7 @@ export function MobileNav() {
             onClick={() => setShowMore(!showMore)}
             className={cn(
               "flex flex-col items-center gap-0.5 py-1.5 px-3 rounded-xl transition-all min-w-[48px]",
-              showMore ? "text-[#c084fc]" : "text-[#3d3650]"
+              showMore ? "text-[var(--primary)]" : "text-[var(--outline-variant)]"
             )}
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>

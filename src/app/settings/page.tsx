@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/Button";
 import { Input, TextArea } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
 import { clearAllUserData } from "@/lib/db";
+import { useTheme } from "@/hooks/useTheme";
 
 export default function SettingsPage() {
   const { data: authSession } = useSession();
@@ -28,6 +29,7 @@ export default function SettingsPage() {
   const [showClear, setShowClear] = useState(false);
   const [saved, setSaved] = useState(false);
   const [installPrompt, setInstallPrompt] = useState<Event | null>(null);
+  const { theme, toggle: toggleTheme } = useTheme();
 
   useEffect(() => {
     const handler = (e: Event) => { e.preventDefault(); setInstallPrompt(e); };
@@ -86,6 +88,22 @@ export default function SettingsPage() {
         ) : (
           <p className="text-xs text-[#6b6580]">Sur mobile : ouvre le menu du navigateur → &quot;Ajouter a l&apos;ecran d&apos;accueil&quot;.<br/>Sur PC : clique sur l&apos;icone d&apos;installation dans la barre d&apos;adresse.</p>
         )}
+      </Card>
+
+      <Card className="mb-4">
+        <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-white mb-4">Apparence</h2>
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-sm text-[var(--on-surface-variant)]">Mode {theme === "dark" ? "sombre" : "clair"}</p>
+            <p className="text-[10px] text-[var(--outline)]">Basculer entre le theme clair et sombre</p>
+          </div>
+          <button
+            onClick={toggleTheme}
+            className={`relative w-11 h-6 rounded-full transition-colors ${theme === "light" ? "bg-[var(--primary)]" : "bg-[var(--outline-variant)]"}`}
+          >
+            <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white transition-transform ${theme === "light" ? "translate-x-5" : ""}`} />
+          </button>
+        </div>
       </Card>
 
       <Card>
