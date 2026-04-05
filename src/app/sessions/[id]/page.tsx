@@ -1,9 +1,12 @@
 "use client";
 
-import { use, useState } from "react";
+import { use, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { useSessions } from "@/hooks/useSessions";
 import { useInteractions } from "@/hooks/useInteractions";
+import { useWingRequests } from "@/hooks/useWingRequests";
+import { fetchSessionParticipantsWithProfiles } from "@/lib/db";
 import { APPROACH_LABELS, RESULT_LABELS, RESULT_COLORS, TYPE_COLORS } from "@/types";
 import { formatDate } from "@/lib/utils";
 import { Card } from "@/components/ui/Card";
@@ -13,23 +16,48 @@ import { Modal } from "@/components/ui/Modal";
 import Link from "next/link";
 import { InteractionForm } from "@/components/interactions/InteractionForm";
 
+interface ParticipantWithProfile {
+  id: string;
+  sessionId: string;
+  userId: string;
+  ownerUserId: string;
+  status: "pending" | "accepted" | "declined";
+  createdAt: string;
+  profile: { userId: string; username: string; firstName: string; location: string } | null;
+}
+
 export default function SessionDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();
+  const { data: authSession } = useSession();
+  const currentUserId = authSession?.user?.email ?? "";
   const { getById, toggleGoal, addInteraction, remove, loaded } = useSessions();
   const { interactions, add: addNewInteraction } = useInteractions();
+  const { isWing } = useWingRequests();
   const [showDelete, setShowDelete] = useState(false);
   const [showAddInteraction, setShowAddInteraction] = useState(false);
+  const [participants, setParticipants] = useState<ParticipantWithProfile[]>([]);
+
+  useEffect(() => {
+    fetchSessionParticipantsWithProfiles(id).then(setParticipants);
+  }, [id]);
 
   if (!loaded) return <div className="flex items-center justify-center h-screen"><div className="w-8 h-8 border-2 border-[#c084fc]/30 border-t-[#c084fc] rounded-full animate-spin" /></div>;
 
   const session = getById(id);
   if (!session) return <div className="flex flex-col items-center justify-center h-screen"><p className="text-[#a09bb2] mb-4">Session introuvable</p><Button variant="secondary" onClick={() => router.push("/sessions")}>Retour</Button></div>;
 
+  const isOwner = true; // sessions from useSessions are the user's own or accepted invites
   const sessionInteractions = interactions.filter((i) => session.interactionIds.includes(i.id));
   const closes = sessionInteractions.filter((i) => i.result === "close").length;
   const avgFeeling = sessionInteractions.length > 0
     ? (sessionInteractions.reduce((s, i) => s + i.feelingScore, 0) / sessionInteractions.length).toFixed(1) : "—";
+
+  // Filter participants visible to current user:
+  // Show accepted participants if session is public OR if viewer is a wing of the owner
+  const acceptedParticipants = participants.filter((p) => p.status === "accepted");
+  const pendingParticipants = participants.filter((p) => p.status === "pending");
+  const canSeeParticipants = session.isPublic || isWing(session.wings?.[0] || "") || currentUserId === (participants[0]?.ownerUserId || currentUserId);
 
   return (
     <div className="px-4 py-6 lg:px-8 lg:py-8 max-w-4xl mx-auto animate-fade-in">
@@ -42,6 +70,7 @@ export default function SessionDetailPage({ params }: { params: Promise<{ id: st
         <div>
           <h1 className="text-2xl font-bold text-white mb-1">{session.title || "Session"}</h1>
           <p className="text-sm text-[#a09bb2]">{formatDate(session.date)} {session.location && `· ${session.location}`}</p>
+          {session.address && <p className="text-xs text-[#6b6580] mt-0.5">{session.address}</p>}
         </div>
         <Button variant="danger" size="sm" onClick={() => setShowDelete(true)}>Supprimer</Button>
       </div>
@@ -62,8 +91,40 @@ export default function SessionDetailPage({ params }: { params: Promise<{ id: st
         </Card>
       </div>
 
-      {/* Wings */}
-      {session.wings.length > 0 && (
+      {/* Participants */}
+      {(acceptedParticipants.length > 0 || pendingParticipants.length > 0) && canSeeParticipants && (
+        <Card className="mb-4 !p-4">
+          <h2 className="text-sm font-semibold text-white mb-3">Participants ({acceptedParticipants.length})</h2>
+          <div className="space-y-2">
+            {acceptedParticipants.map((p) => (
+              <div key={p.id} className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#c084fc]/20 to-[#818cf8]/20 flex items-center justify-center">
+                  <span className="text-xs font-bold text-[#c084fc]">{p.profile?.firstName?.[0]?.toUpperCase() || "?"}</span>
+                </div>
+                <div>
+                  <p className="text-sm text-white font-medium">@{p.profile?.username || p.profile?.firstName || "—"}</p>
+                  {p.profile?.location && <p className="text-[10px] text-[#6b6580]">{p.profile.location}</p>}
+                </div>
+                <Badge className="bg-emerald-400/15 text-emerald-400 ml-auto">Confirme</Badge>
+              </div>
+            ))}
+            {pendingParticipants.map((p) => (
+              <div key={p.id} className="flex items-center gap-3 opacity-60">
+                <div className="w-8 h-8 rounded-lg bg-[#1a1626] flex items-center justify-center">
+                  <span className="text-xs font-bold text-[#6b6580]">{p.profile?.firstName?.[0]?.toUpperCase() || "?"}</span>
+                </div>
+                <div>
+                  <p className="text-sm text-[#a09bb2]">@{p.profile?.username || p.profile?.firstName || "—"}</p>
+                </div>
+                <Badge className="bg-amber-400/15 text-amber-400 ml-auto">En attente</Badge>
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
+
+      {/* Wings (legacy text-based) */}
+      {session.wings.length > 0 && acceptedParticipants.length === 0 && (
         <Card className="mb-4 !p-4">
           <h2 className="text-sm font-semibold text-white mb-2">Wings</h2>
           <div className="flex gap-2">{session.wings.map((w) => <span key={w} className="text-xs px-3 py-1 rounded-full bg-[#1a1626] text-[#a09bb2]">{w}</span>)}</div>

@@ -3,7 +3,6 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { useSession, signOut } from "next-auth/react";
 import { cn } from "@/lib/utils";
 
 const NAV = [
@@ -17,14 +16,10 @@ const NAV = [
   { href: "/missions", label: "Missions", icon: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" },
   { href: "/progression", label: "Progression", icon: "M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" },
   { href: "/journal", label: "Journal", icon: "M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" },
-  { href: "/reports", label: "Rapports", icon: "M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" },
-  { href: "/profil", label: "Profil", icon: "M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" },
-  { href: "/settings", label: "Parametres", icon: "M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z" },
 ];
 
 export function Sidebar() {
   const pathname = usePathname();
-  const { data: session } = useSession();
 
   if (pathname === "/login") return null;
 
@@ -67,34 +62,6 @@ export function Sidebar() {
           );
         })}
       </nav>
-
-      {/* User section */}
-      {session?.user && (
-        <div className="px-3 py-3 border-t border-[rgba(192,132,252,0.04)]">
-          <div className="flex items-center gap-3 px-2">
-            {session.user.image ? (
-              <img src={session.user.image} alt="" className="w-7 h-7 rounded-full" referrerPolicy="no-referrer" />
-            ) : (
-              <div className="w-7 h-7 rounded-full bg-[#c084fc]/20 flex items-center justify-center text-[10px] font-bold text-[#c084fc]">
-                {session.user.name?.[0]?.toUpperCase() || "?"}
-              </div>
-            )}
-            <div className="flex-1 min-w-0">
-              <p className="text-[11px] text-[#f0eef5] font-medium truncate">{session.user.name}</p>
-              <p className="text-[9px] text-[#6b6580] truncate">{session.user.email}</p>
-            </div>
-            <button
-              onClick={() => signOut({ redirectTo: "/login" })}
-              className="text-[#6b6580] hover:text-[#fb7185] transition-colors shrink-0"
-              title="Deconnexion"
-            >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
-              </svg>
-            </button>
-          </div>
-        </div>
-      )}
 
       <div className="px-4 py-3 border-t border-[rgba(192,132,252,0.04)]">
         <div className="text-[9px] text-[#3d3650] text-center tracking-[2px] uppercase font-[family-name:var(--font-grotesk)]">v1.0 MVP</div>

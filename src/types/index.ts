@@ -239,6 +239,8 @@ export interface PrivacySettings {
   shareReportsWithWings: boolean;
   shareStatsPublic: boolean;
   shareStatsWings: boolean;
+  shareAgePublic: boolean;
+  shareAgeWings: boolean;
 }
 
 export const DEFAULT_PRIVACY: PrivacySettings = {
@@ -248,12 +250,15 @@ export const DEFAULT_PRIVACY: PrivacySettings = {
   shareReportsWithWings: false,
   shareStatsPublic: false,
   shareStatsWings: true,
+  shareAgePublic: false,
+  shareAgeWings: true,
 };
 
 export interface PublicProfile {
   userId: string;
   username: string;
   firstName: string;
+  birthDate: string | null;
   location: string;
   lat: number | null;
   lng: number | null;

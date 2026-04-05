@@ -3,19 +3,24 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSessions } from "@/hooks/useSessions";
-import { useWings } from "@/hooks/useWings";
+import { useWingRequests } from "@/hooks/useWingRequests";
+import { inviteWingsToSession } from "@/lib/db";
+import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/Button";
 import { Input, TextArea } from "@/components/ui/Input";
 import { MapPicker } from "@/components/ui/MapPicker";
+import type { PublicProfile } from "@/types";
 
 export default function NewSessionPage() {
   const router = useRouter();
+  const { data: authSession } = useSession();
+  const userId = authSession?.user?.email ?? "";
   const { add } = useSessions();
-  const { wings: allWings } = useWings();
+  const { wingProfiles } = useWingRequests();
+
   const [title, setTitle] = useState("");
   const [location, setLocation] = useState("");
-  const [selectedWings, setSelectedWings] = useState<string[]>([]);
-  const [customWing, setCustomWing] = useState("");
+  const [selectedWingIds, setSelectedWingIds] = useState<string[]>([]);
   const [notes, setNotes] = useState("");
   const [goalsText, setGoalsText] = useState("");
   const [date, setDate] = useState(new Date().toISOString().slice(0, 16));
@@ -25,22 +30,39 @@ export default function NewSessionPage() {
   const [isPublic, setIsPublic] = useState(false);
   const [maxParticipants, setMaxParticipants] = useState(0);
 
-  const toggleWing = (name: string) => {
-    setSelectedWings((prev) => prev.includes(name) ? prev.filter((w) => w !== name) : [...prev, name]);
+  const toggleWing = (wingUserId: string) => {
+    setSelectedWingIds((prev) =>
+      prev.includes(wingUserId) ? prev.filter((id) => id !== wingUserId) : [...prev, wingUserId]
+    );
   };
 
-  const addCustomWing = () => {
-    const trimmed = customWing.trim();
-    if (trimmed && !selectedWings.includes(trimmed)) {
-      setSelectedWings((prev) => [...prev, trimmed]);
-      setCustomWing("");
-    }
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const goals = goalsText.split("\n").filter(Boolean).map((text) => ({ text: text.trim(), done: false }));
-    add({ title, date: new Date(date).toISOString(), location, address, lat, lng, wings: selectedWings, notes, goals, interactionIds: [], isPublic, maxParticipants });
+    const wingNames = selectedWingIds.map((id) => {
+      const p = wingProfiles.find((wp: PublicProfile) => wp.userId === id);
+      return p?.username || p?.firstName || id;
+    });
+    const session = add({
+      title,
+      date: new Date(date).toISOString(),
+      location,
+      address,
+      lat,
+      lng,
+      wings: wingNames,
+      notes,
+      goals,
+      interactionIds: [],
+      isPublic,
+      maxParticipants,
+    });
+
+    // Send invites to selected wings
+    if (selectedWingIds.length > 0) {
+      await inviteWingsToSession(session.id, userId, selectedWingIds);
+    }
+
     router.push("/sessions");
   };
 
@@ -68,36 +90,42 @@ export default function NewSessionPage() {
           onCoordsChange={(newLat, newLng) => { setLat(newLat); setLng(newLng); }}
         />
 
-        {/* Wings selector */}
+        {/* Wings invite selector */}
         <div>
-          <p className="text-xs font-medium text-[#a09bb2] mb-2">Wings</p>
-          {allWings.length > 0 && (
-            <div className="flex flex-wrap gap-2 mb-3">
-              {allWings.map((w) => (
-                <button key={w.id} type="button" onClick={() => toggleWing(w.name)}
-                  className={`text-xs px-3 py-1.5 rounded-full transition-all ${
-                    selectedWings.includes(w.name)
-                      ? "bg-[#c084fc]/15 text-[#c084fc]"
-                      : "bg-[#1a1626] text-[#a09bb2] hover:bg-[#231e30]"
-                  }`}>
-                  {w.name}
-                </button>
-              ))}
+          <p className="text-xs font-medium text-[#a09bb2] mb-2">Inviter des Wings</p>
+          {wingProfiles.length > 0 ? (
+            <div className="flex flex-wrap gap-2">
+              {wingProfiles.map((wp: PublicProfile) => {
+                const selected = selectedWingIds.includes(wp.userId);
+                return (
+                  <button
+                    key={wp.userId}
+                    type="button"
+                    onClick={() => toggleWing(wp.userId)}
+                    className={`flex items-center gap-2 text-xs px-3 py-2 rounded-xl transition-all ${
+                      selected
+                        ? "bg-[#c084fc]/15 text-[#c084fc] ring-1 ring-[#c084fc]/30"
+                        : "bg-[#1a1626] text-[#a09bb2] hover:bg-[#231e30]"
+                    }`}
+                  >
+                    <div className={`w-6 h-6 rounded-lg flex items-center justify-center text-[10px] font-bold ${selected ? "bg-[#c084fc]/20 text-[#c084fc]" : "bg-[#14111c] text-[#6b6580]"}`}>
+                      {wp.firstName?.[0]?.toUpperCase() || wp.username?.[0]?.toUpperCase() || "?"}
+                    </div>
+                    <span>@{wp.username || wp.firstName || "—"}</span>
+                    {selected && (
+                      <svg className="w-3.5 h-3.5 text-[#c084fc]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
+                    )}
+                  </button>
+                );
+              })}
             </div>
+          ) : (
+            <p className="text-xs text-[#6b6580]">Aucun wing pour le moment. Ajoutez des wings depuis l&apos;onglet Wings.</p>
           )}
-          <div className="flex gap-2">
-            <Input placeholder="Ajouter un wing..." value={customWing} onChange={(e) => setCustomWing(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addCustomWing(); } }} className="flex-1" />
-            <Button type="button" variant="secondary" size="sm" onClick={addCustomWing} disabled={!customWing.trim()}>+</Button>
-          </div>
-          {selectedWings.length > 0 && (
-            <div className="flex flex-wrap gap-1.5 mt-2">
-              {selectedWings.map((w) => (
-                <span key={w} className="text-[10px] px-2 py-1 rounded-full bg-[#c084fc]/10 text-[#c084fc] flex items-center gap-1">
-                  {w}
-                  <button type="button" onClick={() => setSelectedWings((prev) => prev.filter((x) => x !== w))} className="hover:text-white">✕</button>
-                </span>
-              ))}
-            </div>
+          {selectedWingIds.length > 0 && (
+            <p className="text-[10px] text-[#6b6580] mt-2">{selectedWingIds.length} wing{selectedWingIds.length > 1 ? "s" : ""} invite{selectedWingIds.length > 1 ? "s" : ""} — ils recevront une notification</p>
           )}
         </div>
 

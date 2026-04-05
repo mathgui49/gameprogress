@@ -11,6 +11,7 @@ import { MapPicker } from "@/components/ui/MapPicker";
 type PrivacyOption = "off" | "wings" | "public";
 
 const PRIVACY_GROUPS: { label: string; hint: string; publicKey: keyof PrivacySettings; wingsKey?: keyof PrivacySettings; noPublic?: boolean }[] = [
+  { label: "Age", hint: "Afficher ton age sur ton profil", publicKey: "shareAgePublic", wingsKey: "shareAgeWings" },
   { label: "Classement", hint: "Apparaitre dans le classement", publicKey: "showInLeaderboardPublic", wingsKey: "showInLeaderboardWings" },
   { label: "Statistiques", hint: "Partager tes stats", publicKey: "shareStatsWings", noPublic: true },
   { label: "Rapports", hint: "Partager tes rapports", publicKey: "shareReportsWithWings", noPublic: true },
@@ -60,6 +61,7 @@ export default function ProfilPage() {
         <div className="space-y-4">
           <Input label="Nom d'utilisateur" id="pu" placeholder="ex: mathieu_75" value={profile?.username ?? ""} onChange={(e) => { save({ username: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, "") }); flash(); }} />
           <Input label="Prenom" id="pfn" placeholder="Ton prenom" value={profile?.firstName ?? ""} onChange={(e) => { save({ firstName: e.target.value }); flash(); }} />
+          <Input label="Date de naissance" id="pbd" type="date" value={profile?.birthDate ?? ""} onChange={(e) => { save({ birthDate: e.target.value || null }); flash(); }} />
           <MapPicker
             label="Ville"
             lat={profile?.lat ?? 48.8566}

@@ -7,7 +7,7 @@ import { useWingRequests } from "@/hooks/useWingRequests";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import type { PublicProfile, Session } from "@/types";
-import { formatDate } from "@/lib/utils";
+import { formatDate, computeAge } from "@/lib/utils";
 import { findProfileByUsername, fetchOne, fromRow } from "@/lib/db";
 import { supabase } from "@/lib/supabase";
 
@@ -74,7 +74,14 @@ export default function WingProfilePage() {
             <span className="text-xl font-bold text-[#c084fc]">{profile.firstName?.[0]?.toUpperCase() || profile.username?.[0]?.toUpperCase()}</span>
           </div>
           <div className="flex-1">
-            <h1 className="text-xl font-[family-name:var(--font-grotesk)] font-bold text-white">{profile.firstName || profile.username}</h1>
+            <h1 className="text-xl font-[family-name:var(--font-grotesk)] font-bold text-white">
+              {profile.firstName || profile.username}
+              {(() => {
+                const age = computeAge(profile.birthDate);
+                const canSee = wingConnected ? profile.privacy?.shareAgeWings : profile.privacy?.shareAgePublic;
+                return age && canSee ? <span className="text-sm font-normal text-[#a09bb2] ml-2">{age} ans</span> : null;
+              })()}
+            </h1>
             <p className="text-sm text-[#6b6580]">@{profile.username}</p>
             {profile.location && (
               <p className="text-xs text-[#a09bb2] mt-1 flex items-center gap-1">

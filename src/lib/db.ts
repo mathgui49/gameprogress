@@ -332,6 +332,79 @@ export async function fetchActivityFeed(userId: string, wingIds: string[], locat
   return feed;
 }
 
+// ─── Session Invites ────────────────────────────────────
+
+export async function inviteWingsToSession(sessionId: string, ownerUserId: string, wingUserIds: string[]) {
+  if (wingUserIds.length === 0) return;
+  const rows = wingUserIds.map((uid) => ({
+    id: crypto.randomUUID(),
+    session_id: sessionId,
+    user_id: uid,
+    owner_user_id: ownerUserId,
+    status: "pending",
+    created_at: new Date().toISOString(),
+  }));
+  await supabase.from("session_participants").insert(rows);
+}
+
+export async function fetchSessionInvitesForUser(userId: string) {
+  const { data, error } = await supabase
+    .from("session_participants")
+    .select("*")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false });
+  if (error) { console.error("fetch session invites:", error); return []; }
+  return (data || []).map((r) => fromRow<any>(r));
+}
+
+export async function updateSessionInviteStatus(participantId: string, status: "accepted" | "declined") {
+  const { error } = await supabase
+    .from("session_participants")
+    .update({ status })
+    .eq("id", participantId);
+  if (error) console.error("update session invite:", error);
+}
+
+export async function fetchAcceptedSessionsForUser(userId: string) {
+  // Get session IDs where user is accepted participant
+  const { data: participations, error } = await supabase
+    .from("session_participants")
+    .select("session_id")
+    .eq("user_id", userId)
+    .eq("status", "accepted");
+  if (error || !participations || participations.length === 0) return [];
+
+  const sessionIds = participations.map((p: any) => p.session_id);
+  const { data: sessions } = await supabase
+    .from("sessions")
+    .select("*")
+    .in("id", sessionIds)
+    .order("date", { ascending: false });
+  return (sessions || []).map((r) => fromRow<any>(r));
+}
+
+export async function fetchSessionParticipantsWithProfiles(sessionId: string) {
+  const { data: participants } = await supabase
+    .from("session_participants")
+    .select("*")
+    .eq("session_id", sessionId);
+  if (!participants || participants.length === 0) return [];
+
+  const userIds = participants.map((p: any) => p.user_id);
+  const { data: profiles } = await supabase
+    .from("public_profiles")
+    .select("*")
+    .in("user_id", userIds);
+
+  const profileMap: Record<string, any> = {};
+  (profiles || []).forEach((p: any) => { profileMap[p.user_id] = fromRow(p); });
+
+  return participants.map((p: any) => ({
+    ...fromRow<any>(p),
+    profile: profileMap[p.user_id] || null,
+  }));
+}
+
 const ALL_TABLES = ["interactions", "contacts", "sessions", "wings", "missions", "journal_entries", "profiles", "gamification", "public_profiles", "wing_requests", "posts", "session_likes", "session_comments", "session_participants"];
 
 export async function clearAllUserData(userId: string) {

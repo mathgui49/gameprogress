@@ -42,7 +42,7 @@ function formatTime(d: string) {
 export default function CalendrierPage() {
   const { data: authSession } = useSession();
   const userId = authSession?.user?.email ?? "";
-  const { sessions, update: updateSession } = useSessions();
+  const { allSessions: sessions, update: updateSession } = useSessions();
   const { missions } = useMissions();
   const { contacts } = useContacts();
 

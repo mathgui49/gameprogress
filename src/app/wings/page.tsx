@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePublicProfile } from "@/hooks/usePublicProfile";
 import { useWingRequests } from "@/hooks/useWingRequests";
+import { fetchProfilesByIds } from "@/lib/db";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -12,7 +13,7 @@ import { IconUsers } from "@/components/ui/Icons";
 import { MapView } from "@/components/ui/MapView";
 import type { MapMarker } from "@/components/ui/MapView";
 import type { PublicProfile } from "@/types";
-import { formatDate } from "@/lib/utils";
+import { formatDate, computeAge } from "@/lib/utils";
 
 type Tab = "wings" | "discover" | "map" | "invitations";
 
@@ -30,6 +31,22 @@ export default function WingsPage() {
   const [discoverResults, setDiscoverResults] = useState<PublicProfile[]>([]);
   const [discoverLoaded, setDiscoverLoaded] = useState(false);
   const [discoverSearch, setDiscoverSearch] = useState("");
+  const [pendingProfiles, setPendingProfiles] = useState<Record<string, PublicProfile>>({});
+
+  // Resolve profiles for pending requests
+  useEffect(() => {
+    const allIds = [
+      ...pendingReceived.map((r) => r.fromUserId),
+      ...pendingSent.map((r) => r.toUserId),
+    ];
+    const uniqueIds = [...new Set(allIds)].filter((id) => !pendingProfiles[id]);
+    if (uniqueIds.length === 0) return;
+    fetchProfilesByIds(uniqueIds).then((profiles) => {
+      const map: Record<string, PublicProfile> = { ...pendingProfiles };
+      profiles.forEach((p: PublicProfile) => { map[p.userId] = p; });
+      setPendingProfiles(map);
+    });
+  }, [pendingReceived, pendingSent]);
 
   if (!loaded) return <div className="flex items-center justify-center h-screen"><div className="w-8 h-8 border-2 border-[#c084fc]/30 border-t-[#c084fc] rounded-full animate-spin" /></div>;
 
@@ -252,18 +269,28 @@ export default function WingsPage() {
               <p className="text-xs text-[#6b6580]">Aucune invitation en attente.</p>
             ) : (
               <div className="space-y-2">
-                {pendingReceived.map((req) => (
-                  <div key={req.id} className="flex items-center justify-between p-3 rounded-xl bg-[#0d0a12] border border-[rgba(192,132,252,0.08)]">
-                    <div>
-                      <p className="text-sm text-white">{req.fromUserId}</p>
-                      <p className="text-[10px] text-[#6b6580]">{formatDate(req.createdAt)}</p>
+                {pendingReceived.map((req) => {
+                  const p = pendingProfiles[req.fromUserId];
+                  const age = computeAge(p?.birthDate);
+                  const showAge = p?.privacy?.shareAgePublic || p?.privacy?.shareAgeWings;
+                  return (
+                    <div key={req.id} className="flex items-center justify-between p-3 rounded-xl bg-[#0d0a12] border border-[rgba(192,132,252,0.08)]">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#c084fc]/20 to-[#818cf8]/20 flex items-center justify-center">
+                          <span className="text-xs font-bold text-[#c084fc]">{p?.firstName?.[0]?.toUpperCase() || "?"}</span>
+                        </div>
+                        <div>
+                          <p className="text-sm text-white">{p?.firstName || "—"}{age && showAge ? <span className="text-[#6b6580] ml-1">{age} ans</span> : ""}</p>
+                          <p className="text-[10px] text-[#6b6580]">@{p?.username || "—"} · {formatDate(req.createdAt)}</p>
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button size="sm" onClick={() => acceptRequest(req.id)}>Accepter</Button>
+                        <Button size="sm" variant="ghost" onClick={() => declineRequest(req.id)}>Refuser</Button>
+                      </div>
                     </div>
-                    <div className="flex gap-2">
-                      <Button size="sm" onClick={() => acceptRequest(req.id)}>Accepter</Button>
-                      <Button size="sm" variant="ghost" onClick={() => declineRequest(req.id)}>Refuser</Button>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </Card>
@@ -275,15 +302,23 @@ export default function WingsPage() {
               <p className="text-xs text-[#6b6580]">Aucune invitation envoyee en attente.</p>
             ) : (
               <div className="space-y-2">
-                {pendingSent.map((req) => (
-                  <div key={req.id} className="flex items-center justify-between p-3 rounded-xl bg-[#0d0a12] border border-[rgba(192,132,252,0.08)]">
-                    <div>
-                      <p className="text-sm text-white">{req.toUserId}</p>
-                      <p className="text-[10px] text-[#6b6580]">{formatDate(req.createdAt)}</p>
+                {pendingSent.map((req) => {
+                  const p = pendingProfiles[req.toUserId];
+                  return (
+                    <div key={req.id} className="flex items-center justify-between p-3 rounded-xl bg-[#0d0a12] border border-[rgba(192,132,252,0.08)]">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-[#1a1626] flex items-center justify-center">
+                          <span className="text-xs font-bold text-[#6b6580]">{p?.firstName?.[0]?.toUpperCase() || "?"}</span>
+                        </div>
+                        <div>
+                          <p className="text-sm text-white">{p?.firstName || "—"}</p>
+                          <p className="text-[10px] text-[#6b6580]">@{p?.username || "—"} · {formatDate(req.createdAt)}</p>
+                        </div>
+                      </div>
+                      <span className="text-[10px] px-2 py-1 rounded-full bg-amber-400/15 text-amber-400">En attente</span>
                     </div>
-                    <span className="text-[10px] px-2 py-1 rounded-full bg-amber-400/15 text-amber-400">En attente</span>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </Card>

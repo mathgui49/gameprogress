@@ -3,19 +3,24 @@
 import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import type { Session } from "@/types";
-import { fetchAll, insertRow, updateRow, deleteRow } from "@/lib/db";
+import { fetchAll, insertRow, updateRow, deleteRow, fetchAcceptedSessionsForUser } from "@/lib/db";
 import { generateId } from "@/lib/utils";
 
 export function useSessions() {
   const { data: authSession } = useSession();
   const userId = authSession?.user?.email ?? "";
   const [sessions, setSessions] = useState<Session[]>([]);
+  const [invitedSessions, setInvitedSessions] = useState<Session[]>([]);
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     if (!userId) return;
-    fetchAll<Session>("sessions", userId).then((data) => {
-      setSessions(data);
+    Promise.all([
+      fetchAll<Session>("sessions", userId),
+      fetchAcceptedSessionsForUser(userId),
+    ]).then(([own, invited]) => {
+      setSessions(own);
+      setInvitedSessions(invited);
       setLoaded(true);
     });
   }, [userId]);
@@ -75,9 +80,12 @@ export function useSessions() {
   );
 
   const getById = useCallback(
-    (id: string) => sessions.find((s) => s.id === id) ?? null,
-    [sessions]
+    (id: string) => sessions.find((s) => s.id === id) ?? invitedSessions.find((s) => s.id === id) ?? null,
+    [sessions, invitedSessions]
   );
 
-  return { sessions, loaded, add, update, addInteraction, toggleGoal, remove, getById };
+  // All sessions (own + invited) for calendar etc.
+  const allSessions = [...sessions, ...invitedSessions];
+
+  return { sessions, invitedSessions, allSessions, loaded, add, update, addInteraction, toggleGoal, remove, getById };
 }
