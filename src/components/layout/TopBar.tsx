@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { useGamification } from "@/hooks/useGamification";
 import { useWingRequests } from "@/hooks/useWingRequests";
-import { adminGetAnnouncement, fetchSessionInvitesForUser, updateSessionInviteStatus, fetchProfilesByIds } from "@/lib/db";
+import { fetchSessionInvitesForUser, updateSessionInviteStatus, fetchProfilesByIds } from "@/lib/db";
 import { supabase } from "@/lib/supabase";
 import { fromRow } from "@/lib/db";
 import { Modal } from "@/components/ui/Modal";
@@ -47,17 +47,11 @@ export function TopBar() {
   const userId = authSession?.user?.email ?? "";
   const [showNotifs, setShowNotifs] = useState(false);
   const [showAccount, setShowAccount] = useState(false);
-  const [announcement, setAnnouncement] = useState<string | null>(null);
-  const [dismissedAnnouncement, setDismissedAnnouncement] = useState(false);
   const [sessionInvites, setSessionInvites] = useState<SessionInvite[]>([]);
   const [dismissedNotifs, setDismissedNotifs] = useState<Set<string>>(new Set());
   const [readNotifs, setReadNotifs] = useState(false);
   const gam = useGamification();
   const { pendingReceived } = useWingRequests();
-
-  useEffect(() => {
-    adminGetAnnouncement().then(setAnnouncement);
-  }, []);
 
   const loadSessionInvites = useCallback(async () => {
     if (!userId) return;
@@ -151,16 +145,6 @@ export function TopBar() {
 
   return (
     <>
-      {announcement && !dismissedAnnouncement && (
-        <div className="flex items-center gap-3 px-4 py-2 bg-amber-400/10 border-b border-amber-400/20">
-          <span className="text-amber-400 text-sm">📢</span>
-          <p className="flex-1 text-xs text-amber-400 font-medium">{announcement}</p>
-          <button onClick={() => setDismissedAnnouncement(true)} className="text-amber-400/60 hover:text-amber-400 transition-colors">
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
-          </button>
-        </div>
-      )}
-
       <div className="flex items-center justify-end gap-1 px-4 pt-4 lg:px-8 lg:pt-6">
         <Link
           href="/calendrier"
