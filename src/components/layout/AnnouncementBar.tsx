@@ -13,7 +13,7 @@ export function AnnouncementBar() {
     adminGetAnnouncement().then(setAnnouncement);
   }, []);
 
-  if (pathname === "/login" || !announcement || dismissed) return null;
+  if (pathname === "/login" || pathname === "/landing" || !announcement || dismissed) return null;
 
   return (
     <div className="flex items-center gap-3 px-4 py-2 bg-amber-400/10 border-b border-amber-400/20">

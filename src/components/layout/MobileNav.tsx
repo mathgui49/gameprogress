@@ -25,7 +25,7 @@ export function MobileNav() {
   const pathname = usePathname();
   const [showMore, setShowMore] = useState(false);
 
-  if (pathname === "/login") return null;
+  if (pathname === "/login" || pathname === "/landing") return null;
 
   return (
     <>

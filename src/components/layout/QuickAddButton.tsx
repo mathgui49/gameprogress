@@ -26,7 +26,7 @@ export function QuickAddButton() {
   const { add } = useInteractions();
   const { addXP, updateStreak } = useGamification();
 
-  if (pathname === "/login") return null;
+  if (pathname === "/login" || pathname === "/landing") return null;
   const { add: addContact } = useContacts();
 
   const [qName, setQName] = useState("");

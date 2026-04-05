@@ -97,7 +97,7 @@ export function TopBar() {
     setReadNotifs(true);
   };
 
-  if (pathname === "/login") return null;
+  if (pathname === "/login" || pathname === "/landing") return null;
 
   // Build notifications
   const allNotifications: Notification[] = [];

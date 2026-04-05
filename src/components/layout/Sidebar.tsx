@@ -21,7 +21,7 @@ const NAV = [
 export function Sidebar() {
   const pathname = usePathname();
 
-  if (pathname === "/login") return null;
+  if (pathname === "/login" || pathname === "/landing") return null;
 
   return (
     <aside className="hidden lg:flex flex-col w-[220px] min-h-screen bg-[var(--surface-low)] border-r border-[var(--border)]">
