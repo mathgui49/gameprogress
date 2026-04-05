@@ -64,63 +64,63 @@ const FEATURES = [
   {
     icon: "M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5m0 0l-.5 1.5",
     title: "Dashboard Intelligent",
-    desc: "Vue d\u2019ensemble instantan\u00e9e : interactions du jour, XP, streak, close rate, missions actives. Tout en un coup d\u2019oeil.",
+    desc: "Vue d\'ensemble instantanée : interactions du jour, XP, streak, close rate, missions actives. Tout en un coup d\'oeil.",
     color: "from-[#c084fc] to-[#818cf8]",
   },
   {
     icon: "M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.631 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58m-.119-8.54a6 6 0 00-7.381 5.84h4.8m2.58-5.84a14.927 14.927 0 00-2.58 5.84m2.699 2.7c-.103.021-.207.041-.311.06a15.09 15.09 0 01-2.448-2.448 14.9 14.9 0 01.06-.312m-2.24 2.39a4.493 4.493 0 00-1.757 4.306 4.493 4.493 0 004.306-1.758M16.5 9a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z",
-    title: "Gamification Compl\u00e8te",
-    desc: "XP, niveaux, streaks, badges progressifs, milestones et missions personnalis\u00e9es. Chaque action te rapproche du level suivant.",
+    title: "Gamification Complète",
+    desc: "XP, niveaux, streaks, badges progressifs, milestones et missions personnalisées. Chaque action te rapproche du level suivant.",
     color: "from-[#f472b6] to-[#c084fc]",
   },
   {
     icon: "M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941",
     title: "Progression & Analytics",
-    desc: "Score de comp\u00e9tence, rang (\u00c9volutif), rapports mensuels d\u00e9taill\u00e9s, graphiques d\u2019\u00e9volution et export PDF.",
+    desc: "Score de compétence, rang (Évolutif), rapports mensuels détaillés, graphiques d\'évolution et export PDF.",
     color: "from-[#818cf8] to-[#67e8f9]",
   },
   {
     icon: "M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z",
-    title: "Wings & Communaut\u00e9",
+    title: "Wings & Communauté",
     desc: "Ajoute tes wings, partage tes sessions, compare-toi au classement, like et commente dans le feed communautaire.",
     color: "from-[#34d399] to-[#818cf8]",
   },
   {
     icon: "M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 010 3.75H5.625a1.875 1.875 0 010-3.75z",
     title: "Pipeline CRM",
-    desc: "G\u00e8re tes contacts en Kanban : du premier close au date, suis chaque \u00e9tape avec rappels et timeline compl\u00e8te.",
+    desc: "Gère tes contacts en Kanban : du premier close au date, suis chaque étape avec rappels et timeline complète.",
     color: "from-[#f59e0b] to-[#f472b6]",
   },
   {
     icon: "M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487z",
-    title: "Journal & R\u00e9flexion",
-    desc: "Note tes r\u00e9flexions, mindset et reviews. Partage avec tes wings ou garde-les priv\u00e9es. Gagne de l\u2019XP en \u00e9crivant.",
+    title: "Journal & Réflexion",
+    desc: "Note tes réflexions, mindset et reviews. Partage avec tes wings ou garde-les privées. Gagne de l\'XP en écrivant.",
     color: "from-[#67e8f9] to-[#c084fc]",
   },
 ];
 
 const STEPS = [
-  { num: "01", title: "Cr\u00e9e ton profil", desc: "Connecte-toi en 2 secondes avec Google et personnalise ton profil.", icon: "M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" },
-  { num: "02", title: "Track tes interactions", desc: "Log chaque approche en d\u00e9tail : type, r\u00e9sultat, ressenti, notes. Rapide ou complet.", icon: "M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" },
-  { num: "03", title: "Progresse et domine", desc: "Gagne de l\u2019XP, d\u00e9bloque des badges, compl\u00e8te des missions et grimpe au classement.", icon: "M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 01-.982-3.172M9.497 14.25a7.454 7.454 0 00.981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 007.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M18.75 4.236c.982.143 1.954.317 2.916.52A6.003 6.003 0 0016.27 9.728M18.75 4.236V4.5c0 2.108-.966 3.99-2.48 5.228m0 0a6.003 6.003 0 01-5.54 0" },
+  { num: "01", title: "Crée ton profil", desc: "Connecte-toi en 2 secondes avec Google et personnalise ton profil.", icon: "M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" },
+  { num: "02", title: "Track tes interactions", desc: "Log chaque approche en détail : type, résultat, ressenti, notes. Rapide ou complet.", icon: "M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" },
+  { num: "03", title: "Progresse et domine", desc: "Gagne de l\'XP, débloque des badges, complète des missions et grimpe au classement.", icon: "M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 01-.982-3.172M9.497 14.25a7.454 7.454 0 00.981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 007.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M18.75 4.236c.982.143 1.954.317 2.916.52A6.003 6.003 0 0016.27 9.728M18.75 4.236V4.5c0 2.108-.966 3.99-2.48 5.228m0 0a6.003 6.003 0 01-5.54 0" },
 ];
 
 const RANKS = [
-  { name: "D\u00e9butant", color: "#8a839e" },
+  { name: "Débutant", color: "#8a839e" },
   { name: "Apprenti", color: "#67e8f9" },
-  { name: "Interm\u00e9diaire", color: "#34d399" },
-  { name: "Confirm\u00e9", color: "#818cf8" },
-  { name: "Avanc\u00e9", color: "#c084fc" },
+  { name: "Intermédiaire", color: "#34d399" },
+  { name: "Confirmé", color: "#818cf8" },
+  { name: "Avancé", color: "#c084fc" },
   { name: "Expert", color: "#f472b6" },
-  { name: "Ma\u00eetre", color: "#f59e0b" },
+  { name: "Maître", color: "#f59e0b" },
 ];
 
 const SHOWCASE_TABS = [
-  { key: "dashboard", label: "Dashboard", desc: "Tableau de bord complet avec XP, streak, stats du jour et activit\u00e9 r\u00e9cente. Tout est visible en un coup d\u2019oeil pour rester motiv\u00e9." },
-  { key: "progression", label: "Progression", desc: "Score de comp\u00e9tence calcul\u00e9 automatiquement, rang \u00e9volutif, collection de badges et milestones \u00e0 d\u00e9bloquer." },
-  { key: "missions", label: "Missions", desc: "Cr\u00e9e des missions personnalis\u00e9es avec suivi automatique ou manuel. Deadline, XP reward, progression en temps r\u00e9el." },
-  { key: "leaderboard", label: "Classement", desc: "Compare-toi aux autres joueurs. Classement par XP, niveau ou streak. Filtre par ville pour un d\u00e9fi local." },
-  { key: "pipeline", label: "Pipeline", desc: "CRM int\u00e9gr\u00e9 pour g\u00e9rer tes contacts : du premier close au date, suis chaque \u00e9tape avec des rappels intelligents." },
+  { key: "dashboard", label: "Dashboard", desc: "Tableau de bord complet avec XP, streak, stats du jour et activité récente. Tout est visible en un coup d\'oeil pour rester motivé." },
+  { key: "progression", label: "Progression", desc: "Score de compétence calculé automatiquement, rang évolutif, collection de badges et milestones à débloquer." },
+  { key: "missions", label: "Missions", desc: "Crée des missions personnalisées avec suivi automatique ou manuel. Deadline, XP reward, progression en temps réel." },
+  { key: "leaderboard", label: "Classement", desc: "Compare-toi aux autres joueurs. Classement par XP, niveau ou streak. Filtre par ville pour un défi local." },
+  { key: "pipeline", label: "Pipeline", desc: "CRM intégré pour gérer tes contacts : du premier close au date, suis chaque étape avec des rappels intelligents." },
 ];
 
 // SVG badge icons for gamification section (no emojis)
@@ -156,9 +156,9 @@ export default function LandingPage() {
           </div>
           <div className="hidden md:flex items-center gap-8">
             <a href="#features" className="text-sm text-[#a09bb2] hover:text-[#c084fc] transition-colors">Features</a>
-            <a href="#showcase" className="text-sm text-[#a09bb2] hover:text-[#c084fc] transition-colors">Aper\u00e7u</a>
+            <a href="#showcase" className="text-sm text-[#a09bb2] hover:text-[#c084fc] transition-colors">Aperçu</a>
             <a href="#gamification" className="text-sm text-[#a09bb2] hover:text-[#c084fc] transition-colors">Gamification</a>
-            <a href="#how" className="text-sm text-[#a09bb2] hover:text-[#c084fc] transition-colors">Comment \u00e7a marche</a>
+            <a href="#how" className="text-sm text-[#a09bb2] hover:text-[#c084fc] transition-colors">Comment ça marche</a>
           </div>
           <Link href="/login" className="px-5 py-2 rounded-[14px] bg-gradient-to-r from-[#c084fc] to-[#f472b6] text-sm font-semibold text-white hover:opacity-90 hover:shadow-[0_0_24px_-4px_rgba(192,132,252,0.5)] transition-all hover:scale-105 active:scale-95">
             Commencer
@@ -200,8 +200,8 @@ export default function LandingPage() {
 
           <Section delay={200}>
             <p className="text-lg sm:text-xl text-[#a09bb2] max-w-2xl mx-auto mb-10 leading-relaxed">
-              L&apos;app gamifi\u00e9e qui track, analyse et booste tes comp\u00e9tences sociales.
-              XP, missions, classements \u2014 ta progression n&apos;a jamais \u00e9t\u00e9 aussi claire.
+              L&apos;app gamifiée qui track, analyse et booste tes compétences sociales.
+              XP, missions, classements — ta progression n&apos;a jamais été aussi claire.
             </p>
           </Section>
 
@@ -212,7 +212,7 @@ export default function LandingPage() {
                 <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
               </Link>
               <a href="#showcase" className="px-8 py-3.5 rounded-[14px] bg-[rgba(14,11,24,0.65)] backdrop-blur-[32px] border border-[rgba(192,132,252,0.12)] text-base font-medium text-[#a09bb2] hover:text-[#f0eef5] hover:border-[rgba(192,132,252,0.25)] transition-all">
-                Voir l&apos;aper\u00e7u
+                Voir l&apos;aperçu
               </a>
             </div>
           </Section>
@@ -221,7 +221,7 @@ export default function LandingPage() {
           <Section delay={400}>
             <div className="flex items-center justify-center gap-6 sm:gap-10">
               {[
-                { icon: "M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z", label: "Donn\u00e9es priv\u00e9es" },
+                { icon: "M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z", label: "Données privées" },
                 { icon: "M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3", label: "PWA Mobile" },
                 { icon: "M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z", label: "100% gratuit" },
               ].map((t) => (
@@ -247,7 +247,7 @@ export default function LandingPage() {
                 </div>
                 <div className="grid grid-cols-4 gap-3 mb-4">
                   {[
-                    { label: "AUJOURD\u2019HUI", value: "5", sub: "interactions", color: "#c084fc" },
+                    { label: "AUJOURD\'HUI", value: "5", sub: "interactions", color: "#c084fc" },
                     { label: "CETTE SEMAINE", value: "23", sub: "interactions", color: "#818cf8" },
                     { label: "CLOSES", value: "8", sub: "34% taux", color: "#34d399" },
                     { label: "RESSENTI", value: "7.4", sub: "moyenne /10", color: "#f59e0b" },
@@ -326,9 +326,9 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto relative">
           <Section>
             <div className="text-center mb-12">
-              <span className="text-xs font-semibold tracking-widest uppercase text-[#818cf8] mb-3 block">Aper\u00e7u</span>
+              <span className="text-xs font-semibold tracking-widest uppercase text-[#818cf8] mb-3 block">Aperçu</span>
               <h2 className="text-3xl sm:text-4xl font-[family-name:var(--font-grotesk)] font-bold mb-4">
-                D\u00e9couvre l&apos;exp\u00e9rience{" "}
+                Découvre l&apos;expérience{" "}
                 <span className="bg-gradient-to-r from-[#818cf8] to-[#67e8f9] bg-clip-text text-transparent">GameProgress</span>
               </h2>
             </div>
@@ -337,7 +337,7 @@ export default function LandingPage() {
           <Section delay={100}>
             {/* Tabs — glass pill style */}
             <div className="flex justify-center mb-10">
-              <div className="inline-flex gap-1 p-1 rounded-[14px] bg-[rgba(14,11,24,0.65)] backdrop-blur-[32px] border border-[rgba(192,132,252,0.06)]" role="tablist" aria-label="Aper\u00e7u des fonctionnalit\u00e9s">
+              <div className="inline-flex gap-1 p-1 rounded-[14px] bg-[rgba(14,11,24,0.65)] backdrop-blur-[32px] border border-[rgba(192,132,252,0.06)]" role="tablist" aria-label="Aperçu des fonctionnalités">
                 {SHOWCASE_TABS.map((t) => (
                   <button
                     key={t.key}
@@ -360,7 +360,7 @@ export default function LandingPage() {
                     <h3 className="text-2xl font-[family-name:var(--font-grotesk)] font-bold text-[#f0eef5] mb-4">{t.label}</h3>
                     <p className="text-[#a09bb2] leading-relaxed mb-6">{t.desc}</p>
                     <div className="flex flex-wrap gap-3">
-                      {["Temps r\u00e9el", "Gamifi\u00e9", "Mobile-first"].map((tag) => (
+                      {["Temps réel", "Gamifié", "Mobile-first"].map((tag) => (
                         <span key={tag} className="px-3 py-1 rounded-full bg-[rgba(192,132,252,0.08)] backdrop-blur-sm border border-[rgba(192,132,252,0.1)] text-[#c084fc] text-xs font-medium">{tag}</span>
                       ))}
                     </div>
@@ -380,7 +380,7 @@ export default function LandingPage() {
                         ))}
                       </div>
                       <div className="rounded-[12px] bg-[rgba(14,11,24,0.5)] backdrop-blur-sm p-3 border border-[rgba(192,132,252,0.06)]">
-                        <p className="text-[9px] uppercase text-[#8a839e] mb-2">ACTIVIT\u00c9 R\u00c9CENTE</p>
+                        <p className="text-[9px] uppercase text-[#8a839e] mb-2">ACTIVITÉ RÉCENTE</p>
                         {["Emma - Direct - Close", "Sarah - Indirect - Neutre", "Julie - Direct - Close"].map((a, i) => (
                           <div key={i} className="flex items-center gap-2 py-1.5 border-b border-[rgba(192,132,252,0.04)] last:border-0">
                             <div className="w-1.5 h-1.5 rounded-full bg-[#34d399]" />
@@ -398,7 +398,7 @@ export default function LandingPage() {
                           <span className="text-2xl font-bold text-[#c084fc]">70</span>
                         </div>
                       </div>
-                      <p className="text-sm font-semibold text-[#c084fc]">Avanc\u00e9</p>
+                      <p className="text-sm font-semibold text-[#c084fc]">Avancé</p>
                       <div className="flex justify-center gap-2">
                         {["Close rate 40%", "Ressenti 20%", "Confiance 15%"].map((s) => (
                           <span key={s} className="text-[9px] px-2 py-1 rounded-full bg-[rgba(14,11,24,0.5)] border border-[rgba(192,132,252,0.06)] text-[#a09bb2]">{s}</span>
@@ -445,10 +445,10 @@ export default function LandingPage() {
                   {activeTab === "pipeline" && (
                     <div className="space-y-2 animate-fade-in">
                       {[
-                        { name: "Emma", status: "Date planifi\u00e9", color: "#818cf8" },
-                        { name: "Sarah", status: "R\u00e9pondu", color: "#34d399" },
+                        { name: "Emma", status: "Date planifié", color: "#818cf8" },
+                        { name: "Sarah", status: "Répondu", color: "#34d399" },
                         { name: "Julie", status: "Nouveau", color: "#c084fc" },
-                        { name: "L\u00e9a", status: "Contact\u00e9", color: "#f59e0b" },
+                        { name: "Léa", status: "Contacté", color: "#f59e0b" },
                       ].map((c) => (
                         <div key={c.name} className="flex items-center gap-3 p-2.5 rounded-[12px] bg-[rgba(14,11,24,0.5)]">
                           <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#c084fc]/20 to-[#f472b6]/20 flex items-center justify-center text-[10px] font-bold text-[#c084fc]">{c.name[0]}</div>
@@ -481,7 +481,7 @@ export default function LandingPage() {
           {/* Flow */}
           <Section delay={100}>
             <div className="flex flex-wrap justify-center gap-3 mb-16">
-              {["Interagis", "Gagne de l\u2019XP", "Monte de niveau", "D\u00e9bloque des badges", "Compl\u00e8te des missions", "Grimpe au classement"].map((step, i) => (
+              {["Interagis", "Gagne de l\'XP", "Monte de niveau", "Débloque des badges", "Complète des missions", "Grimpe au classement"].map((step, i) => (
                 <div key={step} className="flex items-center gap-3">
                   <span className="px-4 py-2 rounded-full bg-[rgba(14,11,24,0.65)] backdrop-blur-[16px] border border-[rgba(192,132,252,0.08)] text-sm text-[#f0eef5] font-medium">{step}</span>
                   {i < 5 && <svg className="w-4 h-4 text-[#8a839e] hidden sm:block" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>}
@@ -493,7 +493,7 @@ export default function LandingPage() {
           {/* Ranks */}
           <Section delay={200}>
             <div className="rounded-[22px] bg-[rgba(14,11,24,0.65)] backdrop-blur-[32px] border border-[rgba(192,132,252,0.06)] p-8 mb-8">
-              <h3 className="text-center text-sm font-semibold text-[#a09bb2] uppercase tracking-wider mb-8">Syst\u00e8me de rang</h3>
+              <h3 className="text-center text-sm font-semibold text-[#a09bb2] uppercase tracking-wider mb-8">Système de rang</h3>
               <div className="flex items-center justify-between gap-2 overflow-x-auto pb-2">
                 {RANKS.map((r, i) => (
                   <div key={r.name} className="flex flex-col items-center gap-2 min-w-[80px]">
@@ -513,7 +513,7 @@ export default function LandingPage() {
           {/* Badges preview — SVG icons, no emojis */}
           <Section delay={300}>
             <div className="rounded-[22px] bg-[rgba(14,11,24,0.65)] backdrop-blur-[32px] border border-[rgba(192,132,252,0.06)] p-8">
-              <h3 className="text-center text-sm font-semibold text-[#a09bb2] uppercase tracking-wider mb-6">Badges progressifs \u00e0 d\u00e9bloquer</h3>
+              <h3 className="text-center text-sm font-semibold text-[#a09bb2] uppercase tracking-wider mb-6">Badges progressifs à débloquer</h3>
               <div className="grid grid-cols-4 sm:grid-cols-8 gap-3 justify-items-center">
                 {Array.from({ length: 16 }).map((_, i) => {
                   const unlocked = i < 8;
@@ -541,10 +541,10 @@ export default function LandingPage() {
           <Section>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {[
-                { value: 500, suffix: "+", label: "Interactions track\u00e9es" },
+                { value: 500, suffix: "+", label: "Interactions trackées" },
                 { value: 50, suffix: "+", label: "Utilisateurs actifs" },
-                { value: 10, suffix: "K+", label: "XP gagn\u00e9s" },
-                { value: 200, suffix: "+", label: "Missions compl\u00e9t\u00e9es" },
+                { value: 10, suffix: "K+", label: "XP gagnés" },
+                { value: 200, suffix: "+", label: "Missions complétées" },
               ].map((s) => (
                 <div key={s.label} className="text-center p-6 rounded-[18px] bg-[rgba(14,11,24,0.65)] backdrop-blur-[32px] border border-[rgba(192,132,252,0.08)] hover:border-[rgba(192,132,252,0.16)] transition-all hover:shadow-[0_8px_48px_-12px_rgba(192,132,252,0.1)]">
                   <p className="text-3xl sm:text-4xl font-[family-name:var(--font-grotesk)] font-bold text-[#c084fc] neon-text-purple">
@@ -564,9 +564,9 @@ export default function LandingPage() {
         <div className="max-w-4xl mx-auto relative">
           <Section>
             <div className="text-center mb-16">
-              <span className="text-xs font-semibold tracking-widest uppercase text-[#34d399] mb-3 block">Comment \u00e7a marche</span>
+              <span className="text-xs font-semibold tracking-widest uppercase text-[#34d399] mb-3 block">Comment ça marche</span>
               <h2 className="text-3xl sm:text-4xl font-[family-name:var(--font-grotesk)] font-bold">
-                3 \u00e9tapes pour commencer
+                3 étapes pour commencer
               </h2>
             </div>
           </Section>
@@ -602,7 +602,7 @@ export default function LandingPage() {
                   <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10H14.017zM0 21v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151C7.563 6.068 6 8.789 6 11h4v10H0z" />
                 </svg>
                 <blockquote className="text-lg sm:text-xl text-[#f0eef5] leading-relaxed mb-6 font-medium">
-                  &ldquo;GameProgress a chang\u00e9 ma fa\u00e7on de voir la progression. Chaque jour je vois mes stats monter, \u00e7a motive \u00e0 fond. Le syst\u00e8me de missions et de badges rend le process addictif.&rdquo;
+                  &ldquo;GameProgress a changé ma façon de voir la progression. Chaque jour je vois mes stats monter, ça motive à fond. Le système de missions et de badges rend le process addictif.&rdquo;
                 </blockquote>
                 <div className="flex items-center justify-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#c084fc]/20 to-[#818cf8]/20 flex items-center justify-center text-sm font-bold text-[#c084fc]">A</div>
@@ -623,11 +623,11 @@ export default function LandingPage() {
         <div className="max-w-3xl mx-auto relative text-center">
           <Section>
             <h2 className="text-3xl sm:text-5xl font-[family-name:var(--font-grotesk)] font-bold mb-6">
-              Pr\u00eat \u00e0 transformer{" "}
+              Prêt à transformer{" "}
               <span className="bg-gradient-to-r from-[#c084fc] via-[#f472b6] to-[#818cf8] bg-clip-text text-transparent">ton game</span> ?
             </h2>
             <p className="text-lg text-[#a09bb2] mb-10">
-              Rejoins GameProgress et commence \u00e0 tracker ta progression d\u00e8s aujourd&apos;hui.
+              Rejoins GameProgress et commence à tracker ta progression dès aujourd&apos;hui.
             </p>
             <Link href="/login" className="group inline-flex items-center gap-2 px-10 py-4 rounded-[14px] bg-gradient-to-r from-[#c084fc] to-[#f472b6] text-lg font-semibold text-white hover:shadow-[0_0_48px_-8px_rgba(192,132,252,0.5)] transition-all hover:scale-105 active:scale-95 animate-neon-pulse">
               S&apos;inscrire maintenant
@@ -647,14 +647,14 @@ export default function LandingPage() {
               <span className="font-[family-name:var(--font-grotesk)] font-bold">GameProgress</span>
             </div>
             <div className="flex items-center gap-8">
-              <a href="#features" className="text-xs text-[#8a839e] hover:text-[#a09bb2] transition-colors">Fonctionnalit\u00e9s</a>
-              <a href="#showcase" className="text-xs text-[#8a839e] hover:text-[#a09bb2] transition-colors">Aper\u00e7u</a>
+              <a href="#features" className="text-xs text-[#8a839e] hover:text-[#a09bb2] transition-colors">Fonctionnalités</a>
+              <a href="#showcase" className="text-xs text-[#8a839e] hover:text-[#a09bb2] transition-colors">Aperçu</a>
               <a href="#gamification" className="text-xs text-[#8a839e] hover:text-[#a09bb2] transition-colors">Gamification</a>
-              <a href="#how" className="text-xs text-[#8a839e] hover:text-[#a09bb2] transition-colors">Comment \u00e7a marche</a>
+              <a href="#how" className="text-xs text-[#8a839e] hover:text-[#a09bb2] transition-colors">Comment ça marche</a>
             </div>
             <div className="text-center">
               <p className="text-xs text-[#3d3650]">&copy; 2025 GameProgress</p>
-              <p className="text-[10px] text-[#3d3650] mt-1">D\u00e9velopp\u00e9 par Mathieu Guicheteau, propuls\u00e9 par MathBusiness</p>
+              <p className="text-[10px] text-[#3d3650] mt-1">Développé par Mathieu Guicheteau, propulsé par MathBusiness</p>
             </div>
           </div>
         </div>

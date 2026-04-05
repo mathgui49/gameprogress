@@ -52,11 +52,11 @@ export function QuickAddButton() {
       sessionId: "", date: new Date().toISOString(),
     });
     addXP(XP_VALUES.interaction_created, "Interaction rapide");
-    if (qNote) addXP(XP_VALUES.interaction_with_note, "Note ajout\u00e9e");
+    if (qNote) addXP(XP_VALUES.interaction_with_note, "Note ajoutée");
     if (qResult === "close") addXP(XP_VALUES.close, "Close !");
     updateStreak();
     if (qResult === "close") {
-      if (qContactMethod && qContactValue) addXP(XP_VALUES.contact_added, "Contact ajout\u00e9");
+      if (qContactMethod && qContactValue) addXP(XP_VALUES.contact_added, "Contact ajouté");
       await addContact({ firstName: qName || "Inconnue", sourceInteractionId: interaction.id, method: qContactMethod || "other", methodValue: qContactValue || "", status: "new", tags: [], notes: "" });
     }
     resetQuick();
@@ -113,11 +113,11 @@ export function QuickAddButton() {
 
           {saved ? (
             <div className="text-center py-6 animate-fade-in">
-              <p className="text-emerald-400 font-semibold">Enregistr\u00e9 !</p>
+              <p className="text-emerald-400 font-semibold">Enregistré !</p>
             </div>
           ) : (
             <div className="space-y-3">
-              <input placeholder="Pr\u00e9nom (optionnel)" value={qName} onChange={(e) => setQName(e.target.value)}
+              <input placeholder="Prénom (optionnel)" value={qName} onChange={(e) => setQName(e.target.value)}
                 className="w-full rounded-[12px] bg-[var(--surface-low)] px-3 py-2 text-sm text-[var(--on-surface)] placeholder:text-[var(--input-placeholder)] border border-[var(--border)] focus:border-[var(--border-focus)] focus:shadow-[0_0_0_3px_var(--neon-purple)] outline-none transition-all" />
               <input placeholder="Lieu" value={qLocation} onChange={(e) => setQLocation(e.target.value)}
                 className="w-full rounded-[12px] bg-[var(--surface-low)] px-3 py-2 text-sm text-[var(--on-surface)] placeholder:text-[var(--input-placeholder)] border border-[var(--border)] focus:border-[var(--border-focus)] focus:shadow-[0_0_0_3px_var(--neon-purple)] outline-none transition-all" />
