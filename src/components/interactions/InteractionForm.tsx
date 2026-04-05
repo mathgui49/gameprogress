@@ -55,7 +55,7 @@ function ScoreSlider({ label, value, onChange, color }: { label: string; value: 
   return (
     <div>
       <div className="flex items-center justify-between mb-2">
-        <label className="text-xs font-medium text-[#a09bb2]">{label}</label>
+        <label className="text-xs font-medium text-[var(--on-surface-variant)]">{label}</label>
         <span className={`text-sm font-bold ${color}`}>{value}/10</span>
       </div>
       <div className="flex items-center gap-1">
@@ -66,8 +66,8 @@ function ScoreSlider({ label, value, onChange, color }: { label: string; value: 
             onClick={() => onChange(n)}
             className={`flex-1 h-8 rounded-lg transition-all text-xs font-medium ${
               n <= value
-                ? `${color.includes("f472b6") ? "bg-[#f472b6]/20 text-[#f472b6]" : "bg-[#c084fc]/20 text-[#c084fc]"}`
-                : "bg-[#1a1626] text-[#3d3650] hover:bg-[#231e30]"
+                ? `${color.includes("f472b6") ? "bg-[#f472b6]/20 text-[var(--secondary)]" : "bg-[var(--primary)]/20 text-[var(--primary)]"}`
+                : "bg-[var(--surface-high)] text-[var(--outline)] hover:bg-[var(--surface-bright)]"
             }`}
           >
             {n}
@@ -147,19 +147,19 @@ export function InteractionForm({ initial, defaultLocation, defaultSessionId, on
       </div>
 
       {/* Scores - interactive buttons */}
-      <ScoreSlider label="Ressenti de l'interaction" value={feelingScore} onChange={setFeelingScore} color="text-[#c084fc]" />
-      <ScoreSlider label="Note sur la fille" value={womanScore} onChange={setWomanScore} color="text-[#f472b6]" />
+      <ScoreSlider label="Ressenti de l'interaction" value={feelingScore} onChange={setFeelingScore} color="text-[var(--primary)]" />
+      <ScoreSlider label="Note sur la fille" value={womanScore} onChange={setWomanScore} color="text-[var(--secondary)]" />
 
       {/* Objection — only for neutral/rejection */}
       {(result === "neutral" || result === "rejection") && (
         <div>
-          <p className="text-xs font-medium text-[#a09bb2] mb-2">Objection recue</p>
+          <p className="text-xs font-medium text-[var(--on-surface-variant)] mb-2">Objection recue</p>
           <div className="flex flex-wrap gap-2">
             <button
               type="button"
               onClick={() => { setObjection(null); setObjectionCustom(""); }}
               className={`text-xs px-3 py-1.5 rounded-full transition-all ${
-                !objection ? "bg-[#a09bb2]/20 text-[#a09bb2]" : "bg-[#1a1626] text-[#a09bb2] hover:bg-[#231e30]"
+                !objection ? "bg-[var(--outline-variant)]/20 text-[var(--on-surface-variant)]" : "bg-[var(--surface-high)] text-[var(--on-surface-variant)] hover:bg-[var(--surface-bright)]"
               }`}
             >
               Aucune
@@ -170,7 +170,7 @@ export function InteractionForm({ initial, defaultLocation, defaultSessionId, on
                 type="button"
                 onClick={() => setObjection(o.value)}
                 className={`text-xs px-3 py-1.5 rounded-full transition-all ${
-                  objection === o.value ? "bg-[#fb7185]/20 text-[#fb7185]" : "bg-[#1a1626] text-[#a09bb2] hover:bg-[#231e30]"
+                  objection === o.value ? "bg-[#fb7185]/20 text-[#fb7185]" : "bg-[var(--surface-high)] text-[var(--on-surface-variant)] hover:bg-[var(--surface-bright)]"
                 }`}
               >
                 {o.label}
@@ -194,7 +194,7 @@ export function InteractionForm({ initial, defaultLocation, defaultSessionId, on
                 type="button"
                 onClick={() => setContactMethod(contactMethod === o.value as ContactMethod ? null : o.value as ContactMethod)}
                 className={`text-xs px-3 py-1.5 rounded-full transition-all ${
-                  contactMethod === o.value ? "bg-emerald-400/20 text-emerald-400" : "bg-[#1a1626] text-[#a09bb2] hover:bg-[#231e30]"
+                  contactMethod === o.value ? "bg-emerald-400/20 text-emerald-400" : "bg-[var(--surface-high)] text-[var(--on-surface-variant)] hover:bg-[var(--surface-bright)]"
                 }`}
               >
                 {o.label}

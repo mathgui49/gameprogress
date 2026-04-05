@@ -68,11 +68,11 @@ export default function NewSessionPage() {
 
   return (
     <div className="px-4 py-6 lg:px-8 lg:py-8 max-w-2xl mx-auto animate-fade-in">
-      <button onClick={() => router.back()} className="flex items-center gap-1 text-sm text-[#a09bb2] hover:text-white transition-colors mb-4">
+      <button onClick={() => router.back()} className="flex items-center gap-1 text-sm text-[var(--on-surface-variant)] hover:text-[var(--on-surface)] transition-colors mb-4">
         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
         Retour
       </button>
-      <h1 className="text-2xl font-bold text-white tracking-tight mb-6">Nouvelle session</h1>
+      <h1 className="text-2xl font-bold text-[var(--on-surface)] tracking-tight mb-6">Nouvelle session</h1>
 
       <form onSubmit={handleSubmit} className="space-y-5">
         <Input label="Titre" placeholder="Ex: Session Centre-ville" value={title} onChange={(e) => setTitle(e.target.value)} />
@@ -92,7 +92,7 @@ export default function NewSessionPage() {
 
         {/* Wings invite selector */}
         <div>
-          <p className="text-xs font-medium text-[#a09bb2] mb-2">Inviter des Wings</p>
+          <p className="text-xs font-medium text-[var(--on-surface-variant)] mb-2">Inviter des Wings</p>
           {wingProfiles.length > 0 ? (
             <div className="flex flex-wrap gap-2">
               {wingProfiles.map((wp: PublicProfile) => {
@@ -104,16 +104,16 @@ export default function NewSessionPage() {
                     onClick={() => toggleWing(wp.userId)}
                     className={`flex items-center gap-2 text-xs px-3 py-2 rounded-xl transition-all ${
                       selected
-                        ? "bg-[#c084fc]/15 text-[#c084fc] ring-1 ring-[#c084fc]/30"
-                        : "bg-[#1a1626] text-[#a09bb2] hover:bg-[#231e30]"
+                        ? "bg-[var(--primary)]/15 text-[var(--primary)] ring-1 ring-[var(--primary)]/30"
+                        : "bg-[var(--surface-high)] text-[var(--on-surface-variant)] hover:bg-[var(--surface-bright)]"
                     }`}
                   >
-                    <div className={`w-6 h-6 rounded-lg flex items-center justify-center text-[10px] font-bold ${selected ? "bg-[#c084fc]/20 text-[#c084fc]" : "bg-[#14111c] text-[#6b6580]"}`}>
+                    <div className={`w-6 h-6 rounded-lg flex items-center justify-center text-[10px] font-bold ${selected ? "bg-[var(--primary)]/20 text-[var(--primary)]" : "bg-[var(--surface)] text-[var(--outline)]"}`}>
                       {wp.firstName?.[0]?.toUpperCase() || wp.username?.[0]?.toUpperCase() || "?"}
                     </div>
                     <span>@{wp.username || wp.firstName || "—"}</span>
                     {selected && (
-                      <svg className="w-3.5 h-3.5 text-[#c084fc]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                      <svg className="w-3.5 h-3.5 text-[var(--primary)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                       </svg>
                     )}
@@ -122,10 +122,10 @@ export default function NewSessionPage() {
               })}
             </div>
           ) : (
-            <p className="text-xs text-[#6b6580]">Aucun wing pour le moment. Ajoutez des wings depuis l&apos;onglet Wings.</p>
+            <p className="text-xs text-[var(--outline)]">Aucun wing pour le moment. Ajoutez des wings depuis l&apos;onglet Wings.</p>
           )}
           {selectedWingIds.length > 0 && (
-            <p className="text-[10px] text-[#6b6580] mt-2">{selectedWingIds.length} wing{selectedWingIds.length > 1 ? "s" : ""} invite{selectedWingIds.length > 1 ? "s" : ""} — ils recevront une notification</p>
+            <p className="text-[10px] text-[var(--outline)] mt-2">{selectedWingIds.length} wing{selectedWingIds.length > 1 ? "s" : ""} invite{selectedWingIds.length > 1 ? "s" : ""} — ils recevront une notification</p>
           )}
         </div>
 
@@ -133,16 +133,16 @@ export default function NewSessionPage() {
         <TextArea label="Notes" placeholder="Notes de session..." rows={3} value={notes} onChange={(e) => setNotes(e.target.value)} />
 
         {/* Public session toggle */}
-        <div className="p-4 rounded-xl bg-[#14111c] border border-[rgba(192,132,252,0.08)] space-y-3">
+        <div className="p-4 rounded-xl bg-[var(--surface)] border border-[var(--border)] space-y-3">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-white font-medium">Session publique</p>
-              <p className="text-[10px] text-[#6b6580]">Visible dans le feed, d&apos;autres joueurs peuvent rejoindre</p>
+              <p className="text-sm text-[var(--on-surface)] font-medium">Session publique</p>
+              <p className="text-[10px] text-[var(--outline)]">Visible dans le feed, d&apos;autres joueurs peuvent rejoindre</p>
             </div>
             <button
               type="button"
               onClick={() => setIsPublic(!isPublic)}
-              className={`relative w-11 h-6 rounded-full transition-colors ${isPublic ? "bg-[#c084fc]" : "bg-[#3d3650]"}`}
+              className={`relative w-11 h-6 rounded-full transition-colors ${isPublic ? "bg-[var(--primary)]" : "bg-[var(--outline-variant)]"}`}
             >
               <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white transition-transform ${isPublic ? "translate-x-5" : ""}`} />
             </button>

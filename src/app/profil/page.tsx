@@ -47,18 +47,18 @@ export default function ProfilPage() {
     flash();
   };
 
-  if (!loaded) return <div className="flex items-center justify-center h-screen"><div className="w-8 h-8 border-2 border-[#c084fc]/30 border-t-[#c084fc] rounded-full animate-spin" /></div>;
+  if (!loaded) return <div className="flex items-center justify-center h-screen"><div className="w-8 h-8 border-2 border-[var(--primary)]/30 border-t-[var(--primary)] rounded-full animate-spin" /></div>;
 
   return (
     <div className="px-4 py-6 lg:px-8 lg:py-8 max-w-2xl mx-auto animate-fade-in">
       <div className="mb-8">
-        <h1 className="text-2xl lg:text-3xl font-[family-name:var(--font-grotesk)] font-bold text-white tracking-tight mb-1">Profil</h1>
-        <p className="text-sm text-[#a09bb2]">Ton identite sociale</p>
+        <h1 className="text-2xl lg:text-3xl font-[family-name:var(--font-grotesk)] font-bold text-[var(--on-surface)] tracking-tight mb-1">Profil</h1>
+        <p className="text-sm text-[var(--on-surface-variant)]">Ton identite sociale</p>
       </div>
 
       <Card className="mb-4">
-        <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-white mb-4">Profil public</h2>
-        <p className="text-xs text-[#a09bb2] mb-4">Visible par les autres utilisateurs dans l&apos;onglet Wings.</p>
+        <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-[var(--on-surface)] mb-4">Profil public</h2>
+        <p className="text-xs text-[var(--on-surface-variant)] mb-4">Visible par les autres utilisateurs dans l&apos;onglet Wings.</p>
         <div className="space-y-4">
           {/* Profile photo */}
           <div>
@@ -114,12 +114,12 @@ export default function ProfilPage() {
           <TextArea label="Bio" id="pbio" placeholder="Quelques mots sur toi et ta game..." rows={2} value={profile?.bio ?? ""} onChange={(e) => { save({ bio: e.target.value }); flash(); }} />
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-[#a09bb2]">Profil visible publiquement</p>
-              <p className="text-[10px] text-[#6b6580]">Les autres utilisateurs pourront te trouver dans Decouvrir</p>
+              <p className="text-sm text-[var(--on-surface-variant)]">Profil visible publiquement</p>
+              <p className="text-[10px] text-[var(--outline)]">Les autres utilisateurs pourront te trouver dans Decouvrir</p>
             </div>
             <button
               onClick={() => { save({ isPublic: !(profile?.isPublic) }); flash(); }}
-              className={`relative w-11 h-6 rounded-full transition-colors ${profile?.isPublic ? "bg-[#c084fc]" : "bg-[#3d3650]"}`}
+              className={`relative w-11 h-6 rounded-full transition-colors ${profile?.isPublic ? "bg-[var(--primary)]" : "bg-[var(--outline-variant)]"}`}
             >
               <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white transition-transform ${profile?.isPublic ? "translate-x-5" : ""}`} />
             </button>
@@ -129,27 +129,27 @@ export default function ProfilPage() {
       </Card>
 
       <Card>
-        <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-white mb-4">Confidentialite</h2>
-        <p className="text-xs text-[#a09bb2] mb-5">Choisis ce que tu partages et avec qui.</p>
+        <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-[var(--on-surface)] mb-4">Confidentialite</h2>
+        <p className="text-xs text-[var(--on-surface-variant)] mb-5">Choisis ce que tu partages et avec qui.</p>
         <div className="space-y-5">
           {PRIVACY_GROUPS.map((g) => {
             const current = getGroupValue(g);
             const options: { value: PrivacyOption; label: string; activeClass: string }[] = [
-              { value: "off", label: "Prive", activeClass: "bg-[#a09bb2]/20 text-[#a09bb2]" },
-              ...(g.wingsKey ? [{ value: "wings" as PrivacyOption, label: "Wings", activeClass: "bg-[#818cf8]/20 text-[#818cf8]" }] : []),
+              { value: "off", label: "Prive", activeClass: "bg-[var(--outline-variant)]/20 text-[var(--on-surface-variant)]" },
+              ...(g.wingsKey ? [{ value: "wings" as PrivacyOption, label: "Wings", activeClass: "bg-[var(--tertiary)]/20 text-[var(--tertiary)]" }] : []),
               ...(!g.noPublic ? [{ value: "public" as PrivacyOption, label: "Public", activeClass: "bg-emerald-400/20 text-emerald-400" }] : []),
             ];
             return (
               <div key={g.publicKey}>
-                <p className="text-sm text-[#a09bb2] mb-1">{g.label}</p>
-                <p className="text-[10px] text-[#6b6580] mb-2">{g.hint}</p>
+                <p className="text-sm text-[var(--on-surface-variant)] mb-1">{g.label}</p>
+                <p className="text-[10px] text-[var(--outline)] mb-2">{g.hint}</p>
                 <div className="flex gap-2">
                   {options.map((o) => (
                     <button
                       key={o.value}
                       onClick={() => setGroupValue(g, o.value)}
                       className={`text-xs px-3 py-1.5 rounded-full transition-all ${
-                        current === o.value ? o.activeClass : "bg-[#1a1626] text-[#a09bb2] hover:bg-[#231e30]"
+                        current === o.value ? o.activeClass : "bg-[var(--surface-high)] text-[var(--on-surface-variant)] hover:bg-[var(--surface-bright)]"
                       }`}
                     >
                       {o.label}

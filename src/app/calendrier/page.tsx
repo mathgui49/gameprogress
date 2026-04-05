@@ -71,7 +71,7 @@ export default function CalendrierPage() {
         title: s.title || "Session",
         date: s.date,
         type: "session",
-        color: s.isPublic ? "bg-[#c084fc]/15 text-[#c084fc] border-[#c084fc]/20" : "bg-[#818cf8]/15 text-[#818cf8] border-[#818cf8]/20",
+        color: s.isPublic ? "bg-[var(--primary)]/15 text-[var(--primary)] border-[var(--primary)]/20" : "bg-[var(--tertiary)]/15 text-[var(--tertiary)] border-[#818cf8]/20",
         editable: isOwn,
         source: s,
       });
@@ -160,29 +160,29 @@ export default function CalendrierPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h1 className="text-2xl font-[family-name:var(--font-grotesk)] font-bold text-white tracking-tight mb-0.5">Calendrier</h1>
-          <p className="text-sm text-[#a09bb2]">
+          <h1 className="text-2xl font-[family-name:var(--font-grotesk)] font-bold text-[var(--on-surface)] tracking-tight mb-0.5">Calendrier</h1>
+          <p className="text-sm text-[var(--on-surface-variant)]">
             {view === "month" && `${MONTHS[currentDate.getMonth()]} ${currentDate.getFullYear()}`}
             {view === "week" && `Semaine du ${weekDays[0].toLocaleDateString("fr-FR", { day: "numeric", month: "short" })}`}
             {view === "day" && currentDate.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" })}
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={() => setCurrentDate(new Date())} className="text-[10px] text-[#a09bb2] hover:text-white px-2 py-1 rounded-lg hover:bg-[rgba(192,132,252,0.04)] transition-colors">Aujourd&apos;hui</button>
-          <button onClick={() => navigate(-1)} className="p-1.5 rounded-lg text-[#6b6580] hover:text-white hover:bg-[rgba(192,132,252,0.04)] transition-colors">
+          <button onClick={() => setCurrentDate(new Date())} className="text-[10px] text-[var(--on-surface-variant)] hover:text-[var(--on-surface)] px-2 py-1 rounded-lg hover:bg-[rgba(192,132,252,0.04)] transition-colors">Aujourd&apos;hui</button>
+          <button onClick={() => navigate(-1)} className="p-1.5 rounded-lg text-[var(--outline)] hover:text-[var(--on-surface)] hover:bg-[rgba(192,132,252,0.04)] transition-colors">
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
           </button>
-          <button onClick={() => navigate(1)} className="p-1.5 rounded-lg text-[#6b6580] hover:text-white hover:bg-[rgba(192,132,252,0.04)] transition-colors">
+          <button onClick={() => navigate(1)} className="p-1.5 rounded-lg text-[var(--outline)] hover:text-[var(--on-surface)] hover:bg-[rgba(192,132,252,0.04)] transition-colors">
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
           </button>
         </div>
       </div>
 
       {/* View toggle */}
-      <div className="flex gap-1 mb-4 bg-[#14111c] rounded-xl p-1 w-fit">
+      <div className="flex gap-1 mb-4 bg-[var(--surface)] rounded-xl p-1 w-fit">
         {(["month", "week", "day"] as CalendarView[]).map((v) => (
           <button key={v} onClick={() => setView(v)}
-            className={`text-xs font-medium px-4 py-2 rounded-lg transition-all ${view === v ? "bg-[#c084fc]/15 text-[#c084fc]" : "text-[#6b6580] hover:text-[#a09bb2]"}`}>
+            className={`text-xs font-medium px-4 py-2 rounded-lg transition-all ${view === v ? "bg-[var(--primary)]/15 text-[var(--primary)]" : "text-[var(--outline)] hover:text-[var(--on-surface-variant)]"}`}>
             {v === "month" ? "Mois" : v === "week" ? "Semaine" : "Jour"}
           </button>
         ))}
@@ -190,34 +190,34 @@ export default function CalendrierPage() {
 
       {/* Legend */}
       <div className="flex items-center gap-4 mb-4">
-        <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-[#c084fc]" /><span className="text-[10px] text-[#a09bb2]">Sessions</span></div>
-        <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-amber-400" /><span className="text-[10px] text-[#a09bb2]">Rappels</span></div>
-        <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-emerald-400" /><span className="text-[10px] text-[#a09bb2]">Deadlines</span></div>
+        <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-[var(--primary)]" /><span className="text-[10px] text-[var(--on-surface-variant)]">Sessions</span></div>
+        <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-amber-400" /><span className="text-[10px] text-[var(--on-surface-variant)]">Rappels</span></div>
+        <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-emerald-400" /><span className="text-[10px] text-[var(--on-surface-variant)]">Deadlines</span></div>
       </div>
 
       {/* MONTH VIEW */}
       {view === "month" && (
-        <div className="border border-[rgba(192,132,252,0.08)] rounded-xl overflow-hidden">
-          <div className="grid grid-cols-7 bg-[#14111c]">
+        <div className="border border-[var(--border)] rounded-xl overflow-hidden">
+          <div className="grid grid-cols-7 bg-[var(--surface)]">
             {WEEKDAYS.map((d) => (
-              <div key={d} className="text-[10px] font-medium text-[#6b6580] text-center py-2 uppercase tracking-wider">{d}</div>
+              <div key={d} className="text-[10px] font-medium text-[var(--outline)] text-center py-2 uppercase tracking-wider">{d}</div>
             ))}
           </div>
           <div className="grid grid-cols-7">
             {monthGrid.map((day, i) => {
-              if (!day) return <div key={`e-${i}`} className="min-h-[80px] bg-[#0d0a12] border-t border-r border-[rgba(192,132,252,0.04)]" />;
+              if (!day) return <div key={`e-${i}`} className="min-h-[80px] bg-[var(--surface-low)] border-t border-r border-[rgba(192,132,252,0.04)]" />;
               const dayEvents = getEventsForDay(day);
               const isToday = sameDay(day, today);
               return (
                 <div
                   key={i}
                   onClick={() => { setCurrentDate(day); setView("day"); }}
-                  className={`min-h-[80px] p-1 border-t border-r border-[rgba(192,132,252,0.04)] cursor-pointer hover:bg-[rgba(192,132,252,0.03)] transition-colors ${isToday ? "bg-[#c084fc]/5" : ""}`}
+                  className={`min-h-[80px] p-1 border-t border-r border-[rgba(192,132,252,0.04)] cursor-pointer hover:bg-[rgba(192,132,252,0.03)] transition-colors ${isToday ? "bg-[var(--primary)]/5" : ""}`}
                 >
-                  <span className={`text-[11px] font-medium ${isToday ? "text-[#c084fc] font-bold" : "text-[#a09bb2]"}`}>{day.getDate()}</span>
+                  <span className={`text-[11px] font-medium ${isToday ? "text-[var(--primary)] font-bold" : "text-[var(--on-surface-variant)]"}`}>{day.getDate()}</span>
                   <div className="space-y-0.5 mt-1">
                     {dayEvents.slice(0, 3).map((e) => renderEventPill(e, true))}
-                    {dayEvents.length > 3 && <p className="text-[8px] text-[#6b6580]">+{dayEvents.length - 3}</p>}
+                    {dayEvents.length > 3 && <p className="text-[8px] text-[var(--outline)]">+{dayEvents.length - 3}</p>}
                   </div>
                 </div>
               );
@@ -228,12 +228,12 @@ export default function CalendrierPage() {
 
       {/* WEEK VIEW */}
       {view === "week" && (
-        <div className="border border-[rgba(192,132,252,0.08)] rounded-xl overflow-hidden">
-          <div className="grid grid-cols-7 bg-[#14111c]">
+        <div className="border border-[var(--border)] rounded-xl overflow-hidden">
+          <div className="grid grid-cols-7 bg-[var(--surface)]">
             {weekDays.map((d, i) => (
               <div key={i} className="text-center py-2">
-                <p className="text-[10px] text-[#6b6580] uppercase">{WEEKDAYS[i]}</p>
-                <p className={`text-sm font-medium ${sameDay(d, today) ? "text-[#c084fc]" : "text-white"}`}>{d.getDate()}</p>
+                <p className="text-[10px] text-[var(--outline)] uppercase">{WEEKDAYS[i]}</p>
+                <p className={`text-sm font-medium ${sameDay(d, today) ? "text-[var(--primary)]" : "text-[var(--on-surface)]"}`}>{d.getDate()}</p>
               </div>
             ))}
           </div>
@@ -244,7 +244,7 @@ export default function CalendrierPage() {
                 <div
                   key={i}
                   onClick={() => { setCurrentDate(d); setView("day"); }}
-                  className={`min-h-[120px] p-1.5 border-t border-r border-[rgba(192,132,252,0.04)] cursor-pointer hover:bg-[rgba(192,132,252,0.03)] ${sameDay(d, today) ? "bg-[#c084fc]/5" : ""}`}
+                  className={`min-h-[120px] p-1.5 border-t border-r border-[rgba(192,132,252,0.04)] cursor-pointer hover:bg-[rgba(192,132,252,0.03)] ${sameDay(d, today) ? "bg-[var(--primary)]/5" : ""}`}
                 >
                   <div className="space-y-1">
                     {dayEvents.map((e) => renderEventPill(e))}
@@ -259,11 +259,11 @@ export default function CalendrierPage() {
       {/* DAY VIEW */}
       {view === "day" && (
         <Card>
-          <h2 className="text-base font-semibold text-white mb-4">
+          <h2 className="text-base font-semibold text-[var(--on-surface)] mb-4">
             {currentDate.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
           </h2>
           {getEventsForDay(currentDate).length === 0 ? (
-            <p className="text-sm text-[#6b6580] text-center py-8">Aucun evenement ce jour.</p>
+            <p className="text-sm text-[var(--outline)] text-center py-8">Aucun evenement ce jour.</p>
           ) : (
             <div className="space-y-2">
               {getEventsForDay(currentDate).map((e) => (
@@ -295,13 +295,13 @@ export default function CalendrierPage() {
                 {selectedEvent.type === "session" ? "Session" : selectedEvent.type === "reminder" ? "Rappel" : "Deadline mission"}
               </span>
             </div>
-            <p className="text-sm text-[#a09bb2]">
+            <p className="text-sm text-[var(--on-surface-variant)]">
               {new Date(selectedEvent.date).toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
               {" a "}{formatTime(selectedEvent.date)}
             </p>
 
             {selectedEvent.type === "session" && (
-              <div className="space-y-2 text-xs text-[#a09bb2]">
+              <div className="space-y-2 text-xs text-[var(--on-surface-variant)]">
                 {(selectedEvent.source as Session).location && <p>Lieu : {(selectedEvent.source as Session).location}</p>}
                 {(selectedEvent.source as Session).address && <p>Adresse : {(selectedEvent.source as Session).address}</p>}
                 {(selectedEvent.source as Session).notes && <p>Notes : {(selectedEvent.source as Session).notes}</p>}
@@ -309,13 +309,13 @@ export default function CalendrierPage() {
             )}
 
             {selectedEvent.type === "mission_deadline" && (
-              <div className="text-xs text-[#a09bb2]">
+              <div className="text-xs text-[var(--on-surface-variant)]">
                 <p>Progression : {(selectedEvent.source as Mission).current}/{(selectedEvent.source as Mission).target}</p>
               </div>
             )}
 
             {!selectedEvent.editable && (
-              <p className="text-[10px] text-[#6b6580]">Cet evenement ne peut pas etre modifie (cree par un autre utilisateur).</p>
+              <p className="text-[10px] text-[var(--outline)]">Cet evenement ne peut pas etre modifie (cree par un autre utilisateur).</p>
             )}
           </div>
         )}

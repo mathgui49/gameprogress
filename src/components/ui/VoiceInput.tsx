@@ -50,7 +50,7 @@ export function VoiceInput({ onResult, className = "" }: VoiceInputProps) {
       className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${
         listening
           ? "bg-[#fb7185]/20 text-[#fb7185] animate-pulse"
-          : "bg-[#1a1626] text-[#a09bb2] hover:bg-[#231e30] hover:text-white"
+          : "bg-[var(--surface-high)] text-[var(--on-surface-variant)] hover:bg-[var(--surface-bright)] hover:text-[var(--on-surface)]"
       } ${className}`}
       title={listening ? "Arreter" : "Dicter"}
     >

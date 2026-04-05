@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/Button";
 import { MapView } from "@/components/ui/MapView";
 import type { PublicProfile, Session, Post, JournalEntry } from "@/types";
 import { JOURNAL_TAG_LABELS, JOURNAL_TAG_COLORS } from "@/types";
+import { Tooltip } from "@/components/ui/Tooltip";
 import { formatDate, formatRelative, computeAge } from "@/lib/utils";
 import { findProfileByUsername, fetchUserPublicPosts, fetchUserPublicJournal, fetchUserGamification, fetchUserLeaderboardRank, fetchUserBadges, fetchSessionsByUserId } from "@/lib/db";
 import type { Badge as BadgeType } from "@/types";
@@ -132,24 +133,32 @@ export default function WingProfilePage() {
       {(canSeeRanking || canSeeStats) && (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
           {canSeeRanking && rank && (
-            <Card className="text-center !p-4">
-              <p className="text-2xl font-[family-name:var(--font-grotesk)] font-bold text-[var(--primary)]">#{rank}</p>
-              <p className="text-[10px] text-[var(--outline)]">Classement</p>
-            </Card>
+            <Tooltip text="Position dans le classement global" position="bottom">
+              <Card className="text-center !p-4 w-full">
+                <p className="text-2xl font-[family-name:var(--font-grotesk)] font-bold text-[var(--primary)]">#{rank}</p>
+                <p className="text-[10px] text-[var(--outline)]">Classement</p>
+              </Card>
+            </Tooltip>
           )}
-          <Card className="text-center !p-4">
-            <p className="text-2xl font-[family-name:var(--font-grotesk)] font-bold text-[var(--tertiary)]">{gam.level}</p>
-            <p className="text-[10px] text-[var(--outline)]">Niveau</p>
-          </Card>
-          <Card className="text-center !p-4">
-            <p className="text-2xl font-[family-name:var(--font-grotesk)] font-bold text-[var(--primary)]">{gam.xp}</p>
-            <p className="text-[10px] text-[var(--outline)]">XP</p>
-          </Card>
-          {gam.streak > 0 && (
-            <Card className="text-center !p-4">
-              <p className="text-2xl font-[family-name:var(--font-grotesk)] font-bold text-amber-400">{gam.streak}</p>
-              <p className="text-[10px] text-[var(--outline)]">Streak</p>
+          <Tooltip text="Niveau base sur l'XP accumule" position="bottom">
+            <Card className="text-center !p-4 w-full">
+              <p className="text-2xl font-[family-name:var(--font-grotesk)] font-bold text-[var(--tertiary)]">{gam.level}</p>
+              <p className="text-[10px] text-[var(--outline)]">Niveau</p>
             </Card>
+          </Tooltip>
+          <Tooltip text="Points d'experience total" position="bottom">
+            <Card className="text-center !p-4 w-full">
+              <p className="text-2xl font-[family-name:var(--font-grotesk)] font-bold text-[var(--primary)]">{gam.xp}</p>
+              <p className="text-[10px] text-[var(--outline)]">XP</p>
+            </Card>
+          </Tooltip>
+          {gam.streak > 0 && (
+            <Tooltip text="Jours consecutifs d'activite" position="bottom">
+              <Card className="text-center !p-4 w-full">
+                <p className="text-2xl font-[family-name:var(--font-grotesk)] font-bold text-amber-400">{gam.streak}</p>
+                <p className="text-[10px] text-[var(--outline)]">Streak</p>
+              </Card>
+            </Tooltip>
           )}
         </div>
       )}

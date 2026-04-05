@@ -4,17 +4,17 @@ import { signIn } from "next-auth/react";
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#0d0a12] px-4">
+    <div className="min-h-screen flex items-center justify-center bg-[var(--surface-low)] px-4">
       <div className="w-full max-w-sm text-center animate-fade-in">
         {/* Logo */}
-        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#c084fc] to-[#f472b6] flex items-center justify-center mx-auto mb-6 shadow-[0_0_24px_-4px_rgba(192,132,252,0.5)]">
+        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#c084fc] to-[#f472b6] flex items-center justify-center mx-auto mb-6 shadow-[0_0_24px_-4px_var(--neon-purple)]">
           <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
           </svg>
         </div>
 
-        <h1 className="text-2xl font-[family-name:var(--font-grotesk)] font-bold text-white mb-2">GameTrack</h1>
-        <p className="text-sm text-[#a09bb2] mb-8">Connecte-toi pour acceder a ton tracker</p>
+        <h1 className="text-2xl font-[family-name:var(--font-grotesk)] font-bold text-[var(--on-surface)] mb-2">GameProgress</h1>
+        <p className="text-sm text-[var(--on-surface-variant)] mb-8">Connecte-toi pour acceder a ton tracker</p>
 
         {/* Google Sign-In */}
         <button
@@ -30,7 +30,7 @@ export default function LoginPage() {
           Se connecter avec Google
         </button>
 
-        <p className="text-[10px] text-[#6b6580] mt-6">
+        <p className="text-[10px] text-[var(--outline)] mt-6">
           En continuant, tu acceptes l&apos;utilisation de cookies pour ta session.
         </p>
       </div>

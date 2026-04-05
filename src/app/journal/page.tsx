@@ -26,14 +26,14 @@ export default function JournalPage() {
   const [visibility, setVisibility] = useState<Visibility>("private");
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
-  if (!loaded) return <div className="flex items-center justify-center h-screen"><div className="w-8 h-8 border-2 border-[#c084fc]/30 border-t-[#c084fc] rounded-full animate-spin" /></div>;
+  if (!loaded) return <div className="flex items-center justify-center h-screen"><div className="w-8 h-8 border-2 border-[var(--primary)]/30 border-t-[var(--primary)] rounded-full animate-spin" /></div>;
 
   return (
     <div className="px-4 py-6 lg:px-8 lg:py-8 max-w-3xl mx-auto animate-fade-in">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-[family-name:var(--font-grotesk)] font-bold text-white tracking-tight mb-1">Journal</h1>
-          <p className="text-sm text-[#a09bb2]">{entries.length} entree{entries.length > 1 ? "s" : ""}</p>
+          <h1 className="text-2xl font-[family-name:var(--font-grotesk)] font-bold text-[var(--on-surface)] tracking-tight mb-1">Journal</h1>
+          <p className="text-sm text-[var(--on-surface-variant)]">{entries.length} entree{entries.length > 1 ? "s" : ""}</p>
         </div>
         <Button onClick={() => setShowNew(true)}>+ Ecrire</Button>
       </div>
@@ -49,24 +49,24 @@ export default function JournalPage() {
                 <Card hover onClick={() => setExpandedId(expanded ? null : entry.id)} className="!p-4">
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex items-center gap-2">
-                      <p className="text-xs text-[#6b6580]">{formatDate(entry.date)}</p>
+                      <p className="text-xs text-[var(--outline)]">{formatDate(entry.date)}</p>
                       {entry.tag && <Badge className={JOURNAL_TAG_COLORS[entry.tag]}>{JOURNAL_TAG_LABELS[entry.tag]}</Badge>}
                       {entry.visibility && entry.visibility !== "private" && (
-                        <Badge className={entry.visibility === "wings" ? "bg-[#818cf8]/15 text-[#818cf8]" : "bg-emerald-400/15 text-emerald-400"}>
+                        <Badge className={entry.visibility === "wings" ? "bg-[var(--tertiary)]/15 text-[var(--tertiary)]" : "bg-emerald-400/15 text-emerald-400"}>
                           {entry.visibility === "wings" ? "Wings" : "Public"}
                         </Badge>
                       )}
                     </div>
                     <div className="flex items-center gap-2">
-                      <button onClick={(e) => { e.stopPropagation(); setEditingId(entry.id); setContent(entry.content); setTag(entry.tag); setVisibility(entry.visibility ?? "private"); setShowNew(true); }} className="text-[#6b6580] hover:text-[#c084fc] transition-colors text-xs">
+                      <button onClick={(e) => { e.stopPropagation(); setEditingId(entry.id); setContent(entry.content); setTag(entry.tag); setVisibility(entry.visibility ?? "private"); setShowNew(true); }} className="text-[var(--outline)] hover:text-[var(--primary)] transition-colors text-xs">
                         <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487z" /></svg>
                       </button>
-                      <button onClick={(e) => { e.stopPropagation(); remove(entry.id); }} className="text-[#6b6580] hover:text-[#fb7185] transition-colors text-xs">
+                      <button onClick={(e) => { e.stopPropagation(); remove(entry.id); }} className="text-[var(--outline)] hover:text-[#fb7185] transition-colors text-xs">
                         <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
                       </button>
                     </div>
                   </div>
-                  <p className={`text-sm text-[#a09bb2] leading-relaxed ${expanded ? "" : "line-clamp-3"}`}>
+                  <p className={`text-sm text-[var(--on-surface-variant)] leading-relaxed ${expanded ? "" : "line-clamp-3"}`}>
                     {entry.content}
                   </p>
                 </Card>
@@ -80,14 +80,14 @@ export default function JournalPage() {
         <div className="space-y-4">
           <TextArea placeholder="Comment tu te sens aujourd'hui ? Qu'est-ce qui s'est passe ?..." rows={6} value={content} onChange={(e) => setContent(e.target.value)} className="text-base" />
           <div>
-            <p className="text-xs text-[#a09bb2] mb-2">Tag (optionnel)</p>
+            <p className="text-xs text-[var(--on-surface-variant)] mb-2">Tag (optionnel)</p>
             <div className="flex flex-wrap gap-2">
               {ALL_TAGS.map((t) => (
                 <button
                   key={t}
                   onClick={() => setTag(tag === t ? null : t)}
                   className={`text-xs px-3 py-1.5 rounded-full transition-all ${
-                    tag === t ? JOURNAL_TAG_COLORS[t] : "bg-[#1a1626] text-[#a09bb2] hover:bg-[#231e30]"
+                    tag === t ? JOURNAL_TAG_COLORS[t] : "bg-[var(--surface-high)] text-[var(--on-surface-variant)] hover:bg-[var(--surface-bright)]"
                   }`}
                 >
                   {JOURNAL_TAG_LABELS[t]}
@@ -96,7 +96,7 @@ export default function JournalPage() {
             </div>
           </div>
           <div>
-            <p className="text-xs text-[#a09bb2] mb-2">Visibilite</p>
+            <p className="text-xs text-[var(--on-surface-variant)] mb-2">Visibilite</p>
             <div className="flex gap-2">
               {(["private", "wings", "public"] as Visibility[]).map((v) => (
                 <button
@@ -104,8 +104,8 @@ export default function JournalPage() {
                   onClick={() => setVisibility(v)}
                   className={`text-xs px-3 py-1.5 rounded-full transition-all ${
                     visibility === v
-                      ? v === "private" ? "bg-[#a09bb2]/20 text-[#a09bb2]" : v === "wings" ? "bg-[#818cf8]/20 text-[#818cf8]" : "bg-emerald-400/20 text-emerald-400"
-                      : "bg-[#1a1626] text-[#a09bb2] hover:bg-[#231e30]"
+                      ? v === "private" ? "bg-[var(--outline-variant)]/20 text-[var(--on-surface-variant)]" : v === "wings" ? "bg-[var(--tertiary)]/20 text-[var(--tertiary)]" : "bg-emerald-400/20 text-emerald-400"
+                      : "bg-[var(--surface-high)] text-[var(--on-surface-variant)] hover:bg-[var(--surface-bright)]"
                   }`}
                 >
                   {v === "private" ? "Prive" : v === "wings" ? "Wings" : "Public"}

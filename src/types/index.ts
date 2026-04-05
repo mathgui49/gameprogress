@@ -306,8 +306,8 @@ export const RESULT_COLORS: Record<ResultType, string> = {
 };
 
 export const TYPE_COLORS: Record<ApproachType, string> = {
-  direct: "bg-[#c084fc]/15 text-[#c084fc]",
-  indirect: "bg-[#818cf8]/15 text-[#818cf8]",
+  direct: "bg-[var(--primary)]/15 text-[var(--primary)]",
+  indirect: "bg-[var(--tertiary)]/15 text-[var(--tertiary)]",
   situational: "bg-cyan-400/15 text-cyan-400",
 };
 
@@ -325,16 +325,16 @@ export const STATUS_LABELS: Record<ContactStatus, string> = {
 };
 
 export const STATUS_COLORS: Record<ContactStatus, string> = {
-  new: "bg-[#c084fc]/15 text-[#c084fc]",
+  new: "bg-[var(--primary)]/15 text-[var(--primary)]",
   contacted: "bg-amber-400/15 text-amber-400",
-  replied: "bg-[#818cf8]/15 text-[#818cf8]",
+  replied: "bg-[var(--tertiary)]/15 text-[var(--tertiary)]",
   date_planned: "bg-cyan-400/15 text-cyan-400",
   first_date: "bg-emerald-400/15 text-emerald-400",
   second_date: "bg-emerald-500/15 text-emerald-300",
-  kissclose: "bg-[#f472b6]/15 text-[#f472b6]",
+  kissclose: "bg-[#f472b6]/15 text-[var(--secondary)]",
   fuckclose: "bg-rose-500/15 text-rose-400",
   advanced: "bg-orange-400/15 text-orange-400",
-  archived: "bg-[#a09bb2]/10 text-[#a09bb2]",
+  archived: "bg-[#a09bb2]/10 text-[var(--on-surface-variant)]",
 };
 
 export const OBJECTION_LABELS: Record<ObjectionType, string> = {
@@ -364,10 +364,10 @@ export const JOURNAL_TAG_LABELS: Record<JournalTag, string> = {
 };
 
 export const JOURNAL_TAG_COLORS: Record<JournalTag, string> = {
-  mindset: "bg-[#c084fc]/15 text-[#c084fc]",
+  mindset: "bg-[var(--primary)]/15 text-[var(--primary)]",
   progress: "bg-emerald-400/15 text-emerald-400",
   fear: "bg-[#fb7185]/15 text-[#fb7185]",
-  reflection: "bg-[#818cf8]/15 text-[#818cf8]",
+  reflection: "bg-[var(--tertiary)]/15 text-[var(--tertiary)]",
   review: "bg-amber-400/15 text-amber-400",
   motivation: "bg-cyan-400/15 text-cyan-400",
 };
@@ -386,13 +386,13 @@ export const SKILL_RANK_LABELS: Record<SkillRank, string> = {
 };
 
 export const SKILL_RANK_COLORS: Record<SkillRank, string> = {
-  debutant: "text-[#a09bb2]",
-  apprenti: "text-[#c084fc]",
+  debutant: "text-[var(--on-surface-variant)]",
+  apprenti: "text-[var(--primary)]",
   intermediaire: "text-cyan-400",
-  confirme: "text-[#818cf8]",
+  confirme: "text-[var(--tertiary)]",
   avance: "text-amber-400",
   expert: "text-emerald-400",
-  maitre: "text-[#f472b6]",
+  maitre: "text-[var(--secondary)]",
 };
 
 export const SKILL_RANK_THRESHOLDS: { rank: SkillRank; minScore: number }[] = [

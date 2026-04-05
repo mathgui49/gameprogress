@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 
 type Theme = "dark" | "light";
 
-const STORAGE_KEY = "gametrack-theme";
+const STORAGE_KEY = "gameprogress-theme";
 
 export function useTheme() {
   const [theme, setThemeState] = useState<Theme>("dark");

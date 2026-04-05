@@ -45,23 +45,23 @@ export default function SessionsPage() {
 
   const monthLabel = calMonth.toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
 
-  if (!loaded) return <div className="flex items-center justify-center h-screen"><div className="w-8 h-8 border-2 border-[#c084fc]/30 border-t-[#c084fc] rounded-full animate-spin" /></div>;
+  if (!loaded) return <div className="flex items-center justify-center h-screen"><div className="w-8 h-8 border-2 border-[var(--primary)]/30 border-t-[var(--primary)] rounded-full animate-spin" /></div>;
 
   return (
     <div className="px-4 py-6 lg:px-8 lg:py-8 max-w-4xl mx-auto animate-fade-in">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-[family-name:var(--font-grotesk)] font-bold text-white tracking-tight mb-1">Sessions</h1>
-          <p className="text-sm text-[#a09bb2]">{sessions.length} session{sessions.length !== 1 ? "s" : ""}</p>
+          <h1 className="text-2xl font-[family-name:var(--font-grotesk)] font-bold text-[var(--on-surface)] tracking-tight mb-1">Sessions</h1>
+          <p className="text-sm text-[var(--on-surface-variant)]">{sessions.length} session{sessions.length !== 1 ? "s" : ""}</p>
         </div>
         <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1 p-1 bg-[#100e17] rounded-xl">
+          <div className="flex items-center gap-1 p-1 bg-[var(--surface-low)] rounded-xl">
             <button onClick={() => setView("list")}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${view === "list" ? "bg-[#c084fc]/15 text-[#c084fc]" : "text-[#6b6580] hover:text-[#a09bb2]"}`}>
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${view === "list" ? "bg-[var(--primary)]/15 text-[var(--primary)]" : "text-[var(--outline)] hover:text-[var(--on-surface-variant)]"}`}>
               Liste
             </button>
             <button onClick={() => setView("calendar")}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${view === "calendar" ? "bg-[#c084fc]/15 text-[#c084fc]" : "text-[#6b6580] hover:text-[#a09bb2]"}`}>
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${view === "calendar" ? "bg-[var(--primary)]/15 text-[var(--primary)]" : "text-[var(--outline)] hover:text-[var(--on-surface-variant)]"}`}>
               Calendrier
             </button>
           </div>
@@ -81,18 +81,18 @@ export default function SessionsPage() {
                 <Card hover className="!p-4">
                   <div className="flex items-start justify-between mb-2">
                     <div>
-                      <h3 className="text-sm font-semibold text-white mb-0.5">{s.title || "Session sans titre"}</h3>
-                      <p className="text-xs text-[#6b6580]">{formatDate(s.date)} {s.location && `· ${s.location}`}</p>
+                      <h3 className="text-sm font-semibold text-[var(--on-surface)] mb-0.5">{s.title || "Session sans titre"}</h3>
+                      <p className="text-xs text-[var(--outline)]">{formatDate(s.date)} {s.location && `· ${s.location}`}</p>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Badge className="bg-[#c084fc]/15 text-[#c084fc]">{s.interactionIds.length} interactions</Badge>
+                      <Badge className="bg-[var(--primary)]/15 text-[var(--primary)]">{s.interactionIds.length} interactions</Badge>
                       {closes > 0 && <Badge className="bg-emerald-400/15 text-emerald-400">{closes} close{closes > 1 ? "s" : ""}</Badge>}
                     </div>
                   </div>
                   {s.wings.length > 0 && (
                     <div className="flex items-center gap-1 mt-2">
-                      <span className="text-[10px] text-[#6b6580]">Wings:</span>
-                      {s.wings.map((w) => <span key={w} className="text-[10px] px-2 py-0.5 rounded-full bg-[#1a1626] text-[#a09bb2]">{w}</span>)}
+                      <span className="text-[10px] text-[var(--outline)]">Wings:</span>
+                      {s.wings.map((w) => <span key={w} className="text-[10px] px-2 py-0.5 rounded-full bg-[var(--surface-high)] text-[var(--on-surface-variant)]">{w}</span>)}
                     </div>
                   )}
                 </Card>
@@ -103,17 +103,17 @@ export default function SessionsPage() {
       ) : (
         <Card>
           <div className="flex items-center justify-between mb-4">
-            <button onClick={() => setCalMonth(new Date(calMonth.getFullYear(), calMonth.getMonth() - 1, 1))} className="text-[#a09bb2] hover:text-white transition-colors p-1">
+            <button onClick={() => setCalMonth(new Date(calMonth.getFullYear(), calMonth.getMonth() - 1, 1))} className="text-[var(--on-surface-variant)] hover:text-[var(--on-surface)] transition-colors p-1">
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
             </button>
-            <h2 className="text-sm font-[family-name:var(--font-grotesk)] font-semibold text-white capitalize">{monthLabel}</h2>
-            <button onClick={() => setCalMonth(new Date(calMonth.getFullYear(), calMonth.getMonth() + 1, 1))} className="text-[#a09bb2] hover:text-white transition-colors p-1">
+            <h2 className="text-sm font-[family-name:var(--font-grotesk)] font-semibold text-[var(--on-surface)] capitalize">{monthLabel}</h2>
+            <button onClick={() => setCalMonth(new Date(calMonth.getFullYear(), calMonth.getMonth() + 1, 1))} className="text-[var(--on-surface-variant)] hover:text-[var(--on-surface)] transition-colors p-1">
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
             </button>
           </div>
 
           <div className="grid grid-cols-7 gap-1 mb-1">
-            {DAYS.map((d) => <div key={d} className="text-center text-[10px] text-[#6b6580] font-medium py-1">{d}</div>)}
+            {DAYS.map((d) => <div key={d} className="text-center text-[10px] text-[var(--outline)] font-medium py-1">{d}</div>)}
           </div>
 
           <div className="grid grid-cols-7 gap-1">
@@ -122,11 +122,11 @@ export default function SessionsPage() {
               const daySessions = sessionsByDay[day] || [];
               const isToday = new Date().getDate() === day && new Date().getMonth() === calMonth.getMonth() && new Date().getFullYear() === calMonth.getFullYear();
               return (
-                <div key={day} className={`min-h-[60px] rounded-lg p-1 transition-all ${isToday ? "bg-[#c084fc]/5 ring-1 ring-[#c084fc]/20" : "hover:bg-white/[0.02]"}`}>
-                  <p className={`text-[10px] font-medium mb-0.5 ${isToday ? "text-[#c084fc]" : "text-[#a09bb2]"}`}>{day}</p>
+                <div key={day} className={`min-h-[60px] rounded-lg p-1 transition-all ${isToday ? "bg-[var(--primary)]/5 ring-1 ring-[var(--primary)]/20" : "hover:bg-[var(--surface-high)]"}`}>
+                  <p className={`text-[10px] font-medium mb-0.5 ${isToday ? "text-[var(--primary)]" : "text-[var(--on-surface-variant)]"}`}>{day}</p>
                   {daySessions.map((s) => (
                     <Link key={s.id} href={`/sessions/${s.id}`} className="block">
-                      <div className="text-[9px] px-1 py-0.5 rounded bg-[#c084fc]/10 text-[#c084fc] truncate mb-0.5 hover:bg-[#c084fc]/20 transition-colors">
+                      <div className="text-[9px] px-1 py-0.5 rounded bg-[var(--primary)]/10 text-[var(--primary)] truncate mb-0.5 hover:bg-[var(--primary)]/20 transition-colors">
                         {s.title || "Session"}
                       </div>
                     </Link>

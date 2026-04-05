@@ -47,7 +47,7 @@ export default function MissionsPage() {
     });
   }, [loaded, interactions.length, contacts.length, sessions.length, journal.length]);
 
-  if (!loaded) return <div className="flex items-center justify-center h-screen"><div className="w-8 h-8 border-2 border-[#c084fc]/30 border-t-[#c084fc] rounded-full animate-spin" /></div>;
+  if (!loaded) return <div className="flex items-center justify-center h-screen"><div className="w-8 h-8 border-2 border-[var(--primary)]/30 border-t-[var(--primary)] rounded-full animate-spin" /></div>;
 
   const formatDeadline = (d: string | null) => {
     if (!d) return null;
@@ -57,15 +57,15 @@ export default function MissionsPage() {
     if (diff < 0) return <span className="text-[#fb7185]">Expire</span>;
     if (diff === 0) return <span className="text-amber-400">Aujourd&apos;hui</span>;
     if (diff <= 3) return <span className="text-amber-400">{diff}j restants</span>;
-    return <span className="text-[#6b6580]">{date.toLocaleDateString("fr-FR", { day: "numeric", month: "short" })}</span>;
+    return <span className="text-[var(--outline)]">{date.toLocaleDateString("fr-FR", { day: "numeric", month: "short" })}</span>;
   };
 
   return (
     <div className="px-4 py-6 lg:px-8 lg:py-8 max-w-3xl mx-auto animate-fade-in">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-[family-name:var(--font-grotesk)] font-bold text-white tracking-tight mb-1">Missions</h1>
-          <p className="text-sm text-[#a09bb2]">{active.length} active{active.length > 1 ? "s" : ""}, {completed.length} terminee{completed.length > 1 ? "s" : ""}</p>
+          <h1 className="text-2xl font-[family-name:var(--font-grotesk)] font-bold text-[var(--on-surface)] tracking-tight mb-1">Missions</h1>
+          <p className="text-sm text-[var(--on-surface-variant)]">{active.length} active{active.length > 1 ? "s" : ""}, {completed.length} terminee{completed.length > 1 ? "s" : ""}</p>
         </div>
         <Button onClick={() => setShowNew(true)}>+ Mission</Button>
       </div>
@@ -76,7 +76,7 @@ export default function MissionsPage() {
         <>
           {active.length > 0 && (
             <div className="mb-8">
-              <h2 className="text-sm font-medium text-[#a09bb2] uppercase tracking-wider mb-3">En cours</h2>
+              <h2 className="text-sm font-medium text-[var(--on-surface-variant)] uppercase tracking-wider mb-3">En cours</h2>
               <div className="space-y-3">
                 {active.map((m) => {
                   const pct = Math.min((m.current / m.target) * 100, 100);
@@ -86,28 +86,28 @@ export default function MissionsPage() {
                       <div className="flex items-start justify-between mb-3">
                         <div>
                           <div className="flex items-center gap-2 mb-1">
-                            <p className="text-sm font-semibold text-white">{m.title}</p>
-                            <Badge className={isAuto ? "bg-emerald-400/15 text-emerald-400" : "bg-[#1a1626] text-[#a09bb2]"}>
+                            <p className="text-sm font-semibold text-[var(--on-surface)]">{m.title}</p>
+                            <Badge className={isAuto ? "bg-emerald-400/15 text-emerald-400" : "bg-[var(--surface-high)] text-[var(--on-surface-variant)]"}>
                               {MISSION_TRACKING_LABELS[m.trackingType]}
                             </Badge>
                           </div>
-                          {m.description && <p className="text-xs text-[#6b6580]">{m.description}</p>}
+                          {m.description && <p className="text-xs text-[var(--outline)]">{m.description}</p>}
                           {m.deadline && <p className="text-[10px] mt-1">{formatDeadline(m.deadline)}</p>}
                         </div>
                         <div className="flex items-center gap-2">
-                          <span className="text-xs font-semibold text-[#c084fc]">+{m.xpReward} XP</span>
-                          <button onClick={() => remove(m.id)} className="text-[#6b6580] hover:text-[#fb7185] transition-colors">
+                          <span className="text-xs font-semibold text-[var(--primary)]">+{m.xpReward} XP</span>
+                          <button onClick={() => remove(m.id)} className="text-[var(--outline)] hover:text-[#fb7185] transition-colors">
                             <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
                           </button>
                         </div>
                       </div>
                       <div className="flex items-center gap-3">
                         <div className="flex-1">
-                          <div className="w-full h-2 rounded-full bg-black/40 overflow-hidden">
+                          <div className="w-full h-2 rounded-full bg-[var(--surface-highest)] overflow-hidden">
                             <div className="h-full rounded-full bg-gradient-to-r from-[#c084fc] to-[#f472b6] transition-all duration-500" style={{ width: `${pct}%` }} />
                           </div>
                         </div>
-                        <span className="text-xs text-[#a09bb2] w-12 text-right">{m.current}/{m.target}</span>
+                        <span className="text-xs text-[var(--on-surface-variant)] w-12 text-right">{m.current}/{m.target}</span>
                         {!isAuto && <Button variant="secondary" size="sm" onClick={() => progress(m.id)}>+1</Button>}
                       </div>
                     </Card>
@@ -119,14 +119,14 @@ export default function MissionsPage() {
 
           {completed.length > 0 && (
             <div>
-              <h2 className="text-sm font-medium text-[#a09bb2] uppercase tracking-wider mb-3">Terminees</h2>
+              <h2 className="text-sm font-medium text-[var(--on-surface-variant)] uppercase tracking-wider mb-3">Terminees</h2>
               <div className="space-y-2">
                 {completed.map((m) => (
                   <Card key={m.id} className="!p-4 opacity-60">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <span className="text-emerald-400">&#10003;</span>
-                        <p className="text-sm text-white">{m.title}</p>
+                        <p className="text-sm text-[var(--on-surface)]">{m.title}</p>
                       </div>
                       <span className="text-xs text-emerald-400">+{m.xpReward} XP</span>
                     </div>
@@ -144,7 +144,7 @@ export default function MissionsPage() {
           <Input label="Description" placeholder="Description optionnelle" value={desc} onChange={(e) => setDesc(e.target.value)} />
 
           <div>
-            <p className="text-xs font-medium text-[#a09bb2] mb-2">Type de suivi</p>
+            <p className="text-xs font-medium text-[var(--on-surface-variant)] mb-2">Type de suivi</p>
             <div className="flex flex-wrap gap-2">
               {TRACKING_OPTIONS.map((o) => (
                 <button
@@ -152,7 +152,7 @@ export default function MissionsPage() {
                   type="button"
                   onClick={() => setTrackingType(o.value)}
                   className={`text-xs px-3 py-1.5 rounded-full transition-all ${
-                    trackingType === o.value ? "bg-[#c084fc]/20 text-[#c084fc]" : "bg-[#1a1626] text-[#a09bb2] hover:bg-[#231e30]"
+                    trackingType === o.value ? "bg-[var(--primary)]/20 text-[var(--primary)]" : "bg-[var(--surface-high)] text-[var(--on-surface-variant)] hover:bg-[var(--surface-bright)]"
                   }`}
                 >
                   {o.label}
@@ -163,7 +163,7 @@ export default function MissionsPage() {
               <p className="text-[10px] text-emerald-400 mt-2">Progression auto : se met a jour quand tu ajoutes des {MISSION_TRACKING_LABELS[trackingType].toLowerCase()}</p>
             )}
             {trackingType === "custom" && (
-              <p className="text-[10px] text-[#6b6580] mt-2">Manuel : tu avanceras la progression toi-meme avec le bouton +1</p>
+              <p className="text-[10px] text-[var(--outline)] mt-2">Manuel : tu avanceras la progression toi-meme avec le bouton +1</p>
             )}
           </div>
 

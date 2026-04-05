@@ -17,12 +17,12 @@ export function InteractionCard({ interaction }: { interaction: Interaction }) {
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
-              <h3 className="text-sm font-semibold text-white truncate">{displayName}</h3>
+              <h3 className="text-sm font-semibold text-[var(--on-surface)] truncate">{displayName}</h3>
               <Badge className={TYPE_COLORS[interaction.type]}>{APPROACH_LABELS[interaction.type]}</Badge>
             </div>
-            {subtitle && <p className="text-[10px] text-[#818cf8] mb-1 italic">{subtitle}</p>}
-            {interaction.note && <p className="text-xs text-[#a09bb2] mb-2 line-clamp-2">{interaction.note}</p>}
-            <div className="flex items-center gap-3 text-[10px] text-[#6b6580]">
+            {subtitle && <p className="text-[10px] text-[var(--tertiary)] mb-1 italic">{subtitle}</p>}
+            {interaction.note && <p className="text-xs text-[var(--on-surface-variant)] mb-2 line-clamp-2">{interaction.note}</p>}
+            <div className="flex items-center gap-3 text-[10px] text-[var(--outline)]">
               {interaction.location && (
                 <span className="flex items-center gap-1">
                   <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -38,12 +38,12 @@ export function InteractionCard({ interaction }: { interaction: Interaction }) {
           <div className="flex flex-col items-end gap-2 shrink-0">
             <Badge className={RESULT_COLORS[interaction.result]}>{RESULT_LABELS[interaction.result]}</Badge>
             <div className="flex items-center gap-1.5">
-              <div className="w-8 h-8 rounded-lg bg-[#c084fc]/10 flex flex-col items-center justify-center" title="Ressenti">
-                <span className="text-xs font-bold text-[#c084fc]">{interaction.feelingScore}</span>
+              <div className="w-8 h-8 rounded-lg bg-[var(--primary)]/10 flex flex-col items-center justify-center" title="Ressenti">
+                <span className="text-xs font-bold text-[var(--primary)]">{interaction.feelingScore}</span>
               </div>
               {interaction.womanScore != null && interaction.womanScore > 0 && (
-                <div className="w-8 h-8 rounded-lg bg-[#818cf8]/10 flex flex-col items-center justify-center" title="Note fille">
-                  <span className="text-xs font-bold text-[#818cf8]">{interaction.womanScore}</span>
+                <div className="w-8 h-8 rounded-lg bg-[var(--tertiary)]/10 flex flex-col items-center justify-center" title="Note fille">
+                  <span className="text-xs font-bold text-[var(--tertiary)]">{interaction.womanScore}</span>
                 </div>
               )}
             </div>

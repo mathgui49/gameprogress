@@ -5,6 +5,7 @@ import { Sidebar } from "@/components/layout/Sidebar";
 import { MobileNav } from "@/components/layout/MobileNav";
 import { QuickAddButton } from "@/components/layout/QuickAddButton";
 import { InstallPrompt } from "@/components/layout/InstallPrompt";
+import { Tutorial } from "@/components/layout/Tutorial";
 import { TopBar } from "@/components/layout/TopBar";
 import { AuthProvider } from "@/components/layout/AuthProvider";
 
@@ -12,13 +13,13 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const grotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-grotesk" });
 
 export const metadata: Metadata = {
-  title: "GameTrack - Tracker de Progression",
+  title: "GameProgress - Tracker de Progression",
   description: "Application de tracking personnel et de progression sociale",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "GameTrack",
+    title: "GameProgress",
   },
 };
 
@@ -48,6 +49,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <QuickAddButton />
           <MobileNav />
           <InstallPrompt />
+          <Tutorial />
         </AuthProvider>
       </body>
     </html>

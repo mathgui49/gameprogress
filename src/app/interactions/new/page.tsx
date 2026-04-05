@@ -18,14 +18,14 @@ export default function NewInteractionPage() {
       <div className="mb-6">
         <button
           onClick={() => router.back()}
-          className="flex items-center gap-1 text-sm text-white/40 hover:text-white/60 transition-colors mb-4"
+          className="flex items-center gap-1 text-sm text-[var(--on-surface)]/40 hover:text-[var(--on-surface)]/60 transition-colors mb-4"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
           </svg>
           Retour
         </button>
-        <h1 className="text-2xl font-bold text-white tracking-tight font-[family-name:var(--font-manrope)]">
+        <h1 className="text-2xl font-bold text-[var(--on-surface)] tracking-tight font-[family-name:var(--font-manrope)]">
           Nouvelle interaction
         </h1>
       </div>

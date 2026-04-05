@@ -10,7 +10,7 @@ interface ActivityFeedProps {
 
 export function ActivityFeed({ interactions }: ActivityFeedProps) {
   if (interactions.length === 0) {
-    return <div className="text-center py-8 text-[#6b6580] text-sm">Aucune activite recente</div>;
+    return <div className="text-center py-8 text-[var(--outline)] text-sm">Aucune activite recente</div>;
   }
 
   return (
@@ -19,19 +19,19 @@ export function ActivityFeed({ interactions }: ActivityFeedProps) {
         <Link
           key={interaction.id}
           href={`/interactions/${interaction.id}`}
-          className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/[0.03] transition-all group"
+          className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-[var(--surface-high)] transition-all group"
         >
-          <div className="w-8 h-8 rounded-lg bg-[#c084fc]/10 flex items-center justify-center shrink-0">
-            <span className="text-xs font-bold text-[#c084fc]">{interaction.feelingScore}</span>
+          <div className="w-8 h-8 rounded-lg bg-[var(--primary)]/10 flex items-center justify-center shrink-0">
+            <span className="text-xs font-bold text-[var(--primary)]">{interaction.feelingScore}</span>
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-              <span className="text-sm text-white font-medium truncate">{interaction.firstName || "Anonyme"}</span>
-              <span className="text-[10px] text-[#6b6580]">{APPROACH_LABELS[interaction.type]}</span>
+              <span className="text-sm text-[var(--on-surface)] font-medium truncate">{interaction.firstName || "Anonyme"}</span>
+              <span className="text-[10px] text-[var(--outline)]">{APPROACH_LABELS[interaction.type]}</span>
             </div>
           </div>
           <Badge className={RESULT_COLORS[interaction.result]}>{RESULT_LABELS[interaction.result]}</Badge>
-          <span className="text-[10px] text-[#6b6580] shrink-0">{formatRelative(interaction.date)}</span>
+          <span className="text-[10px] text-[var(--outline)] shrink-0">{formatRelative(interaction.date)}</span>
         </Link>
       ))}
     </div>

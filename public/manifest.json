@@ -1,6 +1,6 @@
 {
-  "name": "GameTrack",
-  "short_name": "GameTrack",
+  "name": "GameProgress",
+  "short_name": "GameProgress",
   "description": "Tracker de progression sociale",
   "start_url": "/",
   "display": "standalone",

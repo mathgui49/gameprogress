@@ -15,7 +15,7 @@ export default function ReportsPage() {
   const gam = useGamification();
   const { completed: completedMissions } = useMissions();
 
-  if (!loaded) return <div className="flex items-center justify-center h-screen"><div className="w-8 h-8 border-2 border-[#c084fc]/30 border-t-[#c084fc] rounded-full animate-spin" /></div>;
+  if (!loaded) return <div className="flex items-center justify-center h-screen"><div className="w-8 h-8 border-2 border-[var(--primary)]/30 border-t-[var(--primary)] rounded-full animate-spin" /></div>;
 
   const now = new Date();
   const currentMonth = now.getMonth();
@@ -62,8 +62,8 @@ export default function ReportsPage() {
     <div className="px-4 py-6 lg:px-8 lg:py-8 max-w-4xl mx-auto animate-fade-in">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-[family-name:var(--font-grotesk)] font-bold text-white tracking-tight mb-1">Rapport mensuel</h1>
-          <p className="text-sm text-[#a09bb2] capitalize">{monthName}</p>
+          <h1 className="text-2xl font-[family-name:var(--font-grotesk)] font-bold text-[var(--on-surface)] tracking-tight mb-1">Rapport mensuel</h1>
+          <p className="text-sm text-[var(--on-surface-variant)] capitalize">{monthName}</p>
         </div>
         <Button variant="secondary" size="sm" onClick={() => window.print()}>
           <span className="flex items-center gap-2">
@@ -82,8 +82,8 @@ export default function ReportsPage() {
           { label: "Ressenti moy.", val: tmAvgFeel, prev: null, accent: false },
         ].map((m) => (
           <Card key={m.label} className="!p-4">
-            <p className="text-[10px] text-[#a09bb2] uppercase tracking-wider mb-2">{m.label}</p>
-            <p className={`text-2xl font-bold ${m.accent ? "text-[#c084fc]" : "text-white"}`}>{m.val}</p>
+            <p className="text-[10px] text-[var(--on-surface-variant)] uppercase tracking-wider mb-2">{m.label}</p>
+            <p className={`text-2xl font-bold ${m.accent ? "text-[var(--primary)]" : "text-[var(--on-surface)]"}`}>{m.val}</p>
             {m.prev !== null && (
               <p className={`text-[10px] mt-1 ${(m.val as number) >= m.prev ? "text-emerald-400" : "text-[#fb7185]"}`}>
                 {diff(m.val as number, m.prev)} vs mois dernier
@@ -95,18 +95,18 @@ export default function ReportsPage() {
 
       {/* Weekly chart */}
       <Card className="mb-6">
-        <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-white mb-4">Activite (4 semaines)</h2>
+        <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-[var(--on-surface)] mb-4">Activite (4 semaines)</h2>
         <div className="flex items-end gap-3 h-32">
           {weeks.map((w, i) => (
             <div key={i} className="flex-1 flex flex-col items-center gap-2">
-              <div className="w-full bg-black/30 rounded-lg overflow-hidden flex flex-col justify-end" style={{ height: "100%" }}>
+              <div className="w-full bg-[var(--surface-highest)] rounded-lg overflow-hidden flex flex-col justify-end" style={{ height: "100%" }}>
                 <div
                   className="w-full rounded-lg bg-gradient-to-t from-[#c084fc] to-[#818cf8] transition-all duration-500"
                   style={{ height: `${(w.count / maxWeek) * 100}%`, minHeight: w.count > 0 ? "8px" : "0" }}
                 />
               </div>
-              <span className="text-[10px] text-[#6b6580]">{w.label}</span>
-              <span className="text-xs font-semibold text-[#a09bb2]">{w.count}</span>
+              <span className="text-[10px] text-[var(--outline)]">{w.label}</span>
+              <span className="text-xs font-semibold text-[var(--on-surface-variant)]">{w.count}</span>
             </div>
           ))}
         </div>
@@ -115,24 +115,24 @@ export default function ReportsPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
         {/* Progression */}
         <Card>
-          <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-white mb-3">Progression</h2>
+          <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-[var(--on-surface)] mb-3">Progression</h2>
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-[#a09bb2]">Niveau</span>
-              <span className="text-sm font-bold text-[#c084fc]">{gam.level}</span>
+              <span className="text-sm text-[var(--on-surface-variant)]">Niveau</span>
+              <span className="text-sm font-bold text-[var(--primary)]">{gam.level}</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-[#a09bb2]">XP total</span>
-              <span className="text-sm font-bold text-[#818cf8]">{gam.xp}</span>
+              <span className="text-sm text-[var(--on-surface-variant)]">XP total</span>
+              <span className="text-sm font-bold text-[var(--tertiary)]">{gam.xp}</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-[#a09bb2]">Streak actuel</span>
+              <span className="text-sm text-[var(--on-surface-variant)]">Streak actuel</span>
               <span className="text-sm font-bold text-amber-400 flex items-center gap-1">
                 <IconFlame size={14} className="text-amber-400" /> {gam.streak}j
               </span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-[#a09bb2]">Missions completees</span>
+              <span className="text-sm text-[var(--on-surface-variant)]">Missions completees</span>
               <span className="text-sm font-bold text-emerald-400">{completedMissions.length}</span>
             </div>
           </div>
@@ -140,19 +140,19 @@ export default function ReportsPage() {
 
         {/* Badges this month */}
         <Card>
-          <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-white mb-3">Badges obtenus</h2>
+          <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-[var(--on-surface)] mb-3">Badges obtenus</h2>
           {unlockedBadges.length === 0 ? (
-            <p className="text-xs text-[#6b6580]">Aucun nouveau badge ce mois-ci</p>
+            <p className="text-xs text-[var(--outline)]">Aucun nouveau badge ce mois-ci</p>
           ) : (
             <div className="space-y-2">
               {unlockedBadges.map((b) => (
                 <div key={b.id} className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-[#c084fc]/10 flex items-center justify-center text-[#c084fc]">
+                  <div className="w-8 h-8 rounded-lg bg-[var(--primary)]/10 flex items-center justify-center text-[var(--primary)]">
                     <IconAward size={18} />
                   </div>
                   <div>
-                    <p className="text-sm text-white font-medium">{b.name}</p>
-                    <p className="text-[10px] text-[#6b6580]">{b.description}</p>
+                    <p className="text-sm text-[var(--on-surface)] font-medium">{b.name}</p>
+                    <p className="text-[10px] text-[var(--outline)]">{b.description}</p>
                   </div>
                 </div>
               ))}
@@ -163,15 +163,15 @@ export default function ReportsPage() {
 
       {/* Type breakdown */}
       <Card className="mb-6">
-        <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-white mb-3">Repartition ce mois</h2>
+        <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-[var(--on-surface)] mb-3">Repartition ce mois</h2>
         <div className="grid grid-cols-3 gap-4">
           {(["direct", "indirect", "situational"] as const).map((t) => {
             const count = thisMonth.filter((i) => i.type === t).length;
             const labels = { direct: "Direct", indirect: "Indirect", situational: "Situationnel" };
             return (
               <div key={t} className="text-center">
-                <p className="text-2xl font-bold text-white">{count}</p>
-                <p className="text-xs text-[#6b6580]">{labels[t]}</p>
+                <p className="text-2xl font-bold text-[var(--on-surface)]">{count}</p>
+                <p className="text-xs text-[var(--outline)]">{labels[t]}</p>
               </div>
             );
           })}
@@ -180,15 +180,15 @@ export default function ReportsPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card>
-          <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-white mb-3">Pipeline</h2>
+          <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-[var(--on-surface)] mb-3">Pipeline</h2>
           <div className="flex items-center justify-between">
-            <span className="text-sm text-[#a09bb2]">Contacts actifs</span>
-            <span className="text-sm font-bold text-[#818cf8]">{contacts.filter((c) => c.status !== "archived").length}</span>
+            <span className="text-sm text-[var(--on-surface-variant)]">Contacts actifs</span>
+            <span className="text-sm font-bold text-[var(--tertiary)]">{contacts.filter((c) => c.status !== "archived").length}</span>
           </div>
         </Card>
 
         <Card>
-          <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-white mb-3">Rang de competence</h2>
+          <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-[var(--on-surface)] mb-3">Rang de competence</h2>
           {(() => {
             const total = interactions.length;
             const cls = interactions.filter((i) => i.result === "close").length;
@@ -200,8 +200,8 @@ export default function ReportsPage() {
             const rank = getSkillRank(score);
             return (
               <div className="flex items-center justify-between">
-                <span className="text-sm text-[#a09bb2]">{SKILL_RANK_LABELS[rank]}</span>
-                <span className="text-sm font-bold text-[#818cf8]">{score}/100</span>
+                <span className="text-sm text-[var(--on-surface-variant)]">{SKILL_RANK_LABELS[rank]}</span>
+                <span className="text-sm font-bold text-[var(--tertiary)]">{score}/100</span>
               </div>
             );
           })()}

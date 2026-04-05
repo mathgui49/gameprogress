@@ -25,14 +25,14 @@ export default function ContactsPage() {
   const [newValue, setNewValue] = useState("");
 
   if (!loaded) {
-    return <div className="flex items-center justify-center h-screen"><div className="w-8 h-8 border-2 border-[#c084fc]/30 border-t-[#c084fc] rounded-full animate-spin" /></div>;
+    return <div className="flex items-center justify-center h-screen"><div className="w-8 h-8 border-2 border-[var(--primary)]/30 border-t-[var(--primary)] rounded-full animate-spin" /></div>;
   }
 
   if (contacts.length === 0) {
     return (
       <div className="px-4 py-6 lg:px-8 lg:py-8 max-w-6xl mx-auto animate-fade-in">
-        <h1 className="text-2xl font-[family-name:var(--font-grotesk)] font-bold text-white tracking-tight mb-1">Pipeline</h1>
-        <EmptyState icon={<IconUsers size={32} className="text-[#c084fc]" />} title="Aucun contact" description="Les contacts apparaissent ici quand tu obtiens un close lors d'une interaction." />
+        <h1 className="text-2xl font-[family-name:var(--font-grotesk)] font-bold text-[var(--on-surface)] tracking-tight mb-1">Pipeline</h1>
+        <EmptyState icon={<IconUsers size={32} className="text-[var(--primary)]" />} title="Aucun contact" description="Les contacts apparaissent ici quand tu obtiens un close lors d'une interaction." />
       </div>
     );
   }
@@ -41,8 +41,8 @@ export default function ContactsPage() {
     <div className="px-4 py-6 lg:px-8 lg:py-8 max-w-[1400px] mx-auto animate-fade-in">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-[family-name:var(--font-grotesk)] font-bold text-white tracking-tight mb-1">Pipeline</h1>
-          <p className="text-sm text-[#a09bb2]">{contacts.length} contact{contacts.length > 1 ? "s" : ""}</p>
+          <h1 className="text-2xl font-[family-name:var(--font-grotesk)] font-bold text-[var(--on-surface)] tracking-tight mb-1">Pipeline</h1>
+          <p className="text-sm text-[var(--on-surface-variant)]">{contacts.length} contact{contacts.length > 1 ? "s" : ""}</p>
         </div>
         <Button onClick={() => setShowNew(true)}>+ Contact</Button>
       </div>
@@ -57,7 +57,7 @@ export default function ContactsPage() {
               {/* Column header */}
               <div className="flex items-center gap-2 mb-3 px-1">
                 <Badge className={STATUS_COLORS[status]}>{STATUS_LABELS[status]}</Badge>
-                <span className="text-xs text-[#6b6580]">{items.length}</span>
+                <span className="text-xs text-[var(--outline)]">{items.length}</span>
               </div>
 
               {/* Cards — horizontal scroll on mobile, vertical on desktop */}
@@ -68,18 +68,18 @@ export default function ContactsPage() {
                       <div className="flex items-start justify-between mb-2">
                         <div className="flex items-center gap-2">
                           <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#c084fc]/20 to-[#818cf8]/20 flex items-center justify-center">
-                            <span className="text-xs font-bold text-[#c084fc]">{contact.firstName[0]?.toUpperCase() || "?"}</span>
+                            <span className="text-xs font-bold text-[var(--primary)]">{contact.firstName[0]?.toUpperCase() || "?"}</span>
                           </div>
                           <div>
-                            <p className="text-sm font-semibold text-white">{contact.firstName}</p>
-                            <p className="text-[10px] text-[#6b6580]">{contact.method === "instagram" ? contact.methodValue : "Telephone"}</p>
+                            <p className="text-sm font-semibold text-[var(--on-surface)]">{contact.firstName}</p>
+                            <p className="text-[10px] text-[var(--outline)]">{contact.method === "instagram" ? contact.methodValue : "Telephone"}</p>
                           </div>
                         </div>
                       </div>
                       {contact.tags.length > 0 && (
                         <div className="flex flex-wrap gap-1 mb-2">
                           {contact.tags.slice(0, 3).map((tag) => (
-                            <span key={tag} className="text-[10px] px-2 py-0.5 rounded-full bg-[#818cf8]/10 text-[#818cf8]">{tag}</span>
+                            <span key={tag} className="text-[10px] px-2 py-0.5 rounded-full bg-[var(--tertiary)]/10 text-[var(--tertiary)]">{tag}</span>
                           ))}
                         </div>
                       )}
@@ -91,7 +91,7 @@ export default function ContactsPage() {
                           {contact.reminders.filter((r) => !r.done).length} rappel(s)
                         </div>
                       )}
-                      <p className="text-[10px] text-[#6b6580] mt-2">{formatRelative(contact.lastInteractionDate)}</p>
+                      <p className="text-[10px] text-[var(--outline)] mt-2">{formatRelative(contact.lastInteractionDate)}</p>
                     </Card>
                   </Link>
                 ))}
