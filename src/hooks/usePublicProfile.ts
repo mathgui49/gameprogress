@@ -27,6 +27,7 @@ export function usePublicProfile() {
         username: profile?.username ?? "",
         firstName: profile?.firstName ?? "",
         birthDate: profile?.birthDate ?? null,
+        profilePhoto: profile?.profilePhoto ?? null,
         location: profile?.location ?? "",
         lat: profile?.lat ?? null,
         lng: profile?.lng ?? null,

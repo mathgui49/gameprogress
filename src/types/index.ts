@@ -259,6 +259,7 @@ export interface PublicProfile {
   username: string;
   firstName: string;
   birthDate: string | null;
+  profilePhoto: string | null;
   location: string;
   lat: number | null;
   lng: number | null;

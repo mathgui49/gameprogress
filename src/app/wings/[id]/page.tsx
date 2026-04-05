@@ -5,141 +5,263 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import { useWingRequests } from "@/hooks/useWingRequests";
 import { Card } from "@/components/ui/Card";
+import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import type { PublicProfile, Session } from "@/types";
-import { formatDate, computeAge } from "@/lib/utils";
-import { findProfileByUsername, fetchOne, fromRow } from "@/lib/db";
-import { supabase } from "@/lib/supabase";
+import { MapView } from "@/components/ui/MapView";
+import type { PublicProfile, Session, Post, JournalEntry } from "@/types";
+import { JOURNAL_TAG_LABELS, JOURNAL_TAG_COLORS } from "@/types";
+import { formatDate, formatRelative, computeAge } from "@/lib/utils";
+import { findProfileByUsername, fetchUserPublicPosts, fetchUserPublicJournal, fetchUserGamification, fetchUserLeaderboardRank, fetchUserBadges, fetchSessionsByUserId } from "@/lib/db";
+import type { Badge as BadgeType } from "@/types";
 
 export default function WingProfilePage() {
   const params = useParams();
-  const wingUserId = decodeURIComponent(params.id as string);
-  const { isWing, getWingSessions, sendRequest, hasPendingTo } = useWingRequests();
+  const username = decodeURIComponent(params.id as string);
+  const { isWing, sendRequest, hasPendingTo } = useWingRequests();
 
   const [profile, setProfile] = useState<PublicProfile | null>(null);
   const [sessions, setSessions] = useState<Session[]>([]);
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [journal, setJournal] = useState<JournalEntry[]>([]);
+  const [gam, setGam] = useState<{ xp: number; level: number; streak: number }>({ xp: 0, level: 1, streak: 0 });
+  const [rank, setRank] = useState<number | null>(null);
+  const [badges, setBadges] = useState<BadgeType[]>([]);
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     async function load() {
-      // Fetch the wing's public profile
-      const { data, error } = await supabase
-        .from("public_profiles")
-        .select("*")
-        .eq("user_id", wingUserId)
-        .single();
-      if (data && !error) {
-        const obj: Record<string, unknown> = {};
-        for (const [k, v] of Object.entries(data)) {
-          obj[k.replace(/_([a-z])/g, (_, c: string) => c.toUpperCase())] = v;
-        }
-        setProfile(obj as unknown as PublicProfile);
-      }
+      const prof = await findProfileByUsername(username);
+      if (!prof) { setLoaded(true); return; }
+      setProfile(prof as PublicProfile);
 
-      // If they're a wing, load their sessions
-      if (isWing(wingUserId)) {
-        const s = await getWingSessions(wingUserId);
-        setSessions(s);
-      }
+      const uid = prof.userId;
+      const wingConnected = isWing(uid);
+
+      const [gamData, rankData, badgesData, sessData, postsData, journalData] = await Promise.all([
+        fetchUserGamification(uid),
+        fetchUserLeaderboardRank(uid),
+        fetchUserBadges(uid),
+        wingConnected ? fetchSessionsByUserId(uid) : Promise.resolve([]),
+        fetchUserPublicPosts(uid, wingConnected),
+        fetchUserPublicJournal(uid, wingConnected),
+      ]);
+
+      setGam(gamData);
+      setRank(rankData);
+      setBadges(badgesData);
+      setSessions(sessData);
+      setPosts(postsData);
+      setJournal(journalData);
       setLoaded(true);
     }
     load();
-  }, [wingUserId, isWing, getWingSessions]);
+  }, [username, isWing]);
 
-  if (!loaded) return <div className="flex items-center justify-center h-screen"><div className="w-8 h-8 border-2 border-[#c084fc]/30 border-t-[#c084fc] rounded-full animate-spin" /></div>;
+  if (!loaded) return <div className="flex items-center justify-center h-screen"><div className="w-8 h-8 border-2 border-[var(--primary)]/30 border-t-[var(--primary)] rounded-full animate-spin" /></div>;
 
   if (!profile) {
     return (
       <div className="px-4 py-6 lg:px-8 lg:py-8 max-w-2xl mx-auto">
-        <p className="text-sm text-[#a09bb2]">Profil introuvable.</p>
-        <Link href="/wings" className="text-sm text-[#c084fc] mt-2 inline-block">← Retour</Link>
+        <p className="text-sm text-[var(--on-surface-variant)]">Profil introuvable.</p>
+        <Link href="/wings" className="text-sm text-[var(--primary)] mt-2 inline-block">← Retour</Link>
       </div>
     );
   }
 
-  const wingConnected = isWing(wingUserId);
-  const pending = hasPendingTo(wingUserId);
+  const wingConnected = isWing(profile.userId);
+  const pending = hasPendingTo(profile.userId);
+  const age = computeAge(profile.birthDate);
+  const privacy = profile.privacy;
+  const canSeeAge = age && (wingConnected ? privacy?.shareAgeWings : privacy?.shareAgePublic);
+  const canSeeStats = wingConnected ? privacy?.shareStatsWings : false;
+  const canSeeRanking = wingConnected ? privacy?.showInLeaderboardWings : privacy?.showInLeaderboardPublic;
+  const hasMap = profile.lat && profile.lng;
+
+  const mapMarkers = hasMap ? [{ lat: profile.lat!, lng: profile.lng!, label: profile.firstName || profile.username }] : [];
 
   return (
-    <div className="px-4 py-6 lg:px-8 lg:py-8 max-w-2xl mx-auto animate-fade-in">
-      <Link href="/wings" className="text-sm text-[#6b6580] hover:text-[#c084fc] transition-colors mb-4 inline-flex items-center gap-1">
+    <div className="px-4 py-6 lg:px-8 lg:py-8 max-w-3xl mx-auto animate-fade-in">
+      <Link href="/wings" className="text-sm text-[var(--outline)] hover:text-[var(--primary)] transition-colors mb-4 inline-flex items-center gap-1">
         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
         Wings
       </Link>
 
       {/* Profile header */}
       <Card className="mb-4 mt-4">
-        <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#c084fc]/20 to-[#818cf8]/20 flex items-center justify-center">
-            <span className="text-xl font-bold text-[#c084fc]">{profile.firstName?.[0]?.toUpperCase() || profile.username?.[0]?.toUpperCase()}</span>
+        <div className="flex items-start gap-4">
+          {/* Photo */}
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[var(--primary)]/20 to-[var(--tertiary)]/20 flex items-center justify-center overflow-hidden shrink-0">
+            {profile.profilePhoto ? (
+              <img src={profile.profilePhoto} alt="" className="w-full h-full object-cover" />
+            ) : (
+              <span className="text-2xl font-bold text-[var(--primary)]">{profile.firstName?.[0]?.toUpperCase() || profile.username?.[0]?.toUpperCase()}</span>
+            )}
           </div>
-          <div className="flex-1">
-            <h1 className="text-xl font-[family-name:var(--font-grotesk)] font-bold text-white">
-              {profile.firstName || profile.username}
-              {(() => {
-                const age = computeAge(profile.birthDate);
-                const canSee = wingConnected ? profile.privacy?.shareAgeWings : profile.privacy?.shareAgePublic;
-                return age && canSee ? <span className="text-sm font-normal text-[#a09bb2] ml-2">{age} ans</span> : null;
-              })()}
-            </h1>
-            <p className="text-sm text-[#6b6580]">@{profile.username}</p>
+
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="text-xl font-[family-name:var(--font-grotesk)] font-bold text-[var(--on-surface)]">
+                {profile.firstName || profile.username}
+              </h1>
+              {canSeeAge && <span className="text-sm text-[var(--on-surface-variant)]">{age} ans</span>}
+              {wingConnected && <Badge className="bg-emerald-400/15 text-emerald-400">Wing</Badge>}
+            </div>
+            <p className="text-sm text-[var(--outline)]">@{profile.username}</p>
             {profile.location && (
-              <p className="text-xs text-[#a09bb2] mt-1 flex items-center gap-1">
+              <p className="text-xs text-[var(--on-surface-variant)] mt-1 flex items-center gap-1">
                 <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" /></svg>
                 {profile.location}
               </p>
             )}
+            {profile.bio && <p className="text-sm text-[var(--on-surface-variant)] mt-2">{profile.bio}</p>}
           </div>
-          {wingConnected ? (
-            <span className="text-xs px-3 py-1.5 rounded-full bg-emerald-400/15 text-emerald-400 font-medium">Wing</span>
-          ) : pending ? (
-            <span className="text-xs px-3 py-1.5 rounded-full bg-amber-400/15 text-amber-400 font-medium">En attente</span>
-          ) : (
-            <Button size="sm" onClick={() => sendRequest(wingUserId)}>Inviter</Button>
-          )}
+
+          {/* Action */}
+          <div className="shrink-0">
+            {!wingConnected && !pending && (
+              <Button size="sm" onClick={() => sendRequest(profile.userId)}>Inviter</Button>
+            )}
+            {pending && (
+              <span className="text-xs px-3 py-1.5 rounded-full bg-amber-400/15 text-amber-400 font-medium">En attente</span>
+            )}
+          </div>
         </div>
-        {profile.bio && <p className="text-sm text-[#a09bb2] mt-3">{profile.bio}</p>}
       </Card>
 
-      {/* Wing's sessions (only visible if connected) */}
-      {wingConnected ? (
-        <div>
-          <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-white mb-3">
-            Sessions de {profile.firstName || profile.username}
-          </h2>
-          {sessions.length === 0 ? (
-            <Card>
-              <p className="text-sm text-[#6b6580] text-center py-4">Aucune session pour le moment.</p>
+      {/* Stats row */}
+      {(canSeeRanking || canSeeStats) && (
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+          {canSeeRanking && rank && (
+            <Card className="text-center !p-4">
+              <p className="text-2xl font-[family-name:var(--font-grotesk)] font-bold text-[var(--primary)]">#{rank}</p>
+              <p className="text-[10px] text-[var(--outline)]">Classement</p>
             </Card>
-          ) : (
-            <div className="space-y-2">
-              {sessions.map((s, idx) => (
-                <div key={s.id} className="animate-slide-up" style={{ animationDelay: `${idx * 40}ms` }}>
-                  <Card className="!p-4">
-                    <div className="flex items-center justify-between mb-1">
-                      <p className="text-sm font-semibold text-white">{s.title || "Session sans titre"}</p>
-                      <p className="text-[10px] text-[#6b6580]">{formatDate(s.date)}</p>
-                    </div>
-                    {s.location && <p className="text-xs text-[#a09bb2] flex items-center gap-1">
-                      <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" /></svg>
-                      {s.location}
-                    </p>}
-                    {s.notes && <p className="text-xs text-[#a09bb2] mt-2 line-clamp-2">{s.notes}</p>}
-                    <div className="flex items-center gap-3 mt-2 text-[10px] text-[#6b6580]">
-                      <span>{s.interactionIds?.length || 0} interaction{(s.interactionIds?.length || 0) > 1 ? "s" : ""}</span>
-                      <span>{s.goals?.filter((g: { done: boolean }) => g.done).length || 0}/{s.goals?.length || 0} objectifs</span>
-                    </div>
-                  </Card>
-                </div>
-              ))}
-            </div>
+          )}
+          <Card className="text-center !p-4">
+            <p className="text-2xl font-[family-name:var(--font-grotesk)] font-bold text-[var(--tertiary)]">{gam.level}</p>
+            <p className="text-[10px] text-[var(--outline)]">Niveau</p>
+          </Card>
+          <Card className="text-center !p-4">
+            <p className="text-2xl font-[family-name:var(--font-grotesk)] font-bold text-[var(--primary)]">{gam.xp}</p>
+            <p className="text-[10px] text-[var(--outline)]">XP</p>
+          </Card>
+          {gam.streak > 0 && (
+            <Card className="text-center !p-4">
+              <p className="text-2xl font-[family-name:var(--font-grotesk)] font-bold text-amber-400">{gam.streak}</p>
+              <p className="text-[10px] text-[var(--outline)]">Streak</p>
+            </Card>
           )}
         </div>
-      ) : (
+      )}
+
+      {/* Badges */}
+      {badges.length > 0 && (
+        <Card className="mb-4">
+          <h2 className="text-sm font-semibold text-[var(--on-surface)] mb-3">Badges ({badges.length})</h2>
+          <div className="flex flex-wrap gap-2">
+            {badges.map((b: BadgeType) => (
+              <div key={b.id} className="flex items-center gap-2 px-3 py-2 rounded-xl bg-[var(--surface-bright)] border border-[var(--border)]" title={b.description}>
+                <span className="text-lg">{b.icon}</span>
+                <div>
+                  <p className="text-xs font-medium text-[var(--on-surface)]">{b.name}</p>
+                  <p className="text-[9px] text-[var(--outline)]">{b.description}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
+
+      {/* Map */}
+      {hasMap && (
+        <Card className="mb-4 !p-0 overflow-hidden">
+          <div className="h-[200px]">
+            <MapView markers={mapMarkers} />
+          </div>
+          <div className="px-4 py-3">
+            <p className="text-xs text-[var(--on-surface-variant)]">{profile.location}</p>
+          </div>
+        </Card>
+      )}
+
+      {/* Sessions (wing only) */}
+      {wingConnected && sessions.length > 0 && (
+        <div className="mb-4">
+          <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-[var(--on-surface)] mb-3">
+            Sessions ({sessions.length})
+          </h2>
+          <div className="space-y-2">
+            {sessions.slice(0, 10).map((s) => (
+              <Card key={s.id} className="!p-4">
+                <div className="flex items-center justify-between mb-1">
+                  <p className="text-sm font-semibold text-[var(--on-surface)]">{s.title || "Session sans titre"}</p>
+                  <p className="text-[10px] text-[var(--outline)]">{formatDate(s.date)}</p>
+                </div>
+                {s.location && <p className="text-xs text-[var(--on-surface-variant)] flex items-center gap-1">
+                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" /></svg>
+                  {s.location}
+                </p>}
+                <div className="flex items-center gap-3 mt-2 text-[10px] text-[var(--outline)]">
+                  <span>{s.interactionIds?.length || 0} interaction{(s.interactionIds?.length || 0) > 1 ? "s" : ""}</span>
+                  {s.isPublic && <Badge className="bg-emerald-400/15 text-emerald-400">Public</Badge>}
+                </div>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Posts */}
+      {posts.length > 0 && (
+        <div className="mb-4">
+          <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-[var(--on-surface)] mb-3">
+            Posts ({posts.length})
+          </h2>
+          <div className="space-y-2">
+            {posts.map((p: any) => (
+              <Card key={p.id} className="!p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <Badge className={p.visibility === "wings" ? "bg-[var(--tertiary)]/15 text-[var(--tertiary)]" : "bg-emerald-400/15 text-emerald-400"}>
+                    {p.visibility === "wings" ? "Wings" : "Public"}
+                  </Badge>
+                  <span className="text-[10px] text-[var(--outline)]">{formatRelative(p.createdAt)}</span>
+                </div>
+                <p className="text-sm text-[var(--on-surface-variant)] whitespace-pre-wrap">{p.content}</p>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Journal entries */}
+      {journal.length > 0 && (
+        <div className="mb-4">
+          <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-[var(--on-surface)] mb-3">
+            Journal ({journal.length})
+          </h2>
+          <div className="space-y-2">
+            {journal.map((j: any) => (
+              <Card key={j.id} className="!p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  {j.tag && <Badge className={JOURNAL_TAG_COLORS[j.tag as keyof typeof JOURNAL_TAG_COLORS]}>{JOURNAL_TAG_LABELS[j.tag as keyof typeof JOURNAL_TAG_LABELS]}</Badge>}
+                  <Badge className={j.visibility === "wings" ? "bg-[var(--tertiary)]/15 text-[var(--tertiary)]" : "bg-emerald-400/15 text-emerald-400"}>
+                    {j.visibility === "wings" ? "Wings" : "Public"}
+                  </Badge>
+                  <span className="text-[10px] text-[var(--outline)]">{formatRelative(j.createdAt)}</span>
+                </div>
+                <p className="text-sm text-[var(--on-surface-variant)] whitespace-pre-wrap line-clamp-4">{j.content}</p>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Empty state for non-wings */}
+      {!wingConnected && sessions.length === 0 && posts.length === 0 && journal.length === 0 && (
         <Card>
           <div className="text-center py-6">
-            <svg className="w-8 h-8 mx-auto text-[#3d3650] mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" /></svg>
-            <p className="text-sm text-[#a09bb2]">Deviens wing avec {profile.firstName || profile.username} pour voir ses sessions.</p>
+            <svg className="w-8 h-8 mx-auto text-[var(--outline-variant)] mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" /></svg>
+            <p className="text-sm text-[var(--on-surface-variant)]">Deviens wing avec {profile.firstName || profile.username} pour voir plus de contenu.</p>
           </div>
         </Card>
       )}

@@ -136,7 +136,7 @@ export default function WingsPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {wingProfiles.map((wing, idx) => (
                 <div key={wing.userId} className="animate-slide-up" style={{ animationDelay: `${idx * 40}ms` }}>
-                  <Link href={`/wings/${encodeURIComponent(wing.userId)}`}>
+                  <Link href={`/wings/${encodeURIComponent(wing.username)}`}>
                     <Card hover className="!p-4">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#c084fc]/20 to-[#818cf8]/20 flex items-center justify-center">

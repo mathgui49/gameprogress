@@ -332,6 +332,54 @@ export async function fetchActivityFeed(userId: string, wingIds: string[], locat
   return feed;
 }
 
+// ─── User public data (for profile pages) ──────────────
+
+export async function fetchUserPublicPosts(userId: string, viewerIsWing: boolean) {
+  let query = supabase.from("posts").select("*").eq("user_id", userId);
+  if (viewerIsWing) {
+    query = query.in("visibility", ["public", "wings"]);
+  } else {
+    query = query.eq("visibility", "public");
+  }
+  const { data } = await query.order("created_at", { ascending: false }).limit(20);
+  return (data || []).map((r) => fromRow<any>(r));
+}
+
+export async function fetchUserPublicJournal(userId: string, viewerIsWing: boolean) {
+  let query = supabase.from("journal_entries").select("*").eq("user_id", userId);
+  if (viewerIsWing) {
+    query = query.in("visibility", ["public", "wings"]);
+  } else {
+    query = query.eq("visibility", "public");
+  }
+  const { data } = await query.order("created_at", { ascending: false }).limit(20);
+  return (data || []).map((r) => fromRow<any>(r));
+}
+
+export async function fetchUserGamification(userId: string) {
+  const { data } = await supabase.from("gamification").select("*").eq("user_id", userId).single();
+  if (!data) return { xp: 0, level: 1, streak: 0 };
+  return { xp: data.xp ?? 0, level: data.level ?? 1, streak: data.streak ?? 0 };
+}
+
+export async function fetchUserBadges(userId: string) {
+  const { data } = await supabase.from("gamification").select("badges").eq("user_id", userId).single();
+  if (!data?.badges) return [];
+  const badges = typeof data.badges === "string" ? JSON.parse(data.badges) : data.badges;
+  return (badges || []).filter((b: any) => b.unlockedAt);
+}
+
+export async function fetchUserLeaderboardRank(userId: string) {
+  const { data: profiles } = await supabase.from("public_profiles").select("user_id").eq("is_public", true);
+  if (!profiles || profiles.length === 0) return null;
+  const userIds = profiles.map((p: any) => p.user_id);
+  const { data: gamData } = await supabase.from("gamification").select("*").in("user_id", userIds);
+  if (!gamData) return null;
+  const sorted = gamData.sort((a: any, b: any) => ((b.level ?? 1) * 10000 + (b.xp ?? 0)) - ((a.level ?? 1) * 10000 + (a.xp ?? 0)));
+  const idx = sorted.findIndex((g: any) => g.user_id === userId);
+  return idx >= 0 ? idx + 1 : null;
+}
+
 // ─── Session Invites ────────────────────────────────────
 
 export async function inviteWingsToSession(sessionId: string, ownerUserId: string, wingUserIds: string[]) {

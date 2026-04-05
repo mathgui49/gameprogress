@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { usePublicProfile } from "@/hooks/usePublicProfile";
 import type { PrivacySettings } from "@/types";
 import { DEFAULT_PRIVACY } from "@/types";
 import { Card } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
 import { Input, TextArea } from "@/components/ui/Input";
 import { MapPicker } from "@/components/ui/MapPicker";
 
@@ -59,6 +60,46 @@ export default function ProfilPage() {
         <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-white mb-4">Profil public</h2>
         <p className="text-xs text-[#a09bb2] mb-4">Visible par les autres utilisateurs dans l&apos;onglet Wings.</p>
         <div className="space-y-4">
+          {/* Profile photo */}
+          <div>
+            <p className="text-xs font-medium text-[var(--on-surface-variant)] mb-2">Photo de profil</p>
+            <div className="flex items-center gap-4">
+              <div className="w-16 h-16 rounded-2xl bg-[var(--surface-bright)] flex items-center justify-center overflow-hidden border border-[var(--border)]">
+                {profile?.profilePhoto ? (
+                  <img src={profile.profilePhoto} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-xl font-bold text-[var(--primary)]">{profile?.firstName?.[0]?.toUpperCase() || "?"}</span>
+                )}
+              </div>
+              <div className="flex flex-col gap-2">
+                <label className="cursor-pointer">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      if (file.size > 500_000) { alert("Photo trop lourde (max 500 Ko)"); return; }
+                      const reader = new FileReader();
+                      reader.onload = () => { save({ profilePhoto: reader.result as string }); flash(); };
+                      reader.readAsDataURL(file);
+                    }}
+                  />
+                  <span className="text-xs px-3 py-1.5 rounded-lg bg-[var(--surface-high)] border border-[var(--border)] text-[var(--on-surface-variant)] hover:bg-[var(--surface-bright)] transition-colors cursor-pointer">
+                    Choisir une photo
+                  </span>
+                </label>
+                {profile?.profilePhoto && (
+                  <button onClick={() => { save({ profilePhoto: null }); flash(); }} className="text-[10px] text-[var(--error)] hover:underline text-left">
+                    Retirer la photo
+                  </button>
+                )}
+                <p className="text-[10px] text-[var(--outline)]">Max 500 Ko. Seule cette photo sera visible par les autres.</p>
+              </div>
+            </div>
+          </div>
+
           <Input label="Nom d'utilisateur" id="pu" placeholder="ex: mathieu_75" value={profile?.username ?? ""} onChange={(e) => { save({ username: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, "") }); flash(); }} />
           <Input label="Prenom" id="pfn" placeholder="Ton prenom" value={profile?.firstName ?? ""} onChange={(e) => { save({ firstName: e.target.value }); flash(); }} />
           <Input label="Date de naissance" id="pbd" type="date" value={profile?.birthDate ?? ""} onChange={(e) => { save({ birthDate: e.target.value || null }); flash(); }} />
