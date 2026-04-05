@@ -139,16 +139,24 @@ alter table journal_entries enable row level security;
 alter table profiles enable row level security;
 alter table gamification enable row level security;
 
--- Policy: allow all operations when user_id matches the request header
--- We pass user email via x-user-id header from the client
-create policy "Users manage own interactions" on interactions for all using (true) with check (true);
-create policy "Users manage own contacts" on contacts for all using (true) with check (true);
-create policy "Users manage own sessions" on sessions for all using (true) with check (true);
-create policy "Users manage own wings" on wings for all using (true) with check (true);
-create policy "Users manage own missions" on missions for all using (true) with check (true);
-create policy "Users manage own journal" on journal_entries for all using (true) with check (true);
-create policy "Users manage own profile" on profiles for all using (true) with check (true);
-create policy "Users manage own gamification" on gamification for all using (true) with check (true);
+-- Policy: each user can only access their own rows
+-- user_id stores the user's email, matched against auth.jwt() ->> 'email'
+create policy "Users manage own interactions" on interactions for all
+  using (user_id = auth.jwt() ->> 'email') with check (user_id = auth.jwt() ->> 'email');
+create policy "Users manage own contacts" on contacts for all
+  using (user_id = auth.jwt() ->> 'email') with check (user_id = auth.jwt() ->> 'email');
+create policy "Users manage own sessions" on sessions for all
+  using (user_id = auth.jwt() ->> 'email') with check (user_id = auth.jwt() ->> 'email');
+create policy "Users manage own wings" on wings for all
+  using (user_id = auth.jwt() ->> 'email') with check (user_id = auth.jwt() ->> 'email');
+create policy "Users manage own missions" on missions for all
+  using (user_id = auth.jwt() ->> 'email') with check (user_id = auth.jwt() ->> 'email');
+create policy "Users manage own journal" on journal_entries for all
+  using (user_id = auth.jwt() ->> 'email') with check (user_id = auth.jwt() ->> 'email');
+create policy "Users manage own profile" on profiles for all
+  using (user_id = auth.jwt() ->> 'email') with check (user_id = auth.jwt() ->> 'email');
+create policy "Users manage own gamification" on gamification for all
+  using (user_id = auth.jwt() ->> 'email') with check (user_id = auth.jwt() ->> 'email');
 
 -- 16. Subscriptions (Stripe)
 create table subscriptions (
@@ -163,4 +171,5 @@ create table subscriptions (
 );
 
 alter table subscriptions enable row level security;
-create policy "Users manage own subscription" on subscriptions for all using (true) with check (true);
+create policy "Users manage own subscription" on subscriptions for all
+  using (user_id = auth.jwt() ->> 'email') with check (user_id = auth.jwt() ->> 'email');

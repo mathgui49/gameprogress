@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePublicProfile } from "@/hooks/usePublicProfile";
 import { useWingRequests } from "@/hooks/useWingRequests";
-import { fetchProfilesByIds } from "@/lib/db";
+import { fetchProfilesByIdsAction } from "@/actions/db";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -41,7 +41,7 @@ export default function WingsPage() {
     ];
     const uniqueIds = [...new Set(allIds)].filter((id) => !pendingProfiles[id]);
     if (uniqueIds.length === 0) return;
-    fetchProfilesByIds(uniqueIds).then((profiles) => {
+    fetchProfilesByIdsAction(uniqueIds).then((profiles) => {
       const map: Record<string, PublicProfile> = { ...pendingProfiles };
       profiles.forEach((p: PublicProfile) => { map[p.userId] = p; });
       setPendingProfiles(map);

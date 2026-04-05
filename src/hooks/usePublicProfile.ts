@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import type { PublicProfile } from "@/types";
 import { DEFAULT_PRIVACY } from "@/types";
-import { fetchOne, upsertRow, searchPublicProfiles, findProfileByUsername } from "@/lib/db";
+import { fetchOneAction, upsertRowAction, searchPublicProfilesAction, findProfileByUsernameAction } from "@/actions/db";
 
 export function usePublicProfile() {
   const { data: session } = useSession();
@@ -14,7 +14,7 @@ export function usePublicProfile() {
 
   useEffect(() => {
     if (!userId) return;
-    fetchOne<PublicProfile>("public_profiles", userId).then((data) => {
+    fetchOneAction<PublicProfile>("public_profiles").then((data) => {
       setProfile(data);
       setLoaded(true);
     });
@@ -38,14 +38,14 @@ export function usePublicProfile() {
         ...updates,
       };
       setProfile(next);
-      upsertRow("public_profiles", userId, next);
+      upsertRowAction("public_profiles", next);
     },
     [userId, profile]
   );
 
   const discoverProfiles = useCallback(
     async (location?: string): Promise<PublicProfile[]> => {
-      const results = await searchPublicProfiles(location);
+      const results = await searchPublicProfilesAction(location);
       return results.filter((p: PublicProfile) => p.userId !== userId);
     },
     [userId]
@@ -53,7 +53,7 @@ export function usePublicProfile() {
 
   const findByUsername = useCallback(
     async (username: string): Promise<PublicProfile | null> => {
-      return findProfileByUsername(username);
+      return findProfileByUsernameAction(username);
     },
     []
   );

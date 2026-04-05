@@ -1,4 +1,17 @@
-import { supabase } from "./supabase";
+import { supabaseServer as supabase } from "./supabase-server";
+
+// ─── Input sanitization ────────────────────────────────
+const MAX_TEXT_LENGTH = 5000;
+const MAX_SHORT_TEXT = 200;
+
+/** Strip HTML tags and trim to max length */
+export function sanitize(input: string, maxLen = MAX_TEXT_LENGTH): string {
+  return input.replace(/<[^>]*>/g, "").trim().slice(0, maxLen);
+}
+
+export function sanitizeShort(input: string): string {
+  return sanitize(input, MAX_SHORT_TEXT);
+}
 
 // camelCase → snake_case
 function toSnake(str: string): string {
@@ -54,11 +67,14 @@ export async function insertRow(table: string, userId: string, obj: any) {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function updateRow(table: string, id: string, obj: any) {
+export async function updateRow(table: string, id: string, obj: any, userId?: string) {
   const row = toRow(obj);
   delete row.id;
   delete row.user_id;
-  const { error } = await supabase.from(table).update(row).eq("id", id);
+  let query = supabase.from(table).update(row).eq("id", id);
+  // Scope update to the owner — prevents cross-user modification
+  if (userId) query = query.eq("user_id", userId);
+  const { error } = await query;
   if (error) console.error(`update ${table}:`, error);
 }
 
@@ -70,8 +86,11 @@ export async function upsertRow(table: string, userId: string, obj: any) {
   if (error) console.error(`upsert ${table}:`, error);
 }
 
-export async function deleteRow(table: string, id: string) {
-  const { error } = await supabase.from(table).delete().eq("id", id);
+export async function deleteRow(table: string, id: string, userId?: string) {
+  let query = supabase.from(table).delete().eq("id", id);
+  // Scope delete to the owner — prevents cross-user deletion
+  if (userId) query = query.eq("user_id", userId);
+  const { error } = await query;
   if (error) console.error(`delete ${table}:`, error);
 }
 
@@ -114,11 +133,13 @@ export async function fetchWingRequests(userId: string) {
   };
 }
 
-export async function updateWingRequestStatus(requestId: string, status: string) {
+export async function updateWingRequestStatus(requestId: string, status: string, userId: string) {
+  // Only the recipient (to_user_id) can accept/decline a request
   const { error } = await supabase
     .from("wing_requests")
     .update({ status })
-    .eq("id", requestId);
+    .eq("id", requestId)
+    .eq("to_user_id", userId);
   if (error) console.error("update request:", error);
 }
 
@@ -216,11 +237,13 @@ export async function fetchSessionComments(sessionId: string) {
 }
 
 export async function addSessionComment(sessionId: string, userId: string, content: string) {
+  const safeContent = sanitize(content, 1000);
+  if (!safeContent) return;
   await supabase.from("session_comments").insert({
     id: crypto.randomUUID(),
     session_id: sessionId,
     user_id: userId,
-    content,
+    content: safeContent,
   });
 }
 
@@ -405,11 +428,13 @@ export async function fetchSessionInvitesForUser(userId: string) {
   return (data || []).map((r) => fromRow<any>(r));
 }
 
-export async function updateSessionInviteStatus(participantId: string, status: "accepted" | "declined") {
+export async function updateSessionInviteStatus(participantId: string, status: "accepted" | "declined", userId: string) {
+  // Only the invited user can accept/decline their own invite
   const { error } = await supabase
     .from("session_participants")
     .update({ status })
-    .eq("id", participantId);
+    .eq("id", participantId)
+    .eq("user_id", userId);
   if (error) console.error("update session invite:", error);
 }
 
@@ -542,6 +567,7 @@ export async function adminSetAnnouncement(message: string | null) {
   if (!message) {
     await supabase.from("admin_settings").delete().eq("key", "announcement");
   } else {
-    await supabase.from("admin_settings").upsert({ key: "announcement", value: message });
+    const safe = sanitize(message, 500);
+    await supabase.from("admin_settings").upsert({ key: "announcement", value: safe });
   }
 }

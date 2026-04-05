@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Tooltip } from "@/components/ui/Tooltip";
-import { fetchLeaderboard } from "@/lib/db";
+import { fetchLeaderboardAction } from "@/actions/db";
 
 interface LeaderboardEntry {
   userId: string;
@@ -27,7 +27,7 @@ export default function LeaderboardPage() {
   const [cityFilter, setCityFilter] = useState("");
 
   const load = async (city?: string) => {
-    const data = await fetchLeaderboard(city);
+    const data = await fetchLeaderboardAction(city);
     setEntries(data);
     setLoaded(true);
   };

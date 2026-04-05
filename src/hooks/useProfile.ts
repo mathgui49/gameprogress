@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import type { UserProfile } from "@/types";
-import { fetchOne, upsertRow } from "@/lib/db";
+import { fetchOneAction, upsertRowAction } from "@/actions/db";
 
 const DEFAULT_PROFILE: UserProfile = {
   name: "",
@@ -19,7 +19,7 @@ export function useProfile() {
 
   useEffect(() => {
     if (!userId) return;
-    fetchOne<UserProfile>("profiles", userId).then((data) => {
+    fetchOneAction<UserProfile>("profiles").then((data) => {
       if (data) setProfile(data);
     });
   }, [userId]);
@@ -28,7 +28,7 @@ export function useProfile() {
     (updates: Partial<UserProfile>) => {
       setProfile((prev) => {
         const next = { ...prev, ...updates };
-        upsertRow("profiles", userId, next);
+        upsertRowAction("profiles", next);
         return next;
       });
     },

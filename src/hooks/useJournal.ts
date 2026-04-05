@@ -3,7 +3,7 @@
 import { useCallback } from "react";
 import { useSession } from "next-auth/react";
 import type { JournalEntry, JournalTag, Visibility } from "@/types";
-import { insertRow, updateRow, deleteRow } from "@/lib/db";
+import { insertRowAction, updateRowAction, deleteRowAction } from "@/actions/db";
 import { useSwrFetch, mutateTable } from "@/lib/swr";
 import { generateId } from "@/lib/utils";
 
@@ -15,7 +15,7 @@ export function useJournal() {
   const add = useCallback(
     async (content: string, tag: JournalTag | null, visibility: Visibility = "private") => {
       const item: JournalEntry = { id: generateId(), date: new Date().toISOString(), content, tag, visibility, createdAt: new Date().toISOString() };
-      await insertRow("journal_entries", userId, item);
+      await insertRowAction("journal_entries", item);
       await mutateTable("journal_entries", userId);
       return item;
     },
@@ -24,7 +24,7 @@ export function useJournal() {
 
   const update = useCallback(
     async (id: string, content: string, tag: JournalTag | null, visibility?: Visibility) => {
-      await updateRow("journal_entries", id, { content, tag, ...(visibility !== undefined ? { visibility } : {}) });
+      await updateRowAction("journal_entries", id, { content, tag, ...(visibility !== undefined ? { visibility } : {}) });
       await mutateTable("journal_entries", userId);
     },
     [userId]
@@ -32,7 +32,7 @@ export function useJournal() {
 
   const remove = useCallback(
     async (id: string) => {
-      await deleteRow("journal_entries", id);
+      await deleteRowAction("journal_entries", id);
       await mutateTable("journal_entries", userId);
     },
     [userId]

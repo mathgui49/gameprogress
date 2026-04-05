@@ -3,7 +3,7 @@
 import { useCallback } from "react";
 import { useSession } from "next-auth/react";
 import type { Interaction } from "@/types";
-import { insertRow, updateRow, deleteRow } from "@/lib/db";
+import { insertRowAction, updateRowAction, deleteRowAction } from "@/actions/db";
 import { useSwrFetch, mutateTable } from "@/lib/swr";
 import { generateId } from "@/lib/utils";
 
@@ -15,7 +15,7 @@ export function useInteractions() {
   const add = useCallback(
     async (input: Omit<Interaction, "id" | "createdAt">) => {
       const item: Interaction = { ...input, id: generateId(), createdAt: new Date().toISOString() };
-      await insertRow("interactions", userId, item);
+      await insertRowAction("interactions", item);
       await mutateTable("interactions", userId);
       return item;
     },
@@ -24,7 +24,7 @@ export function useInteractions() {
 
   const update = useCallback(
     async (id: string, input: Partial<Omit<Interaction, "id" | "createdAt">>) => {
-      await updateRow("interactions", id, input);
+      await updateRowAction("interactions", id, input);
       await mutateTable("interactions", userId);
     },
     [userId]
@@ -32,7 +32,7 @@ export function useInteractions() {
 
   const remove = useCallback(
     async (id: string) => {
-      await deleteRow("interactions", id);
+      await deleteRowAction("interactions", id);
       await mutateTable("interactions", userId);
     },
     [userId]

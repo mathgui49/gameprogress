@@ -3,9 +3,10 @@
 import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import type { WingRequest, PublicProfile, Session } from "@/types";
-import { fetchWingRequests, updateWingRequestStatus, fetchProfilesByIds, fetchSessionsByUserId, toRow } from "@/lib/db";
-import { supabase } from "@/lib/supabase";
-import { generateId } from "@/lib/utils";
+import {
+  fetchWingRequestsAction, sendWingRequestAction, acceptWingRequestAction,
+  declineWingRequestAction, fetchProfilesByIdsAction, fetchSessionsByUserIdAction,
+} from "@/actions/db";
 
 export function useWingRequests() {
   const { data: session } = useSession();
@@ -17,17 +18,16 @@ export function useWingRequests() {
 
   const loadRequests = useCallback(async () => {
     if (!userId) return;
-    const data = await fetchWingRequests(userId);
+    const data = await fetchWingRequestsAction();
     setSent(data.sent);
     setReceived(data.received);
 
-    // Load profiles of accepted wings
     const acceptedIds = [
       ...data.sent.filter((r: WingRequest) => r.status === "accepted").map((r: WingRequest) => r.toUserId),
       ...data.received.filter((r: WingRequest) => r.status === "accepted").map((r: WingRequest) => r.fromUserId),
     ];
     if (acceptedIds.length > 0) {
-      const profiles = await fetchProfilesByIds(acceptedIds);
+      const profiles = await fetchProfilesByIdsAction(acceptedIds);
       setWingProfiles(profiles);
     }
     setLoaded(true);
@@ -37,7 +37,6 @@ export function useWingRequests() {
 
   const sendRequest = useCallback(
     async (toUserId: string) => {
-      // Don't send if already sent or if it's yourself
       if (toUserId === userId) return;
       const alreadySent = sent.some((r) => r.toUserId === toUserId && r.status === "pending");
       const alreadyAccepted = sent.some((r) => r.toUserId === toUserId && r.status === "accepted")
@@ -45,24 +44,22 @@ export function useWingRequests() {
       if (alreadySent || alreadyAccepted) return;
 
       const request: WingRequest = {
-        id: generateId(),
+        id: crypto.randomUUID(),
         fromUserId: userId,
         toUserId,
         status: "pending",
         createdAt: new Date().toISOString(),
       };
       setSent((prev) => [request, ...prev]);
-      const row = toRow(request);
-      await supabase.from("wing_requests").insert(row);
+      await sendWingRequestAction(toUserId);
     },
     [userId, sent, received]
   );
 
   const acceptRequest = useCallback(
     async (requestId: string) => {
-      await updateWingRequestStatus(requestId, "accepted");
+      await acceptWingRequestAction(requestId);
       setReceived((prev) => prev.map((r) => (r.id === requestId ? { ...r, status: "accepted" as const } : r)));
-      // Reload to get the new wing profile
       loadRequests();
     },
     [loadRequests]
@@ -70,7 +67,7 @@ export function useWingRequests() {
 
   const declineRequest = useCallback(
     async (requestId: string) => {
-      await updateWingRequestStatus(requestId, "declined");
+      await declineWingRequestAction(requestId);
       setReceived((prev) => prev.map((r) => (r.id === requestId ? { ...r, status: "declined" as const } : r)));
     },
     []
@@ -78,7 +75,7 @@ export function useWingRequests() {
 
   const getWingSessions = useCallback(
     async (wingUserId: string): Promise<Session[]> => {
-      return fetchSessionsByUserId(wingUserId);
+      return fetchSessionsByUserIdAction(wingUserId);
     },
     []
   );

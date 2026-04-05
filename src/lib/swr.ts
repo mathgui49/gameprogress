@@ -1,11 +1,11 @@
 "use client";
 
 import useSWR, { mutate as globalMutate } from "swr";
-import { fetchAll } from "./db";
+import { fetchAllAction } from "@/actions/db";
 
 export function useSwrFetch<T>(table: string, userId: string) {
   const key = userId ? `${table}:${userId}` : null;
-  const { data, isLoading } = useSWR(key, () => fetchAll<T>(table, userId), {
+  const { data, isLoading } = useSWR(key, () => fetchAllAction<T>(table), {
     revalidateOnFocus: false,
     dedupingInterval: 5000,
   });

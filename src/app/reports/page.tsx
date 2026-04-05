@@ -1,42 +1,200 @@
 "use client";
 
+import { useState, useMemo, useRef } from "react";
 import { useInteractions } from "@/hooks/useInteractions";
 import { useContacts } from "@/hooks/useContacts";
 import { useGamification } from "@/hooks/useGamification";
 import { useMissions } from "@/hooks/useMissions";
-import { computeSkillScore, getSkillRank, SKILL_RANK_LABELS } from "@/types";
+import { computeSkillScore, getSkillRank, SKILL_RANK_LABELS, SKILL_RANK_COLORS } from "@/types";
 import { Card } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
 import { IconFlame, IconAward } from "@/components/ui/Icons";
+import { LineChart } from "@/components/charts/LineChart";
+import { BarChart } from "@/components/charts/BarChart";
+import { DonutChart } from "@/components/charts/DonutChart";
+import { HeatmapChart } from "@/components/charts/HeatmapChart";
+import { ExportButton } from "@/components/reports/ExportButton";
+
+type Period = "month" | "quarter" | "all";
+
+function getWeekLabel(date: Date): string {
+  const d = new Date(date);
+  const day = d.getDate();
+  const month = d.toLocaleDateString("fr-FR", { month: "short" });
+  return `${day} ${month}`;
+}
+
+function getWeeksData(interactions: any[], numWeeks: number) {
+  const now = new Date();
+  return Array.from({ length: numWeeks }, (_, i) => {
+    const weekEnd = new Date(now.getTime() - i * 7 * 86400000);
+    const weekStart = new Date(weekEnd.getTime() - 7 * 86400000);
+    const weekInteractions = interactions.filter((int) => {
+      const d = new Date(int.date);
+      return d >= weekStart && d < weekEnd;
+    });
+    return { weekStart, weekEnd, interactions: weekInteractions };
+  }).reverse();
+}
 
 export default function ReportsPage() {
   const { interactions, loaded } = useInteractions();
   const { contacts } = useContacts();
   const gam = useGamification();
   const { completed: completedMissions } = useMissions();
+  const [period, setPeriod] = useState<Period>("month");
+  const reportRef = useRef<HTMLDivElement>(null);
 
-  if (!loaded) return <div className="flex items-center justify-center h-screen"><div className="w-8 h-8 border-2 border-[var(--primary)]/30 border-t-[var(--primary)] rounded-full animate-spin" /></div>;
+  const analytics = useMemo(() => {
+    if (!loaded) return null;
+
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+
+    // Period filtering
+    const getPeriodStart = (p: Period) => {
+      const d = new Date();
+      if (p === "month") { d.setMonth(d.getMonth() - 1); return d; }
+      if (p === "quarter") { d.setMonth(d.getMonth() - 3); return d; }
+      return new Date(0);
+    };
+
+    const periodStart = getPeriodStart(period);
+    const periodInteractions = interactions.filter((i) => new Date(i.date) >= periodStart);
+
+    // This month / last month
+    const thisMonth = interactions.filter((i) => {
+      const d = new Date(i.date);
+      return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+    });
+    const lastMonth = interactions.filter((i) => {
+      const d = new Date(i.date);
+      const lm = currentMonth === 0 ? 11 : currentMonth - 1;
+      const ly = currentMonth === 0 ? currentYear - 1 : currentYear;
+      return d.getMonth() === lm && d.getFullYear() === ly;
+    });
+
+    // Key metrics
+    const tmCloses = thisMonth.filter((i) => i.result === "close").length;
+    const lmCloses = lastMonth.filter((i) => i.result === "close").length;
+    const tmAvgFeel = thisMonth.length > 0
+      ? thisMonth.reduce((s, i) => s + i.feelingScore, 0) / thisMonth.length
+      : 0;
+    const tmCloseRate = thisMonth.length > 0 ? (tmCloses / thisMonth.length) * 100 : 0;
+    const lmCloseRate = lastMonth.length > 0
+      ? (lastMonth.filter((i) => i.result === "close").length / lastMonth.length) * 100 : 0;
+
+    // Weekly data (12 weeks)
+    const weeks = getWeeksData(interactions, 12);
+
+    // Close rate by week (8 weeks)
+    const closeRateWeekly = getWeeksData(interactions, 8).map((w) => {
+      const total = w.interactions.length;
+      const closes = w.interactions.filter((i) => i.result === "close").length;
+      return {
+        label: getWeekLabel(w.weekStart),
+        value: total > 0 ? Math.round((closes / total) * 100) : 0,
+      };
+    });
+    const avgCloseRate = interactions.length > 0
+      ? Math.round((interactions.filter((i) => i.result === "close").length / interactions.length) * 100)
+      : 0;
+
+    // Confidence over time (8 weeks)
+    const confidenceWeekly = getWeeksData(interactions, 8).map((w) => {
+      const withConf = w.interactions.filter((i) => (i.confidenceScore ?? 0) > 0);
+      const avg = withConf.length > 0
+        ? withConf.reduce((s, i) => s + (i.confidenceScore ?? 0), 0) / withConf.length
+        : 0;
+      return { label: getWeekLabel(w.weekStart), value: Math.round(avg * 10) / 10 };
+    });
+    const avgConfidence = (() => {
+      const wc = interactions.filter((i) => (i.confidenceScore ?? 0) > 0);
+      return wc.length > 0 ? wc.reduce((s, i) => s + (i.confidenceScore ?? 0), 0) / wc.length : 0;
+    })();
+
+    // Feeling score over time (8 weeks)
+    const feelingWeekly = getWeeksData(interactions, 8).map((w) => {
+      const avg = w.interactions.length > 0
+        ? w.interactions.reduce((s, i) => s + i.feelingScore, 0) / w.interactions.length
+        : 0;
+      return { label: getWeekLabel(w.weekStart), value: Math.round(avg * 10) / 10 };
+    });
+    const avgFeeling = interactions.length > 0
+      ? interactions.reduce((s, i) => s + i.feelingScore, 0) / interactions.length
+      : 0;
+
+    // Bar chart data (12 weeks)
+    const weeklyBars = weeks.map((w) => ({
+      label: getWeekLabel(w.weekStart),
+      value: w.interactions.length,
+    }));
+
+    // Result breakdown (period)
+    const closes = periodInteractions.filter((i) => i.result === "close").length;
+    const neutrals = periodInteractions.filter((i) => i.result === "neutral").length;
+    const rejections = periodInteractions.filter((i) => i.result === "rejection").length;
+
+    // Type breakdown (period)
+    const direct = periodInteractions.filter((i) => i.type === "direct").length;
+    const indirect = periodInteractions.filter((i) => i.type === "indirect").length;
+    const situational = periodInteractions.filter((i) => i.type === "situational").length;
+
+    // Heatmap
+    const heatmapData: Record<string, number> = {};
+    interactions.forEach((i) => {
+      const key = new Date(i.date).toISOString().slice(0, 10);
+      heatmapData[key] = (heatmapData[key] || 0) + 1;
+    });
+
+    // Badges this month
+    const unlockedBadges = gam.badges.filter((b) => {
+      if (!b.unlockedAt) return false;
+      const d = new Date(b.unlockedAt);
+      return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+    });
+
+    // Skill score
+    const total = interactions.length;
+    const allCloses = interactions.filter((i) => i.result === "close").length;
+    const cr = total > 0 ? allCloses / total : 0;
+    const af = total > 0 ? interactions.reduce((s, i) => s + i.feelingScore, 0) / total : 0;
+    const wc = interactions.filter((i) => (i.confidenceScore ?? 0) > 0);
+    const ac = wc.length > 0 ? wc.reduce((s, i) => s + (i.confidenceScore ?? 0), 0) / wc.length : 0;
+    const skillScore = computeSkillScore({ totalInteractions: total, closeRate: cr, avgFeelingScore: af, avgConfidence: ac, streak: gam.streak });
+    const skillRank = getSkillRank(skillScore);
+
+    // Best day of week
+    const dayTotals = [0, 0, 0, 0, 0, 0, 0];
+    interactions.forEach((i) => { dayTotals[new Date(i.date).getDay()]++; });
+    const bestDayIdx = dayTotals.indexOf(Math.max(...dayTotals));
+    const dayNames = ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"];
+
+    return {
+      thisMonth, lastMonth, tmCloses, lmCloses, tmAvgFeel, tmCloseRate, lmCloseRate,
+      closeRateWeekly, avgCloseRate,
+      confidenceWeekly, avgConfidence,
+      feelingWeekly, avgFeeling,
+      weeklyBars,
+      closes, neutrals, rejections,
+      direct, indirect, situational,
+      heatmapData, unlockedBadges,
+      skillScore, skillRank,
+      bestDay: dayNames[bestDayIdx],
+      periodInteractions,
+    };
+  }, [interactions, loaded, period, gam]);
+
+  if (!loaded || !analytics) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="w-8 h-8 border-2 border-[var(--primary)]/30 border-t-[var(--primary)] rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   const now = new Date();
-  const currentMonth = now.getMonth();
-  const currentYear = now.getFullYear();
   const monthName = now.toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
-
-  const thisMonth = interactions.filter((i) => {
-    const d = new Date(i.date);
-    return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
-  });
-  const lastMonth = interactions.filter((i) => {
-    const d = new Date(i.date);
-    const lm = currentMonth === 0 ? 11 : currentMonth - 1;
-    const ly = currentMonth === 0 ? currentYear - 1 : currentYear;
-    return d.getMonth() === lm && d.getFullYear() === ly;
-  });
-
-  const tmCloses = thisMonth.filter((i) => i.result === "close").length;
-  const lmCloses = lastMonth.filter((i) => i.result === "close").length;
-  const tmAvgFeel = thisMonth.length > 0 ? (thisMonth.reduce((s, i) => s + i.feelingScore, 0) / thisMonth.length).toFixed(1) : "—";
-  const tmCloseRate = thisMonth.length > 0 ? Math.round((tmCloses / thisMonth.length) * 100) : 0;
 
   const diff = (curr: number, prev: number) => {
     if (prev === 0) return curr > 0 ? "+∞" : "=";
@@ -44,78 +202,163 @@ export default function ReportsPage() {
     return pct >= 0 ? `+${pct}%` : `${pct}%`;
   };
 
-  const unlockedBadges = gam.badges.filter((b) => {
-    if (!b.unlockedAt) return false;
-    const d = new Date(b.unlockedAt);
-    return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
-  });
-
-  const weeks = Array.from({ length: 4 }, (_, i) => {
-    const weekEnd = new Date(now.getTime() - i * 7 * 86400000);
-    const weekStart = new Date(weekEnd.getTime() - 7 * 86400000);
-    const count = interactions.filter((int) => { const d = new Date(int.date); return d >= weekStart && d < weekEnd; }).length;
-    return { label: `S-${i}`, count };
-  }).reverse();
-  const maxWeek = Math.max(...weeks.map((w) => w.count), 1);
+  const periodLabels: Record<Period, string> = { month: "Ce mois", quarter: "3 mois", all: "Tout" };
 
   return (
-    <div className="px-4 py-6 lg:px-8 lg:py-8 max-w-4xl mx-auto animate-fade-in">
-      <div className="flex items-center justify-between mb-8">
+    <div ref={reportRef} className="px-4 py-6 lg:px-8 lg:py-8 max-w-5xl mx-auto animate-fade-in print:max-w-none print:px-6 print:py-4 print:text-[10px]">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-8 flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl font-[family-name:var(--font-grotesk)] font-bold tracking-tight mb-1"><span className="bg-gradient-to-r from-[#f59e0b] to-[#c084fc] bg-clip-text text-transparent">Rapport mensuel</span></h1>
+          <h1 className="text-2xl font-[family-name:var(--font-grotesk)] font-bold tracking-tight mb-1">
+            <span className="bg-gradient-to-r from-[#f59e0b] to-[#c084fc] bg-clip-text text-transparent">
+              Rapport & Analytics
+            </span>
+          </h1>
           <p className="text-sm text-[var(--on-surface-variant)] capitalize">{monthName}</p>
         </div>
-        <Button variant="secondary" size="sm" onClick={() => window.print()}>
-          <span className="flex items-center gap-2">
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0110.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0l.229 2.523a1.125 1.125 0 01-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0021 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 00-1.913-.247M6.34 18H5.25A2.25 2.25 0 013 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 011.913-.247m10.5 0a48.536 48.536 0 00-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659M18 10.5h.008v.008H18V10.5zm-3 0h.008v.008H15V10.5z" /></svg>
-            Exporter PDF
-          </span>
-        </Button>
+        <div className="flex items-center gap-2">
+          <div className="flex bg-[var(--surface-highest)] rounded-lg p-0.5">
+            {(["month", "quarter", "all"] as Period[]).map((p) => (
+              <button
+                key={p}
+                onClick={() => setPeriod(p)}
+                className={`px-3 py-1.5 text-xs rounded-md transition-all ${
+                  period === p
+                    ? "bg-[var(--primary)] text-white font-semibold"
+                    : "text-[var(--on-surface-variant)] hover:text-[var(--on-surface)]"
+                }`}
+              >
+                {periodLabels[p]}
+              </button>
+            ))}
+          </div>
+          <ExportButton targetRef={reportRef} />
+        </div>
       </div>
 
       {/* Key metrics */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-6">
         {[
-          { label: "Interactions", val: thisMonth.length, prev: lastMonth.length, accent: true },
-          { label: "Closes", val: tmCloses, prev: lmCloses, accent: true },
-          { label: "Taux close", val: `${tmCloseRate}%`, prev: null, accent: false },
-          { label: "Ressenti moy.", val: tmAvgFeel, prev: null, accent: false },
+          { label: "Interactions", val: analytics.thisMonth.length, prev: analytics.lastMonth.length, accent: true },
+          { label: "Closes", val: analytics.tmCloses, prev: analytics.lmCloses, accent: true },
+          { label: "Taux close", val: `${Math.round(analytics.tmCloseRate)}%`, prev: Math.round(analytics.lmCloseRate), numVal: Math.round(analytics.tmCloseRate), accent: false, showDiff: true },
+          { label: "Ressenti moy.", val: analytics.tmAvgFeel > 0 ? analytics.tmAvgFeel.toFixed(1) : "—", prev: null, accent: false },
+          { label: "Jour favori", val: analytics.bestDay, prev: null, accent: false },
         ].map((m) => (
           <Card key={m.label} className="!p-4">
             <p className="text-[10px] text-[var(--on-surface-variant)] uppercase tracking-wider mb-2">{m.label}</p>
             <p className={`text-2xl font-bold ${m.accent ? "text-[var(--primary)]" : "text-[var(--on-surface)]"}`}>{m.val}</p>
-            {m.prev !== null && (
+            {m.prev !== null && !m.showDiff && (
               <p className={`text-[10px] mt-1 ${(m.val as number) >= m.prev ? "text-emerald-400" : "text-[#fb7185]"}`}>
                 {diff(m.val as number, m.prev)} vs mois dernier
+              </p>
+            )}
+            {m.showDiff && m.prev !== null && (
+              <p className={`text-[10px] mt-1 ${(m.numVal ?? 0) >= m.prev ? "text-emerald-400" : "text-[#fb7185]"}`}>
+                {diff(m.numVal ?? 0, m.prev)} vs mois dernier
               </p>
             )}
           </Card>
         ))}
       </div>
 
-      {/* Weekly chart */}
+      {/* Heatmap */}
       <Card className="mb-6">
-        <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-[var(--on-surface)] mb-4">Activite (4 semaines)</h2>
-        <div className="flex items-end gap-3 h-32">
-          {weeks.map((w, i) => (
-            <div key={i} className="flex-1 flex flex-col items-center gap-2">
-              <div className="w-full bg-[var(--surface-highest)] rounded-lg overflow-hidden flex flex-col justify-end" style={{ height: "100%" }}>
-                <div
-                  className="w-full rounded-lg bg-gradient-to-t from-[#c084fc] to-[#818cf8] transition-all duration-500"
-                  style={{ height: `${(w.count / maxWeek) * 100}%`, minHeight: w.count > 0 ? "8px" : "0" }}
-                />
-              </div>
-              <span className="text-[10px] text-[var(--outline)]">{w.label}</span>
-              <span className="text-xs font-semibold text-[var(--on-surface-variant)]">{w.count}</span>
-            </div>
-          ))}
-        </div>
+        <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-[var(--on-surface)] mb-4">
+          Activité (12 semaines)
+        </h2>
+        <HeatmapChart data={analytics.heatmapData} weeks={12} />
       </Card>
 
+      {/* Charts row 1: Activity bar + Close rate line */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-        {/* Progression */}
         <Card>
-          <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-[var(--on-surface)] mb-3">Progression</h2>
+          <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-[var(--on-surface)] mb-4">
+            Interactions par semaine
+          </h2>
+          <BarChart data={analytics.weeklyBars} height={160} />
+        </Card>
+
+        <Card>
+          <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-[var(--on-surface)] mb-4">
+            Taux de close par semaine
+          </h2>
+          <LineChart
+            data={analytics.closeRateWeekly}
+            color="#10b981"
+            suffix="%"
+            avgLine={analytics.avgCloseRate}
+            height={160}
+          />
+        </Card>
+      </div>
+
+      {/* Charts row 2: Confidence + Feeling */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+        <Card>
+          <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-[var(--on-surface)] mb-4">
+            Confiance dans le temps
+          </h2>
+          <LineChart
+            data={analytics.confidenceWeekly}
+            color="#f59e0b"
+            avgLine={analytics.avgConfidence}
+            height={160}
+          />
+        </Card>
+
+        <Card>
+          <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-[var(--on-surface)] mb-4">
+            Ressenti dans le temps
+          </h2>
+          <LineChart
+            data={analytics.feelingWeekly}
+            color="#c084fc"
+            avgLine={analytics.avgFeeling}
+            height={160}
+          />
+        </Card>
+      </div>
+
+      {/* Charts row 3: Donut result + Donut type */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+        <Card>
+          <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-[var(--on-surface)] mb-4">
+            Résultats
+          </h2>
+          <DonutChart
+            segments={[
+              { label: "Close", value: analytics.closes, color: "#10b981" },
+              { label: "Neutre", value: analytics.neutrals, color: "#f59e0b" },
+              { label: "Rejet", value: analytics.rejections, color: "#fb7185" },
+            ]}
+            centerValue={String(analytics.periodInteractions.length)}
+            centerLabel="total"
+          />
+        </Card>
+
+        <Card>
+          <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-[var(--on-surface)] mb-4">
+            Types d&apos;approche
+          </h2>
+          <DonutChart
+            segments={[
+              { label: "Direct", value: analytics.direct, color: "#c084fc" },
+              { label: "Indirect", value: analytics.indirect, color: "#818cf8" },
+              { label: "Situationnel", value: analytics.situational, color: "#22d3ee" },
+            ]}
+            centerValue={String(analytics.periodInteractions.length)}
+            centerLabel="total"
+          />
+        </Card>
+      </div>
+
+      {/* Progression + Badges + Skill */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+        <Card>
+          <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-[var(--on-surface)] mb-3">
+            Progression
+          </h2>
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-sm text-[var(--on-surface-variant)]">Niveau</span>
@@ -132,20 +375,43 @@ export default function ReportsPage() {
               </span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-[var(--on-surface-variant)]">Missions complétées</span>
+              <span className="text-sm text-[var(--on-surface-variant)]">Best streak</span>
+              <span className="text-sm font-bold text-amber-400/60">{gam.bestStreak}j</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-[var(--on-surface-variant)]">Missions</span>
               <span className="text-sm font-bold text-emerald-400">{completedMissions.length}</span>
             </div>
           </div>
         </Card>
 
-        {/* Badges this month */}
         <Card>
-          <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-[var(--on-surface)] mb-3">Badges obtenus</h2>
-          {unlockedBadges.length === 0 ? (
+          <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-[var(--on-surface)] mb-3">
+            Rang de compétence
+          </h2>
+          <div className="flex flex-col items-center py-3">
+            <div className="w-20 h-20 rounded-full border-4 border-[var(--primary)]/30 flex items-center justify-center mb-3"
+              style={{ background: `conic-gradient(var(--primary) ${analytics.skillScore}%, var(--surface-highest) 0)` }}>
+              <div className="w-16 h-16 rounded-full bg-[var(--surface-high)] flex items-center justify-center">
+                <span className="text-xl font-bold text-[var(--on-surface)]">{analytics.skillScore}</span>
+              </div>
+            </div>
+            <span className={`text-sm font-bold ${SKILL_RANK_COLORS[analytics.skillRank]}`}>
+              {SKILL_RANK_LABELS[analytics.skillRank]}
+            </span>
+            <span className="text-[10px] text-[var(--outline)] mt-1">Score global /100</span>
+          </div>
+        </Card>
+
+        <Card>
+          <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-[var(--on-surface)] mb-3">
+            Badges ce mois
+          </h2>
+          {analytics.unlockedBadges.length === 0 ? (
             <p className="text-xs text-[var(--outline)]">Aucun nouveau badge ce mois-ci</p>
           ) : (
             <div className="space-y-2">
-              {unlockedBadges.map((b) => (
+              {analytics.unlockedBadges.map((b) => (
                 <div key={b.id} className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-lg bg-[var(--primary)]/10 flex items-center justify-center text-[var(--primary)]">
                     <IconAward size={18} />
@@ -161,52 +427,25 @@ export default function ReportsPage() {
         </Card>
       </div>
 
-      {/* Type breakdown */}
-      <Card className="mb-6">
-        <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-[var(--on-surface)] mb-3">Repartition ce mois</h2>
-        <div className="grid grid-cols-3 gap-4">
-          {(["direct", "indirect", "situational"] as const).map((t) => {
-            const count = thisMonth.filter((i) => i.type === t).length;
-            const labels = { direct: "Direct", indirect: "Indirect", situational: "Situationnel" };
-            return (
-              <div key={t} className="text-center">
-                <p className="text-2xl font-bold text-[var(--on-surface)]">{count}</p>
-                <p className="text-xs text-[var(--outline)]">{labels[t]}</p>
-              </div>
-            );
-          })}
+      {/* Pipeline summary */}
+      <Card>
+        <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-[var(--on-surface)] mb-3">
+          Pipeline
+        </h2>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {[
+            { label: "Contacts actifs", val: contacts.filter((c) => c.status !== "archived").length, color: "text-[var(--primary)]" },
+            { label: "Date planifié", val: contacts.filter((c) => c.status === "date_planned").length, color: "text-cyan-400" },
+            { label: "Closes", val: contacts.filter((c) => ["kissclose", "fuckclose"].includes(c.status)).length, color: "text-emerald-400" },
+            { label: "Archivés", val: contacts.filter((c) => c.status === "archived").length, color: "text-[var(--outline)]" },
+          ].map((m) => (
+            <div key={m.label} className="text-center">
+              <p className={`text-2xl font-bold ${m.color}`}>{m.val}</p>
+              <p className="text-xs text-[var(--outline)] mt-1">{m.label}</p>
+            </div>
+          ))}
         </div>
       </Card>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <Card>
-          <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-[var(--on-surface)] mb-3">Pipeline</h2>
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-[var(--on-surface-variant)]">Contacts actifs</span>
-            <span className="text-sm font-bold text-[var(--tertiary)]">{contacts.filter((c) => c.status !== "archived").length}</span>
-          </div>
-        </Card>
-
-        <Card>
-          <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-[var(--on-surface)] mb-3">Rang de competence</h2>
-          {(() => {
-            const total = interactions.length;
-            const cls = interactions.filter((i) => i.result === "close").length;
-            const cr = total > 0 ? cls / total : 0;
-            const af = total > 0 ? interactions.reduce((s, i) => s + i.feelingScore, 0) / total : 0;
-            const wc = interactions.filter((i) => (i.confidenceScore ?? 0) > 0);
-            const ac = wc.length > 0 ? wc.reduce((s, i) => s + (i.confidenceScore ?? 0), 0) / wc.length : 0;
-            const score = computeSkillScore({ totalInteractions: total, closeRate: cr, avgFeelingScore: af, avgConfidence: ac, streak: gam.streak });
-            const rank = getSkillRank(score);
-            return (
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-[var(--on-surface-variant)]">{SKILL_RANK_LABELS[rank]}</span>
-                <span className="text-sm font-bold text-[var(--tertiary)]">{score}/100</span>
-              </div>
-            );
-          })()}
-        </Card>
-      </div>
     </div>
   );
 }

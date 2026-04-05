@@ -3,7 +3,7 @@
 import { useCallback } from "react";
 import { useSession } from "next-auth/react";
 import type { Mission, MissionType, MissionTrackingType } from "@/types";
-import { insertRow, updateRow, deleteRow } from "@/lib/db";
+import { insertRowAction, updateRowAction, deleteRowAction } from "@/actions/db";
 import { useSwrFetch, mutateTable } from "@/lib/swr";
 import { generateId } from "@/lib/utils";
 
@@ -15,7 +15,7 @@ export function useMissions() {
   const add = useCallback(
     async (title: string, description: string, type: MissionType, target: number, xpReward: number, trackingType: MissionTrackingType = "custom", deadline: string | null = null) => {
       const item: Mission = { id: generateId(), title, description, type, trackingType, target, current: 0, xpReward, completed: false, deadline, createdAt: new Date().toISOString(), completedAt: null };
-      await insertRow("missions", userId, item);
+      await insertRowAction("missions", item);
       await mutateTable("missions", userId);
       return item;
     },
@@ -28,7 +28,7 @@ export function useMissions() {
       if (!m || m.completed) return false;
       const newCurrent = Math.min(m.current + amount, m.target);
       const completed = newCurrent >= m.target;
-      await updateRow("missions", id, { current: newCurrent, completed, completedAt: completed ? new Date().toISOString() : null });
+      await updateRowAction("missions", id, { current: newCurrent, completed, completedAt: completed ? new Date().toISOString() : null });
       await mutateTable("missions", userId);
       return completed;
     },
@@ -43,7 +43,7 @@ export function useMissions() {
         if (realCount === m.current) return;
         const newCurrent = Math.min(realCount, m.target);
         const completed = newCurrent >= m.target;
-        updateRow("missions", m.id, { current: newCurrent, completed, completedAt: completed ? new Date().toISOString() : null });
+        updateRowAction("missions", m.id, { current: newCurrent, completed, completedAt: completed ? new Date().toISOString() : null });
       });
       mutateTable("missions", userId);
     },
@@ -52,7 +52,7 @@ export function useMissions() {
 
   const update = useCallback(
     async (id: string, updates: Partial<Omit<Mission, "id" | "createdAt">>) => {
-      await updateRow("missions", id, updates);
+      await updateRowAction("missions", id, updates);
       await mutateTable("missions", userId);
     },
     [userId]
@@ -60,7 +60,7 @@ export function useMissions() {
 
   const remove = useCallback(
     async (id: string) => {
-      await deleteRow("missions", id);
+      await deleteRowAction("missions", id);
       await mutateTable("missions", userId);
     },
     [userId]

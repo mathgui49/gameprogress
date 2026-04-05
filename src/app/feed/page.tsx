@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Badge } from "@/components/ui/Badge";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { fetchActivityFeed, toggleSessionLike, fetchSessionComments, addSessionComment, fetchProfilesByIds } from "@/lib/db";
+import { fetchActivityFeedAction, toggleSessionLikeAction, fetchSessionCommentsAction, addSessionCommentAction, fetchProfilesByIdsAction } from "@/actions/db";
 import { formatRelative } from "@/lib/utils";
 import { useWingRequests } from "@/hooks/useWingRequests";
 import type { PublicProfile, SessionComment, JournalEntry } from "@/types";
@@ -38,7 +38,7 @@ export default function FeedPage() {
 
   const loadFeed = async (city?: string) => {
     if (!userId) return;
-    const data = await fetchActivityFeed(userId, wingIds, city) as FeedItem[];
+    const data = await fetchActivityFeedAction(wingIds, city) as FeedItem[];
     setFeed(data);
     setLoaded(true);
   };
@@ -46,16 +46,16 @@ export default function FeedPage() {
   useEffect(() => { if (userId) loadFeed(); }, [userId, wingProfiles.length]);
 
   const handleLike = async (sessionId: string) => {
-    await toggleSessionLike(sessionId, userId);
+    await toggleSessionLikeAction(sessionId);
     loadFeed(cityFilter || undefined);
   };
 
   const openComments = async (sessionId: string) => {
     if (expandedComments === sessionId) { setExpandedComments(null); return; }
     setExpandedComments(sessionId);
-    const data = await fetchSessionComments(sessionId);
+    const data = await fetchSessionCommentsAction(sessionId);
     const commenterIds = [...new Set(data.map((c: any) => c.userId))];
-    const profiles = await fetchProfilesByIds(commenterIds);
+    const profiles = await fetchProfilesByIdsAction(commenterIds);
     const profileMap: Record<string, PublicProfile> = {};
     profiles.forEach((p: PublicProfile) => { profileMap[p.userId] = p; });
     setComments(data.map((c: any) => ({ ...c, profile: profileMap[c.userId] })));
@@ -63,7 +63,7 @@ export default function FeedPage() {
 
   const handleComment = async (sessionId: string) => {
     if (!newComment.trim()) return;
-    await addSessionComment(sessionId, userId, newComment.trim());
+    await addSessionCommentAction(sessionId, newComment.trim());
     setNewComment("");
     openComments(sessionId);
   };

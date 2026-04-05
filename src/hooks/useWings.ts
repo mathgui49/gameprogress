@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import type { Wing } from "@/types";
-import { fetchAll, insertRow, updateRow, deleteRow } from "@/lib/db";
+import { fetchAllAction, insertRowAction, updateRowAction, deleteRowAction } from "@/actions/db";
 import { generateId } from "@/lib/utils";
 
 export function useWings() {
@@ -14,7 +14,7 @@ export function useWings() {
 
   useEffect(() => {
     if (!userId) return;
-    fetchAll<Wing>("wings", userId).then((data) => {
+    fetchAllAction<Wing>("wings").then((data) => {
       setWings(data);
       setLoaded(true);
     });
@@ -24,7 +24,7 @@ export function useWings() {
     (name: string, notes = "") => {
       const item: Wing = { id: generateId(), name: name.trim(), notes, sessionCount: 0, createdAt: new Date().toISOString() };
       setWings((prev) => [item, ...prev]);
-      insertRow("wings", userId, item);
+      insertRowAction("wings", item);
       return item;
     },
     [userId]
@@ -33,9 +33,9 @@ export function useWings() {
   const update = useCallback(
     (id: string, updates: Partial<Pick<Wing, "name" | "notes">>) => {
       setWings((prev) => prev.map((w) => (w.id === id ? { ...w, ...updates } : w)));
-      updateRow("wings", id, updates);
+      updateRowAction("wings", id, updates);
     },
-    []
+    [userId]
   );
 
   const incrementSessionCount = useCallback(
@@ -44,20 +44,20 @@ export function useWings() {
         prev.map((w) => {
           if (w.id !== id) return w;
           const sessionCount = w.sessionCount + 1;
-          updateRow("wings", id, { sessionCount });
+          updateRowAction("wings", id, { sessionCount });
           return { ...w, sessionCount };
         })
       );
     },
-    []
+    [userId]
   );
 
   const remove = useCallback(
     (id: string) => {
       setWings((prev) => prev.filter((w) => w.id !== id));
-      deleteRow("wings", id);
+      deleteRowAction("wings", id);
     },
-    []
+    [userId]
   );
 
   const getById = useCallback(

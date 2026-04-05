@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import type { Session } from "@/types";
-import { insertRow, updateRow, deleteRow, fetchAcceptedSessionsForUser } from "@/lib/db";
+import { insertRowAction, updateRowAction, deleteRowAction, fetchAcceptedSessionsForUserAction } from "@/actions/db";
 import { useSwrFetch, mutateTable } from "@/lib/swr";
 import { generateId } from "@/lib/utils";
 
@@ -16,7 +16,7 @@ export function useSessions() {
 
   useEffect(() => {
     if (!userId) return;
-    fetchAcceptedSessionsForUser(userId).then((invited) => {
+    fetchAcceptedSessionsForUserAction().then((invited) => {
       setInvitedSessions(invited);
       setInvitedLoaded(true);
     });
@@ -27,7 +27,7 @@ export function useSessions() {
   const add = useCallback(
     async (input: Omit<Session, "id" | "createdAt">) => {
       const item: Session = { ...input, id: generateId(), createdAt: new Date().toISOString() };
-      await insertRow("sessions", userId, item);
+      await insertRowAction("sessions", item);
       await mutateTable("sessions", userId);
       return item;
     },
@@ -36,7 +36,7 @@ export function useSessions() {
 
   const update = useCallback(
     async (id: string, input: Partial<Omit<Session, "id" | "createdAt">>) => {
-      await updateRow("sessions", id, input);
+      await updateRowAction("sessions", id, input);
       await mutateTable("sessions", userId);
     },
     [userId]
@@ -46,7 +46,7 @@ export function useSessions() {
     async (sessionId: string, interactionId: string) => {
       const sess = sessions.find((s) => s.id === sessionId);
       if (!sess || sess.interactionIds.includes(interactionId)) return;
-      await updateRow("sessions", sessionId, { interactionIds: [...sess.interactionIds, interactionId] });
+      await updateRowAction("sessions", sessionId, { interactionIds: [...sess.interactionIds, interactionId] });
       await mutateTable("sessions", userId);
     },
     [sessions, userId]
@@ -57,7 +57,7 @@ export function useSessions() {
       const sess = sessions.find((s) => s.id === sessionId);
       if (!sess) return;
       const goals = sess.goals.map((g, i) => (i === goalIndex ? { ...g, done: !g.done } : g));
-      await updateRow("sessions", sessionId, { goals });
+      await updateRowAction("sessions", sessionId, { goals });
       await mutateTable("sessions", userId);
     },
     [sessions, userId]
@@ -65,7 +65,7 @@ export function useSessions() {
 
   const remove = useCallback(
     async (id: string) => {
-      await deleteRow("sessions", id);
+      await deleteRowAction("sessions", id);
       await mutateTable("sessions", userId);
     },
     [userId]

@@ -14,8 +14,9 @@ export function useSubscription() {
   const { data: session } = useSession();
   const userId = session?.user?.email ?? "";
 
+  // No longer pass userId as query param — the server reads it from the session
   const { data: subscription, isLoading, mutate } = useSWR(
-    userId ? `/api/stripe/status?userId=${encodeURIComponent(userId)}` : null,
+    userId ? `/api/stripe/status` : null,
     fetcher,
     { revalidateOnFocus: false, dedupingInterval: 10000 }
   );
@@ -23,10 +24,11 @@ export function useSubscription() {
   const isPremium = subscription?.status === "active";
 
   const checkout = async () => {
+    // Server reads userId from session — no need to send it
     const res = await fetch("/api/stripe/checkout", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId }),
+      body: JSON.stringify({}),
     });
     const { url } = await res.json();
     if (url) window.location.href = url;
@@ -36,7 +38,7 @@ export function useSubscription() {
     const res = await fetch("/api/stripe/portal", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId }),
+      body: JSON.stringify({}),
     });
     const { url } = await res.json();
     if (url) window.location.href = url;

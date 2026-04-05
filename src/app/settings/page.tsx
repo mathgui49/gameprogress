@@ -13,7 +13,7 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input, TextArea } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
-import { clearAllUserData } from "@/lib/db";
+import { clearAllUserDataAction } from "@/actions/db";
 import { useTheme } from "@/hooks/useTheme";
 import { useSubscription } from "@/hooks/useSubscription";
 import { Badge } from "@/components/ui/Badge";
@@ -59,7 +59,7 @@ export default function SettingsPage() {
 
   const handleClearAll = async () => {
     if (!userId) return;
-    await clearAllUserData(userId);
+    await clearAllUserDataAction();
     setShowClear(false);
     window.location.reload();
   };

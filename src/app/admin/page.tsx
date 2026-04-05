@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { Input, TextArea } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
 import { Badge } from "@/components/ui/Badge";
-import { adminGetStats, adminGetAllProfiles, adminGetAllSessions, adminDeleteUser, adminDeleteSession, adminGetAnnouncement, adminSetAnnouncement } from "@/lib/db";
+import { adminGetStatsAction, adminGetAllProfilesAction, adminGetAllSessionsAction, adminDeleteUserAction, adminDeleteSessionAction, adminGetAnnouncementAction, adminSetAnnouncementAction } from "@/actions/db";
 import { formatDate, formatRelative } from "@/lib/utils";
 import type { PublicProfile, Session } from "@/types";
 
@@ -47,10 +47,10 @@ export default function AdminPage() {
 
   const loadAll = async () => {
     const [s, p, sess, ann] = await Promise.all([
-      adminGetStats(),
-      adminGetAllProfiles(),
-      adminGetAllSessions(),
-      adminGetAnnouncement(),
+      adminGetStatsAction(),
+      adminGetAllProfilesAction(),
+      adminGetAllSessionsAction(),
+      adminGetAnnouncementAction(),
     ]);
     setStats(s);
     setProfiles(p as PublicProfile[]);
@@ -61,25 +61,25 @@ export default function AdminPage() {
   };
 
   const handleDeleteUser = async (targetUserId: string) => {
-    await adminDeleteUser(targetUserId);
+    await adminDeleteUserAction(targetUserId);
     setProfiles((prev) => prev.filter((p) => p.userId !== targetUserId));
     setConfirmAction(null);
   };
 
   const handleDeleteSession = async (sessionId: string) => {
-    await adminDeleteSession(sessionId);
+    await adminDeleteSessionAction(sessionId);
     setSessions((prev) => prev.filter((s) => s.id !== sessionId));
     setConfirmAction(null);
   };
 
   const handleSetAnnouncement = async () => {
     const msg = announcement.trim() || null;
-    await adminSetAnnouncement(msg);
+    await adminSetAnnouncementAction(msg);
     setCurrentAnnouncement(msg);
   };
 
   const handleClearAnnouncement = async () => {
-    await adminSetAnnouncement(null);
+    await adminSetAnnouncementAction(null);
     setCurrentAnnouncement(null);
     setAnnouncement("");
   };

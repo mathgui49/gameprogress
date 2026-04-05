@@ -3,7 +3,7 @@
 import { useCallback } from "react";
 import { useSession } from "next-auth/react";
 import type { Contact, ContactStatus, ContactEvent, Reminder, ArchiveReason, ArchiveInfo } from "@/types";
-import { insertRow, updateRow, deleteRow } from "@/lib/db";
+import { insertRowAction, updateRowAction, deleteRowAction } from "@/actions/db";
 import { useSwrFetch, mutateTable } from "@/lib/swr";
 import { generateId } from "@/lib/utils";
 
@@ -22,7 +22,7 @@ export function useContacts() {
         createdAt: new Date().toISOString(),
         lastInteractionDate: new Date().toISOString(),
       };
-      await insertRow("contacts", userId, item);
+      await insertRowAction("contacts", item);
       await mutateTable("contacts", userId);
       return item;
     },
@@ -34,7 +34,7 @@ export function useContacts() {
       const contact = contacts.find((c) => c.id === id);
       if (!contact) return;
       const event: ContactEvent = { id: generateId(), type: "status_change", date: new Date().toISOString(), content: `Statut changé vers "${status}"` };
-      await updateRow("contacts", id, { status, timeline: [...contact.timeline, event] });
+      await updateRowAction("contacts", id, { status, timeline: [...contact.timeline, event] });
       await mutateTable("contacts", userId);
     },
     [contacts, userId]
@@ -45,7 +45,7 @@ export function useContacts() {
       const contact = contacts.find((c) => c.id === id);
       if (!contact) return;
       const event: ContactEvent = { id: generateId(), type: "note", date: new Date().toISOString(), content };
-      await updateRow("contacts", id, { notes: content, timeline: [...contact.timeline, event] });
+      await updateRowAction("contacts", id, { notes: content, timeline: [...contact.timeline, event] });
       await mutateTable("contacts", userId);
     },
     [contacts, userId]
@@ -57,7 +57,7 @@ export function useContacts() {
       if (!contact) return;
       const reminder: Reminder = { id: generateId(), contactId, label, date, done: false };
       const event: ContactEvent = { id: generateId(), type: "reminder", date: new Date().toISOString(), content: `Rappel: ${label}` };
-      await updateRow("contacts", contactId, { reminders: [...contact.reminders, reminder], timeline: [...contact.timeline, event] });
+      await updateRowAction("contacts", contactId, { reminders: [...contact.reminders, reminder], timeline: [...contact.timeline, event] });
       await mutateTable("contacts", userId);
     },
     [contacts, userId]
@@ -68,7 +68,7 @@ export function useContacts() {
       const contact = contacts.find((c) => c.id === contactId);
       if (!contact) return;
       const reminders = contact.reminders.map((r) => (r.id === reminderId ? { ...r, done: !r.done } : r));
-      await updateRow("contacts", contactId, { reminders });
+      await updateRowAction("contacts", contactId, { reminders });
       await mutateTable("contacts", userId);
     },
     [contacts, userId]
@@ -76,7 +76,7 @@ export function useContacts() {
 
   const updateTags = useCallback(
     async (id: string, tags: string[]) => {
-      await updateRow("contacts", id, { tags });
+      await updateRowAction("contacts", id, { tags });
       await mutateTable("contacts", userId);
     },
     [userId]
@@ -89,7 +89,7 @@ export function useContacts() {
       const archiveInfo: ArchiveInfo = { reason, customReason, date: new Date().toISOString() };
       const label = customReason || reason;
       const event: ContactEvent = { id: generateId(), type: "status_change", date: new Date().toISOString(), content: `Archivé — ${label}` };
-      await updateRow("contacts", id, { status: "archived", archiveInfo, timeline: [...contact.timeline, event] });
+      await updateRowAction("contacts", id, { status: "archived", archiveInfo, timeline: [...contact.timeline, event] });
       await mutateTable("contacts", userId);
     },
     [contacts, userId]
@@ -97,7 +97,7 @@ export function useContacts() {
 
   const remove = useCallback(
     async (id: string) => {
-      await deleteRow("contacts", id);
+      await deleteRowAction("contacts", id);
       await mutateTable("contacts", userId);
     },
     [userId]

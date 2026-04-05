@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSessions } from "@/hooks/useSessions";
 import { useWingRequests } from "@/hooks/useWingRequests";
-import { inviteWingsToSession } from "@/lib/db";
+import { inviteWingsToSessionAction } from "@/actions/db";
 import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/Button";
 import { Input, TextArea } from "@/components/ui/Input";
@@ -60,7 +60,7 @@ export default function NewSessionPage() {
 
     // Send invites to selected wings
     if (selectedWingIds.length > 0) {
-      await inviteWingsToSession(session.id, userId, selectedWingIds);
+      await inviteWingsToSessionAction(session.id, selectedWingIds);
     }
 
     router.push("/sessions");

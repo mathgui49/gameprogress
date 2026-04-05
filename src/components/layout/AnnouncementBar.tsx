@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
-import { adminGetAnnouncement } from "@/lib/db";
+import { fetchAnnouncementAction } from "@/actions/db";
 
 export function AnnouncementBar() {
   const pathname = usePathname();
@@ -10,7 +10,7 @@ export function AnnouncementBar() {
   const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {
-    adminGetAnnouncement().then(setAnnouncement);
+    fetchAnnouncementAction().then(setAnnouncement);
   }, []);
 
   if (pathname === "/login" || pathname === "/landing" || !announcement || dismissed) return null;

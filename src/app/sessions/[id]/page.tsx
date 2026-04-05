@@ -6,7 +6,7 @@ import { useSession } from "next-auth/react";
 import { useSessions } from "@/hooks/useSessions";
 import { useInteractions } from "@/hooks/useInteractions";
 import { useWingRequests } from "@/hooks/useWingRequests";
-import { fetchSessionParticipantsWithProfiles } from "@/lib/db";
+import { fetchSessionParticipantsWithProfilesAction } from "@/actions/db";
 import { APPROACH_LABELS, RESULT_LABELS, RESULT_COLORS, TYPE_COLORS } from "@/types";
 import { formatDate } from "@/lib/utils";
 import { Card } from "@/components/ui/Card";
@@ -39,7 +39,7 @@ export default function SessionDetailPage({ params }: { params: Promise<{ id: st
   const [participants, setParticipants] = useState<ParticipantWithProfile[]>([]);
 
   useEffect(() => {
-    fetchSessionParticipantsWithProfiles(id).then(setParticipants);
+    fetchSessionParticipantsWithProfilesAction(id).then(setParticipants);
   }, [id]);
 
   if (!loaded) return <div className="flex items-center justify-center h-screen"><div className="w-8 h-8 border-2 border-[var(--primary)]/30 border-t-[var(--primary)] rounded-full animate-spin" /></div>;

@@ -1,10 +1,15 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
 import { fetchSubscription } from "@/lib/db";
 
-export async function GET(req: NextRequest) {
-  const userId = req.nextUrl.searchParams.get("userId");
-  if (!userId) return NextResponse.json(null);
+export async function GET() {
+  // Verify the caller is authenticated
+  const session = await auth();
+  if (!session?.user?.email) {
+    return NextResponse.json(null, { status: 401 });
+  }
 
-  const sub = await fetchSubscription(userId);
+  // Only return subscription for the authenticated user
+  const sub = await fetchSubscription(session.user.email);
   return NextResponse.json(sub);
 }

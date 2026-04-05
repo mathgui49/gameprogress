@@ -12,7 +12,7 @@ import type { PublicProfile, Session, Post, JournalEntry } from "@/types";
 import { JOURNAL_TAG_LABELS, JOURNAL_TAG_COLORS } from "@/types";
 import { Tooltip } from "@/components/ui/Tooltip";
 import { formatDate, formatRelative, computeAge } from "@/lib/utils";
-import { findProfileByUsername, fetchUserPublicPosts, fetchUserPublicJournal, fetchUserGamification, fetchUserLeaderboardRank, fetchUserBadges, fetchSessionsByUserId } from "@/lib/db";
+import { findProfileByUsernameAction, fetchUserPublicPostsAction, fetchUserPublicJournalAction, fetchUserGamificationAction, fetchUserLeaderboardRankAction, fetchUserBadgesAction, fetchSessionsByUserIdAction } from "@/actions/db";
 import type { Badge as BadgeType } from "@/types";
 
 export default function WingProfilePage() {
@@ -31,7 +31,7 @@ export default function WingProfilePage() {
 
   useEffect(() => {
     async function load() {
-      const prof = await findProfileByUsername(username);
+      const prof = await findProfileByUsernameAction(username);
       if (!prof) { setLoaded(true); return; }
       setProfile(prof as PublicProfile);
 
@@ -39,12 +39,12 @@ export default function WingProfilePage() {
       const wingConnected = isWing(uid);
 
       const [gamData, rankData, badgesData, sessData, postsData, journalData] = await Promise.all([
-        fetchUserGamification(uid),
-        fetchUserLeaderboardRank(uid),
-        fetchUserBadges(uid),
-        wingConnected ? fetchSessionsByUserId(uid) : Promise.resolve([]),
-        fetchUserPublicPosts(uid, wingConnected),
-        fetchUserPublicJournal(uid, wingConnected),
+        fetchUserGamificationAction(uid),
+        fetchUserLeaderboardRankAction(uid),
+        fetchUserBadgesAction(uid),
+        wingConnected ? fetchSessionsByUserIdAction(uid) : Promise.resolve([]),
+        fetchUserPublicPostsAction(uid, wingConnected),
+        fetchUserPublicJournalAction(uid, wingConnected),
       ]);
 
       setGam(gamData);

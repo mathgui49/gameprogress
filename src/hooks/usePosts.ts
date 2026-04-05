@@ -3,9 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import type { Post } from "@/types";
-import { fetchAll, insertRow, deleteRow } from "@/lib/db";
-import { supabase } from "@/lib/supabase";
-import { fromRow } from "@/lib/db";
+import { fetchAllAction, insertRowAction, deleteRowAction } from "@/actions/db";
 import { generateId } from "@/lib/utils";
 
 export function usePosts() {
@@ -16,7 +14,7 @@ export function usePosts() {
 
   useEffect(() => {
     if (!userId) return;
-    fetchAll<Post>("posts", userId).then((data) => {
+    fetchAllAction<Post>("posts").then((data) => {
       setPosts(data);
       setLoaded(true);
     });
@@ -26,7 +24,7 @@ export function usePosts() {
     (content: string, visibility: "wings" | "public") => {
       const item: Post = { id: generateId(), userId, content, visibility, createdAt: new Date().toISOString() };
       setPosts((prev) => [item, ...prev]);
-      insertRow("posts", userId, item);
+      insertRowAction("posts", item);
       return item;
     },
     [userId]
@@ -35,9 +33,9 @@ export function usePosts() {
   const remove = useCallback(
     (id: string) => {
       setPosts((prev) => prev.filter((p) => p.id !== id));
-      deleteRow("posts", id);
+      deleteRowAction("posts", id);
     },
-    []
+    [userId]
   );
 
   return { posts, loaded, add, remove };

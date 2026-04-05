@@ -11,13 +11,11 @@ export const metadata: Metadata = {
     siteName: "GameProgress",
     locale: "fr_FR",
     type: "website",
-    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "GameProgress" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "GameProgress — Tracker de progression sociale gamifié",
     description: "XP, missions, badges, classement, pipeline CRM. Tout pour suivre et améliorer ta game.",
-    images: ["/og-image.png"],
   },
   alternates: {
     canonical: "https://gameprogress.app/landing",

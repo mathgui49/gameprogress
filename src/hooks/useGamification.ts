@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useSession } from "next-auth/react";
 import type { GamificationState, XPEvent } from "@/types";
 import { xpForLevel } from "@/types";
-import { fetchOne, upsertRow } from "@/lib/db";
+import { fetchOneAction, upsertRowAction } from "@/actions/db";
 import { generateDefaultGamification } from "@/lib/seed";
 import { generateId } from "@/lib/utils";
 
@@ -18,7 +18,7 @@ export function useGamification() {
 
   useEffect(() => {
     if (!userId) return;
-    fetchOne<GamificationState>("gamification", userId).then((data) => {
+    fetchOneAction<GamificationState>("gamification").then((data) => {
       if (data) setState(data);
       setLoaded(true);
     });
@@ -28,7 +28,7 @@ export function useGamification() {
     (updated: GamificationState) => {
       setState(updated);
       stateRef.current = updated;
-      upsertRow("gamification", userId, updated);
+      upsertRowAction("gamification", updated);
     },
     [userId]
   );

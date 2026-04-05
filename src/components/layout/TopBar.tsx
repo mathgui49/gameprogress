@@ -6,9 +6,7 @@ import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { useGamification } from "@/hooks/useGamification";
 import { useWingRequests } from "@/hooks/useWingRequests";
-import { fetchSessionInvitesForUser, updateSessionInviteStatus, fetchProfilesByIds } from "@/lib/db";
-import { supabase } from "@/lib/supabase";
-import { fromRow } from "@/lib/db";
+import { fetchSessionInvitesForUserAction, updateSessionInviteStatusAction, fetchProfilesByIdsAction } from "@/actions/db";
 import { Modal } from "@/components/ui/Modal";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -56,20 +54,21 @@ export function TopBar() {
 
   const loadSessionInvites = useCallback(async () => {
     if (!userId) return;
-    const invites = await fetchSessionInvitesForUser(userId);
+    const invites = await fetchSessionInvitesForUserAction();
     const pending = invites.filter((i: SessionInvite) => i.status === "pending");
     if (pending.length === 0) { setSessionInvites([]); return; }
 
     const sessionIds = pending.map((i: SessionInvite) => i.sessionId);
     const ownerIds = [...new Set(pending.map((i: SessionInvite) => i.ownerUserId))];
 
-    const [sessionsRes, profiles] = await Promise.all([
-      supabase.from("sessions").select("*").in("id", sessionIds),
-      fetchProfilesByIds(ownerIds),
+    const { fetchSessionsByIdsAction } = await import("@/actions/db");
+    const [sessionsData, profiles] = await Promise.all([
+      fetchSessionsByIdsAction(sessionIds),
+      fetchProfilesByIdsAction(ownerIds),
     ]);
 
     const sessMap: Record<string, Session> = {};
-    (sessionsRes.data || []).forEach((r: any) => { sessMap[r.id] = fromRow<Session>(r); });
+    (sessionsData || []).forEach((s: any) => { sessMap[s.id] = s; });
     const profMap: Record<string, any> = {};
     profiles.forEach((p: any) => { profMap[p.userId] = p; });
 
@@ -85,7 +84,7 @@ export function TopBar() {
   useEffect(() => { loadSessionInvites(); }, [loadSessionInvites]);
 
   const handleInviteResponse = async (inviteId: string, status: "accepted" | "declined") => {
-    await updateSessionInviteStatus(inviteId, status);
+    await updateSessionInviteStatusAction(inviteId, status);
     setSessionInvites((prev) => prev.filter((i) => i.id !== inviteId));
   };
 
