@@ -15,6 +15,9 @@ import { HeatmapChart } from "@/components/charts/HeatmapChart";
 import { ExportButton } from "@/components/reports/ExportButton";
 import { BenchmarkCard } from "@/components/dashboard/BenchmarkCard";
 import { useBenchmarks } from "@/hooks/useBenchmarks";
+import { useSubscription } from "@/hooks/useSubscription";
+import { UpgradeCard } from "@/components/ui/PremiumGate";
+import { PLAN_NAME_PRO } from "@/lib/premium";
 
 type Period = "month" | "quarter" | "all";
 
@@ -46,6 +49,36 @@ export default function ReportsPage() {
   const [period, setPeriod] = useState<Period>("month");
   const reportRef = useRef<HTMLDivElement>(null);
   const { benchmarks } = useBenchmarks();
+  const { isPremium } = useSubscription();
+
+  // Free users see a teaser then an upgrade prompt
+  if (loaded && !isPremium) {
+    return (
+      <div className="px-4 py-6 lg:px-8 lg:py-8 max-w-4xl mx-auto animate-fade-in">
+        <div className="mb-8">
+          <h1 className="text-2xl lg:text-3xl font-[family-name:var(--font-grotesk)] font-bold tracking-tight mb-1">
+            <span className="bg-gradient-to-r from-[#818cf8] to-[#67e8f9] bg-clip-text text-transparent">Rapports</span>
+          </h1>
+          <p className="text-sm text-[var(--on-surface-variant)]">Tes analytics détaillés et tendances</p>
+        </div>
+        {/* Basic stats teaser */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+          {[
+            { label: "Total interactions", value: interactions.length },
+            { label: "Closes", value: interactions.filter((i) => i.result === "close").length },
+            { label: "Streak", value: gam.streak + "j" },
+            { label: "Niveau", value: gam.level },
+          ].map((s) => (
+            <Card key={s.label} className="text-center !p-4">
+              <p className="text-xl font-[family-name:var(--font-grotesk)] font-bold text-[var(--on-surface)]">{s.value}</p>
+              <p className="text-[10px] text-[var(--outline)] mt-1">{s.label}</p>
+            </Card>
+          ))}
+        </div>
+        <UpgradeCard feature="Rapports & Analytics avancés" />
+      </div>
+    );
+  }
 
   const analytics = useMemo(() => {
     if (!loaded) return null;

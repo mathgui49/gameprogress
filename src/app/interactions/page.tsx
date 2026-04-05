@@ -13,6 +13,9 @@ import { IconMessageCircle } from "@/components/ui/Icons";
 import Link from "next/link";
 import type { Interaction, ApproachType, ResultType, DurationType } from "@/types";
 import { APPROACH_LABELS, RESULT_LABELS, DURATION_LABELS, RESULT_COLORS, TYPE_COLORS } from "@/types";
+import { useSubscription } from "@/hooks/useSubscription";
+import { LimitReachedBanner } from "@/components/ui/PremiumGate";
+import { FREE_LIMITS, countThisMonth } from "@/lib/premium";
 
 // ─── Calendar helpers ─────────────────────────────────
 function getDaysInMonth(year: number, month: number) {
@@ -61,6 +64,9 @@ function SkeletonCard() {
 export default function InteractionsPage() {
   const { interactions, loaded, remove } = useInteractions();
   const gamState = useGamification();
+  const { isPremium } = useSubscription();
+  const monthlyCount = useMemo(() => countThisMonth(interactions), [interactions]);
+  const atLimit = !isPremium && monthlyCount >= FREE_LIMITS.interactionsPerMonth;
 
   // View mode
   const [viewMode, setViewMode] = useState<ViewMode>("list");
@@ -259,9 +265,18 @@ export default function InteractionsPage() {
           <button onClick={exportCSV} className="p-2 rounded-lg hover:bg-[var(--surface-bright)] text-[var(--outline)] transition-colors" title="Exporter CSV">
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
           </button>
-          <Link href="/interactions/new"><Button>+ Ajouter</Button></Link>
+          <Link href={atLimit ? "#" : "/interactions/new"} onClick={atLimit ? (e: React.MouseEvent) => e.preventDefault() : undefined}>
+            <Button disabled={atLimit}>+ Ajouter{!isPremium ? ` (${monthlyCount}/${FREE_LIMITS.interactionsPerMonth})` : ""}</Button>
+          </Link>
         </div>
       </div>
+
+      {/* Limit banner for free users */}
+      {!isPremium && (
+        <div className="mb-4">
+          <LimitReachedBanner current={monthlyCount} limit={FREE_LIMITS.interactionsPerMonth} itemName="interactions" />
+        </div>
+      )}
 
       {/* Streak banner */}
       {gamState.streak > 0 && (

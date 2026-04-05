@@ -13,6 +13,9 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { Tooltip } from "@/components/ui/Tooltip";
 import { IconCalendar } from "@/components/ui/Icons";
 import { MapView } from "@/components/ui/MapView";
+import { useSubscription } from "@/hooks/useSubscription";
+import { LimitReachedBanner } from "@/components/ui/PremiumGate";
+import { FREE_LIMITS, countThisMonth } from "@/lib/premium";
 import type { MapMarker } from "@/components/ui/MapView";
 import type { Session } from "@/types";
 import Link from "next/link";
@@ -95,6 +98,9 @@ export default function SessionsPage() {
   const { sessions, invitedSessions, allSessions, loaded } = useSessions();
   const { interactions } = useInteractions();
   const { profile: userProfile } = usePublicProfile();
+  const { isPremium } = useSubscription();
+  const monthlySessionCount = useMemo(() => countThisMonth(sessions), [sessions]);
+  const sessionAtLimit = !isPremium && monthlySessionCount >= FREE_LIMITS.sessionsPerMonth;
   const [view, setView] = useState<ViewMode>("list");
   const [filter, setFilter] = useState<SessionFilter>("all");
   const [sort, setSort] = useState<SortMode>("date_desc");
@@ -281,9 +287,18 @@ export default function SessionsPage() {
               </button>
             ))}
           </div>
-          <Link href="/sessions/new" className="shrink-0"><Button className="whitespace-nowrap">+ Session</Button></Link>
+          <Link href={sessionAtLimit ? "#" : "/sessions/new"} className="shrink-0" onClick={sessionAtLimit ? (e: React.MouseEvent) => e.preventDefault() : undefined}>
+            <Button className="whitespace-nowrap" disabled={sessionAtLimit}>+ Session{!isPremium ? ` (${monthlySessionCount}/${FREE_LIMITS.sessionsPerMonth})` : ""}</Button>
+          </Link>
         </div>
       </div>
+
+      {/* Limit banner for free users */}
+      {!isPremium && (
+        <div className="mb-4">
+          <LimitReachedBanner current={monthlySessionCount} limit={FREE_LIMITS.sessionsPerMonth} itemName="sessions" />
+        </div>
+      )}
 
       {/* Stats summary */}
       {allSessions.length > 0 && (

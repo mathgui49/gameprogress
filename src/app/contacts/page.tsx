@@ -13,6 +13,9 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { Modal } from "@/components/ui/Modal";
+import { useSubscription } from "@/hooks/useSubscription";
+import { LimitReachedBanner } from "@/components/ui/PremiumGate";
+import { FREE_LIMITS } from "@/lib/premium";
 import { useToast } from "@/hooks/useToast";
 import { IconUsers } from "@/components/ui/Icons";
 import { formatRelative } from "@/lib/utils";
@@ -182,6 +185,9 @@ export default function ContactsPage() {
   const { contacts, loaded, add, updateStatus, archive, remove, addNote } = useContacts();
   const { interactions } = useInteractions();
   const { updatePipelineXP } = useGamification();
+  const { isPremium } = useSubscription();
+  const activeContacts = contacts.filter((c) => c.status !== "archived");
+  const contactAtLimit = !isPremium && activeContacts.length >= FREE_LIMITS.activeContacts;
   const toast = useToast();
   const [viewMode, setViewMode] = useState<ViewMode>("kanban");
   const [showNew, setShowNew] = useState(false);
@@ -354,9 +360,16 @@ export default function ContactsPage() {
           <button onClick={exportCSV} className="p-2 rounded-lg hover:bg-[var(--surface-bright)] text-[var(--outline)] transition-colors" title="Exporter CSV">
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
           </button>
-          <Button onClick={() => setShowNew(true)}>+ Contact</Button>
+          <Button onClick={() => setShowNew(true)} disabled={contactAtLimit}>+ Contact{!isPremium ? ` (${activeContacts.length}/${FREE_LIMITS.activeContacts})` : ""}</Button>
         </div>
       </div>
+
+      {/* Limit banner for free users */}
+      {!isPremium && (
+        <div className="mb-4">
+          <LimitReachedBanner current={activeContacts.length} limit={FREE_LIMITS.activeContacts} itemName="contacts actifs" />
+        </div>
+      )}
 
       {/* Status counts bar */}
       <div className="flex gap-1.5 mb-4 overflow-x-auto pb-1 no-scrollbar">

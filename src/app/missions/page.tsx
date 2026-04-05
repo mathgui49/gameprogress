@@ -16,6 +16,8 @@ import { Tooltip } from "@/components/ui/Tooltip";
 import { IconTarget } from "@/components/ui/Icons";
 import type { MissionTrackingType } from "@/types";
 import { MISSION_TRACKING_LABELS } from "@/types";
+import { useSubscription } from "@/hooks/useSubscription";
+import { ProBadge } from "@/components/ui/PremiumGate";
 
 const TRACKING_OPTIONS: { value: MissionTrackingType; label: string }[] = Object.entries(MISSION_TRACKING_LABELS).map(([value, label]) => ({ value: value as MissionTrackingType, label }));
 
@@ -25,6 +27,8 @@ export default function MissionsPage() {
   const { contacts } = useContacts();
   const { sessions } = useSessions();
   const { entries: journal } = useJournal();
+
+  const { isPremium } = useSubscription();
 
   const [showNew, setShowNew] = useState(false);
   const [title, setTitle] = useState("");
@@ -68,7 +72,10 @@ export default function MissionsPage() {
           <h1 className="text-2xl font-[family-name:var(--font-grotesk)] font-bold tracking-tight mb-1"><span className="bg-gradient-to-r from-[#f472b6] to-[#c084fc] bg-clip-text text-transparent">Missions</span></h1>
           <p className="text-sm text-[var(--on-surface-variant)]">Defis quotidiens et hebdomadaires pour gagner de l'XP — {active.length} active{active.length > 1 ? "s" : ""}</p>
         </div>
-        <Button onClick={() => setShowNew(true)}>+ Mission</Button>
+        <div className="flex items-center gap-2">
+          {!isPremium && <ProBadge />}
+          <Button onClick={() => setShowNew(true)} disabled={!isPremium}>+ Mission{!isPremium ? " (GameMax)" : ""}</Button>
+        </div>
       </div>
 
       {missions.length === 0 ? (

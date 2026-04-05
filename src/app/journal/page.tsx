@@ -13,6 +13,9 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Badge } from "@/components/ui/Badge";
 import { Modal } from "@/components/ui/Modal";
+import { useSubscription } from "@/hooks/useSubscription";
+import { LimitReachedBanner } from "@/components/ui/PremiumGate";
+import { FREE_LIMITS, countThisMonth } from "@/lib/premium";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Tooltip } from "@/components/ui/Tooltip";
 import { VoiceInput } from "@/components/ui/VoiceInput";
@@ -74,6 +77,9 @@ export default function JournalPage() {
   const { addXP } = useGamification();
   const { interactions } = useInteractions();
   const { wingProfiles } = useWingRequests();
+  const { isPremium } = useSubscription();
+  const monthlyEntryCount = useMemo(() => countThisMonth(entries), [entries]);
+  const journalAtLimit = !isPremium && monthlyEntryCount >= FREE_LIMITS.journalEntriesPerMonth;
   const toast = useToast();
 
   // View state
@@ -319,9 +325,16 @@ export default function JournalPage() {
           <Button size="sm" variant="ghost" onClick={() => setShowExportModal(true)}>
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
           </Button>
-          <Button onClick={() => openEditor()}>+ Écrire</Button>
+          <Button onClick={() => openEditor()} disabled={journalAtLimit}>+ Écrire{!isPremium ? ` (${monthlyEntryCount}/${FREE_LIMITS.journalEntriesPerMonth})` : ""}</Button>
         </div>
       </div>
+
+      {/* Limit banner for free users */}
+      {!isPremium && (
+        <div className="mb-4">
+          <LimitReachedBanner current={monthlyEntryCount} limit={FREE_LIMITS.journalEntriesPerMonth} itemName="entrées journal" />
+        </div>
+      )}
 
       {/* Search & Filters */}
       <div className="space-y-3 mb-4">

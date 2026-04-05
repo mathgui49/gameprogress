@@ -14,6 +14,7 @@ import { IconMapPin, IconBarChart, IconSparkles, IconStar, IconFlame, IconUsers,
 import { BenchmarkCard } from "@/components/dashboard/BenchmarkCard";
 import { useBenchmarks } from "@/hooks/useBenchmarks";
 import Link from "next/link";
+import { DashboardUpgradeBanner } from "@/components/ui/PremiumGate";
 
 export default function DashboardPage() {
   const { interactions, loaded } = useInteractions();
@@ -43,6 +44,9 @@ export default function DashboardPage() {
         <h1 className="text-2xl lg:text-3xl font-[family-name:var(--font-grotesk)] font-bold text-[var(--on-surface)] tracking-tight mb-1">Dashboard</h1>
         <p className="text-sm text-[var(--on-surface-variant)]">Vue d&apos;ensemble de ta <span className="bg-gradient-to-r from-[#c084fc] to-[#f472b6] bg-clip-text text-transparent font-medium">progression</span></p>
       </div>
+
+      {/* GameMax upgrade banner for free users */}
+      <DashboardUpgradeBanner />
 
       {/* XP hero with Frosted ring */}
       <Card className="mb-6 relative overflow-hidden">

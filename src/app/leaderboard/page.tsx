@@ -11,6 +11,8 @@ import { Tooltip } from "@/components/ui/Tooltip";
 import { Badge } from "@/components/ui/Badge";
 import { useWingRequests } from "@/hooks/useWingRequests";
 import { fetchLeaderboardWithXpDetailsAction } from "@/actions/db";
+import { useSubscription } from "@/hooks/useSubscription";
+import { BlurredPremium, UpgradeCard } from "@/components/ui/PremiumGate";
 
 interface LeaderboardEntry {
   userId: string;
@@ -42,6 +44,7 @@ export default function LeaderboardPage() {
   const { data: authSession } = useSession();
   const userId = authSession?.user?.email ?? "";
   const { wingProfiles } = useWingRequests();
+  const { isPremium } = useSubscription();
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [cityFilter, setCityFilter] = useState("");
@@ -221,7 +224,7 @@ export default function LeaderboardPage() {
             </div>
           )}
 
-          {displayEntries.map((entry, idx) => {
+          {displayEntries.slice(0, isPremium ? undefined : 3).map((entry, idx) => {
             const isMe = entry.userId === userId;
             const rank = view === "progression"
               ? { text: `+${entry.weeklyXp ?? 0}`, color: "text-emerald-400" }
@@ -281,6 +284,11 @@ export default function LeaderboardPage() {
               </div>
             );
           })}
+          {!isPremium && displayEntries.length > 3 && (
+            <div className="mt-4">
+              <UpgradeCard feature="Classement complet" />
+            </div>
+          )}
         </div>
       )}
 

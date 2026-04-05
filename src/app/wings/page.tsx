@@ -22,6 +22,9 @@ import type { MapMarker } from "@/components/ui/MapView";
 import type { PublicProfile, WingStatus, WingCategory, Message, Session } from "@/types";
 import { WING_STATUS_LABELS, WING_STATUS_COLORS, WING_CATEGORY_LABELS, WING_CATEGORY_COLORS } from "@/types";
 import { formatDate, formatRelative, computeAge } from "@/lib/utils";
+import { useSubscription } from "@/hooks/useSubscription";
+import { LimitReachedBanner } from "@/components/ui/PremiumGate";
+import { FREE_LIMITS } from "@/lib/premium";
 
 type Tab = "wings" | "discover" | "map" | "invitations" | "chat";
 
@@ -42,6 +45,9 @@ export default function WingsPage() {
     conversations, unreadCounts, currentMessages, totalUnread,
     openConversation, send: sendMessage, createGroup,
   } = useMessages();
+
+  const { isPremium } = useSubscription();
+  const wingAtLimit = !isPremium && wingProfiles.length >= FREE_LIMITS.maxWings;
 
   const [tab, setTab] = useState<Tab>("wings");
   const [searchUsername, setSearchUsername] = useState("");
@@ -194,9 +200,15 @@ export default function WingsPage() {
         <div className="flex items-start justify-between mb-3">
           <div>
             <h1 className="text-2xl font-[family-name:var(--font-grotesk)] font-bold tracking-tight mb-1"><span className="bg-gradient-to-r from-[#818cf8] to-[#34d399] bg-clip-text text-transparent">Wings</span></h1>
-            <p className="text-sm text-[var(--on-surface-variant)]">Tes partenaires de game</p>
+            <p className="text-sm text-[var(--on-surface-variant)]">Tes partenaires de game{!isPremium ? ` (${wingProfiles.length}/${FREE_LIMITS.maxWings})` : ""}</p>
           </div>
         </div>
+        {/* Limit banner for free users */}
+        {!isPremium && (
+          <div className="mb-3">
+            <LimitReachedBanner current={wingProfiles.length} limit={FREE_LIMITS.maxWings} itemName="wings" />
+          </div>
+        )}
         <div className="flex items-center gap-3">
           {/* My status indicator */}
           <div className="flex items-center gap-2 flex-1 min-w-0">

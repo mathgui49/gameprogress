@@ -4,6 +4,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { useSubscription } from "@/hooks/useSubscription";
+import { PLAN_NAME_PRO } from "@/lib/premium";
 
 const NAV_SECTIONS = [
   {
@@ -36,6 +38,7 @@ const NAV_SECTIONS = [
 
 export function Sidebar() {
   const pathname = usePathname();
+  const { isPremium, loaded: subLoaded, checkout } = useSubscription();
 
   if (pathname === "/login" || pathname === "/landing") return null;
 
@@ -86,6 +89,33 @@ export function Sidebar() {
           </div>
         ))}
       </nav>
+
+      {/* GameMax upgrade CTA for free users */}
+      {subLoaded && !isPremium && (
+        <div className="px-3 py-2">
+          <button
+            onClick={checkout}
+            className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-[12px] bg-gradient-to-r from-[var(--primary)]/10 to-[var(--secondary)]/10 border border-[var(--primary)]/20 text-[11px] font-semibold text-[var(--primary)] hover:border-[var(--primary)]/40 hover:shadow-[0_0_12px_-4px_var(--neon-purple)] transition-all"
+          >
+            <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
+            </svg>
+            Passer à {PLAN_NAME_PRO}
+          </button>
+        </div>
+      )}
+
+      {/* GameMax badge for premium users */}
+      {subLoaded && isPremium && (
+        <div className="px-3 py-2">
+          <div className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-[12px] bg-gradient-to-r from-[var(--primary)]/8 to-[var(--secondary)]/8 border border-[var(--primary)]/15">
+            <svg className="w-3.5 h-3.5 text-[var(--primary)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
+            </svg>
+            <span className="text-[10px] font-bold bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] bg-clip-text text-transparent">{PLAN_NAME_PRO}</span>
+          </div>
+        </div>
+      )}
 
       <div className="px-4 py-3 border-t border-[var(--glass-border)]">
         <div className="text-[9px] text-[var(--outline-variant)] text-center tracking-[2px] uppercase font-[family-name:var(--font-grotesk)]">v1.0 MVP</div>

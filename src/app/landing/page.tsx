@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { PLAN_NAME_PRO, PRICE_MONTHLY, PRICE_YEARLY, PRICE_MONTHLY_EQUIVALENT, YEARLY_DISCOUNT_PERCENT, PLAN_FEATURES } from "@/lib/premium";
 
 /* ── Intersection Observer hook for scroll animations ── */
 function useInView(threshold = 0.15) {
@@ -64,7 +65,7 @@ const FEATURES = [
   {
     icon: "M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5m0 0l-.5 1.5",
     title: "Dashboard Intelligent",
-    desc: "Vue d\'ensemble instantanée : interactions du jour, XP, streak, close rate, missions actives. Tout en un coup d\'oeil.",
+    desc: "Vue d'ensemble instantanée : interactions du jour, XP, streak, close rate, missions actives. Tout en un coup d'oeil.",
     color: "from-[#c084fc] to-[#818cf8]",
   },
   {
@@ -76,7 +77,7 @@ const FEATURES = [
   {
     icon: "M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941",
     title: "Progression & Analytics",
-    desc: "Score de compétence, rang (Évolutif), rapports mensuels détaillés, graphiques d\'évolution et export PDF.",
+    desc: "Score de compétence, rang évolutif, rapports mensuels détaillés, graphiques d'évolution et export PDF.",
     color: "from-[#818cf8] to-[#67e8f9]",
   },
   {
@@ -94,7 +95,7 @@ const FEATURES = [
   {
     icon: "M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487z",
     title: "Journal & Réflexion",
-    desc: "Note tes réflexions, mindset et reviews. Partage avec tes wings ou garde-les privées. Gagne de l\'XP en écrivant.",
+    desc: "Note tes réflexions, mindset et reviews. Partage avec tes wings ou garde-les privées. Gagne de l'XP en écrivant.",
     color: "from-[#67e8f9] to-[#c084fc]",
   },
 ];
@@ -102,7 +103,7 @@ const FEATURES = [
 const STEPS = [
   { num: "01", title: "Crée ton profil", desc: "Connecte-toi en 2 secondes avec Google et personnalise ton profil.", icon: "M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" },
   { num: "02", title: "Track tes interactions", desc: "Log chaque approche en détail : type, résultat, ressenti, notes. Rapide ou complet.", icon: "M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" },
-  { num: "03", title: "Progresse et domine", desc: "Gagne de l\'XP, débloque des badges, complète des missions et grimpe au classement.", icon: "M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 01-.982-3.172M9.497 14.25a7.454 7.454 0 00.981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 007.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M18.75 4.236c.982.143 1.954.317 2.916.52A6.003 6.003 0 0016.27 9.728M18.75 4.236V4.5c0 2.108-.966 3.99-2.48 5.228m0 0a6.003 6.003 0 01-5.54 0" },
+  { num: "03", title: "Progresse et domine", desc: "Gagne de l'XP, débloque des badges, complète des missions et grimpe au classement.", icon: "M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 01-.982-3.172M9.497 14.25a7.454 7.454 0 00.981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 007.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M18.75 4.236c.982.143 1.954.317 2.916.52A6.003 6.003 0 0016.27 9.728M18.75 4.236V4.5c0 2.108-.966 3.99-2.48 5.228m0 0a6.003 6.003 0 01-5.54 0" },
 ];
 
 const RANKS = [
@@ -116,27 +117,43 @@ const RANKS = [
 ];
 
 const SHOWCASE_TABS = [
-  { key: "dashboard", label: "Dashboard", desc: "Tableau de bord complet avec XP, streak, stats du jour et activité récente. Tout est visible en un coup d\'oeil pour rester motivé." },
+  { key: "dashboard", label: "Dashboard", desc: "Tableau de bord complet avec XP, streak, stats du jour et activité récente. Tout est visible en un coup d'oeil pour rester motivé." },
   { key: "progression", label: "Progression", desc: "Score de compétence calculé automatiquement, rang évolutif, collection de badges et milestones à débloquer." },
   { key: "missions", label: "Missions", desc: "Crée des missions personnalisées avec suivi automatique ou manuel. Deadline, XP reward, progression en temps réel." },
   { key: "leaderboard", label: "Classement", desc: "Compare-toi aux autres joueurs. Classement par XP, niveau ou streak. Filtre par ville pour un défi local." },
   { key: "pipeline", label: "Pipeline", desc: "CRM intégré pour gérer tes contacts : du premier close au date, suis chaque étape avec des rappels intelligents." },
 ];
 
-// SVG badge icons for gamification section (no emojis)
 const BADGE_ICONS = [
-  "M13 7h8m0 0v8m0-8l-8 8-4-4-6 6", // trending
-  "M15.362 5.214A8.252 8.252 0 0112 21 8.25 8.25 0 016.038 7.048 8.287 8.287 0 009 9.6a8.983 8.983 0 013.361-6.867 8.21 8.21 0 003 2.48z", // fire
-  "M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z", // chat
-  "M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z", // star
-  "M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872", // trophy
-  "M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z", // shield
-  "M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z", // sparkle
-  "M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.631 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58", // rocket
+  "M13 7h8m0 0v8m0-8l-8 8-4-4-6 6",
+  "M15.362 5.214A8.252 8.252 0 0112 21 8.25 8.25 0 016.038 7.048 8.287 8.287 0 009 9.6a8.983 8.983 0 013.361-6.867 8.21 8.21 0 003 2.48z",
+  "M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z",
+  "M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z",
+  "M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872",
+  "M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z",
+  "M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z",
+  "M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.631 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58",
 ];
+
+/* ── Check/Cross icons for comparison table ── */
+function Check() {
+  return (
+    <svg className="w-5 h-5 text-[#34d399]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+    </svg>
+  );
+}
+function Cross() {
+  return (
+    <svg className="w-5 h-5 text-[#fb7185]/60" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+    </svg>
+  );
+}
 
 export default function LandingPage() {
   const [activeTab, setActiveTab] = useState("dashboard");
+  const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("yearly");
   const [scrollY, setScrollY] = useState(0);
 
   useEffect(() => {
@@ -157,8 +174,8 @@ export default function LandingPage() {
           <div className="hidden md:flex items-center gap-8">
             <a href="#features" className="text-sm text-[#a09bb2] hover:text-[#c084fc] transition-colors">Features</a>
             <a href="#showcase" className="text-sm text-[#a09bb2] hover:text-[#c084fc] transition-colors">Aperçu</a>
-            <a href="#gamification" className="text-sm text-[#a09bb2] hover:text-[#c084fc] transition-colors">Gamification</a>
-            <a href="#how" className="text-sm text-[#a09bb2] hover:text-[#c084fc] transition-colors">Comment ça marche</a>
+            <a href="#pricing" className="text-sm text-[#a09bb2] hover:text-[#c084fc] transition-colors">Tarifs</a>
+            <a href="#guide" className="text-sm text-[#a09bb2] hover:text-[#c084fc] transition-colors">Guide</a>
           </div>
           <Link href="/login" className="px-5 py-2 rounded-[14px] bg-gradient-to-r from-[#c084fc] to-[#f472b6] text-sm font-semibold text-white hover:opacity-90 hover:shadow-[0_0_24px_-4px_rgba(192,132,252,0.5)] transition-all hover:scale-105 active:scale-95">
             Commencer
@@ -168,12 +185,10 @@ export default function LandingPage() {
 
       {/* ─── HERO ─── */}
       <section className="relative min-h-screen flex items-center justify-center px-6 pt-16">
-        {/* Animated background orbs */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] rounded-full bg-[#c084fc]/[0.05] blur-[140px] animate-pulse" style={{ animationDuration: "5s" }} />
           <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] rounded-full bg-[#f472b6]/[0.04] blur-[120px] animate-pulse" style={{ animationDuration: "7s" }} />
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full bg-[#818cf8]/[0.02] blur-[160px]" />
-          {/* Grid pattern */}
           <div className="absolute inset-0 bg-[linear-gradient(rgba(192,132,252,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(192,132,252,0.02)_1px,transparent_1px)] bg-[size:60px_60px]" style={{ transform: `translateY(${scrollY * 0.08}px)` }} />
         </div>
 
@@ -184,7 +199,7 @@ export default function LandingPage() {
             </div>
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[rgba(14,11,24,0.65)] backdrop-blur-[32px] border border-[rgba(192,132,252,0.1)] mb-8">
               <span className="w-2 h-2 rounded-full bg-[#34d399] animate-pulse" />
-              <span className="text-xs font-medium text-[#c084fc]">100% gratuit &middot; Open source</span>
+              <span className="text-xs font-medium text-[#c084fc]">La plateforme #1 de progression sociale</span>
             </div>
           </Section>
 
@@ -200,19 +215,19 @@ export default function LandingPage() {
 
           <Section delay={200}>
             <p className="text-lg sm:text-xl text-[#a09bb2] max-w-2xl mx-auto mb-10 leading-relaxed">
-              L&apos;app gamifiée qui track, analyse et booste tes compétences sociales.
-              XP, missions, classements — ta progression n&apos;a jamais été aussi claire.
+              L&apos;app gamifiée la plus complète pour tracker, analyser et booster tes compétences sociales.
+              XP, missions, classements, IA coaching — ta progression n&apos;a jamais été aussi claire.
             </p>
           </Section>
 
           <Section delay={300}>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
               <Link href="/login" className="group px-8 py-3.5 rounded-[14px] bg-gradient-to-r from-[#c084fc] to-[#f472b6] text-base font-semibold text-white hover:shadow-[0_0_32px_-4px_rgba(192,132,252,0.5)] transition-all hover:scale-105 active:scale-95 flex items-center gap-2">
-                Commencer gratuitement
+                Commencer maintenant
                 <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
               </Link>
-              <a href="#showcase" className="px-8 py-3.5 rounded-[14px] bg-[rgba(14,11,24,0.65)] backdrop-blur-[32px] border border-[rgba(192,132,252,0.12)] text-base font-medium text-[#a09bb2] hover:text-[#f0eef5] hover:border-[rgba(192,132,252,0.25)] transition-all">
-                Voir l&apos;aperçu
+              <a href="#pricing" className="px-8 py-3.5 rounded-[14px] bg-[rgba(14,11,24,0.65)] backdrop-blur-[32px] border border-[rgba(192,132,252,0.12)] text-base font-medium text-[#a09bb2] hover:text-[#f0eef5] hover:border-[rgba(192,132,252,0.25)] transition-all">
+                Voir les tarifs
               </a>
             </div>
           </Section>
@@ -223,7 +238,7 @@ export default function LandingPage() {
               {[
                 { icon: "M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z", label: "Données privées" },
                 { icon: "M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3", label: "PWA Mobile" },
-                { icon: "M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z", label: "100% gratuit" },
+                { icon: "M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z", label: "IA Coaching" },
               ].map((t) => (
                 <div key={t.label} className="flex items-center gap-2 text-[#8a839e]">
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d={t.icon} /></svg>
@@ -233,12 +248,11 @@ export default function LandingPage() {
             </div>
           </Section>
 
-          {/* Hero mockup — Glass Dominant */}
+          {/* Hero mockup */}
           <Section delay={500}>
             <div className="mt-16 relative">
               <div className="absolute -inset-4 bg-gradient-to-b from-[#c084fc]/8 to-transparent rounded-[22px] blur-2xl" />
               <div className="relative rounded-[22px] bg-[rgba(14,11,24,0.65)] backdrop-blur-[32px] border border-[rgba(192,132,252,0.08)] p-6 shadow-[0_0_64px_-16px_rgba(192,132,252,0.15)]">
-                {/* Window dots */}
                 <div className="flex items-center gap-2 mb-4">
                   <div className="w-3 h-3 rounded-full bg-[#fb7185]/80" />
                   <div className="w-3 h-3 rounded-full bg-[#f59e0b]/80" />
@@ -247,7 +261,7 @@ export default function LandingPage() {
                 </div>
                 <div className="grid grid-cols-4 gap-3 mb-4">
                   {[
-                    { label: "AUJOURD\'HUI", value: "5", sub: "interactions", color: "#c084fc" },
+                    { label: "AUJOURD'HUI", value: "5", sub: "interactions", color: "#c084fc" },
                     { label: "CETTE SEMAINE", value: "23", sub: "interactions", color: "#818cf8" },
                     { label: "CLOSES", value: "8", sub: "34% taux", color: "#34d399" },
                     { label: "RESSENTI", value: "7.4", sub: "moyenne /10", color: "#f59e0b" },
@@ -259,7 +273,6 @@ export default function LandingPage() {
                     </div>
                   ))}
                 </div>
-                {/* XP bar */}
                 <div className="flex items-center gap-3 p-3 rounded-[14px] bg-[rgba(14,11,24,0.5)] backdrop-blur-[16px] border border-[rgba(192,132,252,0.06)]">
                   <div className="w-10 h-10 rounded-full border-2 border-[#c084fc]/60 flex items-center justify-center shadow-[0_0_10px_-2px_rgba(192,132,252,0.3)]">
                     <span className="text-sm font-bold text-[#c084fc]">7</span>
@@ -296,7 +309,7 @@ export default function LandingPage() {
                 Tout ce dont tu as besoin pour{" "}
                 <span className="bg-gradient-to-r from-[#c084fc] to-[#f472b6] bg-clip-text text-transparent">progresser</span>
               </h2>
-              <p className="text-[#a09bb2] max-w-xl mx-auto">6 modules puissants qui travaillent ensemble pour tracker, analyser et booster ta progression sociale.</p>
+              <p className="text-[#a09bb2] max-w-xl mx-auto">La solution la plus complète du marché. 6 modules puissants qui travaillent ensemble pour tracker, analyser et booster ta progression sociale.</p>
             </div>
           </Section>
 
@@ -304,7 +317,6 @@ export default function LandingPage() {
             {FEATURES.map((f, i) => (
               <Section key={f.title} delay={i * 80}>
                 <div className="group relative rounded-[18px] bg-[rgba(14,11,24,0.65)] backdrop-blur-[32px] border border-[rgba(192,132,252,0.06)] p-6 hover:border-[rgba(192,132,252,0.16)] transition-all duration-300 hover:shadow-[0_8px_48px_-12px_rgba(192,132,252,0.12)] h-full">
-                  {/* Glass reflect */}
                   <div className="absolute inset-0 rounded-[18px] bg-gradient-to-br from-white/[0.03] to-transparent pointer-events-none" />
                   <div className={`relative w-12 h-12 rounded-[12px] bg-gradient-to-br ${f.color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300 shadow-lg`}>
                     <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -335,7 +347,6 @@ export default function LandingPage() {
           </Section>
 
           <Section delay={100}>
-            {/* Tabs — glass pill style */}
             <div className="flex justify-center mb-10">
               <div className="inline-flex gap-1 p-1 rounded-[14px] bg-[rgba(14,11,24,0.65)] backdrop-blur-[32px] border border-[rgba(192,132,252,0.06)]" role="tablist" aria-label="Aperçu des fonctionnalités">
                 {SHOWCASE_TABS.map((t) => (
@@ -352,7 +363,6 @@ export default function LandingPage() {
               </div>
             </div>
 
-            {/* Showcase content */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
               <div className="order-2 lg:order-1">
                 {SHOWCASE_TABS.filter((t) => t.key === activeTab).map((t) => (
@@ -433,7 +443,7 @@ export default function LandingPage() {
                         { rank: 3, name: "Julien", xp: "2,950", color: "#cd7f32" },
                         { rank: 4, name: "Toi", xp: "2,100", color: "#c084fc", highlight: true },
                       ].map((p) => (
-                        <div key={p.rank} className={`flex items-center gap-3 p-2.5 rounded-[12px] ${p.highlight ? "bg-[rgba(192,132,252,0.08)] border border-[rgba(192,132,252,0.15)]" : "bg-[rgba(14,11,24,0.5)]"}`}>
+                        <div key={p.rank} className={`flex items-center gap-3 p-2.5 rounded-[12px] ${(p as any).highlight ? "bg-[rgba(192,132,252,0.08)] border border-[rgba(192,132,252,0.15)]" : "bg-[rgba(14,11,24,0.5)]"}`}>
                           <span className="w-6 text-center text-sm font-bold" style={{ color: p.color }}>{p.rank}</span>
                           <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#c084fc]/20 to-[#818cf8]/20 flex items-center justify-center text-[10px] font-bold text-[#c084fc]">{p.name[0]}</div>
                           <span className="flex-1 text-sm text-[#f0eef5]">{p.name}</span>
@@ -478,10 +488,9 @@ export default function LandingPage() {
             </div>
           </Section>
 
-          {/* Flow */}
           <Section delay={100}>
             <div className="flex flex-wrap justify-center gap-3 mb-16">
-              {["Interagis", "Gagne de l\'XP", "Monte de niveau", "Débloque des badges", "Complète des missions", "Grimpe au classement"].map((step, i) => (
+              {["Interagis", "Gagne de l'XP", "Monte de niveau", "Débloque des badges", "Complète des missions", "Grimpe au classement"].map((step, i) => (
                 <div key={step} className="flex items-center gap-3">
                   <span className="px-4 py-2 rounded-full bg-[rgba(14,11,24,0.65)] backdrop-blur-[16px] border border-[rgba(192,132,252,0.08)] text-sm text-[#f0eef5] font-medium">{step}</span>
                   {i < 5 && <svg className="w-4 h-4 text-[#8a839e] hidden sm:block" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>}
@@ -490,7 +499,6 @@ export default function LandingPage() {
             </div>
           </Section>
 
-          {/* Ranks */}
           <Section delay={200}>
             <div className="rounded-[22px] bg-[rgba(14,11,24,0.65)] backdrop-blur-[32px] border border-[rgba(192,132,252,0.06)] p-8 mb-8">
               <h3 className="text-center text-sm font-semibold text-[#a09bb2] uppercase tracking-wider mb-8">Système de rang</h3>
@@ -510,7 +518,6 @@ export default function LandingPage() {
             </div>
           </Section>
 
-          {/* Badges preview — SVG icons, no emojis */}
           <Section delay={300}>
             <div className="rounded-[22px] bg-[rgba(14,11,24,0.65)] backdrop-blur-[32px] border border-[rgba(192,132,252,0.06)] p-8">
               <h3 className="text-center text-sm font-semibold text-[#a09bb2] uppercase tracking-wider mb-6">Badges progressifs à débloquer</h3>
@@ -529,6 +536,166 @@ export default function LandingPage() {
                     </div>
                   );
                 })}
+              </div>
+            </div>
+          </Section>
+        </div>
+      </section>
+
+      {/* ─── PRICING ─── */}
+      <section id="pricing" className="py-24 px-6 relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#c084fc]/[0.02] to-transparent" />
+        <div className="max-w-5xl mx-auto relative">
+          <Section>
+            <div className="text-center mb-12">
+              <span className="text-xs font-semibold tracking-widest uppercase text-[#f59e0b] mb-3 block">Tarifs</span>
+              <h2 className="text-3xl sm:text-4xl font-[family-name:var(--font-grotesk)] font-bold mb-4">
+                Choisis ton{" "}
+                <span className="bg-gradient-to-r from-[#c084fc] to-[#f472b6] bg-clip-text text-transparent">plan</span>
+              </h2>
+              <p className="text-[#a09bb2] max-w-lg mx-auto">
+                Commence avec le plan gratuit et passe à {PLAN_NAME_PRO} quand tu es prêt à débloquer tout le potentiel.
+              </p>
+            </div>
+          </Section>
+
+          {/* Billing toggle */}
+          <Section delay={50}>
+            <div className="flex justify-center mb-10">
+              <div className="inline-flex items-center gap-1 p-1 rounded-[12px] bg-[rgba(14,11,24,0.65)] backdrop-blur-[32px] border border-[rgba(192,132,252,0.06)]">
+                <button
+                  onClick={() => setBillingCycle("monthly")}
+                  className={`px-4 py-2 rounded-[8px] text-sm font-medium transition-all ${billingCycle === "monthly" ? "bg-[rgba(192,132,252,0.12)] text-[#c084fc]" : "text-[#8a839e]"}`}
+                >
+                  Mensuel
+                </button>
+                <button
+                  onClick={() => setBillingCycle("yearly")}
+                  className={`px-4 py-2 rounded-[8px] text-sm font-medium transition-all relative ${billingCycle === "yearly" ? "bg-[rgba(192,132,252,0.12)] text-[#c084fc]" : "text-[#8a839e]"}`}
+                >
+                  Annuel
+                  <span className="absolute -top-2 -right-2 px-1.5 py-0.5 rounded-full bg-[#34d399] text-[8px] font-bold text-[#060510]">-{YEARLY_DISCOUNT_PERCENT}%</span>
+                </button>
+              </div>
+            </div>
+          </Section>
+
+          {/* Pricing cards */}
+          <Section delay={100}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
+              {/* Free Plan */}
+              <div className="rounded-[22px] bg-[rgba(14,11,24,0.65)] backdrop-blur-[32px] border border-[rgba(192,132,252,0.06)] p-8">
+                <h3 className="text-lg font-[family-name:var(--font-grotesk)] font-bold text-[#a09bb2] mb-1">Gratuit</h3>
+                <p className="text-sm text-[#8a839e] mb-6">Pour découvrir et commencer</p>
+                <div className="mb-6">
+                  <span className="text-4xl font-[family-name:var(--font-grotesk)] font-bold text-[#f0eef5]">0&euro;</span>
+                  <span className="text-sm text-[#8a839e]">/mois</span>
+                </div>
+                <Link href="/login" className="block w-full text-center px-6 py-3 rounded-[12px] bg-[rgba(192,132,252,0.08)] border border-[rgba(192,132,252,0.12)] text-[#c084fc] text-sm font-semibold hover:bg-[rgba(192,132,252,0.15)] transition-all mb-6">
+                  Commencer
+                </Link>
+                <ul className="space-y-3">
+                  {[
+                    "15 interactions/mois",
+                    "5 contacts actifs",
+                    "3 entrées journal/mois",
+                    "2 sessions/mois",
+                    "3 wings maximum",
+                    "XP, niveaux et streaks",
+                    "Missions daily",
+                    "Feed et messages illimités",
+                  ].map((f) => (
+                    <li key={f} className="flex items-center gap-2 text-sm text-[#a09bb2]">
+                      <Check />
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* GameMax Plan */}
+              <div className="relative rounded-[22px] bg-gradient-to-b from-[rgba(192,132,252,0.08)] to-[rgba(14,11,24,0.65)] backdrop-blur-[32px] border-2 border-[rgba(192,132,252,0.25)] p-8 shadow-[0_0_48px_-12px_rgba(192,132,252,0.15)]">
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-gradient-to-r from-[#c084fc] to-[#f472b6] text-xs font-bold text-white">
+                  Recommandé
+                </div>
+                <h3 className="text-lg font-[family-name:var(--font-grotesk)] font-bold text-[#f0eef5] mb-1">{PLAN_NAME_PRO}</h3>
+                <p className="text-sm text-[#a09bb2] mb-6">Tout débloquer, sans limites</p>
+                <div className="mb-2">
+                  {billingCycle === "yearly" ? (
+                    <>
+                      <span className="text-4xl font-[family-name:var(--font-grotesk)] font-bold text-[#f0eef5]">{PRICE_MONTHLY_EQUIVALENT}&euro;</span>
+                      <span className="text-sm text-[#8a839e]">/mois</span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="text-4xl font-[family-name:var(--font-grotesk)] font-bold text-[#f0eef5]">{PRICE_MONTHLY}&euro;</span>
+                      <span className="text-sm text-[#8a839e]">/mois</span>
+                    </>
+                  )}
+                </div>
+                {billingCycle === "yearly" && (
+                  <p className="text-xs text-[#c084fc] mb-4">Facturé {PRICE_YEARLY}&euro;/an au lieu de {(PRICE_MONTHLY * 12).toFixed(2)}&euro;</p>
+                )}
+                {billingCycle === "monthly" && (
+                  <p className="text-xs text-[#8a839e] mb-4">Moins cher qu&apos;un kebab</p>
+                )}
+                <Link href="/login" className="block w-full text-center px-6 py-3 rounded-[12px] bg-gradient-to-r from-[#c084fc] to-[#f472b6] text-white text-sm font-semibold hover:shadow-[0_0_24px_-4px_rgba(192,132,252,0.5)] transition-all hover:scale-[1.02] active:scale-[0.98] mb-6">
+                  Passer à {PLAN_NAME_PRO}
+                </Link>
+                <ul className="space-y-3">
+                  {[
+                    "Interactions illimitées",
+                    "Contacts & pipeline illimités",
+                    "Journal illimité + collections",
+                    "Sessions illimitées + carte",
+                    "Wings illimités + challenges",
+                    "Coaching IA personnalisé",
+                    "Analytics avancés + heatmap",
+                    "Export PDF des rapports",
+                    "Tous les badges + rang complet",
+                    "Missions weekly & custom",
+                    "Classement complet + comparaison",
+                  ].map((f) => (
+                    <li key={f} className="flex items-center gap-2 text-sm text-[#f0eef5]">
+                      <Check />
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+                <p className="text-[10px] text-[#8a839e] text-center mt-6">Satisfait ou remboursé 14 jours</p>
+              </div>
+            </div>
+          </Section>
+
+          {/* ─── Comparison Table ─── */}
+          <Section delay={200}>
+            <div className="mt-16">
+              <h3 className="text-center text-lg font-[family-name:var(--font-grotesk)] font-bold text-[#f0eef5] mb-8">Comparatif détaillé</h3>
+              <div className="rounded-[22px] bg-[rgba(14,11,24,0.65)] backdrop-blur-[32px] border border-[rgba(192,132,252,0.06)] overflow-hidden">
+                <div className="grid grid-cols-[1fr_100px_100px] sm:grid-cols-[1fr_120px_120px] border-b border-[rgba(192,132,252,0.06)] bg-[rgba(192,132,252,0.04)]">
+                  <div className="px-5 py-3 text-xs font-semibold text-[#8a839e] uppercase tracking-wider">Fonctionnalité</div>
+                  <div className="px-3 py-3 text-xs font-semibold text-[#8a839e] uppercase tracking-wider text-center">Gratuit</div>
+                  <div className="px-3 py-3 text-xs font-semibold text-[#c084fc] uppercase tracking-wider text-center">{PLAN_NAME_PRO}</div>
+                </div>
+                {PLAN_FEATURES.map((f, i) => (
+                  <div key={f.name} className={`grid grid-cols-[1fr_100px_100px] sm:grid-cols-[1fr_120px_120px] ${i < PLAN_FEATURES.length - 1 ? "border-b border-[rgba(192,132,252,0.04)]" : ""}`}>
+                    <div className="px-5 py-3 text-sm text-[#a09bb2]">{f.name}</div>
+                    <div className="px-3 py-3 flex items-center justify-center">
+                      {typeof f.free === "boolean" ? (
+                        f.free ? <Check /> : <Cross />
+                      ) : (
+                        <span className="text-xs text-[#8a839e] text-center">{f.free}</span>
+                      )}
+                    </div>
+                    <div className="px-3 py-3 flex items-center justify-center">
+                      {typeof f.pro === "boolean" ? (
+                        f.pro ? <Check /> : <Cross />
+                      ) : (
+                        <span className="text-xs text-[#c084fc] font-medium text-center">{f.pro}</span>
+                      )}
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           </Section>
@@ -608,10 +775,31 @@ export default function LandingPage() {
                   <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#c084fc]/20 to-[#818cf8]/20 flex items-center justify-center text-sm font-bold text-[#c084fc]">A</div>
                   <div>
                     <p className="text-sm font-semibold text-[#f0eef5]">Alex M.</p>
-                    <p className="text-xs text-[#8a839e]">Utilisateur depuis 3 mois</p>
+                    <p className="text-xs text-[#8a839e]">Utilisateur {PLAN_NAME_PRO} depuis 3 mois</p>
                   </div>
                 </div>
               </div>
+            </div>
+          </Section>
+        </div>
+      </section>
+
+      {/* ─── REFERRAL CTA ─── */}
+      <section className="py-16 px-6">
+        <div className="max-w-3xl mx-auto">
+          <Section>
+            <div className="rounded-[22px] bg-gradient-to-r from-[rgba(52,211,153,0.06)] to-[rgba(129,140,248,0.06)] backdrop-blur-[32px] border border-[rgba(52,211,153,0.12)] p-8 text-center">
+              <h3 className="text-xl font-[family-name:var(--font-grotesk)] font-bold text-[#f0eef5] mb-3">Parraine un pote, gagnez tous les deux</h3>
+              <p className="text-sm text-[#a09bb2] mb-6 max-w-md mx-auto">
+                Invite un ami avec ton lien de parrainage. Il obtient <strong className="text-[#34d399]">7 jours de {PLAN_NAME_PRO}</strong> et toi aussi.
+                S&apos;il souscrit, tu gagnes <strong className="text-[#34d399]">1 mois offert</strong>.
+              </p>
+              <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 rounded-[14px] bg-gradient-to-r from-[#34d399] to-[#818cf8] text-white text-sm font-semibold hover:shadow-[0_0_24px_-4px_rgba(52,211,153,0.4)] transition-all hover:scale-105 active:scale-95">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM3 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 019.374 21c-2.331 0-4.512-.645-6.374-1.766z" />
+                </svg>
+                Obtenir mon lien de parrainage
+              </Link>
             </div>
           </Section>
         </div>
@@ -626,14 +814,16 @@ export default function LandingPage() {
               Prêt à transformer{" "}
               <span className="bg-gradient-to-r from-[#c084fc] via-[#f472b6] to-[#818cf8] bg-clip-text text-transparent">ton game</span> ?
             </h2>
-            <p className="text-lg text-[#a09bb2] mb-10">
+            <p className="text-lg text-[#a09bb2] mb-4">
               Rejoins GameProgress et commence à tracker ta progression dès aujourd&apos;hui.
+            </p>
+            <p className="text-sm text-[#8a839e] mb-10">
+              Plan gratuit pour démarrer, puis {PLAN_NAME_PRO} à {PRICE_MONTHLY}&euro;/mois pour tout débloquer. Moins cher qu&apos;un kebab.
             </p>
             <Link href="/login" className="group inline-flex items-center gap-2 px-10 py-4 rounded-[14px] bg-gradient-to-r from-[#c084fc] to-[#f472b6] text-lg font-semibold text-white hover:shadow-[0_0_48px_-8px_rgba(192,132,252,0.5)] transition-all hover:scale-105 active:scale-95 animate-neon-pulse">
               S&apos;inscrire maintenant
               <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
             </Link>
-            <p className="text-sm text-[#8a839e] mt-4">C&apos;est gratuit, pour toujours.</p>
           </Section>
         </div>
       </section>
@@ -648,8 +838,8 @@ export default function LandingPage() {
             </div>
             <div className="flex items-center gap-8">
               <a href="#features" className="text-xs text-[#8a839e] hover:text-[#a09bb2] transition-colors">Fonctionnalités</a>
-              <a href="#showcase" className="text-xs text-[#8a839e] hover:text-[#a09bb2] transition-colors">Aperçu</a>
-              <a href="#gamification" className="text-xs text-[#8a839e] hover:text-[#a09bb2] transition-colors">Gamification</a>
+              <a href="#pricing" className="text-xs text-[#8a839e] hover:text-[#a09bb2] transition-colors">Tarifs</a>
+              <Link href="/guide" className="text-xs text-[#8a839e] hover:text-[#a09bb2] transition-colors">Guide</Link>
               <a href="#how" className="text-xs text-[#8a839e] hover:text-[#a09bb2] transition-colors">Comment ça marche</a>
             </div>
             <div className="flex items-center gap-6">

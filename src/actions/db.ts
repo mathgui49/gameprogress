@@ -761,3 +761,33 @@ export async function uploadImageAction(base64Data: string, folder: "photos" | "
   const { uploadImage } = await import("@/lib/upload");
   return uploadImage(userId, base64Data, folder);
 }
+
+// ─── Referral System ──────────────────────────────────
+
+export async function fetchReferralCodeAction(): Promise<string> {
+  const userId = await getAuthUserId();
+  // Generate a deterministic code from user ID
+  const code = btoa(userId).replace(/[^a-zA-Z0-9]/g, "").slice(0, 8).toUpperCase();
+  return code;
+}
+
+export async function fetchReferralStatsAction() {
+  const _userId = await getAuthUserId();
+  // TODO: Implement with referrals table
+  return { referralCount: 0, convertedCount: 0, earnedDays: 0 };
+}
+
+// ─── Ambassador System ────────────────────────────────
+
+export async function fetchAmbassadorCodeAction(): Promise<string | null> {
+  const userId = await getAuthUserId();
+  // Generate ambassador code
+  const code = "AMB-" + btoa(userId).replace(/[^a-zA-Z0-9]/g, "").slice(0, 6).toUpperCase();
+  return code;
+}
+
+export async function fetchAmbassadorStatsAction() {
+  const _userId = await getAuthUserId();
+  // TODO: Implement with ambassadors table
+  return { totalReferrals: 0, activeSubscribers: 0, totalEarnings: 0, monthlyEarnings: 0, isApproved: false };
+}

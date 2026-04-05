@@ -114,7 +114,7 @@ export default function SettingsPage() {
         <div className="relative">
           <div className="flex items-center gap-2 mb-4">
             <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-[var(--on-surface)]">Abonnement</h2>
-            {isPremium && <Badge className="bg-gradient-to-r from-[#c084fc]/20 to-[#f472b6]/20 text-[#c084fc]">Premium</Badge>}
+            {isPremium && <Badge className="bg-gradient-to-r from-[#c084fc]/20 to-[#f472b6]/20 text-[#c084fc]">GameMax</Badge>}
           </div>
 
           {checkoutResult === "success" && (
@@ -145,9 +145,9 @@ export default function SettingsPage() {
             </div>
           ) : subLoaded ? (
             <div className="space-y-4">
-              <p className="text-sm text-[var(--on-surface-variant)]">Débloque toutes les fonctionnalités de GameProgress.</p>
+              <p className="text-sm text-[var(--on-surface-variant)]">Débloque tout le potentiel de GameProgress avec GameMax.</p>
               <div className="space-y-2">
-                {["Export de données (JSON/CSV)", "Rapports mensuels détaillés", "Recherche globale", "Statistiques avancées", "Support prioritaire"].map((f) => (
+                {["Interactions, contacts et journal illimités", "Coaching IA personnalisé", "Analytics avancés + heatmap + export PDF", "Wings illimités + challenges + pings", "Tous les badges + rang complet", "Missions weekly & custom", "Classement complet + comparaison"].map((f) => (
                   <div key={f} className="flex items-center gap-2">
                     <svg className="w-4 h-4 text-[#c084fc] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
                     <span className="text-xs text-[var(--on-surface-variant)]">{f}</span>
@@ -157,9 +157,10 @@ export default function SettingsPage() {
               <Button onClick={checkout} className="w-full">
                 <span className="flex items-center justify-center gap-2">
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456z" /></svg>
-                  Passer Premium
+                  Passer à GameMax — 6,99&euro;/mois
                 </span>
               </Button>
+              <p className="text-[10px] text-[var(--outline)] text-center">Moins cher qu&apos;un kebab. Satisfait ou remboursé 14 jours.</p>
             </div>
           ) : null}
         </div>
