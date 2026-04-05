@@ -149,3 +149,18 @@ create policy "Users manage own missions" on missions for all using (true) with 
 create policy "Users manage own journal" on journal_entries for all using (true) with check (true);
 create policy "Users manage own profile" on profiles for all using (true) with check (true);
 create policy "Users manage own gamification" on gamification for all using (true) with check (true);
+
+-- 16. Subscriptions (Stripe)
+create table subscriptions (
+  id uuid default gen_random_uuid() primary key,
+  user_id text not null unique,
+  stripe_customer_id text not null,
+  stripe_subscription_id text,
+  status text not null default 'inactive',
+  current_period_end timestamptz,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+
+alter table subscriptions enable row level security;
+create policy "Users manage own subscription" on subscriptions for all using (true) with check (true);

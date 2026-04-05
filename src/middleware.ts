@@ -10,10 +10,11 @@ export default auth((req) => {
   const isLoginPage = nextUrl.pathname === "/login";
   const isLandingPage = nextUrl.pathname === "/landing";
   const isAuthRoute = nextUrl.pathname.startsWith("/api/auth");
+  const isStripeWebhook = nextUrl.pathname.startsWith("/api/stripe/webhook");
   const isAdminRoute = nextUrl.pathname.startsWith("/admin");
 
-  // Always allow auth API routes
-  if (isAuthRoute) return NextResponse.next();
+  // Always allow auth API routes and Stripe webhooks
+  if (isAuthRoute || isStripeWebhook) return NextResponse.next();
 
   // Allow landing page without auth
   if (isLandingPage) return NextResponse.next();

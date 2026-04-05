@@ -15,6 +15,8 @@ import { Input, TextArea } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
 import { clearAllUserData } from "@/lib/db";
 import { useTheme } from "@/hooks/useTheme";
+import { useSubscription } from "@/hooks/useSubscription";
+import { Badge } from "@/components/ui/Badge";
 import { TutorialResetButton } from "@/components/layout/Tutorial";
 
 export default function SettingsPage() {
@@ -31,6 +33,17 @@ export default function SettingsPage() {
   const [saved, setSaved] = useState(false);
   const [installPrompt, setInstallPrompt] = useState<Event | null>(null);
   const { theme, toggle: toggleTheme } = useTheme();
+  const { subscription, isPremium, loaded: subLoaded, checkout, openPortal } = useSubscription();
+  const [checkoutResult, setCheckoutResult] = useState<string | null>(null);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const result = params.get("checkout");
+    if (result) {
+      setCheckoutResult(result);
+      window.history.replaceState({}, "", "/settings");
+    }
+  }, []);
 
   useEffect(() => {
     const handler = (e: Event) => { e.preventDefault(); setInstallPrompt(e); };
@@ -66,6 +79,63 @@ export default function SettingsPage() {
           <TextArea label="Femme idéale" id="iw" placeholder="Décris le type de femme que tu recherches..." rows={3} value={profile.idealWoman ?? ""} onChange={(e) => { updateProfile({ idealWoman: e.target.value }); setSaved(true); setTimeout(() => setSaved(false), 2000); }} />
         </div>
         {saved && <p className="text-xs text-emerald-400 mt-2 animate-fade-in">Sauvegardé !</p>}
+      </Card>
+
+      {/* Premium / Abonnement */}
+      <Card className="mb-4 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-[#c084fc]/[0.03] to-[#f472b6]/[0.03]" />
+        <div className="relative">
+          <div className="flex items-center gap-2 mb-4">
+            <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-[var(--on-surface)]">Abonnement</h2>
+            {isPremium && <Badge className="bg-gradient-to-r from-[#c084fc]/20 to-[#f472b6]/20 text-[#c084fc]">Premium</Badge>}
+          </div>
+
+          {checkoutResult === "success" && (
+            <div className="mb-4 p-3 rounded-xl bg-emerald-400/10 border border-emerald-400/20">
+              <p className="text-sm text-emerald-400 font-medium">Paiement réussi ! Ton abonnement Premium est actif.</p>
+            </div>
+          )}
+          {checkoutResult === "cancel" && (
+            <div className="mb-4 p-3 rounded-xl bg-amber-400/10 border border-amber-400/20">
+              <p className="text-sm text-amber-400 font-medium">Paiement annulé. Tu peux réessayer quand tu veux.</p>
+            </div>
+          )}
+
+          {subLoaded && isPremium ? (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-[var(--on-surface-variant)]">Statut</span>
+                <Badge className="bg-emerald-400/15 text-emerald-400">Actif</Badge>
+              </div>
+              {subscription?.currentPeriodEnd && (
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-[var(--on-surface-variant)]">Prochain renouvellement</span>
+                  <span className="text-sm text-[var(--on-surface)]">{new Date(subscription.currentPeriodEnd).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}</span>
+                </div>
+              )}
+              <Button variant="secondary" size="sm" onClick={openPortal}>Gérer mon abonnement</Button>
+              <p className="text-[10px] text-[var(--outline)]">Factures, modification du moyen de paiement, annulation...</p>
+            </div>
+          ) : subLoaded ? (
+            <div className="space-y-4">
+              <p className="text-sm text-[var(--on-surface-variant)]">Débloque toutes les fonctionnalités de GameProgress.</p>
+              <div className="space-y-2">
+                {["Export de données (JSON/CSV)", "Rapports mensuels détaillés", "Recherche globale", "Statistiques avancées", "Support prioritaire"].map((f) => (
+                  <div key={f} className="flex items-center gap-2">
+                    <svg className="w-4 h-4 text-[#c084fc] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                    <span className="text-xs text-[var(--on-surface-variant)]">{f}</span>
+                  </div>
+                ))}
+              </div>
+              <Button onClick={checkout} className="w-full">
+                <span className="flex items-center justify-center gap-2">
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456z" /></svg>
+                  Passer Premium
+                </span>
+              </Button>
+            </div>
+          ) : null}
+        </div>
       </Card>
 
       <Card className="mb-4">

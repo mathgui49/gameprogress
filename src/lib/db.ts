@@ -453,6 +453,38 @@ export async function fetchSessionParticipantsWithProfiles(sessionId: string) {
   }));
 }
 
+// ─── Subscriptions (Stripe) ────────────────────────────
+
+export interface Subscription {
+  id: string;
+  userId: string;
+  stripeCustomerId: string;
+  stripeSubscriptionId: string | null;
+  status: "active" | "canceled" | "past_due" | "inactive";
+  currentPeriodEnd: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export async function fetchSubscription(userId: string): Promise<Subscription | null> {
+  const { data, error } = await supabase
+    .from("subscriptions")
+    .select("*")
+    .eq("user_id", userId)
+    .single();
+  if (error || !data) return null;
+  return fromRow<Subscription>(data);
+}
+
+export async function upsertSubscription(userId: string, fields: Partial<Record<string, unknown>>) {
+  const row: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(fields)) row[toSnake(k)] = v;
+  row.user_id = userId;
+  row.updated_at = new Date().toISOString();
+  const { error } = await supabase.from("subscriptions").upsert(row, { onConflict: "user_id" });
+  if (error) console.error("upsert subscription:", error);
+}
+
 const ALL_TABLES = ["interactions", "contacts", "sessions", "wings", "missions", "journal_entries", "profiles", "gamification", "public_profiles", "wing_requests", "posts", "session_likes", "session_comments", "session_participants"];
 
 export async function clearAllUserData(userId: string) {
