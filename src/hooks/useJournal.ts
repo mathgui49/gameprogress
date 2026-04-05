@@ -2,7 +2,7 @@
 
 import { useCallback } from "react";
 import { useSession } from "next-auth/react";
-import type { JournalEntry, JournalTag, Visibility } from "@/types";
+import type { JournalEntry, JournalTag, Visibility, JournalEntryType, JournalAttachment } from "@/types";
 import { insertRowAction, updateRowAction, deleteRowAction } from "@/actions/db";
 import { useSwrFetch, mutateTable } from "@/lib/swr";
 import { generateId } from "@/lib/utils";
@@ -14,8 +14,8 @@ export function useJournal() {
   const { data: entries, loaded, key } = useSwrFetch<JournalEntry>("journal_entries", userId);
 
   const add = useCallback(
-    async (content: string, tag: JournalTag | null, visibility: Visibility = "private") => {
-      const item: JournalEntry = { id: generateId(), date: new Date().toISOString(), content, tag, visibility, createdAt: new Date().toISOString() };
+    async (content: string, tag: JournalTag | null, visibility: Visibility = "private", entryType: JournalEntryType = "entry", sessionId: string | null = null, attachments: JournalAttachment[] = []) => {
+      const item: JournalEntry = { id: generateId(), date: new Date().toISOString(), content, tag, visibility, entryType, sessionId, attachments, createdAt: new Date().toISOString() };
 
       if (!navigator.onLine) {
         if (key) await applyCacheUpdate(key, "insert", item);

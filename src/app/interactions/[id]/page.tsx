@@ -69,7 +69,7 @@ export default function InteractionDetailPage({ params }: { params: Promise<{ id
       </div>
 
       {/* Scores grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-6">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
         <Card className="text-center !p-4">
           <p className="text-[10px] text-[var(--outline)] uppercase tracking-wider mb-1">Ressenti</p>
           <p className="text-2xl font-bold text-[var(--primary)]">{interaction.feelingScore}<span className="text-sm text-[var(--outline)]">/10</span></p>
@@ -77,10 +77,6 @@ export default function InteractionDetailPage({ params }: { params: Promise<{ id
         <Card className="text-center !p-4">
           <p className="text-[10px] text-[var(--outline)] uppercase tracking-wider mb-1">Note fille</p>
           <p className="text-2xl font-bold text-[var(--tertiary)]">{interaction.womanScore ?? "-"}<span className="text-sm text-[var(--outline)]">/10</span></p>
-        </Card>
-        <Card className="text-center !p-4">
-          <p className="text-[10px] text-[var(--outline)] uppercase tracking-wider mb-1">Confiance</p>
-          <p className="text-2xl font-bold text-cyan-400">{interaction.confidenceScore ?? "-"}<span className="text-sm text-[var(--outline)]">/10</span></p>
         </Card>
         <Card className="text-center !p-4">
           <p className="text-[10px] text-[var(--outline)] uppercase tracking-wider mb-1">Duree</p>

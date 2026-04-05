@@ -103,19 +103,6 @@ export default function ReportsPage() {
       ? Math.round((interactions.filter((i) => i.result === "close").length / interactions.length) * 100)
       : 0;
 
-    // Confidence over time (8 weeks)
-    const confidenceWeekly = getWeeksData(interactions, 8).map((w) => {
-      const withConf = w.interactions.filter((i) => (i.confidenceScore ?? 0) > 0);
-      const avg = withConf.length > 0
-        ? withConf.reduce((s, i) => s + (i.confidenceScore ?? 0), 0) / withConf.length
-        : 0;
-      return { label: getWeekLabel(w.weekStart), value: Math.round(avg * 10) / 10 };
-    });
-    const avgConfidence = (() => {
-      const wc = interactions.filter((i) => (i.confidenceScore ?? 0) > 0);
-      return wc.length > 0 ? wc.reduce((s, i) => s + (i.confidenceScore ?? 0), 0) / wc.length : 0;
-    })();
-
     // Feeling score over time (8 weeks)
     const feelingWeekly = getWeeksData(interactions, 8).map((w) => {
       const avg = w.interactions.length > 0
@@ -162,9 +149,7 @@ export default function ReportsPage() {
     const allCloses = interactions.filter((i) => i.result === "close").length;
     const cr = total > 0 ? allCloses / total : 0;
     const af = total > 0 ? interactions.reduce((s, i) => s + i.feelingScore, 0) / total : 0;
-    const wc = interactions.filter((i) => (i.confidenceScore ?? 0) > 0);
-    const ac = wc.length > 0 ? wc.reduce((s, i) => s + (i.confidenceScore ?? 0), 0) / wc.length : 0;
-    const skillScore = computeSkillScore({ totalInteractions: total, closeRate: cr, avgFeelingScore: af, avgConfidence: ac, streak: gam.streak });
+    const skillScore = computeSkillScore({ totalInteractions: total, closeRate: cr, avgFeelingScore: af, streak: gam.streak });
     const skillRank = getSkillRank(skillScore);
 
     // Best day of week
@@ -176,7 +161,6 @@ export default function ReportsPage() {
     return {
       thisMonth, lastMonth, tmCloses, lmCloses, tmAvgFeel, tmCloseRate, lmCloseRate,
       closeRateWeekly, avgCloseRate,
-      confidenceWeekly, avgConfidence,
       feelingWeekly, avgFeeling,
       weeklyBars,
       closes, neutrals, rejections,
@@ -296,20 +280,8 @@ export default function ReportsPage() {
         </Card>
       </div>
 
-      {/* Charts row 2: Confidence + Feeling */}
+      {/* Charts row 2: Feeling */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-        <Card>
-          <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-[var(--on-surface)] mb-4">
-            Confiance dans le temps
-          </h2>
-          <LineChart
-            data={analytics.confidenceWeekly}
-            color="#f59e0b"
-            avgLine={analytics.avgConfidence}
-            height={160}
-          />
-        </Card>
-
         <Card>
           <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-[var(--on-surface)] mb-4">
             Ressenti dans le temps
@@ -437,7 +409,6 @@ export default function ReportsPage() {
             benchmarks={benchmarks}
             userCloseRate={Math.round(analytics.tmCloseRate)}
             userAvgFeeling={analytics.tmAvgFeel}
-            userAvgConfidence={analytics.avgConfidence}
             userLevel={gam.level}
           />
         </div>

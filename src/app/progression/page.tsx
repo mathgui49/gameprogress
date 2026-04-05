@@ -9,6 +9,7 @@ import { useJournal } from "@/hooks/useJournal";
 import { useWingRequests } from "@/hooks/useWingRequests";
 import { useMissions } from "@/hooks/useMissions";
 import { computeSkillScore, getSkillRank, SKILL_RANK_LABELS, SKILL_RANK_COLORS } from "@/types";
+import { BADGE_CATEGORIES } from "@/lib/seed";
 import { Card } from "@/components/ui/Card";
 import { Tooltip } from "@/components/ui/Tooltip";
 import { IconFlame, IconAward, IconTrendingUp, IconLock, IconTarget } from "@/components/ui/Icons";
@@ -23,21 +24,34 @@ export default function ProgressionPage() {
   const { missions } = useMissions();
   const syncedRef = useRef(false);
 
-  // Auto-sync milestones and badges from real data
+  // Compute real values for badge categories
+  const totalInteractions = interactions.length;
+  const closes = interactions.filter((i) => i.result === "close").length;
+  const dates = contacts.filter((c) => ["date_planned", "first_date", "second_date", "kissclose", "fuckclose", "advanced"].includes(c.status)).length;
+  const completedMissions = missions.filter((m) => m.completed).length;
+  const wingsCount = wingProfiles.length;
+  const journalCount = journal.length;
+  const sessionCount = sessions.length;
+  const contactCount = contacts.length;
+
+  const categoryValues: Record<string, number> = {
+    interactions: totalInteractions,
+    closes,
+    dates,
+    sessions: sessionCount,
+    wings: wingsCount,
+    streak: gam.bestStreak,
+    journal: journalCount,
+    contacts: contactCount,
+    missions: completedMissions,
+    level: gam.level,
+  };
+
+  // Auto-sync legacy milestones and badges
   useEffect(() => {
     if (!gam.loaded || syncedRef.current) return;
     syncedRef.current = true;
 
-    const totalInteractions = interactions.length;
-    const closes = interactions.filter((i) => i.result === "close").length;
-    const dates = contacts.filter((c) => ["date_planned", "first_date", "second_date", "kissclose", "fuckclose", "advanced"].includes(c.status)).length;
-    const completedMissions = missions.filter((m) => m.completed).length;
-    const wingsCount = wingProfiles.length;
-    const journalCount = journal.length;
-    const sessionCount = sessions.length;
-    const contactCount = contacts.length;
-
-    // Milestone value map: milestoneId -> current value
     const milestoneValues: Record<string, number> = {
       m1: totalInteractions, m2: totalInteractions, m3: totalInteractions,
       m4: closes, m5: closes, m6: closes,
@@ -57,7 +71,6 @@ export default function ProgressionPage() {
       }
     }
 
-    // Badge condition map: badgeId -> met?
     const badgeConditions: Record<string, boolean> = {
       b1: totalInteractions >= 1, b2: totalInteractions >= 10, b7: totalInteractions >= 50,
       b3: closes >= 1, b4: closes >= 5,
@@ -80,18 +93,18 @@ export default function ProgressionPage() {
 
   if (!gam.loaded) return <div className="flex items-center justify-center h-screen"><div className="w-8 h-8 border-2 border-[var(--primary)]/30 border-t-[var(--primary)] rounded-full animate-spin" /></div>;
 
-  const totalInteractions = interactions.length;
-  const closes = interactions.filter((i) => i.result === "close").length;
   const closeRate = totalInteractions > 0 ? closes / totalInteractions : 0;
   const avgFeeling = totalInteractions > 0 ? interactions.reduce((s, i) => s + i.feelingScore, 0) / totalInteractions : 0;
-  const withConfidence = interactions.filter((i) => (i.confidenceScore ?? 0) > 0);
-  const avgConfidence = withConfidence.length > 0 ? withConfidence.reduce((s, i) => s + (i.confidenceScore ?? 0), 0) / withConfidence.length : 0;
 
-  const skillScore = computeSkillScore({ totalInteractions, closeRate, avgFeelingScore: avgFeeling, avgConfidence, streak: gam.streak });
+  const skillScore = computeSkillScore({ totalInteractions, closeRate, avgFeelingScore: avgFeeling, streak: gam.streak });
   const skillRank = getSkillRank(skillScore);
 
-  const unlockedBadges = gam.badges.filter((b) => b.unlockedAt);
-  const lockedBadges = gam.badges.filter((b) => !b.unlockedAt);
+  // Compute progressive badge state per category
+  const totalUnlocked = BADGE_CATEGORIES.reduce((sum, cat) => {
+    const val = categoryValues[cat.key] ?? 0;
+    return sum + cat.tiers.filter((t) => val >= t.threshold).length;
+  }, 0);
+  const totalTiers = BADGE_CATEGORIES.reduce((sum, cat) => sum + cat.tiers.length, 0);
 
   // Ring styles
   const skillRingStyle = {
@@ -135,22 +148,16 @@ export default function ProgressionPage() {
                 <p className="text-[10px] text-[var(--outline)]">Close rate (40%)</p>
               </div>
             </Tooltip>
-            <Tooltip text="Moyenne de ton ressenti apres chaque interaction — pese 20%" position="bottom">
+            <Tooltip text="Moyenne de ton ressenti après chaque interaction — pèse 25%" position="bottom">
               <div className="text-center">
                 <p className="text-lg font-bold text-[var(--on-surface)]">{avgFeeling.toFixed(1)}</p>
-                <p className="text-[10px] text-[var(--outline)]">Ressenti moy. (20%)</p>
+                <p className="text-[10px] text-[var(--outline)]">Ressenti moy. (25%)</p>
               </div>
             </Tooltip>
-            <Tooltip text="Score moyen de confiance en toi — pese 15%" position="bottom">
-              <div className="text-center">
-                <p className="text-lg font-bold text-[var(--on-surface)]">{avgConfidence.toFixed(1)}</p>
-                <p className="text-[10px] text-[var(--outline)]">Confiance (15%)</p>
-              </div>
-            </Tooltip>
-            <Tooltip text="Nombre total d'interactions enregistrees — pese 15%" position="bottom">
+            <Tooltip text="Nombre total d'interactions enregistrées — pèse 18%" position="bottom">
               <div className="text-center">
                 <p className="text-lg font-bold text-[var(--on-surface)]">{totalInteractions}</p>
-                <p className="text-[10px] text-[var(--outline)]">Volume (15%)</p>
+                <p className="text-[10px] text-[var(--outline)]">Volume (18%)</p>
               </div>
             </Tooltip>
           </div>
@@ -205,57 +212,66 @@ export default function ProgressionPage() {
         </Card>
       </div>
 
-      {/* Badges */}
-      <div className="mb-6">
-        <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-[var(--on-surface)] mb-4">Badges ({unlockedBadges.length}/{gam.badges.length})</h2>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {unlockedBadges.map((b) => (
-            <Card key={b.id} className="text-center !p-4">
-              <div className="w-10 h-10 rounded-xl bg-[var(--primary)]/10 flex items-center justify-center mx-auto mb-2 text-[var(--primary)]">
-                <IconAward size={22} />
-              </div>
-              <p className="text-xs font-semibold text-[var(--on-surface)] mb-0.5">{b.name}</p>
-              <p className="text-[10px] text-[var(--outline)]">{b.description}</p>
-            </Card>
-          ))}
-          {lockedBadges.map((b) => (
-            <Card key={b.id} className="text-center !p-4 opacity-30">
-              <div className="w-10 h-10 rounded-xl bg-[var(--outline-variant)]/10 flex items-center justify-center mx-auto mb-2 text-[var(--on-surface-variant)]">
-                <IconLock size={22} />
-              </div>
-              <p className="text-xs font-semibold text-[var(--on-surface-variant)] mb-0.5">{b.name}</p>
-              <p className="text-[10px] text-[var(--outline)]">{b.description}</p>
-            </Card>
-          ))}
-        </div>
-      </div>
-
-      {/* Milestones */}
+      {/* Progressive Badges */}
       <div>
-        <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-[var(--on-surface)] mb-4">Milestones</h2>
+        <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-[var(--on-surface)] mb-4">Badges ({totalUnlocked}/{totalTiers})</h2>
         <div className="space-y-3">
-          {gam.milestones.map((m) => {
-            const pct = Math.min((m.current / m.target) * 100, 100);
-            const done = m.unlockedAt !== null;
+          {BADGE_CATEGORIES.map((cat) => {
+            const value = categoryValues[cat.key] ?? 0;
+            // Find highest unlocked tier and next tier
+            let currentTierIdx = -1;
+            for (let i = cat.tiers.length - 1; i >= 0; i--) {
+              if (value >= cat.tiers[i].threshold) { currentTierIdx = i; break; }
+            }
+            const currentTier = currentTierIdx >= 0 ? cat.tiers[currentTierIdx] : null;
+            const nextTier = currentTierIdx < cat.tiers.length - 1 ? cat.tiers[currentTierIdx + 1] : null;
+            const maxed = currentTierIdx === cat.tiers.length - 1;
+
+            // Progress bar: from current tier threshold to next tier threshold
+            const prevThreshold = currentTier ? currentTier.threshold : 0;
+            const nextThreshold = nextTier ? nextTier.threshold : prevThreshold;
+            const progressRange = nextThreshold - prevThreshold;
+            const pct = nextTier && progressRange > 0
+              ? Math.min(((value - prevThreshold) / progressRange) * 100, 100)
+              : maxed ? 100 : 0;
+
             return (
-              <Card key={m.id} className={`!p-4 ${done ? "" : "opacity-80"}`}>
-                <div className="flex items-center gap-4">
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${done ? "bg-emerald-400/10 text-emerald-400" : "bg-[var(--primary)]/10 text-[var(--primary)]"}`}>
-                    <IconTarget size={20} />
+              <Card key={cat.id} className="!p-4">
+                <div className="flex items-center gap-3">
+                  {/* Current badge icon */}
+                  <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 text-xl ${currentTier ? (maxed ? "bg-amber-400/10" : "bg-[var(--primary)]/10") : "bg-[var(--outline-variant)]/10"}`}>
+                    {currentTier ? currentTier.icon : <IconLock size={18} className="text-[var(--on-surface-variant)]" />}
                   </div>
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between mb-1.5">
-                      <p className="text-sm font-semibold text-[var(--on-surface)]">{m.name}</p>
-                      <span className="text-xs text-[var(--on-surface-variant)]">{m.current}/{m.target}</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between mb-1">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <p className="text-xs text-[var(--on-surface-variant)] uppercase tracking-wider font-[family-name:var(--font-grotesk)]">{cat.label}</p>
+                        {currentTier && (
+                          <span className={`text-xs font-semibold ${maxed ? "text-amber-400" : "text-[var(--on-surface)]"}`}>{currentTier.name}</span>
+                        )}
+                      </div>
+                      <span className="text-[10px] text-[var(--outline)] shrink-0">
+                        {maxed ? "MAX" : nextTier ? `${value}/${nextTier.threshold}` : `${value}/${cat.tiers[0].threshold}`}
+                      </span>
                     </div>
+                    {/* Progress bar */}
                     <div className="w-full h-2 rounded-full bg-[var(--surface-highest)] overflow-hidden">
                       <div
-                        className={`h-full rounded-full transition-all duration-500 ${done ? "bg-gradient-to-r from-emerald-400 to-emerald-500" : "bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)]"}`}
+                        className={`h-full rounded-full transition-all duration-500 ${maxed ? "bg-gradient-to-r from-amber-400 to-amber-500 shadow-[0_0_8px_rgba(251,191,36,0.4)]" : "bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)]"}`}
                         style={{ width: `${pct}%` }}
                       />
                     </div>
+                    {/* Tier dots */}
+                    {nextTier && (
+                      <div className="flex items-center gap-1 mt-1.5">
+                        <span className="text-[10px] text-[var(--outline)]">Prochain :</span>
+                        <span className="text-[10px] font-medium text-[var(--on-surface-variant)]">{nextTier.icon} {nextTier.name}</span>
+                      </div>
+                    )}
+                    {maxed && (
+                      <p className="text-[10px] text-amber-400 mt-1">Rang maximum atteint !</p>
+                    )}
                   </div>
-                  {done && <span className="text-emerald-400 text-xs font-medium">&#10003;</span>}
                 </div>
               </Card>
             );

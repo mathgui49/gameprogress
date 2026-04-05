@@ -16,7 +16,6 @@ interface BenchmarkCardProps {
   benchmarks: CommunityBenchmarks;
   userCloseRate: number;
   userAvgFeeling: number;
-  userAvgConfidence: number;
   userLevel: number;
 }
 
@@ -68,7 +67,7 @@ function ComparisonBar({ label, userVal, communityVal, suffix = "", tooltip }: B
   );
 }
 
-export function BenchmarkCard({ benchmarks, userCloseRate, userAvgFeeling, userAvgConfidence, userLevel }: BenchmarkCardProps) {
+export function BenchmarkCard({ benchmarks, userCloseRate, userAvgFeeling, userLevel }: BenchmarkCardProps) {
   return (
     <Card>
       <div className="flex items-center justify-between mb-4">
@@ -93,13 +92,6 @@ export function BenchmarkCard({ benchmarks, userCloseRate, userAvgFeeling, userA
           communityVal={benchmarks.avgFeelingScore}
           suffix="/10"
           tooltip="Score moyen de ton ressenti après chaque interaction"
-        />
-        <ComparisonBar
-          label="Confiance"
-          userVal={Math.round(userAvgConfidence * 10) / 10}
-          communityVal={benchmarks.avgConfidence}
-          suffix="/10"
-          tooltip="Score moyen de confiance auto-évalué"
         />
         <ComparisonBar
           label="Niveau"

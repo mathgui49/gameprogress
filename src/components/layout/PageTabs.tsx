@@ -30,9 +30,9 @@ const TAB_GROUPS: Record<string, { title: string; tabs: TabItem[] }> = {
   moi: {
     title: "Moi",
     tabs: [
-      { href: "/missions", label: "Missions" },
       { href: "/progression", label: "Progression" },
       { href: "/journal", label: "Journal" },
+      { href: "/missions", label: "Missions" },
     ],
   },
 };

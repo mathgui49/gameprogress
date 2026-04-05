@@ -123,6 +123,15 @@ h1, h2, h3, h4, h5, h6 {
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
+/* ─── Journal Rich Content ─────────────────────────────── */
+.journal-content h3 { font-size: 1.1rem; font-weight: 700; margin: 0.75rem 0 0.5rem; color: var(--on-surface); }
+.journal-content blockquote { border-left: 3px solid var(--primary); padding-left: 1rem; margin: 0.5rem 0; color: var(--on-surface-variant); font-style: italic; }
+.journal-content ul, .journal-content ol { padding-left: 1.5rem; margin: 0.5rem 0; }
+.journal-content li { margin: 0.25rem 0; }
+.journal-content a { color: var(--primary); text-decoration: underline; }
+.journal-content img { max-width: 100%; border-radius: 12px; margin: 0.5rem 0; }
+[contenteditable]:empty:before { content: attr(data-placeholder); color: var(--input-placeholder); pointer-events: none; }
+
 /* ─── Animations (optimized with will-change) ─────────── */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(6px); }

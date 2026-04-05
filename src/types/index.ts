@@ -166,12 +166,23 @@ export type JournalTag = "mindset" | "progress" | "fear" | "reflection" | "revie
 
 export type Visibility = "private" | "wings" | "public";
 
+export type JournalEntryType = "entry" | "fieldreport";
+
+export interface JournalAttachment {
+  type: "image" | "file";
+  url: string;
+  name: string;
+}
+
 export interface JournalEntry {
   id: string;
   date: string;
   content: string;
   tag: JournalTag | null;
   visibility: Visibility;
+  entryType: JournalEntryType;
+  sessionId: string | null;
+  attachments: JournalAttachment[];
   createdAt: string;
 }
 
@@ -325,7 +336,7 @@ export const TYPE_COLORS: Record<ApproachType, string> = {
 };
 
 export const STATUS_LABELS: Record<ContactStatus, string> = {
-  new: "Nouveau",
+  new: "Close",
   contacted: "Contacté",
   replied: "Répondu",
   date_planned: "Date planifié",
@@ -423,21 +434,18 @@ export function computeSkillScore(stats: {
   totalInteractions: number;
   closeRate: number;       // 0-1
   avgFeelingScore: number; // 1-10
-  avgConfidence: number;   // 1-10
   streak: number;
 }): number {
-  // Close rate: 40% weight (most important)
-  const closeScore = Math.min(stats.closeRate * 100, 100) * 0.40;
-  // Quality of interactions (feeling): 20% weight
-  const qualityScore = (stats.avgFeelingScore / 10) * 100 * 0.20;
-  // Confidence (self-assessed): 15% weight
-  const confidenceScore = (stats.avgConfidence / 10) * 100 * 0.15;
-  // Volume (logarithmic, caps around 200): 15% weight
-  const volumeScore = Math.min(Math.log10(Math.max(stats.totalInteractions, 1)) / Math.log10(200), 1) * 100 * 0.15;
-  // Streak consistency: 10% weight
-  const streakScore = Math.min(stats.streak / 30, 1) * 100 * 0.10;
+  // Close rate: 45% weight (most important)
+  const closeScore = Math.min(stats.closeRate * 100, 100) * 0.45;
+  // Quality of interactions (feeling): 25% weight
+  const qualityScore = (stats.avgFeelingScore / 10) * 100 * 0.25;
+  // Volume (logarithmic, caps around 200): 18% weight
+  const volumeScore = Math.min(Math.log10(Math.max(stats.totalInteractions, 1)) / Math.log10(200), 1) * 100 * 0.18;
+  // Streak consistency: 12% weight
+  const streakScore = Math.min(stats.streak / 30, 1) * 100 * 0.12;
 
-  return Math.round(closeScore + qualityScore + confidenceScore + volumeScore + streakScore);
+  return Math.round(closeScore + qualityScore + volumeScore + streakScore);
 }
 
 export function getSkillRank(score: number): SkillRank {

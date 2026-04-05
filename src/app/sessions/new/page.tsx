@@ -21,6 +21,8 @@ export default function NewSessionPage() {
   const [title, setTitle] = useState("");
   const [location, setLocation] = useState("");
   const [selectedWingIds, setSelectedWingIds] = useState<string[]>([]);
+  const [externalWings, setExternalWings] = useState<string[]>([]);
+  const [newExternalWing, setNewExternalWing] = useState("");
   const [notes, setNotes] = useState("");
   const [goalsText, setGoalsText] = useState("");
   const [date, setDate] = useState(new Date().toISOString().slice(0, 16));
@@ -36,21 +38,45 @@ export default function NewSessionPage() {
     );
   };
 
+  const addExternalWing = () => {
+    const name = newExternalWing.trim();
+    if (name && !externalWings.includes(name)) {
+      setExternalWings((prev) => [...prev, name]);
+      setNewExternalWing("");
+    }
+  };
+
+  const removeExternalWing = (name: string) => {
+    setExternalWings((prev) => prev.filter((w) => w !== name));
+  };
+
+  // Build default title from location if no title is provided
+  const resolveTitle = () => {
+    if (title.trim()) return title.trim();
+    if (location.trim()) return `Session ${location.trim()}`;
+    if (address.trim()) {
+      const parts = address.split(",").map((p) => p.trim());
+      return `Session ${parts[0]}`;
+    }
+    return "Session";
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const goals = goalsText.split("\n").filter(Boolean).map((text) => ({ text: text.trim(), done: false }));
-    const wingNames = selectedWingIds.map((id) => {
+    const appWingNames = selectedWingIds.map((id) => {
       const p = wingProfiles.find((wp: PublicProfile) => wp.userId === id);
       return p?.username || p?.firstName || id;
     });
+    const allWingNames = [...appWingNames, ...externalWings];
     const session = await add({
-      title,
+      title: resolveTitle(),
       date: new Date(date).toISOString(),
       location,
       address,
       lat,
       lng,
-      wings: wingNames,
+      wings: allWingNames,
       notes,
       goals,
       interactionIds: [],
@@ -58,7 +84,7 @@ export default function NewSessionPage() {
       maxParticipants,
     });
 
-    // Send invites to selected wings
+    // Send invites to selected wings (app users only)
     if (selectedWingIds.length > 0) {
       await inviteWingsToSessionAction(session.id, selectedWingIds);
     }
@@ -75,7 +101,7 @@ export default function NewSessionPage() {
       <h1 className="text-2xl font-bold text-[var(--on-surface)] tracking-tight mb-6">Nouvelle session</h1>
 
       <form onSubmit={handleSubmit} className="space-y-5">
-        <Input label="Titre" placeholder="Ex: Session Centre-ville" value={title} onChange={(e) => setTitle(e.target.value)} />
+        <Input label="Titre (optionnel)" placeholder="Ex: Session Centre-ville (auto si vide)" value={title} onChange={(e) => setTitle(e.target.value)} />
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Input label="Date" type="datetime-local" value={date} onChange={(e) => setDate(e.target.value)} />
           <Input label="Lieu (ville / quartier)" placeholder="Ex: Paris 1er" value={location} onChange={(e) => setLocation(e.target.value)} />
@@ -129,7 +155,35 @@ export default function NewSessionPage() {
           )}
         </div>
 
-        <TextArea label="Objectifs (un par ligne)" placeholder={"Faire 5 approches\nTester une approche directe\nRester plus de 3 min"} rows={3} value={goalsText} onChange={(e) => setGoalsText(e.target.value)} />
+        {/* External wings (not on the app) */}
+        <div>
+          <p className="text-xs font-medium text-[var(--on-surface-variant)] mb-2">Wings externes (pas sur GameProgress)</p>
+          <div className="flex gap-2 mb-2">
+            <input
+              type="text"
+              value={newExternalWing}
+              onChange={(e) => setNewExternalWing(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addExternalWing(); } }}
+              placeholder="Nom ou pseudo..."
+              className="flex-1 px-3 py-2 rounded-xl bg-[var(--surface-high)] border border-[var(--border)] text-sm text-[var(--on-surface)] placeholder:text-[var(--input-placeholder)] focus:outline-none focus:border-[var(--primary)]/30 transition-colors"
+            />
+            <Button type="button" variant="secondary" size="sm" onClick={addExternalWing} disabled={!newExternalWing.trim()}>Ajouter</Button>
+          </div>
+          {externalWings.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {externalWings.map((name) => (
+                <span key={name} className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full bg-[var(--surface-high)] text-[var(--on-surface-variant)]">
+                  {name}
+                  <button type="button" onClick={() => removeExternalWing(name)} className="text-[var(--outline)] hover:text-[#fb7185] transition-colors">
+                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <TextArea label="Description et objectifs de session (un par ligne)" placeholder={"Faire 5 approches\nTester une approche directe\nRester plus de 3 min"} rows={3} value={goalsText} onChange={(e) => setGoalsText(e.target.value)} />
         <TextArea label="Notes" placeholder="Notes de session..." rows={3} value={notes} onChange={(e) => setNotes(e.target.value)} />
 
         {/* Public session toggle */}

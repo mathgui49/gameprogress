@@ -53,41 +53,41 @@ export function generateSeedMissions(): Mission[] {
 export function generateSeedJournal(): JournalEntry[] {
   const now = new Date();
   return [
-    { id: generateId(), date: new Date(now.getTime() - 24 * 3600000).toISOString(), content: "Bonne journée aujourd'hui. J'ai réussi à faire 3 approches dont une directe qui s'est super bien passée. Je sens que je progresse sur la confiance.", tag: "progress", visibility: "private", createdAt: new Date(now.getTime() - 24 * 3600000).toISOString() },
-    { id: generateId(), date: new Date(now.getTime() - 72 * 3600000).toISOString(), content: "Grosse peur avant de sortir aujourd'hui. J'ai quand même fait 2 approches. La première était maladroite mais la deuxième beaucoup mieux.", tag: "fear", visibility: "private", createdAt: new Date(now.getTime() - 72 * 3600000).toISOString() },
-    { id: generateId(), date: new Date(now.getTime() - 168 * 3600000).toISOString(), content: "Bilan de la semaine : 8 interactions, 3 closes. Je suis content de ma régularité. Il faut que je travaille sur la durée des conversations.", tag: "review", visibility: "private", createdAt: new Date(now.getTime() - 168 * 3600000).toISOString() },
+    { id: generateId(), date: new Date(now.getTime() - 24 * 3600000).toISOString(), content: "Bonne journée aujourd'hui. J'ai réussi à faire 3 approches dont une directe qui s'est super bien passée. Je sens que je progresse sur la confiance.", tag: "progress", visibility: "private", entryType: "entry", sessionId: null, attachments: [], createdAt: new Date(now.getTime() - 24 * 3600000).toISOString() },
+    { id: generateId(), date: new Date(now.getTime() - 72 * 3600000).toISOString(), content: "Grosse peur avant de sortir aujourd'hui. J'ai quand même fait 2 approches. La première était maladroite mais la deuxième beaucoup mieux.", tag: "fear", visibility: "private", entryType: "entry", sessionId: null, attachments: [], createdAt: new Date(now.getTime() - 72 * 3600000).toISOString() },
+    { id: generateId(), date: new Date(now.getTime() - 168 * 3600000).toISOString(), content: "Bilan de la semaine : 8 interactions, 3 closes. Je suis content de ma régularité. Il faut que je travaille sur la durée des conversations.", tag: "review", visibility: "private", entryType: "entry", sessionId: null, attachments: [], createdAt: new Date(now.getTime() - 168 * 3600000).toISOString() },
   ];
 }
 
 export function generateDefaultBadges(): Badge[] {
   return [
     // Interactions
-    { id: "b1", name: "Première interaction", description: "Crée ta première interaction", icon: "🎯", condition: "interactions >= 1", unlockedAt: null },
-    { id: "b2", name: "10 interactions", description: "Atteins 10 interactions", icon: "🔥", condition: "interactions >= 10", unlockedAt: null },
-    { id: "b7", name: "50 interactions", description: "Atteins 50 interactions", icon: "🏆", condition: "interactions >= 50", unlockedAt: null },
+    { id: "b1", name: "Première interaction", description: "A réalisé sa première interaction", icon: "target", condition: "interactions >= 1", unlockedAt: null },
+    { id: "b2", name: "10 interactions", description: "A atteint 10 interactions", icon: "flame", condition: "interactions >= 10", unlockedAt: null },
+    { id: "b7", name: "50 interactions", description: "A atteint 50 interactions", icon: "trophy", condition: "interactions >= 50", unlockedAt: null },
     // Closes
-    { id: "b3", name: "Premier close", description: "Obtiens ton premier close", icon: "✨", condition: "closes >= 1", unlockedAt: null },
-    { id: "b4", name: "5 closes", description: "Obtiens 5 closes", icon: "💎", condition: "closes >= 5", unlockedAt: null },
+    { id: "b3", name: "Premier close", description: "A obtenu son premier close", icon: "sparkle", condition: "closes >= 1", unlockedAt: null },
+    { id: "b4", name: "5 closes", description: "A obtenu 5 closes", icon: "gem", condition: "closes >= 5", unlockedAt: null },
     // Streak
-    { id: "b5", name: "7 jours actif", description: "Sois actif 7 jours d'affilée", icon: "⚡", condition: "streak >= 7", unlockedAt: null },
-    { id: "b6", name: "30 jours actif", description: "Sois actif 30 jours d'affilée", icon: "👑", condition: "streak >= 30", unlockedAt: null },
+    { id: "b5", name: "7 jours actif", description: "A été actif 7 jours consécutifs", icon: "bolt", condition: "streak >= 7", unlockedAt: null },
+    { id: "b6", name: "30 jours actif", description: "A été actif 30 jours consécutifs", icon: "crown", condition: "streak >= 30", unlockedAt: null },
     // Missions
-    { id: "b8", name: "Première mission", description: "Complète ta première mission", icon: "🎖️", condition: "missions >= 1", unlockedAt: null },
+    { id: "b8", name: "Première mission", description: "A complété sa première mission", icon: "medal", condition: "missions >= 1", unlockedAt: null },
     // Sessions
-    { id: "b9", name: "Première session", description: "Crée ta première session", icon: "📅", condition: "sessions >= 1", unlockedAt: null },
-    { id: "b10", name: "10 sessions", description: "Crée 10 sessions", icon: "📆", condition: "sessions >= 10", unlockedAt: null },
+    { id: "b9", name: "Première session", description: "A créé sa première session", icon: "calendar", condition: "sessions >= 1", unlockedAt: null },
+    { id: "b10", name: "10 sessions", description: "A créé 10 sessions", icon: "calendar-check", condition: "sessions >= 10", unlockedAt: null },
     // Journal
-    { id: "b11", name: "Première entrée", description: "Écris ta première entrée journal", icon: "📝", condition: "journal >= 1", unlockedAt: null },
-    { id: "b12", name: "Journal régulier", description: "Écris 20 entrées journal", icon: "📖", condition: "journal >= 20", unlockedAt: null },
+    { id: "b11", name: "Première entrée", description: "A écrit sa première entrée journal", icon: "pen", condition: "journal >= 1", unlockedAt: null },
+    { id: "b12", name: "Journal régulier", description: "A écrit 20 entrées journal", icon: "book", condition: "journal >= 20", unlockedAt: null },
     // Social
-    { id: "b13", name: "Premier wing", description: "Ajoute ton premier wing", icon: "🤝", condition: "wings >= 1", unlockedAt: null },
-    { id: "b14", name: "Équipe de wings", description: "Ajoute 5 wings", icon: "👥", condition: "wings >= 5", unlockedAt: null },
+    { id: "b13", name: "Premier wing", description: "A ajouté son premier wing", icon: "handshake", condition: "wings >= 1", unlockedAt: null },
+    { id: "b14", name: "Équipe de wings", description: "A ajouté 5 wings", icon: "users", condition: "wings >= 5", unlockedAt: null },
     // Contacts
-    { id: "b15", name: "Premier contact", description: "Ajoute ton premier contact", icon: "📱", condition: "contacts >= 1", unlockedAt: null },
-    { id: "b16", name: "Premier date", description: "Planifie ton premier rendez-vous", icon: "❤️", condition: "dates >= 1", unlockedAt: null },
+    { id: "b15", name: "Premier contact", description: "A ajouté son premier contact", icon: "phone", condition: "contacts >= 1", unlockedAt: null },
+    { id: "b16", name: "Premier date", description: "A planifié son premier rendez-vous", icon: "heart", condition: "dates >= 1", unlockedAt: null },
     // Level
-    { id: "b17", name: "Niveau 5", description: "Atteins le niveau 5", icon: "⭐", condition: "level >= 5", unlockedAt: null },
-    { id: "b18", name: "Niveau 10", description: "Atteins le niveau 10", icon: "🌟", condition: "level >= 10", unlockedAt: null },
+    { id: "b17", name: "Niveau 5", description: "A atteint le niveau 5", icon: "star", condition: "level >= 5", unlockedAt: null },
+    { id: "b18", name: "Niveau 10", description: "A atteint le niveau 10", icon: "star-fill", condition: "level >= 10", unlockedAt: null },
   ];
 }
 

@@ -23,6 +23,7 @@ export default function ContactsPage() {
   const [newName, setNewName] = useState("");
   const [newMethod, setNewMethod] = useState<ContactMethod>("instagram");
   const [newValue, setNewValue] = useState("");
+  const [newStatus, setNewStatus] = useState<ContactStatus>("new");
 
   if (!loaded) {
     return <div className="flex items-center justify-center h-screen"><div className="w-8 h-8 border-2 border-[var(--primary)]/30 border-t-[var(--primary)] rounded-full animate-spin" /></div>;
@@ -106,9 +107,10 @@ export default function ContactsPage() {
           <Input label="Prénom" placeholder="Prénom ou identifiant" value={newName} onChange={(e) => setNewName(e.target.value)} />
           <Select label="Type de contact" options={[{ value: "instagram", label: "Instagram" }, { value: "phone", label: "Téléphone" }, { value: "other", label: "Autre" }]} value={newMethod} onChange={(e) => setNewMethod(e.target.value as ContactMethod)} />
           <Input label="Valeur" placeholder={newMethod === "instagram" ? "@pseudo" : "06..."} value={newValue} onChange={(e) => setNewValue(e.target.value)} />
+          <Select label="Statut" options={PIPELINE_ORDER.filter((s) => s !== "archived").map((s) => ({ value: s, label: STATUS_LABELS[s] }))} value={newStatus} onChange={(e) => setNewStatus(e.target.value as ContactStatus)} />
           <Button disabled={!newName.trim()} onClick={() => {
-            add({ firstName: newName.trim(), sourceInteractionId: "", method: newMethod, methodValue: newValue, status: "new", tags: [], notes: "" });
-            setNewName(""); setNewValue(""); setShowNew(false);
+            add({ firstName: newName.trim(), sourceInteractionId: "", method: newMethod, methodValue: newValue, status: newStatus, tags: [], notes: "" });
+            setNewName(""); setNewValue(""); setNewStatus("new"); setShowNew(false);
           }}>Créer</Button>
         </div>
       </Modal>

@@ -194,12 +194,6 @@ export default function DashboardPage() {
               benchmarks={benchmarks}
               userCloseRate={closeRate}
               userAvgFeeling={parseFloat(avgFeeling as string) || 0}
-              userAvgConfidence={
-                (() => {
-                  const wc = interactions.filter((i) => (i.confidenceScore ?? 0) > 0);
-                  return wc.length > 0 ? wc.reduce((s, i) => s + (i.confidenceScore ?? 0), 0) / wc.length : 0;
-                })()
-              }
               userLevel={gam.level}
             />
           )}

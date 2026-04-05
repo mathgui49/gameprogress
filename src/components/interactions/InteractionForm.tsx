@@ -146,6 +146,30 @@ export function InteractionForm({ initial, defaultLocation, defaultSessionId, on
         <Select label="Duree" id="dur" options={durationOptions} value={duration} onChange={(e) => setDuration(e.target.value as DurationType)} />
       </div>
 
+      {/* Contact info (shown when close) */}
+      {result === "close" && (
+        <div className="p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/10 space-y-4">
+          <p className="text-xs font-semibold text-emerald-400 uppercase tracking-wider">Contact obtenu</p>
+          <div className="flex flex-wrap gap-2">
+            {contactMethodOptionsClose.map((o) => (
+              <button
+                key={o.value}
+                type="button"
+                onClick={() => setContactMethod(contactMethod === o.value as ContactMethod ? null : o.value as ContactMethod)}
+                className={`text-xs px-3 py-1.5 rounded-full transition-all ${
+                  contactMethod === o.value ? "bg-emerald-400/20 text-emerald-400" : "bg-[var(--surface-high)] text-[var(--on-surface-variant)] hover:bg-[var(--surface-bright)]"
+                }`}
+              >
+                {o.label}
+              </button>
+            ))}
+          </div>
+          {contactMethod && (
+            <Input label="Valeur" id="cv" placeholder={contactMethod === "instagram" ? "@pseudo" : contactMethod === "phone" ? "06..." : "Préciser"} value={contactValue} onChange={(e) => setContactValue(e.target.value)} />
+          )}
+        </div>
+      )}
+
       {/* Scores - interactive buttons */}
       <ScoreSlider label="Ressenti de l'interaction" value={feelingScore} onChange={setFeelingScore} color="text-[var(--primary)]" />
       <ScoreSlider label="Note sur la fille" value={womanScore} onChange={setWomanScore} color="text-[var(--secondary)]" />
@@ -179,30 +203,6 @@ export function InteractionForm({ initial, defaultLocation, defaultSessionId, on
           </div>
           {objection === "other" && (
             <Input placeholder="Préciser l'objection..." value={objectionCustom} onChange={(e) => setObjectionCustom(e.target.value)} className="mt-2" />
-          )}
-        </div>
-      )}
-
-      {/* Contact info (shown when close) */}
-      {result === "close" && (
-        <div className="p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/10 space-y-4">
-          <p className="text-xs font-semibold text-emerald-400 uppercase tracking-wider">Contact obtenu</p>
-          <div className="flex flex-wrap gap-2">
-            {contactMethodOptionsClose.map((o) => (
-              <button
-                key={o.value}
-                type="button"
-                onClick={() => setContactMethod(contactMethod === o.value as ContactMethod ? null : o.value as ContactMethod)}
-                className={`text-xs px-3 py-1.5 rounded-full transition-all ${
-                  contactMethod === o.value ? "bg-emerald-400/20 text-emerald-400" : "bg-[var(--surface-high)] text-[var(--on-surface-variant)] hover:bg-[var(--surface-bright)]"
-                }`}
-              >
-                {o.label}
-              </button>
-            ))}
-          </div>
-          {contactMethod && (
-            <Input label="Valeur" id="cv" placeholder={contactMethod === "instagram" ? "@pseudo" : contactMethod === "phone" ? "06..." : "Préciser"} value={contactValue} onChange={(e) => setContactValue(e.target.value)} />
           )}
         </div>
       )}
