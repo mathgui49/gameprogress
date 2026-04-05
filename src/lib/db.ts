@@ -10,7 +10,8 @@ function toCamel(str: string): string {
   return str.replace(/_([a-z])/g, (_, c) => c.toUpperCase());
 }
 
-export function toRow(obj: Record<string, unknown>): Record<string, unknown> {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function toRow(obj: any): Record<string, unknown> {
   const row: Record<string, unknown> = {};
   for (const [k, v] of Object.entries(obj)) row[toSnake(k)] = v;
   return row;

@@ -3,7 +3,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import type { WingRequest, PublicProfile, Session } from "@/types";
-import { fetchWingRequests, insertRow, updateWingRequestStatus, fetchProfilesByIds, fetchSessionsByUserId } from "@/lib/db";
+import { fetchWingRequests, updateWingRequestStatus, fetchProfilesByIds, fetchSessionsByUserId, toRow } from "@/lib/db";
+import { supabase } from "@/lib/supabase";
 import { generateId } from "@/lib/utils";
 
 export function useWingRequests() {
@@ -51,7 +52,8 @@ export function useWingRequests() {
         createdAt: new Date().toISOString(),
       };
       setSent((prev) => [request, ...prev]);
-      await insertRow("wing_requests", userId, request);
+      const row = toRow(request);
+      await supabase.from("wing_requests").insert(row);
     },
     [userId, sent, received]
   );
