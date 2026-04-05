@@ -16,6 +16,7 @@ import { Modal } from "@/components/ui/Modal";
 import { clearAllUserDataAction } from "@/actions/db";
 import { useTheme } from "@/hooks/useTheme";
 import { useSubscription } from "@/hooks/useSubscription";
+import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { Badge } from "@/components/ui/Badge";
 import { TutorialResetButton } from "@/components/layout/Tutorial";
 
@@ -34,6 +35,7 @@ export default function SettingsPage() {
   const [installPrompt, setInstallPrompt] = useState<Event | null>(null);
   const { theme, toggle: toggleTheme } = useTheme();
   const { subscription, isPremium, loaded: subLoaded, checkout, openPortal } = useSubscription();
+  const push = usePushNotifications();
   const [checkoutResult, setCheckoutResult] = useState<string | null>(null);
 
   useEffect(() => {
@@ -67,7 +69,7 @@ export default function SettingsPage() {
   return (
     <div className="px-4 py-6 lg:px-8 lg:py-8 max-w-2xl mx-auto animate-fade-in">
       <div className="mb-8">
-        <h1 className="text-2xl lg:text-3xl font-[family-name:var(--font-grotesk)] font-bold tracking-tight mb-1"><span className="bg-gradient-to-r from-[#6b6580] to-[#c084fc] bg-clip-text text-transparent">Paramètres</span></h1>
+        <h1 className="text-2xl lg:text-3xl font-[family-name:var(--font-grotesk)] font-bold tracking-tight mb-1"><span className="bg-gradient-to-r from-[#8a839e] to-[#c084fc] bg-clip-text text-transparent">Paramètres</span></h1>
         <p className="text-sm text-[var(--on-surface-variant)]">Configuration</p>
       </div>
 
@@ -175,6 +177,73 @@ export default function SettingsPage() {
             <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white transition-transform ${theme === "light" ? "translate-x-5" : ""}`} />
           </button>
         </div>
+      </Card>
+
+      {/* Notifications */}
+      <Card className="mb-4">
+        <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-[var(--on-surface)] mb-4">Notifications push</h2>
+        {!push.supported ? (
+          <p className="text-xs text-[var(--outline)]">Les notifications push ne sont pas supportées par ce navigateur.</p>
+        ) : (
+          <div className="space-y-4">
+            {/* Master toggle */}
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-[var(--on-surface-variant)]">Activer les notifications</p>
+                <p className="text-[10px] text-[var(--outline)]">Recois des rappels pour maintenir ta progression</p>
+              </div>
+              <button
+                onClick={() => push.subscribed ? push.unsubscribe() : push.subscribe()}
+                disabled={push.loading}
+                className={`relative w-11 h-6 rounded-full transition-colors ${push.subscribed ? "bg-[var(--primary)]" : "bg-[var(--outline-variant)]"} ${push.loading ? "opacity-50" : ""}`}
+              >
+                <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white transition-transform ${push.subscribed ? "translate-x-5" : ""}`} />
+              </button>
+            </div>
+
+            {/* Per-type toggles (only when subscribed) */}
+            {push.subscribed && (
+              <div className="space-y-3 pt-2 border-t border-[var(--border)]">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-[var(--on-surface-variant)]">Rappel de streak</p>
+                    <p className="text-[10px] text-[var(--outline)]">Rappel quotidien pour maintenir ta flamme</p>
+                  </div>
+                  <button
+                    onClick={() => push.updatePrefs({ notifyStreak: !push.prefs.notifyStreak })}
+                    className={`relative w-11 h-6 rounded-full transition-colors ${push.prefs.notifyStreak ? "bg-[var(--primary)]" : "bg-[var(--outline-variant)]"}`}
+                  >
+                    <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white transition-transform ${push.prefs.notifyStreak ? "translate-x-5" : ""}`} />
+                  </button>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-[var(--on-surface-variant)]">Missions</p>
+                    <p className="text-[10px] text-[var(--outline)]">Rappel quand tes missions arrivent a echeance</p>
+                  </div>
+                  <button
+                    onClick={() => push.updatePrefs({ notifyMissions: !push.prefs.notifyMissions })}
+                    className={`relative w-11 h-6 rounded-full transition-colors ${push.prefs.notifyMissions ? "bg-[var(--primary)]" : "bg-[var(--outline-variant)]"}`}
+                  >
+                    <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white transition-transform ${push.prefs.notifyMissions ? "translate-x-5" : ""}`} />
+                  </button>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-[var(--on-surface-variant)]">Recap hebdomadaire</p>
+                    <p className="text-[10px] text-[var(--outline)]">Resume de ta semaine chaque dimanche</p>
+                  </div>
+                  <button
+                    onClick={() => push.updatePrefs({ notifyWeekly: !push.prefs.notifyWeekly })}
+                    className={`relative w-11 h-6 rounded-full transition-colors ${push.prefs.notifyWeekly ? "bg-[var(--primary)]" : "bg-[var(--outline-variant)]"}`}
+                  >
+                    <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white transition-transform ${push.prefs.notifyWeekly ? "translate-x-5" : ""}`} />
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </Card>
 
       <Card className="mb-4">

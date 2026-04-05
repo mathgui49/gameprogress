@@ -628,3 +628,86 @@ export async function adminSetAnnouncement(message: string | null) {
     await supabase.from("admin_settings").upsert({ key: "announcement", value: safe });
   }
 }
+
+// ─── Push Subscriptions ──────────────────────────────────
+
+export interface PushSubscriptionRow {
+  id: string;
+  userId: string;
+  endpoint: string;
+  p256dh: string;
+  authKey: string;
+  notifyStreak: boolean;
+  notifyMissions: boolean;
+  notifyWeekly: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface NotifyPreferences {
+  notifyStreak: boolean;
+  notifyMissions: boolean;
+  notifyWeekly: boolean;
+}
+
+export async function upsertPushSubscription(
+  userId: string,
+  endpoint: string,
+  p256dh: string,
+  authKey: string,
+  prefs: NotifyPreferences,
+) {
+  const { error } = await supabase
+    .from("push_subscriptions")
+    .upsert(
+      {
+        user_id: userId,
+        endpoint,
+        p256dh,
+        auth_key: authKey,
+        notify_streak: prefs.notifyStreak,
+        notify_missions: prefs.notifyMissions,
+        notify_weekly: prefs.notifyWeekly,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "user_id,endpoint" },
+    );
+  if (error) console.error("upsertPushSubscription:", error);
+}
+
+export async function updatePushPreferences(userId: string, endpoint: string, prefs: NotifyPreferences) {
+  const { error } = await supabase
+    .from("push_subscriptions")
+    .update({
+      notify_streak: prefs.notifyStreak,
+      notify_missions: prefs.notifyMissions,
+      notify_weekly: prefs.notifyWeekly,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("user_id", userId)
+    .eq("endpoint", endpoint);
+  if (error) console.error("updatePushPreferences:", error);
+}
+
+export async function deletePushSubscription(userId: string, endpoint: string) {
+  await supabase.from("push_subscriptions").delete().eq("user_id", userId).eq("endpoint", endpoint);
+}
+
+export async function getPushSubscription(userId: string): Promise<PushSubscriptionRow | null> {
+  const { data } = await supabase
+    .from("push_subscriptions")
+    .select("*")
+    .eq("user_id", userId)
+    .limit(1)
+    .maybeSingle();
+  return data ? fromRow<PushSubscriptionRow>(data) : null;
+}
+
+/** Get all push subscriptions that have a specific notification type enabled */
+export async function getPushSubscriptionsByType(type: "notify_streak" | "notify_missions" | "notify_weekly"): Promise<PushSubscriptionRow[]> {
+  const { data } = await supabase
+    .from("push_subscriptions")
+    .select("*")
+    .eq(type, true);
+  return (data || []).map((r) => fromRow<PushSubscriptionRow>(r));
+}

@@ -48,12 +48,12 @@ export default function ContactsPage() {
       </div>
 
       {/* Kanban board — vertical on mobile, horizontal on desktop */}
-      <div className="flex flex-col lg:flex-row lg:gap-4 lg:overflow-x-auto lg:pb-4 lg:no-scrollbar gap-6">
+      <div className="flex flex-col lg:flex-row lg:gap-4 lg:overflow-x-auto lg:pb-4 lg:no-scrollbar gap-6" role="region" aria-label="Pipeline de contacts">
         {PIPELINE_ORDER.map((status) => {
           const items = contacts.filter((c) => c.status === status);
           if (items.length === 0) return null;
           return (
-            <div key={status} className="lg:min-w-[280px] lg:flex-shrink-0">
+            <div key={status} role="group" aria-label={STATUS_LABELS[status]} className="lg:min-w-[280px] lg:flex-shrink-0">
               {/* Column header */}
               <div className="flex items-center gap-2 mb-3 px-1">
                 <Badge className={STATUS_COLORS[status]}>{STATUS_LABELS[status]}</Badge>

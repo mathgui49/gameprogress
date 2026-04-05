@@ -106,7 +106,7 @@ const STEPS = [
 ];
 
 const RANKS = [
-  { name: "Débutant", color: "#6b6580" },
+  { name: "Débutant", color: "#8a839e" },
   { name: "Apprenti", color: "#67e8f9" },
   { name: "Intermédiaire", color: "#34d399" },
   { name: "Confirmé", color: "#818cf8" },
@@ -214,7 +214,7 @@ export default function LandingPage() {
                 { icon: "M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3", label: "PWA Mobile" },
                 { icon: "M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z", label: "100% gratuit" },
               ].map((t) => (
-                <div key={t.label} className="flex items-center gap-2 text-[#6b6580]">
+                <div key={t.label} className="flex items-center gap-2 text-[#8a839e]">
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d={t.icon} /></svg>
                   <span className="text-xs font-medium">{t.label}</span>
                 </div>
@@ -232,7 +232,7 @@ export default function LandingPage() {
                   <div className="w-3 h-3 rounded-full bg-[#fb7185]" />
                   <div className="w-3 h-3 rounded-full bg-[#f59e0b]" />
                   <div className="w-3 h-3 rounded-full bg-[#34d399]" />
-                  <span className="ml-3 text-[10px] text-[#6b6580]">gameprogress.app</span>
+                  <span className="ml-3 text-[10px] text-[#8a839e]">gameprogress.app</span>
                 </div>
                 <div className="grid grid-cols-4 gap-3 mb-4">
                   {[
@@ -242,9 +242,9 @@ export default function LandingPage() {
                     { label: "RESSENTI", value: "7.4", sub: "moyenne /10", color: "#f59e0b" },
                   ].map((s) => (
                     <div key={s.label} className="rounded-xl bg-[#1a1626] border border-[rgba(192,132,252,0.06)] p-3">
-                      <p className="text-[8px] uppercase tracking-wider text-[#6b6580] mb-2">{s.label}</p>
+                      <p className="text-[8px] uppercase tracking-wider text-[#8a839e] mb-2">{s.label}</p>
                       <p className="text-xl font-bold" style={{ color: s.color }}>{s.value}</p>
-                      <p className="text-[9px] text-[#6b6580] mt-0.5">{s.sub}</p>
+                      <p className="text-[9px] text-[#8a839e] mt-0.5">{s.sub}</p>
                     </div>
                   ))}
                 </div>
@@ -319,12 +319,14 @@ export default function LandingPage() {
           <Section delay={100}>
             {/* Tabs */}
             <div className="flex justify-center mb-10">
-              <div className="inline-flex gap-1 p-1 rounded-xl bg-[#14111c] border border-[rgba(192,132,252,0.06)]">
+              <div className="inline-flex gap-1 p-1 rounded-xl bg-[#14111c] border border-[rgba(192,132,252,0.06)]" role="tablist" aria-label="Aperçu des fonctionnalités">
                 {SHOWCASE_TABS.map((t) => (
                   <button
                     key={t.key}
+                    role="tab"
+                    aria-selected={activeTab === t.key}
                     onClick={() => setActiveTab(t.key)}
-                    className={`px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${activeTab === t.key ? "bg-[#c084fc]/15 text-[#c084fc]" : "text-[#6b6580] hover:text-[#a09bb2]"}`}
+                    className={`px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${activeTab === t.key ? "bg-[#c084fc]/15 text-[#c084fc]" : "text-[#8a839e] hover:text-[#a09bb2]"}`}
                   >
                     {t.label}
                   </button>
@@ -354,13 +356,13 @@ export default function LandingPage() {
                       <div className="grid grid-cols-2 gap-2">
                         {[{ l: "Interactions", v: "127", c: "#c084fc" }, { l: "Close rate", v: "34%", c: "#34d399" }].map((s) => (
                           <div key={s.l} className="rounded-lg bg-[#1a1626] p-3 border border-[rgba(192,132,252,0.06)]">
-                            <p className="text-[9px] uppercase text-[#6b6580]">{s.l}</p>
+                            <p className="text-[9px] uppercase text-[#8a839e]">{s.l}</p>
                             <p className="text-lg font-bold mt-1" style={{ color: s.c }}>{s.v}</p>
                           </div>
                         ))}
                       </div>
                       <div className="rounded-lg bg-[#1a1626] p-3 border border-[rgba(192,132,252,0.06)]">
-                        <p className="text-[9px] uppercase text-[#6b6580] mb-2">ACTIVITE RECENTE</p>
+                        <p className="text-[9px] uppercase text-[#8a839e] mb-2">ACTIVITE RECENTE</p>
                         {["Emma - Direct - Close", "Sarah - Indirect - Neutre", "Julie - Direct - Close"].map((a, i) => (
                           <div key={i} className="flex items-center gap-2 py-1.5 border-b border-[rgba(192,132,252,0.04)] last:border-0">
                             <div className="w-1.5 h-1.5 rounded-full bg-[#34d399]" />
@@ -464,7 +466,7 @@ export default function LandingPage() {
               {["Interagis", "Gagne de l'XP", "Monte de niveau", "Debloque des badges", "Complete des missions", "Grimpe au classement"].map((step, i) => (
                 <div key={step} className="flex items-center gap-3">
                   <span className="px-4 py-2 rounded-full bg-[#14111c] border border-[rgba(192,132,252,0.1)] text-sm text-[#f0eef5] font-medium">{step}</span>
-                  {i < 5 && <svg className="w-4 h-4 text-[#6b6580] hidden sm:block" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>}
+                  {i < 5 && <svg className="w-4 h-4 text-[#8a839e] hidden sm:block" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>}
                 </div>
               ))}
             </div>
@@ -487,7 +489,7 @@ export default function LandingPage() {
               </div>
               {/* Progress line */}
               <div className="mt-4 h-1 rounded-full bg-[#2a2438] mx-8 relative overflow-hidden">
-                <div className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-[#6b6580] via-[#c084fc] to-[#f59e0b]" style={{ width: "65%" }} />
+                <div className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-[#8a839e] via-[#c084fc] to-[#f59e0b]" style={{ width: "65%" }} />
               </div>
             </div>
           </Section>
@@ -529,7 +531,7 @@ export default function LandingPage() {
                   <p className="text-3xl sm:text-4xl font-[family-name:var(--font-grotesk)] font-bold text-[#c084fc]">
                     <Counter end={s.value} suffix={s.suffix} />
                   </p>
-                  <p className="text-xs text-[#6b6580] mt-2">{s.label}</p>
+                  <p className="text-xs text-[#8a839e] mt-2">{s.label}</p>
                 </div>
               ))}
             </div>
@@ -588,7 +590,7 @@ export default function LandingPage() {
                   <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#c084fc]/20 to-[#818cf8]/20 flex items-center justify-center text-sm font-bold text-[#c084fc]">A</div>
                   <div>
                     <p className="text-sm font-semibold text-[#f0eef5]">Alex M.</p>
-                    <p className="text-xs text-[#6b6580]">Utilisateur depuis 3 mois</p>
+                    <p className="text-xs text-[#8a839e]">Utilisateur depuis 3 mois</p>
                   </div>
                 </div>
               </div>
@@ -613,7 +615,7 @@ export default function LandingPage() {
               S&apos;inscrire maintenant
               <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
             </Link>
-            <p className="text-sm text-[#6b6580] mt-4">C&apos;est gratuit, pour toujours.</p>
+            <p className="text-sm text-[#8a839e] mt-4">C&apos;est gratuit, pour toujours.</p>
           </Section>
         </div>
       </section>
@@ -627,10 +629,10 @@ export default function LandingPage() {
               <span className="font-[family-name:var(--font-grotesk)] font-bold">GameProgress</span>
             </div>
             <div className="flex items-center gap-8">
-              <a href="#features" className="text-xs text-[#6b6580] hover:text-[#a09bb2] transition-colors">Fonctionnalités</a>
-              <a href="#showcase" className="text-xs text-[#6b6580] hover:text-[#a09bb2] transition-colors">Aperçu</a>
-              <a href="#gamification" className="text-xs text-[#6b6580] hover:text-[#a09bb2] transition-colors">Gamification</a>
-              <a href="#how" className="text-xs text-[#6b6580] hover:text-[#a09bb2] transition-colors">Comment ça marche</a>
+              <a href="#features" className="text-xs text-[#8a839e] hover:text-[#a09bb2] transition-colors">Fonctionnalités</a>
+              <a href="#showcase" className="text-xs text-[#8a839e] hover:text-[#a09bb2] transition-colors">Aperçu</a>
+              <a href="#gamification" className="text-xs text-[#8a839e] hover:text-[#a09bb2] transition-colors">Gamification</a>
+              <a href="#how" className="text-xs text-[#8a839e] hover:text-[#a09bb2] transition-colors">Comment ça marche</a>
             </div>
             <div className="text-center">
               <p className="text-xs text-[#3d3650]">&copy; 2025 GameProgress</p>

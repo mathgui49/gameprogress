@@ -267,3 +267,30 @@ export async function fetchCommunityBenchmarksAction() {
   await getAuthUserId(); // Must be authenticated
   return db.fetchCommunityBenchmarks();
 }
+
+// ─── Push Subscriptions ───────────────────────────────
+
+export async function upsertPushSubscriptionAction(
+  endpoint: string,
+  p256dh: string,
+  authKey: string,
+  prefs: db.NotifyPreferences,
+) {
+  const userId = await getAuthUserId();
+  await db.upsertPushSubscription(userId, endpoint, p256dh, authKey, prefs);
+}
+
+export async function updatePushPreferencesAction(endpoint: string, prefs: db.NotifyPreferences) {
+  const userId = await getAuthUserId();
+  await db.updatePushPreferences(userId, endpoint, prefs);
+}
+
+export async function deletePushSubscriptionAction(endpoint: string) {
+  const userId = await getAuthUserId();
+  await db.deletePushSubscription(userId, endpoint);
+}
+
+export async function getPushSubscriptionAction() {
+  const userId = await getAuthUserId();
+  return db.getPushSubscription(userId);
+}

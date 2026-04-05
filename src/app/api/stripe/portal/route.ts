@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { getStripe } from "@/lib/stripe";
 import { fetchSubscription } from "@/lib/db";
+import { rateLimit } from "@/lib/rateLimit";
 
 const ALLOWED_ORIGINS = [
   "https://gameprogress.app",
@@ -9,6 +10,9 @@ const ALLOWED_ORIGINS = [
 ];
 
 export async function POST(req: NextRequest) {
+  const rl = rateLimit(req, 5, 60);
+  if (rl) return rl;
+
   // Verify the caller is authenticated
   const session = await auth();
   if (!session?.user?.email) {

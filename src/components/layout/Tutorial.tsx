@@ -173,6 +173,7 @@ export function Tutorial() {
               <button
                 key={i}
                 onClick={() => setStep(i)}
+                aria-label={`Étape ${i + 1}`}
                 className={`w-1.5 h-1.5 rounded-full transition-all ${
                   i === step ? "w-4 bg-[var(--primary)]" : i < step ? "bg-[var(--primary)]/40" : "bg-[var(--outline-variant)]"
                 }`}

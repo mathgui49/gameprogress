@@ -173,3 +173,23 @@ create table subscriptions (
 alter table subscriptions enable row level security;
 create policy "Users manage own subscription" on subscriptions for all
   using (user_id = auth.jwt() ->> 'email') with check (user_id = auth.jwt() ->> 'email');
+
+-- 17. Push Subscriptions (Web Push)
+create table push_subscriptions (
+  id uuid default gen_random_uuid() primary key,
+  user_id text not null,
+  endpoint text not null,
+  p256dh text not null,
+  auth_key text not null,
+  notify_streak boolean not null default true,
+  notify_missions boolean not null default true,
+  notify_weekly boolean not null default true,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now(),
+  unique(user_id, endpoint)
+);
+
+create index idx_push_subs_user on push_subscriptions (user_id);
+alter table push_subscriptions enable row level security;
+create policy "Users manage own push subs" on push_subscriptions for all
+  using (user_id = auth.jwt() ->> 'email') with check (user_id = auth.jwt() ->> 'email');

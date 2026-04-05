@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import {
   getSyncQueue,
   removeSyncEntry,
+  clearSyncQueue,
   type SyncEntry,
 } from "@/lib/offlineDb";
 import {
@@ -37,18 +38,28 @@ export function useOfflineSync(userId: string) {
   const online = useOnlineStatus();
   const [pendingCount, setPendingCount] = useState(0);
   const [syncing, setSyncing] = useState(false);
+  const [initialized, setInitialized] = useState(false);
   const syncingRef = useRef(false);
 
-  // On mount: clear stale queue entries if online (they were from failed attempts)
+  // On mount: clear stale/orphaned queue entries then try to sync
   useEffect(() => {
     const init = async () => {
       const queue = await getSyncQueue();
       if (navigator.onLine && queue.length > 0) {
-        // Try to sync, but if entries fail (already synced via SWR), clear them
-        await processQueue();
+        // Drop entries older than 5 minutes (orphaned from previous sessions)
+        const FIVE_MIN = 5 * 60 * 1000;
+        const staleIds = queue.filter((e) => Date.now() - e.createdAt > FIVE_MIN);
+        for (const entry of staleIds) {
+          await removeSyncEntry(entry.id);
+        }
+        const fresh = await getSyncQueue();
+        if (fresh.length > 0) {
+          await processQueue();
+        }
       }
       const remaining = await getSyncQueue();
       setPendingCount(remaining.length);
+      setInitialized(true);
     };
     init();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -106,7 +117,7 @@ export function useOfflineSync(userId: string) {
     }
   }, [online, pendingCount, processQueue]);
 
-  return { online, pendingCount, syncing, processQueue };
+  return { online, pendingCount, syncing, initialized, processQueue };
 }
 
 async function executeSyncEntry(entry: SyncEntry) {

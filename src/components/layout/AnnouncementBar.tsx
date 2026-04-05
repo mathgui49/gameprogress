@@ -19,7 +19,7 @@ export function AnnouncementBar() {
     <div className="flex items-center gap-3 px-4 py-2 bg-amber-400/10 border-b border-amber-400/20">
       <span className="text-amber-400 text-sm">📢</span>
       <p className="flex-1 text-xs text-amber-400 font-medium">{announcement}</p>
-      <button onClick={() => setDismissed(true)} className="text-amber-400/60 hover:text-amber-400 transition-colors">
+      <button onClick={() => setDismissed(true)} aria-label="Fermer l'annonce" className="text-amber-400/60 hover:text-amber-400 transition-colors">
         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
       </button>
     </div>

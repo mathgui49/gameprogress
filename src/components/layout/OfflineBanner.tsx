@@ -6,9 +6,11 @@ import { useOfflineSync } from "@/hooks/useOffline";
 export function OfflineBanner() {
   const { data: session } = useSession();
   const userId = session?.user?.email ?? "";
-  const { online, pendingCount, syncing } = useOfflineSync(userId);
+  const { online, pendingCount, syncing, initialized } = useOfflineSync(userId);
 
-  // Only show when truly offline or actively syncing
+  // Don't show until we've checked and cleaned the sync queue
+  if (!initialized) return null;
+  // Only show when truly offline or actively syncing with pending items
   if (online && !syncing) return null;
   if (online && pendingCount === 0) return null;
 

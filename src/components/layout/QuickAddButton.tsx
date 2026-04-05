@@ -106,7 +106,7 @@ export function QuickAddButton() {
               Interaction rapide
             </p>
             <Tooltip text="Fermer" position="left">
-              <button onClick={() => { setShowQuick(false); resetQuick(); }} className="text-[var(--outline)] hover:text-[var(--on-surface)] transition-colors">
+              <button onClick={() => { setShowQuick(false); resetQuick(); }} aria-label="Fermer" className="text-[var(--outline)] hover:text-[var(--on-surface)] transition-colors">
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
               </button>
             </Tooltip>
