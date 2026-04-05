@@ -518,13 +518,6 @@ export default function InteractionsPage() {
         </div>
       )}
 
-      {/* FAB */}
-      <Link href="/interactions/new" className="fixed bottom-20 right-4 lg:bottom-8 lg:right-8 z-30">
-        <button className="w-14 h-14 rounded-2xl bg-[var(--primary)] text-white shadow-lg shadow-[var(--primary)]/25 flex items-center justify-center hover:scale-105 active:scale-95 transition-transform">
-          <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
-        </button>
-      </Link>
-
       {/* Bulk delete modal */}
       <Modal open={showBulkDelete} onClose={() => setShowBulkDelete(false)} title="Supprimer les interactions">
         <p className="text-sm text-[var(--on-surface-variant)] mb-6">Supprimer {selected.size} interaction{selected.size > 1 ? "s" : ""} ? Cette action est irreversible.</p>
