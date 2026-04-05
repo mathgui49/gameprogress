@@ -3,7 +3,7 @@
 import { auth } from "@/lib/auth";
 import * as db from "@/lib/db";
 
-const ADMIN_EMAIL = "mathieu.guicheteau7@gmail.com";
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? "";
 
 // ─── Sanitization ─────────────────────────────────────
 /** Strip HTML/script tags from all string values in an object (deep) */

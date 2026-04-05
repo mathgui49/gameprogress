@@ -12,7 +12,7 @@ import { adminGetStatsAction, adminGetAllProfilesAction, adminGetAllSessionsActi
 import { formatDate, formatRelative } from "@/lib/utils";
 import type { PublicProfile, Session } from "@/types";
 
-const ADMIN_EMAIL = "mathieu.guicheteau7@gmail.com";
+const ADMIN_EMAIL = process.env.NEXT_PUBLIC_ADMIN_EMAIL ?? "";
 
 type AdminTab = "stats" | "users" | "sessions" | "announce";
 

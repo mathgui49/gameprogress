@@ -1,7 +1,7 @@
 import { auth } from "@/lib/auth";
 import { NextResponse } from "next/server";
 
-const ADMIN_EMAIL = "mathieu.guicheteau7@gmail.com";
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? "";
 
 export default auth((req) => {
   const { nextUrl, auth: session } = req;

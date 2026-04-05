@@ -367,7 +367,7 @@ export function TopBar() {
             </div>
 
             {/* Admin */}
-            {userId === "mathieu.guicheteau7@gmail.com" && (
+            {userId === process.env.NEXT_PUBLIC_ADMIN_EMAIL && (
               <div className="mb-3 pb-3 border-b border-[var(--glass-border)]">
                 <Link
                   href="/admin"
