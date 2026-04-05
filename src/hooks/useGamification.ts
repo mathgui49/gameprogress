@@ -1,25 +1,34 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useSession } from "next-auth/react";
 import type { GamificationState, XPEvent } from "@/types";
 import { xpForLevel } from "@/types";
-import { getItem, setItem, STORAGE_KEYS } from "@/lib/storage";
+import { fetchOne, upsertRow } from "@/lib/db";
 import { generateDefaultGamification } from "@/lib/seed";
 import { generateId } from "@/lib/utils";
 
 export function useGamification() {
+  const { data: authSession } = useSession();
+  const userId = authSession?.user?.email ?? "";
   const [state, setState] = useState<GamificationState>(generateDefaultGamification());
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    setState(getItem<GamificationState>(STORAGE_KEYS.GAMIFICATION, generateDefaultGamification()));
-    setLoaded(true);
-  }, []);
+    if (!userId) return;
+    fetchOne<GamificationState>("gamification", userId).then((data) => {
+      if (data) setState(data);
+      setLoaded(true);
+    });
+  }, [userId]);
 
-  const save = useCallback((updated: GamificationState) => {
-    setState(updated);
-    setItem(STORAGE_KEYS.GAMIFICATION, updated);
-  }, []);
+  const save = useCallback(
+    (updated: GamificationState) => {
+      setState(updated);
+      upsertRow("gamification", userId, updated);
+    },
+    [userId]
+  );
 
   const addXP = useCallback(
     (amount: number, reason: string) => {

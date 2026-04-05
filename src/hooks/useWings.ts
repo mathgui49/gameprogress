@@ -1,50 +1,63 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useSession } from "next-auth/react";
 import type { Wing } from "@/types";
-import { getItem, setItem, STORAGE_KEYS } from "@/lib/storage";
+import { fetchAll, insertRow, updateRow, deleteRow } from "@/lib/db";
 import { generateId } from "@/lib/utils";
 
 export function useWings() {
+  const { data: session } = useSession();
+  const userId = session?.user?.email ?? "";
   const [wings, setWings] = useState<Wing[]>([]);
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    setWings(getItem<Wing[]>(STORAGE_KEYS.WINGS, []));
-    setLoaded(true);
-  }, []);
-
-  const save = useCallback((updated: Wing[]) => {
-    setWings(updated);
-    setItem(STORAGE_KEYS.WINGS, updated);
-  }, []);
+    if (!userId) return;
+    fetchAll<Wing>("wings", userId).then((data) => {
+      setWings(data);
+      setLoaded(true);
+    });
+  }, [userId]);
 
   const add = useCallback(
     (name: string, notes = "") => {
       const item: Wing = { id: generateId(), name: name.trim(), notes, sessionCount: 0, createdAt: new Date().toISOString() };
-      save([item, ...wings]);
+      setWings((prev) => [item, ...prev]);
+      insertRow("wings", userId, item);
       return item;
     },
-    [wings, save]
+    [userId]
   );
 
   const update = useCallback(
     (id: string, updates: Partial<Pick<Wing, "name" | "notes">>) => {
-      save(wings.map((w) => (w.id === id ? { ...w, ...updates } : w)));
+      setWings((prev) => prev.map((w) => (w.id === id ? { ...w, ...updates } : w)));
+      updateRow("wings", id, updates);
     },
-    [wings, save]
+    []
   );
 
   const incrementSessionCount = useCallback(
     (id: string) => {
-      save(wings.map((w) => (w.id === id ? { ...w, sessionCount: w.sessionCount + 1 } : w)));
+      setWings((prev) =>
+        prev.map((w) => {
+          if (w.id !== id) return w;
+          const sessionCount = w.sessionCount + 1;
+          updateRow("wings", id, { sessionCount });
+          return { ...w, sessionCount };
+        })
+      );
     },
-    [wings, save]
+    []
   );
 
   const remove = useCallback(
-    (id: string) => { save(wings.filter((w) => w.id !== id)); },
-    [wings, save]
+    (id: string) => {
+      setWings((prev) => prev.filter((w) => w.id !== id));
+      deleteRow("wings", id);
+    },
+    []
   );
 
   const getById = useCallback(

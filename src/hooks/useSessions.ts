@@ -1,65 +1,77 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useSession } from "next-auth/react";
 import type { Session } from "@/types";
-import { getItem, setItem, STORAGE_KEYS } from "@/lib/storage";
+import { fetchAll, insertRow, updateRow, deleteRow } from "@/lib/db";
 import { generateId } from "@/lib/utils";
 
 export function useSessions() {
+  const { data: authSession } = useSession();
+  const userId = authSession?.user?.email ?? "";
   const [sessions, setSessions] = useState<Session[]>([]);
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    setSessions(getItem<Session[]>(STORAGE_KEYS.SESSIONS, []));
-    setLoaded(true);
-  }, []);
-
-  const save = useCallback((updated: Session[]) => {
-    setSessions(updated);
-    setItem(STORAGE_KEYS.SESSIONS, updated);
-  }, []);
+    if (!userId) return;
+    fetchAll<Session>("sessions", userId).then((data) => {
+      setSessions(data);
+      setLoaded(true);
+    });
+  }, [userId]);
 
   const add = useCallback(
     (input: Omit<Session, "id" | "createdAt">) => {
       const item: Session = { ...input, id: generateId(), createdAt: new Date().toISOString() };
-      save([item, ...sessions]);
+      setSessions((prev) => [item, ...prev]);
+      insertRow("sessions", userId, item);
       return item;
     },
-    [sessions, save]
+    [userId]
   );
 
   const update = useCallback(
     (id: string, input: Partial<Omit<Session, "id" | "createdAt">>) => {
-      save(sessions.map((s) => (s.id === id ? { ...s, ...input } : s)));
+      setSessions((prev) => prev.map((s) => (s.id === id ? { ...s, ...input } : s)));
+      updateRow("sessions", id, input);
     },
-    [sessions, save]
+    []
   );
 
   const addInteraction = useCallback(
     (sessionId: string, interactionId: string) => {
-      save(sessions.map((s) =>
-        s.id === sessionId && !s.interactionIds.includes(interactionId)
-          ? { ...s, interactionIds: [...s.interactionIds, interactionId] }
-          : s
-      ));
+      setSessions((prev) =>
+        prev.map((s) => {
+          if (s.id !== sessionId || s.interactionIds.includes(interactionId)) return s;
+          const interactionIds = [...s.interactionIds, interactionId];
+          updateRow("sessions", sessionId, { interactionIds });
+          return { ...s, interactionIds };
+        })
+      );
     },
-    [sessions, save]
+    []
   );
 
   const toggleGoal = useCallback(
     (sessionId: string, goalIndex: number) => {
-      save(sessions.map((s) => {
-        if (s.id !== sessionId) return s;
-        const goals = s.goals.map((g, i) => i === goalIndex ? { ...g, done: !g.done } : g);
-        return { ...s, goals };
-      }));
+      setSessions((prev) =>
+        prev.map((s) => {
+          if (s.id !== sessionId) return s;
+          const goals = s.goals.map((g, i) => (i === goalIndex ? { ...g, done: !g.done } : g));
+          updateRow("sessions", sessionId, { goals });
+          return { ...s, goals };
+        })
+      );
     },
-    [sessions, save]
+    []
   );
 
   const remove = useCallback(
-    (id: string) => { save(sessions.filter((s) => s.id !== id)); },
-    [sessions, save]
+    (id: string) => {
+      setSessions((prev) => prev.filter((s) => s.id !== id));
+      deleteRow("sessions", id);
+    },
+    []
   );
 
   const getById = useCallback(
