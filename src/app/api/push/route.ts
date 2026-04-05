@@ -3,13 +3,17 @@ import webPush from "web-push";
 import { getPushSubscriptionsByType } from "@/lib/db";
 import { rateLimit } from "@/lib/rateLimit";
 
-const VAPID_PUBLIC_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ?? "";
-const VAPID_PRIVATE_KEY = process.env.VAPID_PRIVATE_KEY ?? "";
-const VAPID_EMAIL = process.env.VAPID_EMAIL ?? "mailto:contact@gameprogress.app";
-const PUSH_SECRET = process.env.PUSH_CRON_SECRET ?? "";
+let vapidConfigured = false;
 
-if (VAPID_PUBLIC_KEY && VAPID_PRIVATE_KEY) {
-  webPush.setVapidDetails(VAPID_EMAIL, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
+function ensureVapid() {
+  if (vapidConfigured) return;
+  const pub = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ?? "";
+  const priv = process.env.VAPID_PRIVATE_KEY ?? "";
+  const email = process.env.VAPID_EMAIL ?? "mailto:contact@gameprogress.app";
+  if (pub && priv) {
+    webPush.setVapidDetails(email, pub, priv);
+    vapidConfigured = true;
+  }
 }
 
 type NotificationType = "streak" | "missions" | "weekly";
@@ -39,13 +43,16 @@ export async function POST(req: NextRequest) {
   const rl = rateLimit(req, 5, 60);
   if (rl) return rl;
 
+  const PUSH_SECRET = process.env.PUSH_CRON_SECRET ?? "";
+
   // Verify the request comes from our cron job
   const authHeader = req.headers.get("authorization");
   if (!PUSH_SECRET || authHeader !== `Bearer ${PUSH_SECRET}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  if (!VAPID_PUBLIC_KEY || !VAPID_PRIVATE_KEY) {
+  ensureVapid();
+  if (!vapidConfigured) {
     return NextResponse.json({ error: "VAPID keys not configured" }, { status: 500 });
   }
 
