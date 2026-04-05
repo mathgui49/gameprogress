@@ -7,13 +7,13 @@ import { DEFAULT_PRIVACY } from "@/types";
 import { Card } from "@/components/ui/Card";
 import { Input, TextArea } from "@/components/ui/Input";
 
-const PRIVACY_TOGGLES: { key: keyof PrivacySettings; label: string; hint: string }[] = [
-  { key: "showInWingList", label: "Visible dans la liste Wings", hint: "Les utilisateurs peuvent te trouver dans Decouvrir" },
-  { key: "showInLeaderboardPublic", label: "Classement public", hint: "Apparaitre dans le classement visible par tous" },
-  { key: "showInLeaderboardWings", label: "Classement wings", hint: "Apparaitre dans le classement visible par tes wings" },
-  { key: "shareStatsPublic", label: "Stats publiques", hint: "Tes statistiques sont visibles par tous" },
-  { key: "shareStatsWings", label: "Stats wings", hint: "Tes statistiques sont visibles par tes wings" },
-  { key: "shareReportsWithWings", label: "Rapports wings", hint: "Partager tes rapports avec tes wings" },
+type PrivacyOption = "off" | "wings" | "public";
+
+const PRIVACY_GROUPS: { label: string; hint: string; publicKey: keyof PrivacySettings; wingsKey?: keyof PrivacySettings }[] = [
+  { label: "Classement", hint: "Apparaitre dans le classement", publicKey: "showInLeaderboardPublic", wingsKey: "showInLeaderboardWings" },
+  { label: "Statistiques", hint: "Partager tes stats", publicKey: "shareStatsPublic", wingsKey: "shareStatsWings" },
+  { label: "Rapports", hint: "Partager tes rapports", publicKey: "shareReportsWithWings" },
+  { label: "Liste Wings", hint: "Visible dans Decouvrir", publicKey: "showInWingList" },
 ];
 
 export default function ProfilPage() {
@@ -24,8 +24,16 @@ export default function ProfilPage() {
 
   const privacy = profile?.privacy ?? DEFAULT_PRIVACY;
 
-  const togglePrivacy = (key: keyof PrivacySettings) => {
-    save({ privacy: { ...privacy, [key]: !privacy[key] } });
+  const getGroupValue = (g: typeof PRIVACY_GROUPS[number]): PrivacyOption => {
+    if (privacy[g.publicKey]) return "public";
+    if (g.wingsKey && privacy[g.wingsKey]) return "wings";
+    return "off";
+  };
+
+  const setGroupValue = (g: typeof PRIVACY_GROUPS[number], v: PrivacyOption) => {
+    const updates: Partial<PrivacySettings> = { [g.publicKey]: v === "public" };
+    if (g.wingsKey) updates[g.wingsKey] = v === "wings" || v === "public";
+    save({ privacy: { ...privacy, ...updates } });
     flash();
   };
 
@@ -64,22 +72,35 @@ export default function ProfilPage() {
 
       <Card>
         <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-white mb-4">Confidentialite</h2>
-        <p className="text-xs text-[#a09bb2] mb-4">Choisis ce que tu partages et avec qui.</p>
-        <div className="space-y-4">
-          {PRIVACY_TOGGLES.map((t) => (
-            <div key={t.key} className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-[#a09bb2]">{t.label}</p>
-                <p className="text-[10px] text-[#6b6580]">{t.hint}</p>
+        <p className="text-xs text-[#a09bb2] mb-5">Choisis ce que tu partages et avec qui.</p>
+        <div className="space-y-5">
+          {PRIVACY_GROUPS.map((g) => {
+            const current = getGroupValue(g);
+            const options: { value: PrivacyOption; label: string; activeClass: string }[] = [
+              { value: "off", label: "Prive", activeClass: "bg-[#a09bb2]/20 text-[#a09bb2]" },
+              ...(g.wingsKey ? [{ value: "wings" as PrivacyOption, label: "Wings", activeClass: "bg-[#818cf8]/20 text-[#818cf8]" }] : []),
+              { value: "public", label: "Public", activeClass: "bg-emerald-400/20 text-emerald-400" },
+            ];
+            return (
+              <div key={g.publicKey}>
+                <p className="text-sm text-[#a09bb2] mb-1">{g.label}</p>
+                <p className="text-[10px] text-[#6b6580] mb-2">{g.hint}</p>
+                <div className="flex gap-2">
+                  {options.map((o) => (
+                    <button
+                      key={o.value}
+                      onClick={() => setGroupValue(g, o.value)}
+                      className={`text-xs px-3 py-1.5 rounded-full transition-all ${
+                        current === o.value ? o.activeClass : "bg-[#1a1626] text-[#a09bb2] hover:bg-[#231e30]"
+                      }`}
+                    >
+                      {o.label}
+                    </button>
+                  ))}
+                </div>
               </div>
-              <button
-                onClick={() => togglePrivacy(t.key)}
-                className={`relative w-11 h-6 rounded-full transition-colors ${privacy[t.key] ? "bg-[#c084fc]" : "bg-[#3d3650]"}`}
-              >
-                <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white transition-transform ${privacy[t.key] ? "translate-x-5" : ""}`} />
-              </button>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </Card>
     </div>
