@@ -187,6 +187,9 @@ export interface JournalEntry {
   entryType: JournalEntryType;
   sessionId: string | null;
   attachments: JournalAttachment[];
+  linkedInteractionIds: string[];
+  collectionId: string | null;
+  isCollaborative: boolean;
   createdAt: string;
 }
 
@@ -498,6 +501,138 @@ export function getSkillRank(score: number): SkillRank {
     if (score >= t.minScore) return t.rank;
   }
   return "debutant";
+}
+
+// ─── Messages / Chat ────────────────────────────────────
+export interface Message {
+  id: string;
+  fromUserId: string;
+  toUserId: string;
+  groupId: string | null;
+  content: string;
+  createdAt: string;
+  readAt: string | null;
+}
+
+export interface MessageGroup {
+  id: string;
+  name: string;
+  createdBy: string;
+  memberIds: string[];
+  createdAt: string;
+}
+
+// ─── Wing Status ────────────────────────────────────────
+export type WingStatus = "available" | "in_session" | "busy" | "offline";
+
+export const WING_STATUS_LABELS: Record<WingStatus, string> = {
+  available: "Disponible",
+  in_session: "En session",
+  busy: "Occupé",
+  offline: "Hors ligne",
+};
+
+export const WING_STATUS_COLORS: Record<WingStatus, string> = {
+  available: "bg-emerald-400",
+  in_session: "bg-[var(--primary)]",
+  busy: "bg-amber-400",
+  offline: "bg-[var(--outline-variant)]",
+};
+
+// ─── Wing Notes & Categories ────────────────────────────
+export type WingCategory = "favorite" | "regular" | "occasional";
+
+export const WING_CATEGORY_LABELS: Record<WingCategory, string> = {
+  favorite: "Favori",
+  regular: "Régulier",
+  occasional: "Occasionnel",
+};
+
+export const WING_CATEGORY_COLORS: Record<WingCategory, string> = {
+  favorite: "bg-amber-400/15 text-amber-400",
+  regular: "bg-[var(--primary)]/15 text-[var(--primary)]",
+  occasional: "bg-[var(--outline-variant)]/15 text-[var(--on-surface-variant)]",
+};
+
+export interface WingNote {
+  id: string;
+  wingUserId: string;
+  content: string;
+  createdAt: string;
+}
+
+export interface WingMeta {
+  wingUserId: string;
+  category: WingCategory | null;
+  notes: WingNote[];
+  sharedSessionStreak: number;
+  bestSharedStreak: number;
+  lastSharedSessionDate: string | null;
+}
+
+// ─── Wing Challenges ────────────────────────────────────
+export type ChallengeStatus = "active" | "completed" | "expired";
+
+export interface WingChallenge {
+  id: string;
+  createdBy: string;
+  targetUserId: string;
+  title: string;
+  description: string;
+  target: number;
+  currentCreator: number;
+  currentTarget: number;
+  metric: "approaches" | "closes" | "sessions" | "custom";
+  deadline: string;
+  status: ChallengeStatus;
+  winnerId: string | null;
+  createdAt: string;
+}
+
+// ─── Wing Ping ──────────────────────────────────────────
+export interface WingPing {
+  id: string;
+  fromUserId: string;
+  message: string;
+  location: string;
+  date: string;
+  createdAt: string;
+  respondedIds: string[];
+}
+
+// ─── Journal Extensions ─────────────────────────────────
+export interface JournalCollection {
+  id: string;
+  name: string;
+  description: string;
+  entryIds: string[];
+  createdAt: string;
+}
+
+export interface JournalDraft {
+  id: string;
+  content: string;
+  tag: JournalTag | null;
+  visibility: Visibility;
+  linkedInteractionIds: string[];
+  collectionId: string | null;
+  lastSavedAt: string;
+}
+
+export interface JournalShareLink {
+  id: string;
+  entryId: string;
+  token: string;
+  expiresAt: string | null;
+  createdAt: string;
+}
+
+export interface CollaborativeEntry {
+  id: string;
+  journalEntryId: string;
+  authorId: string;
+  content: string;
+  createdAt: string;
 }
 
 // ─── XP config ────────────────────────────────────────────

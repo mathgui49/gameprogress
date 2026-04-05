@@ -940,3 +940,367 @@ export async function getPushSubscriptionsByType(type: "notify_streak" | "notify
     .eq(type, true);
   return (data || []).map((r) => fromRow<PushSubscriptionRow>(r));
 }
+
+// ─── Messages / Chat ───────────────────────────────────
+
+export async function fetchMessages(userId: string, otherUserId: string, limit = 50) {
+  const { data, error } = await supabase
+    .from("messages")
+    .select("*")
+    .or(`and(from_user_id.eq.${userId},to_user_id.eq.${otherUserId}),and(from_user_id.eq.${otherUserId},to_user_id.eq.${userId})`)
+    .is("group_id", null)
+    .order("created_at", { ascending: false })
+    .limit(limit);
+  if (error) { console.error("fetch messages:", error); return []; }
+  return (data || []).map((r) => fromRow<any>(r));
+}
+
+export async function fetchGroupMessages(groupId: string, limit = 50) {
+  const { data, error } = await supabase
+    .from("messages")
+    .select("*")
+    .eq("group_id", groupId)
+    .order("created_at", { ascending: false })
+    .limit(limit);
+  if (error) { console.error("fetch group messages:", error); return []; }
+  return (data || []).map((r) => fromRow<any>(r));
+}
+
+export async function sendMessage(fromUserId: string, toUserId: string | null, groupId: string | null, content: string) {
+  const safeContent = sanitize(content, 2000);
+  if (!safeContent) return null;
+  const id = crypto.randomUUID();
+  const { error } = await supabase.from("messages").insert({
+    id,
+    from_user_id: fromUserId,
+    to_user_id: toUserId,
+    group_id: groupId,
+    content: safeContent,
+    created_at: new Date().toISOString(),
+  });
+  if (error) { console.error("send message:", error); return null; }
+  return id;
+}
+
+export async function markMessagesRead(userId: string, fromUserId: string) {
+  await supabase
+    .from("messages")
+    .update({ read_at: new Date().toISOString() })
+    .eq("to_user_id", userId)
+    .eq("from_user_id", fromUserId)
+    .is("read_at", null);
+}
+
+export async function fetchUnreadCounts(userId: string) {
+  const { data } = await supabase
+    .from("messages")
+    .select("from_user_id")
+    .eq("to_user_id", userId)
+    .is("read_at", null);
+  const counts: Record<string, number> = {};
+  (data || []).forEach((r: any) => { counts[r.from_user_id] = (counts[r.from_user_id] || 0) + 1; });
+  return counts;
+}
+
+export async function fetchConversationList(userId: string) {
+  // Get last message per conversation partner
+  const { data: sent } = await supabase.from("messages").select("*").eq("from_user_id", userId).is("group_id", null).order("created_at", { ascending: false });
+  const { data: received } = await supabase.from("messages").select("*").eq("to_user_id", userId).is("group_id", null).order("created_at", { ascending: false });
+  const all = [...(sent || []), ...(received || [])];
+  const map: Record<string, any> = {};
+  all.forEach((m: any) => {
+    const other = m.from_user_id === userId ? m.to_user_id : m.from_user_id;
+    if (!map[other] || new Date(m.created_at) > new Date(map[other].created_at)) {
+      map[other] = m;
+    }
+  });
+  return Object.entries(map).map(([partnerId, msg]) => ({
+    partnerId,
+    lastMessage: fromRow<any>(msg),
+  })).sort((a, b) => new Date(b.lastMessage.createdAt).getTime() - new Date(a.lastMessage.createdAt).getTime());
+}
+
+// ─── Message Groups ────────────────────────────────────
+
+export async function createMessageGroup(userId: string, name: string, memberIds: string[]) {
+  const id = crypto.randomUUID();
+  const allMembers = [...new Set([userId, ...memberIds])];
+  const { error } = await supabase.from("message_groups").insert({
+    id,
+    name: sanitize(name, 100),
+    created_by: userId,
+    member_ids: allMembers,
+    created_at: new Date().toISOString(),
+  });
+  if (error) { console.error("create group:", error); return null; }
+  return id;
+}
+
+export async function fetchUserGroups(userId: string) {
+  const { data } = await supabase.from("message_groups").select("*").contains("member_ids", [userId]);
+  return (data || []).map((r) => fromRow<any>(r));
+}
+
+export async function renameMessageGroup(userId: string, groupId: string, newName: string) {
+  const { data: group } = await supabase.from("message_groups").select("member_ids").eq("id", groupId).single();
+  if (!group || !(group.member_ids as string[]).includes(userId)) return false;
+  const { error } = await supabase.from("message_groups").update({ name: sanitize(newName, 100) }).eq("id", groupId);
+  if (error) { console.error("rename group:", error); return false; }
+  return true;
+}
+
+// ─── Wing Status ───────────────────────────────────────
+
+export async function upsertWingStatus(userId: string, status: string) {
+  await supabase.from("wing_status").upsert({
+    user_id: userId,
+    status,
+    updated_at: new Date().toISOString(),
+  });
+}
+
+export async function fetchWingStatuses(userIds: string[]) {
+  if (userIds.length === 0) return {};
+  const { data } = await supabase.from("wing_status").select("*").in("user_id", userIds);
+  const map: Record<string, string> = {};
+  (data || []).forEach((r: any) => { map[r.user_id] = r.status; });
+  return map;
+}
+
+// ─── Wing Meta (Notes, Categories, Streaks) ────────────
+
+export async function fetchWingMeta(userId: string) {
+  const { data } = await supabase.from("wing_meta").select("*").eq("user_id", userId);
+  return (data || []).map((r) => fromRow<any>(r));
+}
+
+export async function upsertWingMeta(userId: string, wingUserId: string, updates: Record<string, unknown>) {
+  const existing = await supabase.from("wing_meta").select("id").eq("user_id", userId).eq("wing_user_id", wingUserId).single();
+  if (existing.data) {
+    await supabase.from("wing_meta").update(toRow(updates)).eq("id", existing.data.id);
+  } else {
+    await supabase.from("wing_meta").insert({
+      id: crypto.randomUUID(),
+      user_id: userId,
+      wing_user_id: wingUserId,
+      ...toRow(updates),
+      created_at: new Date().toISOString(),
+    });
+  }
+}
+
+// ─── Wing Challenges ───────────────────────────────────
+
+export async function fetchWingChallenges(userId: string) {
+  const { data, error } = await supabase
+    .from("wing_challenges")
+    .select("*")
+    .or(`created_by.eq.${userId},target_user_id.eq.${userId}`)
+    .order("created_at", { ascending: false });
+  if (error) { console.error("fetch challenges:", error); return []; }
+  return (data || []).map((r) => fromRow<any>(r));
+}
+
+export async function createWingChallenge(userId: string, challenge: Record<string, unknown>) {
+  const id = crypto.randomUUID();
+  const row = toRow(challenge);
+  row.id = id;
+  row.created_by = userId;
+  row.created_at = new Date().toISOString();
+  const { error } = await supabase.from("wing_challenges").insert(row);
+  if (error) { console.error("create challenge:", error); return null; }
+  return id;
+}
+
+export async function updateWingChallenge(challengeId: string, userId: string, updates: Record<string, unknown>) {
+  const row = toRow(updates);
+  delete row.id;
+  await supabase.from("wing_challenges").update(row).eq("id", challengeId)
+    .or(`created_by.eq.${userId},target_user_id.eq.${userId}`);
+}
+
+// ─── Wing Pings ────────────────────────────────────────
+
+export async function createWingPing(userId: string, message: string, location: string, date: string) {
+  const id = crypto.randomUUID();
+  await supabase.from("wing_pings").insert({
+    id,
+    from_user_id: userId,
+    message: sanitize(message, 200),
+    location: sanitize(location, 100),
+    date,
+    created_at: new Date().toISOString(),
+    responded_ids: [],
+  });
+  return id;
+}
+
+export async function fetchRecentPings(wingUserIds: string[]) {
+  if (wingUserIds.length === 0) return [];
+  const oneDayAgo = new Date(Date.now() - 86400000).toISOString();
+  const { data } = await supabase.from("wing_pings").select("*")
+    .in("from_user_id", wingUserIds)
+    .gte("date", oneDayAgo)
+    .order("created_at", { ascending: false });
+  return (data || []).map((r) => fromRow<any>(r));
+}
+
+export async function respondToPing(pingId: string, userId: string) {
+  const { data } = await supabase.from("wing_pings").select("responded_ids").eq("id", pingId).single();
+  if (!data) return;
+  const ids = Array.isArray(data.responded_ids) ? data.responded_ids : [];
+  if (!ids.includes(userId)) {
+    await supabase.from("wing_pings").update({ responded_ids: [...ids, userId] }).eq("id", pingId);
+  }
+}
+
+// ─── Journal Collections ───────────────────────────────
+
+export async function fetchJournalCollections(userId: string) {
+  const { data } = await supabase.from("journal_collections").select("*").eq("user_id", userId).order("created_at", { ascending: false });
+  return (data || []).map((r) => fromRow<any>(r));
+}
+
+export async function upsertJournalCollection(userId: string, collection: Record<string, unknown>) {
+  const row = toRow(collection);
+  row.user_id = userId;
+  await supabase.from("journal_collections").upsert(row);
+}
+
+export async function deleteJournalCollection(id: string, userId: string) {
+  await supabase.from("journal_collections").delete().eq("id", id).eq("user_id", userId);
+}
+
+// ─── Journal Drafts ────────────────────────────────────
+
+export async function fetchJournalDrafts(userId: string) {
+  const { data } = await supabase.from("journal_drafts").select("*").eq("user_id", userId).order("last_saved_at", { ascending: false });
+  return (data || []).map((r) => fromRow<any>(r));
+}
+
+export async function upsertJournalDraft(userId: string, draft: Record<string, unknown>) {
+  const row = toRow(draft);
+  row.user_id = userId;
+  row.last_saved_at = new Date().toISOString();
+  await supabase.from("journal_drafts").upsert(row);
+}
+
+export async function deleteJournalDraft(id: string, userId: string) {
+  await supabase.from("journal_drafts").delete().eq("id", id).eq("user_id", userId);
+}
+
+// ─── Journal Share Links ───────────────────────────────
+
+export async function createJournalShareLink(userId: string, entryId: string, expiresAt: string | null) {
+  const id = crypto.randomUUID();
+  const token = crypto.randomUUID().replace(/-/g, "");
+  await supabase.from("journal_share_links").insert({
+    id,
+    user_id: userId,
+    entry_id: entryId,
+    token,
+    expires_at: expiresAt,
+    created_at: new Date().toISOString(),
+  });
+  return { id, token };
+}
+
+export async function fetchJournalByShareToken(token: string) {
+  const { data: link } = await supabase.from("journal_share_links").select("*").eq("token", token).single();
+  if (!link) return null;
+  if (link.expires_at && new Date(link.expires_at) < new Date()) return null;
+  const { data: entry } = await supabase.from("journal_entries").select("*").eq("id", link.entry_id).single();
+  if (!entry) return null;
+  return fromRow<any>(entry);
+}
+
+export async function deleteJournalShareLink(id: string, userId: string) {
+  await supabase.from("journal_share_links").delete().eq("id", id).eq("user_id", userId);
+}
+
+// ─── Collaborative Entries ─────────────────────────────
+
+export async function fetchCollaborativeContributions(journalEntryId: string) {
+  const { data } = await supabase.from("collaborative_entries").select("*").eq("journal_entry_id", journalEntryId).order("created_at", { ascending: true });
+  return (data || []).map((r) => fromRow<any>(r));
+}
+
+export async function addCollaborativeContribution(journalEntryId: string, authorId: string, content: string) {
+  const safeContent = sanitize(content, 5000);
+  if (!safeContent) return null;
+  const id = crypto.randomUUID();
+  await supabase.from("collaborative_entries").insert({
+    id,
+    journal_entry_id: journalEntryId,
+    author_id: authorId,
+    content: safeContent,
+    created_at: new Date().toISOString(),
+  });
+  return id;
+}
+
+// ─── Leaderboard Extended ──────────────────────────────
+
+export async function fetchLeaderboardWithXpDetails(location?: string) {
+  let query = supabase.from("public_profiles").select("*").eq("is_public", true);
+  if (location) query = query.ilike("location", `%${location}%`);
+  const { data: profiles } = await query;
+  if (!profiles || profiles.length === 0) return [];
+
+  const userIds = profiles.map((p: any) => p.user_id);
+  const { data: gamData } = await supabase.from("gamification").select("*").in("user_id", userIds);
+
+  return profiles.map((p: any) => {
+    const gam = (gamData || []).find((g: any) => g.user_id === p.user_id);
+    const xpEvents = gam?.xp_events || [];
+    const now = new Date();
+    const weekAgo = new Date(now.getTime() - 7 * 86400000);
+    const weekXp = Array.isArray(xpEvents)
+      ? xpEvents.filter((e: any) => new Date(e.date) >= weekAgo).reduce((s: number, e: any) => s + (e.amount || 0), 0)
+      : 0;
+
+    // XP breakdown by category
+    const breakdown: Record<string, number> = {};
+    if (Array.isArray(xpEvents)) {
+      xpEvents.forEach((e: any) => {
+        const cat = e.reason || "other";
+        breakdown[cat] = (breakdown[cat] || 0) + (e.amount || 0);
+      });
+    }
+
+    return {
+      ...fromRow<any>(p),
+      xp: gam?.xp ?? 0,
+      level: gam?.level ?? 1,
+      streak: gam?.streak ?? 0,
+      lastWeekXp: gam?.xp !== undefined ? (gam.xp - weekXp) : undefined,
+      weeklyXp: weekXp,
+      xpBreakdown: breakdown,
+    };
+  }).sort((a: any, b: any) => (b.level * 10000 + b.xp) - (a.level * 10000 + a.xp));
+}
+
+// ─── Shared Sessions Between Wings ─────────────────────
+
+export async function fetchSharedSessions(userId: string, wingUserId: string) {
+  // Sessions where both users participated
+  const { data: mySessions } = await supabase.from("sessions").select("*").eq("user_id", userId);
+  const { data: theirSessions } = await supabase.from("sessions").select("*").eq("user_id", wingUserId);
+  const { data: myParticipations } = await supabase.from("session_participants").select("session_id").eq("user_id", userId).eq("status", "accepted");
+  const { data: theirParticipations } = await supabase.from("session_participants").select("session_id").eq("user_id", wingUserId).eq("status", "accepted");
+
+  const mySessionIds = new Set([
+    ...(mySessions || []).map((s: any) => s.id),
+    ...(myParticipations || []).map((p: any) => p.session_id),
+  ]);
+  const theirSessionIds = new Set([
+    ...(theirSessions || []).map((s: any) => s.id),
+    ...(theirParticipations || []).map((p: any) => p.session_id),
+  ]);
+
+  const sharedIds = [...mySessionIds].filter((id) => theirSessionIds.has(id));
+  if (sharedIds.length === 0) return [];
+
+  const { data } = await supabase.from("sessions").select("*").in("id", sharedIds).order("date", { ascending: false });
+  return (data || []).map((r) => fromRow<any>(r));
+}

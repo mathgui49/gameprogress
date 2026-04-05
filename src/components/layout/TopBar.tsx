@@ -8,6 +8,7 @@ import { useSession, signOut } from "next-auth/react";
 import { useGamification } from "@/hooks/useGamification";
 import { useWingRequests } from "@/hooks/useWingRequests";
 import { usePublicProfile } from "@/hooks/usePublicProfile";
+import { useMessages } from "@/hooks/useMessages";
 import { fetchSessionInvitesForUserAction, updateSessionInviteStatusAction, fetchProfilesByIdsAction } from "@/actions/db";
 import { Modal } from "@/components/ui/Modal";
 import { Card } from "@/components/ui/Card";
@@ -54,7 +55,7 @@ const NOTIF_ICONS: Record<string, string> = {
 // Section title mapping for mobile header (shows group name, not page name)
 const SECTION_TITLES: { paths: string[]; title: string }[] = [
   { paths: ["/interactions", "/sessions", "/contacts"], title: "Game" },
-  { paths: ["/wings", "/feed", "/leaderboard"], title: "Social" },
+  { paths: ["/wings", "/feed", "/leaderboard", "/messages"], title: "Social" },
   { paths: ["/missions", "/progression", "/journal"], title: "Moi" },
 ];
 
@@ -93,6 +94,7 @@ export function TopBar() {
   const gam = useGamification();
   const { pendingReceived } = useWingRequests();
   const { profile: publicProfile } = usePublicProfile();
+  const { totalUnread: msgUnread } = useMessages();
 
   // Use profile photo from public profile, fall back to Google auth image
   const avatarUrl = publicProfile?.profilePhoto || authSession?.user?.image || null;
@@ -195,11 +197,13 @@ export function TopBar() {
     <>
       {/* ═══ Mobile Header: logo | title | icons ═══ */}
       <div className="lg:hidden flex items-center justify-between px-4 pt-4 pb-2">
-        {/* Left: Logo */}
+        {/* Left: Logo — links to landing page */}
         <div className="flex items-center gap-2 min-w-[40px]">
-          <div className="w-8 h-8 rounded-[10px] border border-[var(--primary)]/30 flex items-center justify-center animate-logo-pulse">
-            <Image src="/logo.webp" alt="GameProgress" width={20} height={20} className="rounded-[5px]" priority />
-          </div>
+          <Link href="/landing">
+            <div className="w-8 h-8 rounded-[10px] border border-[var(--primary)]/30 flex items-center justify-center animate-logo-pulse">
+              <Image src="/logo.webp" alt="GameProgress" width={20} height={20} className="rounded-[5px]" priority />
+            </div>
+          </Link>
         </div>
 
         {/* Center: Page title */}
@@ -209,6 +213,20 @@ export function TopBar() {
 
         {/* Right: Icons */}
         <div className="flex items-center gap-0.5 min-w-[40px] justify-end">
+          <Link
+            href="/messages"
+            aria-label="Messages"
+            className="relative p-2 rounded-[12px] text-[var(--outline)] hover:text-[var(--on-surface-variant)] hover:bg-[var(--border)] transition-colors"
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z" />
+            </svg>
+            {msgUnread > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-[var(--primary)] text-[8px] font-bold text-white flex items-center justify-center">
+                {msgUnread > 9 ? "9+" : msgUnread}
+              </span>
+            )}
+          </Link>
           <button
             onClick={() => { setShowNotifs(true); markAllRead(); }}
             aria-label="Notifications"
@@ -244,6 +262,23 @@ export function TopBar() {
 
       {/* ═══ Desktop TopBar: right-aligned icons ═══ */}
       <div className="hidden lg:flex items-center justify-end gap-1 px-8 pt-6">
+        <Tooltip text="Messages" position="bottom">
+          <Link
+            href="/messages"
+            aria-label="Messages"
+            className={`relative p-2 rounded-[12px] transition-colors ${pathname === "/messages" ? "bg-[var(--primary)]/15 text-[var(--primary)]" : "text-[var(--outline)] hover:text-[var(--on-surface-variant)] hover:bg-[var(--border)]"}`}
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z" />
+            </svg>
+            {msgUnread > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-[var(--primary)] text-[8px] font-bold text-white flex items-center justify-center">
+                {msgUnread > 9 ? "9+" : msgUnread}
+              </span>
+            )}
+          </Link>
+        </Tooltip>
+
         <Tooltip text="Calendrier" position="bottom">
           <Link
             href="/calendrier"

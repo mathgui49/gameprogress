@@ -367,3 +367,187 @@ export async function getPushSubscriptionAction() {
   const userId = await getAuthUserId();
   return db.getPushSubscription(userId);
 }
+
+// ─── Messages / Chat ──────────────────────────────────
+
+export async function fetchMessagesAction(otherUserId: string) {
+  const userId = await getAuthUserId();
+  return db.fetchMessages(userId, otherUserId);
+}
+
+export async function fetchGroupMessagesAction(groupId: string) {
+  await getAuthUserId();
+  return db.fetchGroupMessages(groupId);
+}
+
+export async function sendMessageAction(toUserId: string | null, groupId: string | null, content: string) {
+  const userId = await getAuthUserId();
+  return db.sendMessage(userId, toUserId, groupId, content);
+}
+
+export async function markMessagesReadAction(fromUserId: string) {
+  const userId = await getAuthUserId();
+  await db.markMessagesRead(userId, fromUserId);
+}
+
+export async function fetchUnreadCountsAction() {
+  const userId = await getAuthUserId();
+  return db.fetchUnreadCounts(userId);
+}
+
+export async function fetchConversationListAction() {
+  const userId = await getAuthUserId();
+  return db.fetchConversationList(userId);
+}
+
+// ─── Message Groups ───────────────────────────────────
+
+export async function createMessageGroupAction(name: string, memberIds: string[]) {
+  const userId = await getAuthUserId();
+  return db.createMessageGroup(userId, name, memberIds);
+}
+
+export async function fetchUserGroupsAction() {
+  const userId = await getAuthUserId();
+  return db.fetchUserGroups(userId);
+}
+
+export async function renameMessageGroupAction(groupId: string, newName: string) {
+  const userId = await getAuthUserId();
+  return db.renameMessageGroup(userId, groupId, newName);
+}
+
+// ─── Wing Status ──────────────────────────────────────
+
+export async function upsertWingStatusAction(status: string) {
+  const userId = await getAuthUserId();
+  await db.upsertWingStatus(userId, status);
+}
+
+export async function fetchWingStatusesAction(userIds: string[]) {
+  await getAuthUserId();
+  return db.fetchWingStatuses(userIds);
+}
+
+// ─── Wing Meta ────────────────────────────────────────
+
+export async function fetchWingMetaAction() {
+  const userId = await getAuthUserId();
+  return db.fetchWingMeta(userId);
+}
+
+export async function upsertWingMetaAction(wingUserId: string, updates: Record<string, unknown>) {
+  const userId = await getAuthUserId();
+  await db.upsertWingMeta(userId, wingUserId, sanitizeObj(updates));
+}
+
+// ─── Wing Challenges ──────────────────────────────────
+
+export async function fetchWingChallengesAction() {
+  const userId = await getAuthUserId();
+  return db.fetchWingChallenges(userId);
+}
+
+export async function createWingChallengeAction(challenge: Record<string, unknown>) {
+  const userId = await getAuthUserId();
+  return db.createWingChallenge(userId, sanitizeObj(challenge));
+}
+
+export async function updateWingChallengeAction(challengeId: string, updates: Record<string, unknown>) {
+  const userId = await getAuthUserId();
+  await db.updateWingChallenge(challengeId, userId, sanitizeObj(updates));
+}
+
+// ─── Wing Pings ───────────────────────────────────────
+
+export async function createWingPingAction(message: string, location: string, date: string) {
+  const userId = await getAuthUserId();
+  return db.createWingPing(userId, message, location, date);
+}
+
+export async function fetchRecentPingsAction(wingUserIds: string[]) {
+  await getAuthUserId();
+  return db.fetchRecentPings(wingUserIds);
+}
+
+export async function respondToPingAction(pingId: string) {
+  const userId = await getAuthUserId();
+  await db.respondToPing(pingId, userId);
+}
+
+// ─── Journal Collections ──────────────────────────────
+
+export async function fetchJournalCollectionsAction() {
+  const userId = await getAuthUserId();
+  return db.fetchJournalCollections(userId);
+}
+
+export async function upsertJournalCollectionAction(collection: Record<string, unknown>) {
+  const userId = await getAuthUserId();
+  await db.upsertJournalCollection(userId, sanitizeObj(collection));
+}
+
+export async function deleteJournalCollectionAction(id: string) {
+  const userId = await getAuthUserId();
+  await db.deleteJournalCollection(id, userId);
+}
+
+// ─── Journal Drafts ───────────────────────────────────
+
+export async function fetchJournalDraftsAction() {
+  const userId = await getAuthUserId();
+  return db.fetchJournalDrafts(userId);
+}
+
+export async function upsertJournalDraftAction(draft: Record<string, unknown>) {
+  const userId = await getAuthUserId();
+  await db.upsertJournalDraft(userId, sanitizeObj(draft));
+}
+
+export async function deleteJournalDraftAction(id: string) {
+  const userId = await getAuthUserId();
+  await db.deleteJournalDraft(id, userId);
+}
+
+// ─── Journal Share Links ──────────────────────────────
+
+export async function createJournalShareLinkAction(entryId: string, expiresAt: string | null) {
+  const userId = await getAuthUserId();
+  return db.createJournalShareLink(userId, entryId, expiresAt);
+}
+
+export async function fetchJournalByShareTokenAction(token: string) {
+  // No auth required — public access via token
+  return db.fetchJournalByShareToken(token);
+}
+
+export async function deleteJournalShareLinkAction(id: string) {
+  const userId = await getAuthUserId();
+  await db.deleteJournalShareLink(id, userId);
+}
+
+// ─── Collaborative Entries ────────────────────────────
+
+export async function fetchCollaborativeContributionsAction(journalEntryId: string) {
+  await getAuthUserId();
+  return db.fetchCollaborativeContributions(journalEntryId);
+}
+
+export async function addCollaborativeContributionAction(journalEntryId: string, content: string) {
+  const userId = await getAuthUserId();
+  return db.addCollaborativeContribution(journalEntryId, userId, content);
+}
+
+// ─── Leaderboard Extended ─────────────────────────────
+
+export async function fetchLeaderboardWithXpDetailsAction(location?: string) {
+  await getAuthUserId();
+  return db.fetchLeaderboardWithXpDetails(location);
+}
+
+// ─── Shared Sessions ──────────────────────────────────
+
+export async function fetchSharedSessionsAction(wingUserId: string) {
+  const userId = await getAuthUserId();
+  return db.fetchSharedSessions(userId, wingUserId);
+}
