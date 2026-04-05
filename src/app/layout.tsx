@@ -11,6 +11,7 @@ import { AnnouncementBar } from "@/components/layout/AnnouncementBar";
 import { AuthProvider } from "@/components/layout/AuthProvider";
 import { ToastProvider } from "@/components/ui/Toast";
 import { OfflineBanner } from "@/components/layout/OfflineBanner";
+import { PageTabs } from "@/components/layout/PageTabs";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 const grotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-grotesk", display: "swap" });
@@ -52,6 +53,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <Sidebar />
               <main id="main-content" className="flex-1 min-w-0 pb-20 lg:pb-0">
                 <TopBar />
+                <PageTabs />
                 {children}
               </main>
             </div>
