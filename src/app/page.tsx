@@ -37,7 +37,7 @@ export default function DashboardPage() {
     <div className="px-4 py-6 lg:px-8 lg:py-8 max-w-6xl mx-auto animate-fade-in">
       <div className="mb-8">
         <h1 className="text-2xl lg:text-3xl font-[family-name:var(--font-grotesk)] font-bold text-[var(--on-surface)] tracking-tight mb-1">Dashboard</h1>
-        <p className="text-sm text-[var(--on-surface-variant)]">Vue d&apos;ensemble de ta progression</p>
+        <p className="text-sm text-[var(--on-surface-variant)]">Vue d&apos;ensemble de ta <span className="bg-gradient-to-r from-[#c084fc] to-[#f472b6] bg-clip-text text-transparent font-medium">progression</span></p>
       </div>
 
       {/* XP hero with Frosted ring */}
@@ -133,7 +133,7 @@ export default function DashboardPage() {
                         <span className="text-[10px] text-[var(--outline)]">{m.current}/{m.target}</span>
                       </div>
                       <div className="w-full h-1.5 rounded-full bg-[var(--surface-highest)]">
-                        <div className="h-full rounded-full bg-[var(--primary)] transition-all duration-500" style={{ width: `${pct}%` }} />
+                        <div className="h-full rounded-full bg-gradient-to-r from-[#c084fc] to-[#f472b6] transition-all duration-500" style={{ width: `${pct}%` }} />
                       </div>
                     </div>
                   );
@@ -153,7 +153,7 @@ export default function DashboardPage() {
                 const count = interactions.filter((i) => i.type === t).length;
                 const pct = interactions.length > 0 ? Math.round((count / interactions.length) * 100) : 0;
                 const labels = { direct: "Direct", indirect: "Indirect", situational: "Situationnel" };
-                const colors = { direct: "#c084fc", indirect: "#818cf8", situational: "#67e8f9" };
+                const gradients = { direct: "from-[#c084fc] to-[#f472b6]", indirect: "from-[#818cf8] to-[#67e8f9]", situational: "from-[#67e8f9] to-[#34d399]" };
                 return (
                   <div key={t}>
                     <div className="flex items-center justify-between mb-1">
@@ -161,7 +161,7 @@ export default function DashboardPage() {
                       <span className="text-[10px] text-[var(--outline)]">{count} ({pct}%)</span>
                     </div>
                     <div className="w-full h-1.5 rounded-full bg-[var(--surface-highest)]">
-                      <div className="h-full rounded-full transition-all duration-500" style={{ width: `${pct}%`, backgroundColor: colors[t] }} />
+                      <div className={`h-full rounded-full bg-gradient-to-r ${gradients[t]} transition-all duration-500`} style={{ width: `${pct}%` }} />
                     </div>
                   </div>
                 );

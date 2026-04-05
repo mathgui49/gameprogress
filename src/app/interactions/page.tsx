@@ -18,7 +18,7 @@ export default function InteractionsPage() {
     <div className="px-4 py-6 lg:px-8 lg:py-8 max-w-4xl mx-auto animate-fade-in">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl lg:text-3xl font-[family-name:var(--font-grotesk)] font-bold text-[var(--on-surface)] tracking-tight mb-1">Interactions</h1>
+          <h1 className="text-2xl lg:text-3xl font-[family-name:var(--font-grotesk)] font-bold tracking-tight mb-1"><span className="bg-gradient-to-r from-[#c084fc] to-[#818cf8] bg-clip-text text-transparent">Interactions</span></h1>
           <p className="text-sm text-[var(--on-surface-variant)]">{interactions.length} interaction{interactions.length !== 1 ? "s" : ""}</p>
         </div>
         <Link href="/interactions/new"><Button>+ Ajouter</Button></Link>

@@ -51,7 +51,7 @@ export default function LeaderboardPage() {
   return (
     <div className="px-4 py-6 lg:px-8 lg:py-8 max-w-2xl mx-auto animate-fade-in">
       <div className="mb-6">
-        <h1 className="text-2xl font-[family-name:var(--font-grotesk)] font-bold text-[var(--on-surface)] tracking-tight mb-1">Leaderboard</h1>
+        <h1 className="text-2xl font-[family-name:var(--font-grotesk)] font-bold tracking-tight mb-1"><span className="bg-gradient-to-r from-[#f59e0b] via-[#f472b6] to-[#c084fc] bg-clip-text text-transparent">Leaderboard</span></h1>
         <p className="text-sm text-[var(--on-surface-variant)]">Classement par niveau et XP</p>
       </div>
 

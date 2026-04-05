@@ -52,7 +52,7 @@ export default function SessionsPage() {
     <div className="px-4 py-6 lg:px-8 lg:py-8 max-w-4xl mx-auto animate-fade-in">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-[family-name:var(--font-grotesk)] font-bold text-[var(--on-surface)] tracking-tight mb-1">Sessions</h1>
+          <h1 className="text-2xl font-[family-name:var(--font-grotesk)] font-bold tracking-tight mb-1"><span className="bg-gradient-to-r from-[#818cf8] to-[#c084fc] bg-clip-text text-transparent">Sessions</span></h1>
           <p className="text-sm text-[var(--on-surface-variant)]">{sessions.length} session{sessions.length !== 1 ? "s" : ""}</p>
         </div>
         <div className="flex items-center gap-2">
