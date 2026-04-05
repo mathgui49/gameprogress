@@ -43,11 +43,10 @@ export function generateSeedContacts(interactions: Interaction[]): Contact[] {
 
 export function generateSeedMissions(): Mission[] {
   return [
-    { id: generateId(), title: "3 interactions aujourd'hui", description: "Fais 3 interactions dans la journee", type: "daily", target: 3, current: 1, xpReward: 30, completed: false, createdAt: new Date().toISOString(), completedAt: null },
-    { id: generateId(), title: "1 approche directe", description: "Fais au moins une approche directe", type: "daily", target: 1, current: 0, xpReward: 20, completed: false, createdAt: new Date().toISOString(), completedAt: null },
-    { id: generateId(), title: "Relancer 2 contacts", description: "Envoie un message a 2 contacts", type: "weekly", target: 2, current: 1, xpReward: 25, completed: false, createdAt: new Date().toISOString(), completedAt: null },
-    { id: generateId(), title: "Ecrire dans le journal", description: "Fais une entree dans ton journal", type: "daily", target: 1, current: 0, xpReward: 15, completed: false, createdAt: new Date().toISOString(), completedAt: null },
-    { id: generateId(), title: "10 interactions cette semaine", description: "Objectif hebdomadaire", type: "weekly", target: 10, current: 7, xpReward: 50, completed: false, createdAt: new Date().toISOString(), completedAt: null },
+    { id: generateId(), title: "3 interactions aujourd'hui", description: "Fais 3 interactions dans la journee", type: "daily", trackingType: "interactions", target: 3, current: 0, xpReward: 30, completed: false, deadline: null, createdAt: new Date().toISOString(), completedAt: null },
+    { id: generateId(), title: "1 close cette semaine", description: "Obtiens au moins un close", type: "weekly", trackingType: "closes", target: 1, current: 0, xpReward: 25, completed: false, deadline: null, createdAt: new Date().toISOString(), completedAt: null },
+    { id: generateId(), title: "Ecrire dans le journal", description: "Fais une entree dans ton journal", type: "daily", trackingType: "journal", target: 1, current: 0, xpReward: 15, completed: false, deadline: null, createdAt: new Date().toISOString(), completedAt: null },
+    { id: generateId(), title: "10 interactions cette semaine", description: "Objectif hebdomadaire", type: "weekly", trackingType: "interactions", target: 10, current: 0, xpReward: 50, completed: false, deadline: null, createdAt: new Date().toISOString(), completedAt: null },
   ];
 }
 

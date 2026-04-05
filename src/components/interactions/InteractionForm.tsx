@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Interaction, ApproachType, ResultType, DurationType, ObjectionType, ContactMethod } from "@/types";
-import { OBJECTION_LABELS } from "@/types";
 import { Button } from "@/components/ui/Button";
 import { Input, TextArea } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
@@ -34,20 +33,50 @@ const durationOptions = [
   { value: "medium", label: "Moyen (2-5 min)" },
   { value: "long", label: "Long (5+ min)" },
 ];
-const scoreOptions = [
-  { value: "", label: "—" },
-  ...Array.from({ length: 10 }, (_, i) => ({ value: String(i + 1), label: `${i + 1}/10` })),
+
+const NEUTRAL_OBJECTIONS: { value: ObjectionType; label: string }[] = [
+  { value: "in_relationship", label: "En couple" },
+  { value: "other", label: "Autre" },
 ];
-const objectionOptions = [
-  { value: "", label: "Aucune" },
-  ...Object.entries(OBJECTION_LABELS).map(([value, label]) => ({ value, label })),
+const REJECTION_OBJECTIONS: { value: ObjectionType; label: string }[] = [
+  { value: "not_interested", label: "Pas interessee" },
+  { value: "busy", label: "Pressee / pas le temps" },
+  { value: "too_old", label: "Trop vieux / trop jeune" },
+  { value: "other", label: "Autre" },
 ];
-const contactMethodOptions = [
-  { value: "", label: "Pas de contact" },
+
+const contactMethodOptionsClose = [
   { value: "instagram", label: "Instagram" },
   { value: "phone", label: "Telephone" },
   { value: "other", label: "Autre" },
 ];
+
+function ScoreSlider({ label, value, onChange, color }: { label: string; value: number; onChange: (v: number) => void; color: string }) {
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-2">
+        <label className="text-xs font-medium text-[#a09bb2]">{label}</label>
+        <span className={`text-sm font-bold ${color}`}>{value}/10</span>
+      </div>
+      <div className="flex items-center gap-1">
+        {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
+          <button
+            key={n}
+            type="button"
+            onClick={() => onChange(n)}
+            className={`flex-1 h-8 rounded-lg transition-all text-xs font-medium ${
+              n <= value
+                ? `${color.includes("f472b6") ? "bg-[#f472b6]/20 text-[#f472b6]" : "bg-[#c084fc]/20 text-[#c084fc]"}`
+                : "bg-[#1a1626] text-[#3d3650] hover:bg-[#231e30]"
+            }`}
+          >
+            {n}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export function InteractionForm({ initial, defaultLocation, defaultSessionId, onSubmit }: InteractionFormProps) {
   const router = useRouter();
@@ -58,9 +87,8 @@ export function InteractionForm({ initial, defaultLocation, defaultSessionId, on
   const [type, setType] = useState<ApproachType | "">(initial?.type ?? "");
   const [result, setResult] = useState<ResultType | "">(initial?.result ?? "");
   const [duration, setDuration] = useState<DurationType | "">(initial?.duration ?? "");
-  const [feelingScore, setFeelingScore] = useState<number | "">(initial?.feelingScore ?? "");
-  const [womanScore, setWomanScore] = useState<number | "">(initial?.womanScore ?? "");
-  const [confidenceScore, setConfidenceScore] = useState<number | "">(initial?.confidenceScore ?? "");
+  const [feelingScore, setFeelingScore] = useState(initial?.feelingScore ?? 5);
+  const [womanScore, setWomanScore] = useState(initial?.womanScore ?? 5);
   const [objection, setObjection] = useState<ObjectionType | null>(initial?.objection ?? null);
   const [objectionCustom, setObjectionCustom] = useState(initial?.objectionCustom ?? "");
   const [discussionTopics, setDiscussionTopics] = useState(initial?.discussionTopics ?? "");
@@ -69,6 +97,17 @@ export function InteractionForm({ initial, defaultLocation, defaultSessionId, on
   const [contactValue, setContactValue] = useState(initial?.contactValue ?? "");
   const [date, setDate] = useState(initial?.date ? new Date(initial.date).toISOString().slice(0, 16) : new Date().toISOString().slice(0, 16));
 
+  // Reset objection when result changes
+  const handleResultChange = (newResult: ResultType | "") => {
+    setResult(newResult);
+    if (newResult === "close" || newResult === "") {
+      setObjection(null);
+      setObjectionCustom("");
+    }
+  };
+
+  const objectionOptions = result === "neutral" ? NEUTRAL_OBJECTIONS : REJECTION_OBJECTIONS;
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSubmit({
@@ -76,9 +115,9 @@ export function InteractionForm({ initial, defaultLocation, defaultSessionId, on
       type: type || "direct",
       result: result || "neutral",
       duration: duration || "medium",
-      feelingScore: feelingScore || 5,
-      womanScore: womanScore || 5,
-      confidenceScore: confidenceScore || 5,
+      feelingScore,
+      womanScore,
+      confidenceScore: 0,
       objection, objectionCustom,
       discussionTopics, feedback,
       contactMethod, contactValue,
@@ -103,35 +142,68 @@ export function InteractionForm({ initial, defaultLocation, defaultSessionId, on
       {/* Core fields */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Select label="Type" id="type" options={typeOptions} value={type} onChange={(e) => setType(e.target.value as ApproachType)} />
-        <Select label="Resultat" id="result" options={resultOptions} value={result} onChange={(e) => setResult(e.target.value as ResultType)} />
+        <Select label="Resultat" id="result" options={resultOptions} value={result} onChange={(e) => handleResultChange(e.target.value as ResultType | "")} />
         <Select label="Duree" id="dur" options={durationOptions} value={duration} onChange={(e) => setDuration(e.target.value as DurationType)} />
       </div>
 
-      {/* Scores */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Select label="Ressenti interaction" id="feel" options={scoreOptions} value={String(feelingScore)} onChange={(e) => setFeelingScore(e.target.value ? Number(e.target.value) : "")} />
-        <Select label="Note sur la fille" id="ws" options={scoreOptions} value={String(womanScore)} onChange={(e) => setWomanScore(e.target.value ? Number(e.target.value) : "")} />
-        <Select label="Confiance de la revoir" id="cs" options={scoreOptions} value={String(confidenceScore)} onChange={(e) => setConfidenceScore(e.target.value ? Number(e.target.value) : "")} />
-      </div>
+      {/* Scores - interactive buttons */}
+      <ScoreSlider label="Ressenti de l'interaction" value={feelingScore} onChange={setFeelingScore} color="text-[#c084fc]" />
+      <ScoreSlider label="Note sur la fille" value={womanScore} onChange={setWomanScore} color="text-[#f472b6]" />
 
-      {/* Objection */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <Select label="Objection recue" id="obj" options={objectionOptions} value={objection ?? ""} onChange={(e) => setObjection(e.target.value ? e.target.value as ObjectionType : null)} />
-        {objection === "other" && (
-          <Input label="Objection personnalisee" id="objc" placeholder="Preciser..." value={objectionCustom} onChange={(e) => setObjectionCustom(e.target.value)} />
-        )}
-      </div>
+      {/* Objection — only for neutral/rejection */}
+      {(result === "neutral" || result === "rejection") && (
+        <div>
+          <p className="text-xs font-medium text-[#a09bb2] mb-2">Objection recue</p>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => { setObjection(null); setObjectionCustom(""); }}
+              className={`text-xs px-3 py-1.5 rounded-full transition-all ${
+                !objection ? "bg-[#a09bb2]/20 text-[#a09bb2]" : "bg-[#1a1626] text-[#a09bb2] hover:bg-[#231e30]"
+              }`}
+            >
+              Aucune
+            </button>
+            {objectionOptions.map((o) => (
+              <button
+                key={o.value}
+                type="button"
+                onClick={() => setObjection(o.value)}
+                className={`text-xs px-3 py-1.5 rounded-full transition-all ${
+                  objection === o.value ? "bg-[#fb7185]/20 text-[#fb7185]" : "bg-[#1a1626] text-[#a09bb2] hover:bg-[#231e30]"
+                }`}
+              >
+                {o.label}
+              </button>
+            ))}
+          </div>
+          {objection === "other" && (
+            <Input placeholder="Preciser l'objection..." value={objectionCustom} onChange={(e) => setObjectionCustom(e.target.value)} className="mt-2" />
+          )}
+        </div>
+      )}
 
       {/* Contact info (shown when close) */}
       {result === "close" && (
         <div className="p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/10 space-y-4">
           <p className="text-xs font-semibold text-emerald-400 uppercase tracking-wider">Contact obtenu</p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Select label="Type de contact" id="cm" options={contactMethodOptions} value={contactMethod ?? ""} onChange={(e) => setContactMethod(e.target.value ? e.target.value as ContactMethod : null)} />
-            {contactMethod && (
-              <Input label="Valeur" id="cv" placeholder={contactMethod === "instagram" ? "@pseudo" : contactMethod === "phone" ? "06..." : "Preciser"} value={contactValue} onChange={(e) => setContactValue(e.target.value)} />
-            )}
+          <div className="flex flex-wrap gap-2">
+            {contactMethodOptionsClose.map((o) => (
+              <button
+                key={o.value}
+                type="button"
+                onClick={() => setContactMethod(contactMethod === o.value as ContactMethod ? null : o.value as ContactMethod)}
+                className={`text-xs px-3 py-1.5 rounded-full transition-all ${
+                  contactMethod === o.value ? "bg-emerald-400/20 text-emerald-400" : "bg-[#1a1626] text-[#a09bb2] hover:bg-[#231e30]"
+                }`}
+              >
+                {o.label}
+              </button>
+            ))}
           </div>
+          {contactMethod && (
+            <Input label="Valeur" id="cv" placeholder={contactMethod === "instagram" ? "@pseudo" : contactMethod === "phone" ? "06..." : "Preciser"} value={contactValue} onChange={(e) => setContactValue(e.target.value)} />
+          )}
         </div>
       )}
 

@@ -5,6 +5,7 @@ import { Sidebar } from "@/components/layout/Sidebar";
 import { MobileNav } from "@/components/layout/MobileNav";
 import { QuickAddButton } from "@/components/layout/QuickAddButton";
 import { InstallPrompt } from "@/components/layout/InstallPrompt";
+import { TopBar } from "@/components/layout/TopBar";
 import { AuthProvider } from "@/components/layout/AuthProvider";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
@@ -40,6 +41,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <div className="flex min-h-screen">
             <Sidebar />
             <main className="flex-1 min-w-0 pb-20 lg:pb-0">
+              <TopBar />
               {children}
             </main>
           </div>

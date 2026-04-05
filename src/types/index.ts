@@ -121,16 +121,29 @@ export interface GamificationState {
 
 // ─── Mission ──────────────────────────────────────────────
 export type MissionType = "daily" | "weekly" | "custom";
+export type MissionTrackingType = "interactions" | "closes" | "sessions" | "dates" | "journal" | "contacts" | "custom";
+
+export const MISSION_TRACKING_LABELS: Record<MissionTrackingType, string> = {
+  interactions: "Interactions",
+  closes: "Closes",
+  sessions: "Sessions",
+  dates: "Dates",
+  journal: "Entrees journal",
+  contacts: "Contacts",
+  custom: "Personnalise",
+};
 
 export interface Mission {
   id: string;
   title: string;
   description: string;
   type: MissionType;
+  trackingType: MissionTrackingType;
   target: number;
   current: number;
   xpReward: number;
   completed: boolean;
+  deadline: string | null;
   createdAt: string;
   completedAt: string | null;
 }
