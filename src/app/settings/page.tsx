@@ -31,6 +31,8 @@ export default function SettingsPage() {
   const { missions } = useMissions();
   const { entries: journal } = useJournal();
   const [showClear, setShowClear] = useState(false);
+  const [clearStep, setClearStep] = useState<1 | 2>(1);
+  const [clearConfirmText, setClearConfirmText] = useState("");
   const [saved, setSaved] = useState(false);
   const [installPrompt, setInstallPrompt] = useState<Event | null>(null);
   const { theme, toggle: toggleTheme } = useTheme();
@@ -63,6 +65,8 @@ export default function SettingsPage() {
     if (!userId) return;
     await clearAllUserDataAction();
     setShowClear(false);
+    setClearStep(1);
+    setClearConfirmText("");
     window.location.reload();
   };
 
@@ -260,12 +264,31 @@ export default function SettingsPage() {
         </div>
       </Card>
 
-      <Modal open={showClear} onClose={() => setShowClear(false)} title="Effacer tout">
-        <p className="text-sm text-[var(--on-surface-variant)] mb-6">Toutes tes donnees seront supprimees de facon irreversible : interactions, contacts, sessions, wings, missions, journal, profil et progression.</p>
-        <div className="flex items-center gap-3">
-          <Button variant="danger" onClick={handleClearAll}>Effacer tout</Button>
-          <Button variant="ghost" onClick={() => setShowClear(false)}>Annuler</Button>
-        </div>
+      <Modal open={showClear} onClose={() => { setShowClear(false); setClearStep(1); setClearConfirmText(""); }} title="Effacer tout">
+        {clearStep === 1 ? (
+          <>
+            <p className="text-sm text-[var(--on-surface-variant)] mb-6">Toutes tes données seront supprimées de façon irréversible : interactions, contacts, sessions, wings, missions, journal, profil et progression.</p>
+            <p className="text-sm font-semibold text-[var(--error)] mb-6">Es-tu sûr de vouloir continuer ?</p>
+            <div className="flex items-center gap-3">
+              <Button variant="danger" onClick={() => setClearStep(2)}>Oui, continuer</Button>
+              <Button variant="ghost" onClick={() => { setShowClear(false); setClearStep(1); }}>Annuler</Button>
+            </div>
+          </>
+        ) : (
+          <>
+            <p className="text-sm text-[var(--on-surface-variant)] mb-3">Cette action est définitive. Pour confirmer, écris <strong className="text-[var(--error)]">CONFIRMER</strong> ci-dessous :</p>
+            <Input
+              id="confirm-clear"
+              placeholder="Écris CONFIRMER"
+              value={clearConfirmText}
+              onChange={(e) => setClearConfirmText(e.target.value)}
+            />
+            <div className="flex items-center gap-3 mt-4">
+              <Button variant="danger" disabled={clearConfirmText !== "CONFIRMER"} onClick={handleClearAll}>Effacer définitivement</Button>
+              <Button variant="ghost" onClick={() => { setShowClear(false); setClearStep(1); setClearConfirmText(""); }}>Annuler</Button>
+            </div>
+          </>
+        )}
       </Modal>
     </div>
   );

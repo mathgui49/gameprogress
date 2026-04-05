@@ -815,7 +815,15 @@ export async function fetchCommunityBenchmarks(): Promise<CommunityBenchmarks> {
   return { avgCloseRate, avgFeelingScore, avgInteractionsPerWeek, avgLevel, totalUsers };
 }
 
-const ALL_TABLES = ["interactions", "contacts", "sessions", "wings", "missions", "journal_entries", "profiles", "gamification", "public_profiles", "wing_requests", "posts", "session_likes", "session_comments", "session_participants"];
+const ALL_TABLES = [
+  "interactions", "contacts", "sessions", "wings", "missions", "journal_entries",
+  "profiles", "gamification", "public_profiles", "wing_requests",
+  "posts", "post_reactions", "post_comments", "post_reports", "post_hides",
+  "session_likes", "session_comments", "session_participants",
+  "messages", "message_groups", "wing_status", "wing_meta", "wing_challenges", "wing_pings",
+  "journal_collections", "journal_drafts", "journal_share_links", "collaborative_entries",
+  "subscriptions", "push_subscriptions",
+];
 
 export async function clearAllUserData(userId: string) {
   await Promise.all(
