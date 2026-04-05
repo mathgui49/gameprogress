@@ -55,9 +55,9 @@ export function QuickAddButton() {
     if (qNote) addXP(XP_VALUES.interaction_with_note, "Note ajoutee");
     if (qResult === "close") addXP(XP_VALUES.close, "Close !");
     updateStreak();
-    if (qResult === "close" && qContactMethod && qContactValue) {
-      addXP(XP_VALUES.contact_added, "Contact ajoute");
-      addContact({ firstName: qName || "Inconnue", sourceInteractionId: interaction.id, method: qContactMethod, methodValue: qContactValue, status: "new", tags: [], notes: "" });
+    if (qResult === "close") {
+      if (qContactMethod && qContactValue) addXP(XP_VALUES.contact_added, "Contact ajoute");
+      addContact({ firstName: qName || "Inconnue", sourceInteractionId: interaction.id, method: qContactMethod || "other", methodValue: qContactValue || "", status: "new", tags: [], notes: "" });
     }
     resetQuick();
     setSaved(true);

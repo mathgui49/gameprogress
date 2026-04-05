@@ -37,15 +37,15 @@ export default function NewInteractionPage() {
           addXP(XP_VALUES.interaction_created, "Interaction cree");
           if (data.note) addXP(XP_VALUES.interaction_with_note, "Note ajoutee");
           if (data.result === "close") addXP(XP_VALUES.close, "Close !");
-          if (data.contactMethod && data.contactValue) addXP(XP_VALUES.contact_added, "Contact ajoute");
           updateStreak();
-          // Auto-create contact if close + contact info provided
-          if (data.result === "close" && data.contactMethod && data.contactValue) {
+          // Auto-create contact on close (pipeline)
+          if (data.result === "close") {
+            if (data.contactMethod && data.contactValue) addXP(XP_VALUES.contact_added, "Contact ajoute");
             addContact({
               firstName: data.firstName || data.memorableElement || "Inconnue",
               sourceInteractionId: interaction.id,
-              method: data.contactMethod,
-              methodValue: data.contactValue,
+              method: data.contactMethod || "other",
+              methodValue: data.contactValue || "",
               status: "new",
               tags: [],
               notes: "",
