@@ -43,7 +43,7 @@ export default function NewSessionPage() {
       const p = wingProfiles.find((wp: PublicProfile) => wp.userId === id);
       return p?.username || p?.firstName || id;
     });
-    const session = add({
+    const session = await add({
       title,
       date: new Date(date).toISOString(),
       location,
@@ -153,7 +153,7 @@ export default function NewSessionPage() {
         </div>
 
         <div className="flex items-center gap-3 pt-2">
-          <Button type="submit" size="lg">Creer la session</Button>
+          <Button type="submit" size="lg">Créer la session</Button>
           <Button type="button" variant="ghost" size="lg" onClick={() => router.back()}>Annuler</Button>
         </div>
       </form>

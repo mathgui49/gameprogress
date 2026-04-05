@@ -29,7 +29,7 @@ export function Sidebar() {
       <div className="px-5 py-6">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-lg border-2 border-[var(--primary)] flex items-center justify-center shadow-[0_0_12px_-2px_var(--neon-purple)]">
-            <Image src="/logo.png" alt="GameProgress" width={20} height={20} className="rounded-[4px]" />
+            <Image src="/logo.webp" alt="GameProgress" width={20} height={20} className="rounded-[4px]" />
           </div>
           <span className="text-[15px] font-[family-name:var(--font-grotesk)] font-bold text-[var(--on-surface)] tracking-tight">GameProgress</span>
         </div>

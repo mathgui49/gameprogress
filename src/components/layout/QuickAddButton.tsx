@@ -43,8 +43,8 @@ export function QuickAddButton() {
     setQContactMethod(null); setQContactValue("");
   };
 
-  const submitQuick = () => {
-    const interaction = add({
+  const submitQuick = async () => {
+    const interaction = await add({
       firstName: qName, memorableElement: "", note: qNote, location: qLocation,
       type: qType, result: qResult, duration: "medium", feelingScore: 7,
       womanScore: 7, confidenceScore: 5, objection: null, objectionCustom: "",
@@ -53,12 +53,12 @@ export function QuickAddButton() {
     });
     // XP rewards
     addXP(XP_VALUES.interaction_created, "Interaction rapide");
-    if (qNote) addXP(XP_VALUES.interaction_with_note, "Note ajoutee");
+    if (qNote) addXP(XP_VALUES.interaction_with_note, "Note ajoutée");
     if (qResult === "close") addXP(XP_VALUES.close, "Close !");
     updateStreak();
     if (qResult === "close") {
-      if (qContactMethod && qContactValue) addXP(XP_VALUES.contact_added, "Contact ajoute");
-      addContact({ firstName: qName || "Inconnue", sourceInteractionId: interaction.id, method: qContactMethod || "other", methodValue: qContactValue || "", status: "new", tags: [], notes: "" });
+      if (qContactMethod && qContactValue) addXP(XP_VALUES.contact_added, "Contact ajouté");
+      await addContact({ firstName: qName || "Inconnue", sourceInteractionId: interaction.id, method: qContactMethod || "other", methodValue: qContactValue || "", status: "new", tags: [], notes: "" });
     }
     resetQuick();
     setSaved(true);

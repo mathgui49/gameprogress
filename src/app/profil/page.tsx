@@ -115,7 +115,7 @@ export default function ProfilPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-[var(--on-surface-variant)]">Profil visible publiquement</p>
-              <p className="text-[10px] text-[var(--outline)]">Les autres utilisateurs pourront te trouver dans Decouvrir</p>
+              <p className="text-[10px] text-[var(--outline)]">Les autres utilisateurs pourront te trouver dans Découvrir</p>
             </div>
             <button
               onClick={() => { save({ isPublic: !(profile?.isPublic) }); flash(); }}
@@ -125,17 +125,17 @@ export default function ProfilPage() {
             </button>
           </div>
         </div>
-        {saved && <p className="text-xs text-emerald-400 mt-2 animate-fade-in">Sauvegarde !</p>}
+        {saved && <p className="text-xs text-emerald-400 mt-2 animate-fade-in">Sauvegardé !</p>}
       </Card>
 
       <Card>
-        <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-[var(--on-surface)] mb-4">Confidentialite</h2>
+        <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-[var(--on-surface)] mb-4">Confidentialité</h2>
         <p className="text-xs text-[var(--on-surface-variant)] mb-5">Choisis ce que tu partages et avec qui.</p>
         <div className="space-y-5">
           {PRIVACY_GROUPS.map((g) => {
             const current = getGroupValue(g);
             const options: { value: PrivacyOption; label: string; activeClass: string }[] = [
-              { value: "off", label: "Prive", activeClass: "bg-[var(--outline-variant)]/20 text-[var(--on-surface-variant)]" },
+              { value: "off", label: "Privé", activeClass: "bg-[var(--outline-variant)]/20 text-[var(--on-surface-variant)]" },
               ...(g.wingsKey ? [{ value: "wings" as PrivacyOption, label: "Wings", activeClass: "bg-[var(--tertiary)]/20 text-[var(--tertiary)]" }] : []),
               ...(!g.noPublic ? [{ value: "public" as PrivacyOption, label: "Public", activeClass: "bg-emerald-400/20 text-emerald-400" }] : []),
             ];

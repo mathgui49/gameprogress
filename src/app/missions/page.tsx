@@ -66,13 +66,13 @@ export default function MissionsPage() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-[family-name:var(--font-grotesk)] font-bold tracking-tight mb-1"><span className="bg-gradient-to-r from-[#f472b6] to-[#c084fc] bg-clip-text text-transparent">Missions</span></h1>
-          <p className="text-sm text-[var(--on-surface-variant)]">{active.length} active{active.length > 1 ? "s" : ""}, {completed.length} terminee{completed.length > 1 ? "s" : ""}</p>
+          <p className="text-sm text-[var(--on-surface-variant)]">{active.length} active{active.length > 1 ? "s" : ""}, {completed.length} terminée{completed.length > 1 ? "s" : ""}</p>
         </div>
         <Button onClick={() => setShowNew(true)}>+ Mission</Button>
       </div>
 
       {missions.length === 0 ? (
-        <EmptyState icon={<IconTarget size={28} />} title="Aucune mission" description="Cree ta premiere mission pour commencer a gagner de l'XP." action={<Button onClick={() => setShowNew(true)}>Creer une mission</Button>} />
+        <EmptyState icon={<IconTarget size={28} />} title="Aucune mission" description="Crée ta première mission pour commencer à gagner de l'XP." action={<Button onClick={() => setShowNew(true)}>Créer une mission</Button>} />
       ) : (
         <>
           {active.length > 0 && (
@@ -122,7 +122,7 @@ export default function MissionsPage() {
 
           {completed.length > 0 && (
             <div>
-              <h2 className="text-sm font-medium text-[var(--on-surface-variant)] uppercase tracking-wider mb-3">Terminees</h2>
+              <h2 className="text-sm font-medium text-[var(--on-surface-variant)] uppercase tracking-wider mb-3">Terminées</h2>
               <div className="space-y-2">
                 {completed.map((m) => (
                   <Card key={m.id} className="!p-4 opacity-60">
@@ -166,7 +166,7 @@ export default function MissionsPage() {
               <p className="text-[10px] text-emerald-400 mt-2">Progression auto : se met a jour quand tu ajoutes des {MISSION_TRACKING_LABELS[trackingType].toLowerCase()}</p>
             )}
             {trackingType === "custom" && (
-              <p className="text-[10px] text-[var(--outline)] mt-2">Manuel : tu avanceras la progression toi-meme avec le bouton +1</p>
+              <p className="text-[10px] text-[var(--outline)] mt-2">Manuel : tu avanceras la progression toi-même avec le bouton +1</p>
             )}
           </div>
 
@@ -177,7 +177,7 @@ export default function MissionsPage() {
             add(title, desc, "custom", Number(target) || 3, 20, trackingType, deadline || null);
             setTitle(""); setDesc(""); setTarget("3"); setTrackingType("interactions"); setDeadline(""); setShowNew(false);
           }}>
-            Creer
+            Créer
           </Button>
         </div>
       </Modal>

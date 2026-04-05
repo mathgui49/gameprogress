@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { useInteractions } from "@/hooks/useInteractions";
 import { useGamification } from "@/hooks/useGamification";
 import { useContacts } from "@/hooks/useContacts";
@@ -18,14 +19,14 @@ export default function DashboardPage() {
   const { contacts, allReminders } = useContacts();
   const { active: activeMissions } = useMissions();
 
-  if (!loaded) return <div className="flex items-center justify-center h-screen"><div className="w-8 h-8 border-2 border-[var(--primary)]/30 border-t-[var(--primary)] rounded-full animate-spin" /></div>;
+  const today = useMemo(() => interactions.filter((i) => isToday(i.date)), [interactions]);
+  const thisWeek = useMemo(() => interactions.filter((i) => isThisWeek(i.date)), [interactions]);
+  const closes = useMemo(() => interactions.filter((i) => i.result === "close"), [interactions]);
+  const avgFeeling = useMemo(() => interactions.length > 0
+    ? (interactions.reduce((sum, i) => sum + i.feelingScore, 0) / interactions.length).toFixed(1) : "\u2014", [interactions]);
+  const closeRate = useMemo(() => interactions.length > 0 ? Math.round((closes.length / interactions.length) * 100) : 0, [closes, interactions]);
 
-  const today = interactions.filter((i) => isToday(i.date));
-  const thisWeek = interactions.filter((i) => isThisWeek(i.date));
-  const closes = interactions.filter((i) => i.result === "close");
-  const avgFeeling = interactions.length > 0
-    ? (interactions.reduce((sum, i) => sum + i.feelingScore, 0) / interactions.length).toFixed(1) : "—";
-  const closeRate = interactions.length > 0 ? Math.round((closes.length / interactions.length) * 100) : 0;
+  if (!loaded) return <div className="flex items-center justify-center h-screen"><div className="w-8 h-8 border-2 border-[var(--primary)]/30 border-t-[var(--primary)] rounded-full animate-spin" /></div>;
 
   // Frosted ring progress
   const ringPct = gam.xpProgress;
@@ -55,11 +56,11 @@ export default function DashboardPage() {
             <div className="flex items-center justify-between mb-1">
               <span className="text-xs text-[var(--on-surface-variant)]">Niveau {gam.level}</span>
               <div className="flex items-center gap-3">
-                <Tooltip text="Points d'experience — gagne des XP en completant des interactions et des missions" position="bottom">
+                <Tooltip text="Points d'expérience — gagne des XP en complétant des interactions et des missions" position="bottom">
                   <span className="text-xs text-[var(--primary)] font-semibold">{gam.xp}/{gam.xpForNext} XP</span>
                 </Tooltip>
                 {gam.streak > 0 && (
-                  <Tooltip text="Nombre de jours consecutifs avec au moins une interaction" position="bottom">
+                  <Tooltip text="Nombre de jours consécutifs avec au moins une interaction" position="bottom">
                     <span className="text-xs text-amber-400 flex items-center gap-1">
                       <IconFlame size={14} className="text-amber-400" /> {gam.streak}j
                     </span>
@@ -76,10 +77,10 @@ export default function DashboardPage() {
 
       {/* Stats grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 mb-6">
-        <StatsCard label="Aujourd'hui" value={today.length} subtitle="interactions" accent icon={<IconMapPin size={16} />} tooltip="Nombre d'interactions enregistrees aujourd'hui" />
-        <StatsCard label="Cette semaine" value={thisWeek.length} subtitle="interactions" icon={<IconBarChart size={16} />} tooltip="Total des interactions cette semaine (lundi a dimanche)" />
-        <StatsCard label="Closes" value={closes.length} subtitle={`${closeRate}% taux`} accent icon={<IconSparkles size={16} />} tooltip="Interactions conclues par un close (numero, kiss, date...)" />
-        <StatsCard label="Ressenti" value={avgFeeling} subtitle="moyenne /10" icon={<IconStar size={16} />} tooltip="Score moyen de ton ressenti apres chaque interaction" />
+        <StatsCard label="Aujourd'hui" value={today.length} subtitle="interactions" accent icon={<IconMapPin size={16} />} tooltip="Nombre d'interactions enregistrées aujourd'hui" />
+        <StatsCard label="Cette semaine" value={thisWeek.length} subtitle="interactions" icon={<IconBarChart size={16} />} tooltip="Total des interactions cette semaine (lundi à dimanche)" />
+        <StatsCard label="Closes" value={closes.length} subtitle={`${closeRate}% taux`} accent icon={<IconSparkles size={16} />} tooltip="Interactions conclues par un close (numéro, kiss, date...)" />
+        <StatsCard label="Ressenti" value={avgFeeling} subtitle="moyenne /10" icon={<IconStar size={16} />} tooltip="Score moyen de ton ressenti après chaque interaction" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
@@ -87,7 +88,7 @@ export default function DashboardPage() {
         <div className="lg:col-span-2 space-y-4">
           <Card>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-[var(--on-surface)]">Activite recente</h2>
+              <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-[var(--on-surface)]">Activité récente</h2>
               <Link href="/interactions" className="text-xs text-[var(--primary)] hover:text-[var(--primary-dim)] transition-colors">Tout voir</Link>
             </div>
             <ActivityFeed interactions={interactions} />
@@ -96,7 +97,7 @@ export default function DashboardPage() {
           {/* Reminders */}
           {allReminders.length > 0 && (
             <Card>
-              <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-[var(--on-surface)] mb-3">Rappels a venir</h2>
+              <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-[var(--on-surface)] mb-3">Rappels à venir</h2>
               <div className="space-y-2">
                 {allReminders.slice(0, 4).map((r) => (
                   <div key={r.id} className="flex items-center gap-3 px-3 py-2 rounded-lg bg-[var(--surface-low)]">

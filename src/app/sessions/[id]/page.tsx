@@ -197,9 +197,9 @@ export default function SessionDetailPage({ params }: { params: Promise<{ id: st
         <InteractionForm
           defaultLocation={session.location}
           defaultSessionId={session.id}
-          onSubmit={(data) => {
-            const interaction = addNewInteraction(data);
-            addInteraction(id, interaction.id);
+          onSubmit={async (data) => {
+            const interaction = await addNewInteraction(data);
+            await addInteraction(id, interaction.id);
             setShowAddInteraction(false);
           }}
         />

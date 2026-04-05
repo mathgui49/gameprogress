@@ -315,7 +315,7 @@ export default function CalendrierPage() {
             )}
 
             {!selectedEvent.editable && (
-              <p className="text-[10px] text-[var(--outline)]">Cet evenement ne peut pas etre modifie (cree par un autre utilisateur).</p>
+              <p className="text-[10px] text-[var(--outline)]">Cet événement ne peut pas être modifié (créé par un autre utilisateur).</p>
             )}
           </div>
         )}

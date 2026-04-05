@@ -54,22 +54,22 @@ export default function SettingsPage() {
   return (
     <div className="px-4 py-6 lg:px-8 lg:py-8 max-w-2xl mx-auto animate-fade-in">
       <div className="mb-8">
-        <h1 className="text-2xl lg:text-3xl font-[family-name:var(--font-grotesk)] font-bold tracking-tight mb-1"><span className="bg-gradient-to-r from-[#6b6580] to-[#c084fc] bg-clip-text text-transparent">Parametres</span></h1>
+        <h1 className="text-2xl lg:text-3xl font-[family-name:var(--font-grotesk)] font-bold tracking-tight mb-1"><span className="bg-gradient-to-r from-[#6b6580] to-[#c084fc] bg-clip-text text-transparent">Paramètres</span></h1>
         <p className="text-sm text-[var(--on-surface-variant)]">Configuration</p>
       </div>
 
       <Card className="mb-4">
-        <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-[var(--on-surface)] mb-4">Profil prive</h2>
+        <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-[var(--on-surface)] mb-4">Profil privé</h2>
         <div className="space-y-4">
-          <Input label="Nom" id="pn" placeholder="Ton prenom ou pseudo" value={profile.name} onChange={(e) => handleSaveName(e.target.value)} />
+          <Input label="Nom" id="pn" placeholder="Ton prénom ou pseudo" value={profile.name} onChange={(e) => handleSaveName(e.target.value)} />
           <TextArea label="Objectifs game" id="go" placeholder="Tes objectifs en game (ex: 10 dates ce mois, oser les directs...)" rows={3} value={profile.gameObjectives ?? ""} onChange={(e) => { updateProfile({ gameObjectives: e.target.value }); setSaved(true); setTimeout(() => setSaved(false), 2000); }} />
-          <TextArea label="Femme ideale" id="iw" placeholder="Decris le type de femme que tu recherches..." rows={3} value={profile.idealWoman ?? ""} onChange={(e) => { updateProfile({ idealWoman: e.target.value }); setSaved(true); setTimeout(() => setSaved(false), 2000); }} />
+          <TextArea label="Femme idéale" id="iw" placeholder="Décris le type de femme que tu recherches..." rows={3} value={profile.idealWoman ?? ""} onChange={(e) => { updateProfile({ idealWoman: e.target.value }); setSaved(true); setTimeout(() => setSaved(false), 2000); }} />
         </div>
-        {saved && <p className="text-xs text-emerald-400 mt-2 animate-fade-in">Sauvegarde !</p>}
+        {saved && <p className="text-xs text-emerald-400 mt-2 animate-fade-in">Sauvegardé !</p>}
       </Card>
 
       <Card className="mb-4">
-        <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-[var(--on-surface)] mb-4">Donnees</h2>
+        <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-[var(--on-surface)] mb-4">Données</h2>
         <div className="space-y-3">
           <div className="flex items-center justify-between"><span className="text-sm text-[var(--on-surface-variant)]">Interactions</span><span className="text-sm font-semibold text-[var(--primary)]">{interactions.length}</span></div>
           <div className="flex items-center justify-between"><span className="text-sm text-[var(--on-surface-variant)]">Contacts</span><span className="text-sm font-semibold text-[var(--tertiary)]">{contacts.length}</span></div>

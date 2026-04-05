@@ -36,11 +36,11 @@ export default function JournalPage() {
           <h1 className="text-2xl font-[family-name:var(--font-grotesk)] font-bold tracking-tight mb-1"><span className="bg-gradient-to-r from-[#67e8f9] to-[#c084fc] bg-clip-text text-transparent">Journal</span></h1>
           <p className="text-sm text-[var(--on-surface-variant)]">{entries.length} entree{entries.length > 1 ? "s" : ""}</p>
         </div>
-        <Button onClick={() => setShowNew(true)}>+ Ecrire</Button>
+        <Button onClick={() => setShowNew(true)}>+ Écrire</Button>
       </div>
 
       {entries.length === 0 ? (
-        <EmptyState icon={<IconPenLine size={28} />} title="Journal vide" description="Commence a ecrire pour suivre tes ressentis et ta progression." action={<Button onClick={() => setShowNew(true)}>Premiere entree</Button>} />
+        <EmptyState icon={<IconPenLine size={28} />} title="Journal vide" description="Commence à écrire pour suivre tes ressentis et ta progression." action={<Button onClick={() => setShowNew(true)}>Première entrée</Button>} />
       ) : (
         <div className="space-y-3">
           {entries.map((entry, idx) => {
@@ -81,9 +81,9 @@ export default function JournalPage() {
         </div>
       )}
 
-      <Modal open={showNew} onClose={() => { setShowNew(false); setEditingId(null); setContent(""); setTag(null); setVisibility("private"); }} title={editingId ? "Modifier l'entree" : "Nouvelle entree"}>
+      <Modal open={showNew} onClose={() => { setShowNew(false); setEditingId(null); setContent(""); setTag(null); setVisibility("private"); }} title={editingId ? "Modifier l'entrée" : "Nouvelle entrée"}>
         <div className="space-y-4">
-          <TextArea placeholder="Comment tu te sens aujourd'hui ? Qu'est-ce qui s'est passe ?..." rows={6} value={content} onChange={(e) => setContent(e.target.value)} className="text-base" />
+          <TextArea placeholder="Comment tu te sens aujourd'hui ? Qu'est-ce qui s'est passé ?..." rows={6} value={content} onChange={(e) => setContent(e.target.value)} className="text-base" />
           <div>
             <p className="text-xs text-[var(--on-surface-variant)] mb-2">Tag (optionnel)</p>
             <div className="flex flex-wrap gap-2">
@@ -101,7 +101,7 @@ export default function JournalPage() {
             </div>
           </div>
           <div>
-            <p className="text-xs text-[var(--on-surface-variant)] mb-2">Visibilite</p>
+            <p className="text-xs text-[var(--on-surface-variant)] mb-2">Visibilité</p>
             <div className="flex gap-2">
               {(["private", "wings", "public"] as Visibility[]).map((v) => (
                 <button
@@ -113,13 +113,13 @@ export default function JournalPage() {
                       : "bg-[var(--surface-high)] text-[var(--on-surface-variant)] hover:bg-[var(--surface-bright)]"
                   }`}
                 >
-                  {v === "private" ? "Prive" : v === "wings" ? "Wings" : "Public"}
+                  {v === "private" ? "Privé" : v === "wings" ? "Wings" : "Public"}
                 </button>
               ))}
             </div>
           </div>
           <Button disabled={!content.trim()} onClick={() => {
-            if (editingId) { update(editingId, content.trim(), tag, visibility); } else { add(content.trim(), tag, visibility); addXP(XP_VALUES.journal_entry, "Entree journal"); }
+            if (editingId) { update(editingId, content.trim(), tag, visibility); } else { add(content.trim(), tag, visibility); addXP(XP_VALUES.journal_entry, "Entrée journal"); }
             setContent(""); setTag(null); setVisibility("private"); setEditingId(null); setShowNew(false);
           }}>
             {editingId ? "Modifier" : "Enregistrer"}

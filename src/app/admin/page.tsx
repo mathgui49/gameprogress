@@ -85,7 +85,7 @@ export default function AdminPage() {
   };
 
   if (userId !== ADMIN_EMAIL) {
-    return <div className="flex items-center justify-center h-screen"><p className="text-[#fb7185]">Acces refuse.</p></div>;
+    return <div className="flex items-center justify-center h-screen"><p className="text-[#fb7185]">Accès refusé.</p></div>;
   }
 
   if (!loaded) return <div className="flex items-center justify-center h-screen"><div className="w-8 h-8 border-2 border-[var(--primary)]/30 border-t-[var(--primary)] rounded-full animate-spin" /></div>;
@@ -130,7 +130,7 @@ export default function AdminPage() {
               { label: "Interactions", value: stats.interactions, color: "text-[var(--secondary)]" },
               { label: "Contacts", value: stats.contacts, color: "text-[var(--tertiary)]" },
               { label: "Sessions", value: stats.sessions, color: "text-cyan-400" },
-              { label: "Entrees journal", value: stats.journal_entries, color: "text-amber-400" },
+              { label: "Entrées journal", value: stats.journal_entries, color: "text-amber-400" },
               { label: "Posts", value: stats.posts, color: "text-emerald-400" },
               { label: "Missions", value: stats.missions, color: "text-[var(--primary)]" },
             ].map((s) => (
@@ -142,7 +142,7 @@ export default function AdminPage() {
           </div>
 
           <Card>
-            <h3 className="text-sm font-semibold text-[var(--on-surface)] mb-3">Derniers profils crees</h3>
+            <h3 className="text-sm font-semibold text-[var(--on-surface)] mb-3">Derniers profils créés</h3>
             <div className="space-y-2">
               {profiles.slice(0, 10).map((p) => (
                 <div key={p.userId} className="flex items-center justify-between py-1.5 border-b border-[rgba(192,132,252,0.04)] last:border-0">
@@ -238,7 +238,7 @@ export default function AdminPage() {
           <Card>
             <h3 className="text-sm font-semibold text-[var(--on-surface)] mb-3">Barre d&apos;annonce</h3>
             <p className="text-xs text-[var(--on-surface-variant)] mb-3">Ce message s&apos;affichera en haut de l&apos;app pour tous les utilisateurs.</p>
-            <TextArea placeholder="Ex: Maintenance prevue ce soir a 22h..." rows={3} value={announcement} onChange={(e) => setAnnouncement(e.target.value)} />
+            <TextArea placeholder="Ex: Maintenance prévue ce soir à 22h..." rows={3} value={announcement} onChange={(e) => setAnnouncement(e.target.value)} />
             <div className="flex gap-2 mt-3">
               <Button onClick={handleSetAnnouncement} disabled={!announcement.trim()}>Publier l&apos;annonce</Button>
             </div>

@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GameTrack — Design Proposals (shadcn inspired)</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@700;800&family=Space+Grotesk:wght@500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #0a0a0b; color: #fff; font-family: 'Inter', sans-serif; }
+
+  .page-header {
+    text-align: center;
+    padding: 60px 20px 40px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .page-header h1 { font-family: 'Manrope', sans-serif; font-size: 32px; margin-bottom: 8px; }
+  .page-header p { color: #888; font-size: 14px; }
+  .page-header .note { font-size: 11px; color: #555; margin-top: 8px; max-width: 500px; margin-left: auto; margin-right: auto; line-height: 1.5; }
+
+  .proposals { max-width: 1400px; margin: 0 auto; padding: 40px 20px; }
+
+  .proposal {
+    margin-bottom: 80px;
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 24px;
+    overflow: hidden;
+  }
+  .proposal-header {
+    padding: 24px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .proposal-header h2 { font-size: 18px; font-weight: 700; }
+  .proposal-header .tag {
+    font-size: 11px;
+    padding: 4px 12px;
+    border-radius: 100px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .proposal-body { display: flex; min-height: 700px; }
+
+  /* ══════════════════════════════════════════════════════
+     DESIGN A — "Neon Aurora"
+     Fond tres sombre, accents neon vifs, glassmorphism fort
+     ══════════════════════════════════════════════════════ */
+  .design-a { --bg: #07060a; --surface: rgba(15,13,20,0.85); --accent1: #7c5cff; --accent2: #ff5ea0; --accent3: #3ecfff; --text: #c8c5d0; --text-muted: #5a5665; }
+  .design-a .sidebar-mock {
+    width: 240px; background: var(--surface); backdrop-filter: blur(24px); border-right: 1px solid rgba(124,92,255,0.08);
+    padding: 24px 16px; flex-shrink: 0;
+  }
+  .design-a .sidebar-mock .logo { display: flex; align-items: center; gap: 10px; margin-bottom: 32px; padding: 0 8px; }
+  .design-a .sidebar-mock .logo .icon {
+    width: 36px; height: 36px; border-radius: 12px;
+    background: linear-gradient(135deg, var(--accent1), var(--accent2));
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 14px; box-shadow: 0 4px 20px rgba(124,92,255,0.3);
+  }
+  .design-a .sidebar-mock .logo span { font-weight: 700; font-size: 15px; }
+  .design-a .sidebar-mock .nav-item {
+    display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 12px;
+    font-size: 13px; font-weight: 500; color: var(--text-muted); margin-bottom: 2px; transition: all 0.2s;
+  }
+  .design-a .sidebar-mock .nav-item.active {
+    background: rgba(124,92,255,0.1); color: var(--accent1);
+  }
+  .design-a .sidebar-mock .nav-item .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+  .design-a .main-mock { flex: 1; background: var(--bg); padding: 32px; overflow: hidden; }
+  .design-a .hero-card {
+    background: linear-gradient(135deg, rgba(124,92,255,0.12), rgba(255,94,160,0.08));
+    border: 1px solid rgba(124,92,255,0.12); border-radius: 20px; padding: 28px;
+    margin-bottom: 24px; position: relative; overflow: hidden;
+  }
+  .design-a .hero-card::before {
+    content: ''; position: absolute; top: -50%; right: -20%; width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(124,92,255,0.15), transparent 70%);
+  }
+  .design-a .hero-card .level-badge {
+    width: 64px; height: 64px; border-radius: 16px;
+    background: linear-gradient(135deg, var(--accent1), var(--accent2));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; font-weight: 800; box-shadow: 0 8px 32px rgba(124,92,255,0.35);
+  }
+  .design-a .hero-card .xp-bar { height: 8px; border-radius: 100px; background: rgba(0,0,0,0.4); margin-top: 12px; overflow: hidden; }
+  .design-a .hero-card .xp-bar .fill { height: 100%; width: 65%; border-radius: 100px; background: linear-gradient(90deg, var(--accent1), var(--accent2)); }
+
+  .design-a .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
+  .design-a .stat-card {
+    background: var(--surface); backdrop-filter: blur(16px);
+    border: 1px solid rgba(255,255,255,0.04); border-radius: 16px; padding: 20px; text-align: center;
+  }
+  .design-a .stat-card .value { font-size: 28px; font-weight: 800; background: linear-gradient(135deg, var(--accent1), var(--accent3)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .design-a .stat-card .label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+
+  .design-a .card-row { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; }
+  .design-a .feed-card, .design-a .side-card {
+    background: var(--surface); backdrop-filter: blur(16px);
+    border: 1px solid rgba(255,255,255,0.04); border-radius: 16px; padding: 20px;
+  }
+  .design-a .feed-card h3, .design-a .side-card h3 { font-size: 13px; font-weight: 600; margin-bottom: 16px; color: #fff; }
+  .design-a .feed-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.03); }
+  .design-a .feed-item .avatar { width: 32px; height: 32px; border-radius: 10px; background: linear-gradient(135deg, rgba(124,92,255,0.2), rgba(255,94,160,0.2)); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: var(--accent1); }
+  .design-a .feed-item .name { font-size: 13px; font-weight: 600; }
+  .design-a .feed-item .meta { font-size: 10px; color: var(--text-muted); }
+  .design-a .badge-pill { font-size: 10px; padding: 3px 8px; border-radius: 100px; font-weight: 600; }
+  .design-a .badge-close { background: rgba(62,207,255,0.12); color: var(--accent3); }
+  .design-a .badge-neutral { background: rgba(255,94,160,0.12); color: var(--accent2); }
+
+  /* ══════════════════════════════════════════════════════
+     DESIGN B — "Frosted Layers"
+     Surfaces claires translucides, ombres douces, minimaliste
+     ══════════════════════════════════════════════════════ */
+  .design-b { --bg: #0c0b10; --surface: rgba(22,20,30,0.7); --elevated: rgba(30,28,42,0.8); --accent1: #8b7aff; --accent2: #d67bff; --accent3: #6ec1ff; --text: #d0cdd8; --text-muted: #5c5869; --border: rgba(139,122,255,0.06); }
+  .design-b .sidebar-mock {
+    width: 260px; background: var(--surface); backdrop-filter: blur(40px);
+    border-right: 1px solid var(--border); padding: 28px 20px; flex-shrink: 0;
+  }
+  .design-b .sidebar-mock .logo { display: flex; align-items: center; gap: 12px; margin-bottom: 36px; padding: 0 4px; }
+  .design-b .sidebar-mock .logo .icon {
+    width: 40px; height: 40px; border-radius: 14px;
+    background: linear-gradient(145deg, var(--accent1), var(--accent2));
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 15px; box-shadow: 0 6px 24px rgba(139,122,255,0.25);
+  }
+  .design-b .sidebar-mock .logo span { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 16px; letter-spacing: -0.3px; }
+  .design-b .sidebar-mock .nav-item {
+    display: flex; align-items: center; gap: 14px; padding: 11px 14px; border-radius: 14px;
+    font-size: 13px; font-weight: 500; color: var(--text-muted); margin-bottom: 2px;
+  }
+  .design-b .sidebar-mock .nav-item.active {
+    background: linear-gradient(135deg, rgba(139,122,255,0.08), rgba(214,123,255,0.05));
+    color: var(--accent1); border: 1px solid rgba(139,122,255,0.1);
+  }
+  .design-b .sidebar-mock .nav-item .dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; opacity: 0.6; }
+
+  .design-b .main-mock { flex: 1; background: var(--bg); padding: 36px; overflow: hidden; }
+  .design-b .hero-card {
+    background: var(--elevated); backdrop-filter: blur(24px);
+    border: 1px solid var(--border); border-radius: 24px; padding: 32px;
+    margin-bottom: 20px; display: flex; align-items: center; gap: 24px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.3);
+  }
+  .design-b .hero-card .level-ring {
+    width: 80px; height: 80px; border-radius: 50%; position: relative;
+    background: conic-gradient(var(--accent1) 0%, var(--accent2) 65%, rgba(255,255,255,0.05) 65%);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .design-b .hero-card .level-ring .inner {
+    width: 64px; height: 64px; border-radius: 50%; background: var(--elevated);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; font-weight: 800;
+  }
+  .design-b .hero-card .rank-label { font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 700; background: linear-gradient(135deg, var(--accent1), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .design-b .hero-card .xp-text { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+
+  .design-b .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
+  .design-b .stat-card {
+    background: var(--elevated); backdrop-filter: blur(16px);
+    border: 1px solid var(--border); border-radius: 18px; padding: 22px; text-align: center;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.2);
+  }
+  .design-b .stat-card .value { font-family: 'Space Grotesk', sans-serif; font-size: 26px; font-weight: 700; color: #fff; }
+  .design-b .stat-card .label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; margin-top: 6px; }
+  .design-b .stat-card .trend { font-size: 10px; margin-top: 8px; padding: 2px 8px; border-radius: 6px; display: inline-block; }
+  .design-b .stat-card .trend.up { background: rgba(110,193,255,0.1); color: var(--accent3); }
+
+  .design-b .card-row { display: grid; grid-template-columns: 5fr 3fr; gap: 14px; }
+  .design-b .feed-card, .design-b .side-card {
+    background: var(--elevated); backdrop-filter: blur(16px);
+    border: 1px solid var(--border); border-radius: 18px; padding: 22px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.2);
+  }
+  .design-b .feed-card h3, .design-b .side-card h3 { font-family: 'Space Grotesk', sans-serif; font-size: 14px; font-weight: 600; margin-bottom: 18px; }
+  .design-b .feed-item { display: flex; align-items: center; gap: 14px; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.03); }
+  .design-b .feed-item .avatar { width: 36px; height: 36px; border-radius: 12px; background: linear-gradient(135deg, rgba(139,122,255,0.15), rgba(214,123,255,0.1)); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: var(--accent2); }
+  .design-b .feed-item .name { font-size: 13px; font-weight: 600; }
+  .design-b .feed-item .meta { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+  .design-b .badge-pill { font-size: 10px; padding: 3px 10px; border-radius: 8px; font-weight: 600; }
+  .design-b .badge-close { background: rgba(139,122,255,0.12); color: var(--accent1); }
+  .design-b .badge-neutral { background: rgba(214,123,255,0.1); color: var(--accent2); }
+
+  /* ══════════════════════════════════════════════════════
+     DESIGN C — "Cosmic Gradient"
+     Fond gradient subtil, couleurs chaudes rose/violet, bold
+     ══════════════════════════════════════════════════════ */
+  .design-c { --bg: #0d0a12; --surface: #14111c; --elevated: #1a1626; --accent1: #c084fc; --accent2: #f472b6; --accent3: #818cf8; --text: #d4d0e0; --text-muted: #6b6580; --border: rgba(192,132,252,0.06); }
+  .design-c .sidebar-mock {
+    width: 72px; background: var(--surface); border-right: 1px solid var(--border);
+    padding: 20px 0; flex-shrink: 0; display: flex; flex-direction: column; align-items: center;
+  }
+  .design-c .sidebar-mock .logo { margin-bottom: 32px; }
+  .design-c .sidebar-mock .logo .icon {
+    width: 40px; height: 40px; border-radius: 14px;
+    background: linear-gradient(135deg, var(--accent1), var(--accent2));
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 16px;
+  }
+  .design-c .sidebar-mock .nav-item {
+    width: 44px; height: 44px; border-radius: 14px; display: flex; align-items: center; justify-content: center;
+    color: var(--text-muted); margin-bottom: 4px; font-size: 11px; position: relative;
+  }
+  .design-c .sidebar-mock .nav-item.active {
+    background: linear-gradient(135deg, rgba(192,132,252,0.15), rgba(244,114,182,0.1));
+    color: var(--accent1);
+  }
+  .design-c .sidebar-mock .nav-item.active::before {
+    content: ''; position: absolute; left: -1px; top: 50%; transform: translateY(-50%);
+    width: 3px; height: 20px; border-radius: 0 4px 4px 0; background: var(--accent1);
+  }
+  .design-c .sidebar-mock .nav-item .dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+
+  .design-c .main-mock {
+    flex: 1; padding: 0; overflow: hidden; position: relative;
+    background: var(--bg);
+  }
+  .design-c .main-mock::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 280px;
+    background: linear-gradient(180deg, rgba(192,132,252,0.06) 0%, transparent 100%);
+    pointer-events: none;
+  }
+  .design-c .main-inner { padding: 32px 36px; position: relative; z-index: 1; }
+  .design-c .page-title { font-family: 'Manrope', sans-serif; font-size: 26px; font-weight: 800; margin-bottom: 24px; }
+
+  .design-c .hero-card {
+    background: linear-gradient(135deg, var(--elevated), rgba(26,22,38,0.95));
+    border: 1px solid var(--border); border-radius: 20px; padding: 0;
+    margin-bottom: 20px; display: flex; overflow: hidden;
+  }
+  .design-c .hero-left {
+    flex: 1; padding: 28px; display: flex; align-items: center; gap: 20px;
+  }
+  .design-c .hero-right {
+    width: 200px; background: linear-gradient(135deg, rgba(192,132,252,0.1), rgba(244,114,182,0.08));
+    display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px;
+    border-left: 1px solid var(--border);
+  }
+  .design-c .hero-right .rank { font-family: 'Manrope', sans-serif; font-size: 32px; font-weight: 800; background: linear-gradient(135deg, var(--accent1), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .design-c .hero-right .rank-label { font-size: 11px; color: var(--accent1); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+
+  .design-c .level-circle {
+    width: 56px; height: 56px; border-radius: 16px; border: 2px solid var(--accent1);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; font-weight: 800; color: var(--accent1); flex-shrink: 0;
+  }
+  .design-c .xp-bar { height: 6px; border-radius: 100px; background: rgba(255,255,255,0.05); margin-top: 10px; overflow: hidden; }
+  .design-c .xp-bar .fill { height: 100%; width: 65%; border-radius: 100px; background: linear-gradient(90deg, var(--accent3), var(--accent1), var(--accent2)); }
+
+  .design-c .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+  .design-c .stat-card {
+    background: var(--elevated); border: 1px solid var(--border); border-radius: 16px; padding: 20px;
+    position: relative; overflow: hidden;
+  }
+  .design-c .stat-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, var(--accent1), var(--accent2));
+    opacity: 0.5;
+  }
+  .design-c .stat-card .value { font-family: 'Manrope', sans-serif; font-size: 28px; font-weight: 800; }
+  .design-c .stat-card .label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; margin-top: 4px; }
+
+  .design-c .card-row { display: grid; grid-template-columns: 3fr 2fr; gap: 14px; }
+  .design-c .feed-card, .design-c .side-card {
+    background: var(--elevated); border: 1px solid var(--border); border-radius: 16px; padding: 22px;
+  }
+  .design-c .feed-card h3, .design-c .side-card h3 { font-family: 'Manrope', sans-serif; font-size: 14px; font-weight: 700; margin-bottom: 16px; }
+  .design-c .feed-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.03); }
+  .design-c .feed-item .avatar { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, rgba(192,132,252,0.2), rgba(244,114,182,0.15)); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: var(--accent2); }
+  .design-c .feed-item .name { font-size: 13px; font-weight: 600; }
+  .design-c .feed-item .meta { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+  .design-c .badge-pill { font-size: 10px; padding: 3px 10px; border-radius: 8px; font-weight: 600; }
+  .design-c .badge-close { background: rgba(192,132,252,0.12); color: var(--accent1); }
+  .design-c .badge-neutral { background: rgba(244,114,182,0.1); color: var(--accent2); }
+
+  /* ══════════════════════════════════════════════════════
+     DESIGN D — "Electric Minimal"
+     Ultra clean, fond noir pur, typographie forte, accents electriques
+     ══════════════════════════════════════════════════════ */
+  .design-d { --bg: #000000; --surface: #0a0a0a; --elevated: #111111; --accent1: #a78bfa; --accent2: #ec4899; --accent3: #60a5fa; --text: #e0e0e0; --text-muted: #555; --border: rgba(167,139,250,0.08); }
+  .design-d .sidebar-mock {
+    width: 220px; background: var(--surface); border-right: 1px solid var(--border);
+    padding: 28px 16px; flex-shrink: 0;
+  }
+  .design-d .sidebar-mock .logo { display: flex; align-items: center; gap: 10px; margin-bottom: 40px; padding: 0 8px; }
+  .design-d .sidebar-mock .logo .icon {
+    width: 32px; height: 32px; border-radius: 8px; border: 2px solid var(--accent1);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 13px; color: var(--accent1);
+  }
+  .design-d .sidebar-mock .logo span { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 15px; letter-spacing: -0.5px; }
+  .design-d .sidebar-mock .nav-item {
+    display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 8px;
+    font-size: 12px; font-weight: 500; color: var(--text-muted); margin-bottom: 1px;
+    letter-spacing: 0.3px;
+  }
+  .design-d .sidebar-mock .nav-item.active {
+    color: #fff; background: none; font-weight: 600;
+  }
+  .design-d .sidebar-mock .nav-item.active .dot { box-shadow: 0 0 8px var(--accent1); }
+  .design-d .sidebar-mock .nav-item .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+  .design-d .main-mock { flex: 1; background: var(--bg); padding: 40px; overflow: hidden; }
+  .design-d .page-title { font-family: 'Space Grotesk', sans-serif; font-size: 28px; font-weight: 700; margin-bottom: 32px; letter-spacing: -1px; }
+
+  .design-d .hero-card {
+    border: 1px solid var(--border); border-radius: 16px; padding: 28px;
+    margin-bottom: 24px; display: flex; align-items: center; gap: 28px;
+    background: var(--elevated);
+  }
+  .design-d .hero-card .level-num { font-family: 'Space Grotesk', sans-serif; font-size: 56px; font-weight: 700; color: var(--accent1); line-height: 1; }
+  .design-d .hero-card .level-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px; }
+  .design-d .xp-bar { height: 4px; border-radius: 2px; background: var(--surface); margin-top: 12px; overflow: hidden; }
+  .design-d .xp-bar .fill { height: 100%; width: 65%; background: linear-gradient(90deg, var(--accent1), var(--accent2)); border-radius: 2px; }
+  .design-d .streak-inline { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--accent2); font-weight: 600; margin-top: 8px; }
+
+  .design-d .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 24px; }
+  .design-d .stat-card {
+    background: var(--elevated); border: 1px solid var(--border); border-radius: 12px; padding: 20px;
+  }
+  .design-d .stat-card .value { font-family: 'Space Grotesk', sans-serif; font-size: 32px; font-weight: 700; }
+  .design-d .stat-card .label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px; margin-top: 4px; }
+
+  .design-d .card-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .design-d .feed-card, .design-d .side-card {
+    background: var(--elevated); border: 1px solid var(--border); border-radius: 12px; padding: 22px;
+  }
+  .design-d .feed-card h3, .design-d .side-card h3 { font-family: 'Space Grotesk', sans-serif; font-size: 13px; font-weight: 600; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); }
+  .design-d .feed-item { display: flex; align-items: center; gap: 14px; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.03); }
+  .design-d .feed-item .avatar { width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: var(--accent1); }
+  .design-d .feed-item .name { font-size: 13px; font-weight: 600; }
+  .design-d .feed-item .meta { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+  .design-d .badge-pill { font-size: 10px; padding: 2px 8px; border-radius: 4px; font-weight: 600; font-family: 'Space Grotesk', sans-serif; }
+  .design-d .badge-close { background: rgba(167,139,250,0.1); color: var(--accent1); }
+  .design-d .badge-neutral { background: rgba(236,72,153,0.1); color: var(--accent2); }
+
+  /* Color palette display */
+  .palette { display: flex; gap: 6px; margin-top: 12px; }
+  .palette .swatch { width: 24px; height: 24px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>GameTrack — Propositions Design</h1>
+  <p>4 directions visuelles inspirees shadcn/ui. Choisis celle qui te parle le plus.</p>
+  <p class="note">Toutes les propositions suivent les principes shadcn : radius cohérents, composants epures, tokens CSS, focus sur la lisibilite.</p>
+</div>
+
+<div class="proposals">
+
+  <!-- ═══ DESIGN A ═══ -->
+  <div class="proposal">
+    <div class="proposal-header">
+      <div>
+        <h2>A — Neon Aurora</h2>
+        <p style="font-size:12px;color:#888;margin-top:4px;">Glassmorphism fort, neon vifs, halo lumineux. Ambiance gaming/cyberpunk.</p>
+        <div class="palette">
+          <div class="swatch" style="background:#7c5cff"></div>
+          <div class="swatch" style="background:#ff5ea0"></div>
+          <div class="swatch" style="background:#3ecfff"></div>
+          <div class="swatch" style="background:#07060a"></div>
+        </div>
+      </div>
+      <span class="tag" style="background:rgba(124,92,255,0.15);color:#7c5cff;">Bold & Glowy</span>
+    </div>
+    <div class="proposal-body design-a">
+      <div class="sidebar-mock">
+        <div class="logo"><div class="icon">G</div><span>GameTrack</span></div>
+        <div class="nav-item active"><div class="dot"></div> Dashboard</div>
+        <div class="nav-item"><div class="dot"></div> Interactions</div>
+        <div class="nav-item"><div class="dot"></div> Sessions</div>
+        <div class="nav-item"><div class="dot"></div> Pipeline</div>
+        <div class="nav-item"><div class="dot"></div> Wings</div>
+        <div class="nav-item"><div class="dot"></div> Progression</div>
+        <div class="nav-item"><div class="dot"></div> Journal</div>
+      </div>
+      <div class="main-mock">
+        <div class="hero-card">
+          <div style="display:flex;align-items:center;gap:20px;position:relative;z-index:1;">
+            <div class="level-badge">4</div>
+            <div style="flex:1">
+              <div style="font-size:12px;color:#c8c5d0;opacity:0.6;text-transform:uppercase;letter-spacing:1px;">Confirme</div>
+              <div style="font-size:20px;font-weight:800;">285 / 440 XP</div>
+              <div class="xp-bar"><div class="fill"></div></div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-size:24px;">🔥</div>
+              <div style="font-size:20px;font-weight:800;color:#ff5ea0;">5j</div>
+              <div style="font-size:9px;color:#5a5665;">STREAK</div>
+            </div>
+          </div>
+        </div>
+        <div class="stat-grid">
+          <div class="stat-card"><div class="value">3</div><div class="label">Aujourd'hui</div></div>
+          <div class="stat-card"><div class="value">12</div><div class="label">Cette semaine</div></div>
+          <div class="stat-card"><div class="value">42%</div><div class="label">Close rate</div></div>
+          <div class="stat-card"><div class="value">7.8</div><div class="label">Ressenti</div></div>
+        </div>
+        <div class="card-row">
+          <div class="feed-card">
+            <h3>Activite recente</h3>
+            <div class="feed-item"><div class="avatar">S</div><div style="flex:1"><div class="name">Sophie</div><div class="meta">Cafe Flore · il y a 1h</div></div><span class="badge-pill badge-close">Close</span></div>
+            <div class="feed-item"><div class="avatar">E</div><div style="flex:1"><div class="name">Emma</div><div class="meta">Librairie · il y a 5h</div></div><span class="badge-pill badge-neutral">Neutre</span></div>
+            <div class="feed-item"><div class="avatar">C</div><div style="flex:1"><div class="name">Clara</div><div class="meta">Rue de Rivoli · hier</div></div><span class="badge-pill badge-close">Close</span></div>
+          </div>
+          <div class="side-card">
+            <h3>Missions actives</h3>
+            <div style="margin-bottom:14px;">
+              <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;"><span>3 interactions</span><span style="color:#7c5cff;font-weight:600;">1/3</span></div>
+              <div style="height:4px;border-radius:2px;background:rgba(0,0,0,0.3);"><div style="height:100%;width:33%;border-radius:2px;background:linear-gradient(90deg,#7c5cff,#ff5ea0);"></div></div>
+            </div>
+            <div style="margin-bottom:14px;">
+              <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;"><span>10 cette semaine</span><span style="color:#7c5cff;font-weight:600;">7/10</span></div>
+              <div style="height:4px;border-radius:2px;background:rgba(0,0,0,0.3);"><div style="height:100%;width:70%;border-radius:2px;background:linear-gradient(90deg,#7c5cff,#3ecfff);"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ DESIGN B ═══ -->
+  <div class="proposal">
+    <div class="proposal-header">
+      <div>
+        <h2>B — Frosted Layers</h2>
+        <p style="font-size:12px;color:#888;margin-top:4px;">Surfaces translucides empilees, ombres profondes, typo Space Grotesk. Elegant et pro.</p>
+        <div class="palette">
+          <div class="swatch" style="background:#8b7aff"></div>
+          <div class="swatch" style="background:#d67bff"></div>
+          <div class="swatch" style="background:#6ec1ff"></div>
+          <div class="swatch" style="background:#0c0b10"></div>
+        </div>
+      </div>
+      <span class="tag" style="background:rgba(139,122,255,0.12);color:#8b7aff;">Elegant & Layered</span>
+    </div>
+    <div class="proposal-body design-b">
+      <div class="sidebar-mock">
+        <div class="logo"><div class="icon">G</div><span>GameTrack</span></div>
+        <div class="nav-item active"><div class="dot"></div> Dashboard</div>
+        <div class="nav-item"><div class="dot"></div> Interactions</div>
+        <div class="nav-item"><div class="dot"></div> Sessions</div>
+        <div class="nav-item"><div class="dot"></div> Pipeline</div>
+        <div class="nav-item"><div class="dot"></div> Wings</div>
+        <div class="nav-item"><div class="dot"></div> Progression</div>
+        <div class="nav-item"><div class="dot"></div> Journal</div>
+      </div>
+      <div class="main-mock">
+        <div class="hero-card">
+          <div class="level-ring"><div class="inner">4</div></div>
+          <div style="flex:1">
+            <div class="rank-label">Confirme</div>
+            <div class="xp-text">285 / 440 XP · Streak 🔥 5j</div>
+            <div style="height:6px;border-radius:100px;background:rgba(0,0,0,0.3);margin-top:12px;overflow:hidden;"><div style="height:100%;width:65%;border-radius:100px;background:linear-gradient(90deg,#8b7aff,#d67bff);"></div></div>
+          </div>
+        </div>
+        <div class="stat-grid">
+          <div class="stat-card"><div class="value">3</div><div class="label">Aujourd'hui</div><span class="trend up">+2</span></div>
+          <div class="stat-card"><div class="value">12</div><div class="label">Cette semaine</div><span class="trend up">+28%</span></div>
+          <div class="stat-card"><div class="value">42%</div><div class="label">Close rate</div></div>
+          <div class="stat-card"><div class="value">7.8</div><div class="label">Ressenti moy.</div></div>
+        </div>
+        <div class="card-row">
+          <div class="feed-card">
+            <h3>Activite recente</h3>
+            <div class="feed-item"><div class="avatar">S</div><div style="flex:1"><div class="name">Sophie</div><div class="meta">Cafe Flore, Paris 6e · il y a 1h</div></div><span class="badge-pill badge-close">Close</span></div>
+            <div class="feed-item"><div class="avatar">E</div><div style="flex:1"><div class="name">Emma</div><div class="meta">Librairie Gibert · il y a 5h</div></div><span class="badge-pill badge-neutral">Neutre</span></div>
+            <div class="feed-item"><div class="avatar">C</div><div style="flex:1"><div class="name">Clara</div><div class="meta">Rue de Rivoli · hier</div></div><span class="badge-pill badge-close">Close</span></div>
+          </div>
+          <div class="side-card">
+            <h3>Pipeline</h3>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;font-size:12px;"><div style="width:8px;height:8px;border-radius:50%;background:#8b7aff;"></div> 2 date planifie</div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;font-size:12px;"><div style="width:8px;height:8px;border-radius:50%;background:#d67bff;"></div> 1 repondu</div>
+            <div style="display:flex;align-items:center;gap:8px;font-size:12px;"><div style="width:8px;height:8px;border-radius:50%;background:#6ec1ff;"></div> 1 nouveau</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ DESIGN C ═══ -->
+  <div class="proposal">
+    <div class="proposal-header">
+      <div>
+        <h2>C — Cosmic Gradient</h2>
+        <p style="font-size:12px;color:#888;margin-top:4px;">Sidebar compacte (icones), gradient subtil en header, couleurs chaudes rose/violet. Bold headlines.</p>
+        <div class="palette">
+          <div class="swatch" style="background:#c084fc"></div>
+          <div class="swatch" style="background:#f472b6"></div>
+          <div class="swatch" style="background:#818cf8"></div>
+          <div class="swatch" style="background:#0d0a12"></div>
+        </div>
+      </div>
+      <span class="tag" style="background:rgba(192,132,252,0.12);color:#c084fc;">Warm & Cosmic</span>
+    </div>
+    <div class="proposal-body design-c">
+      <div class="sidebar-mock">
+        <div class="logo"><div class="icon">G</div></div>
+        <div class="nav-item active"><div class="dot"></div></div>
+        <div class="nav-item"><div class="dot"></div></div>
+        <div class="nav-item"><div class="dot"></div></div>
+        <div class="nav-item"><div class="dot"></div></div>
+        <div class="nav-item"><div class="dot"></div></div>
+        <div class="nav-item"><div class="dot"></div></div>
+        <div class="nav-item"><div class="dot"></div></div>
+      </div>
+      <div class="main-mock">
+        <div class="main-inner">
+          <div class="page-title">Dashboard</div>
+          <div class="hero-card">
+            <div class="hero-left">
+              <div class="level-circle">4</div>
+              <div style="flex:1">
+                <div style="font-size:11px;color:#6b6580;text-transform:uppercase;letter-spacing:1px;">Niveau 4</div>
+                <div style="font-size:18px;font-weight:700;">285 / 440 XP</div>
+                <div class="xp-bar"><div class="fill"></div></div>
+              </div>
+            </div>
+            <div class="hero-right">
+              <div class="rank">52</div>
+              <div class="rank-label">Confirme</div>
+              <div style="font-size:10px;color:#6b6580;margin-top:4px;">Skill Score</div>
+            </div>
+          </div>
+          <div class="stat-grid">
+            <div class="stat-card"><div class="value" style="color:#c084fc;">3</div><div class="label">Aujourd'hui</div></div>
+            <div class="stat-card"><div class="value" style="color:#f472b6;">12</div><div class="label">Semaine</div></div>
+            <div class="stat-card"><div class="value" style="color:#818cf8;">42%</div><div class="label">Close rate</div></div>
+            <div class="stat-card"><div class="value" style="color:#c084fc;">7.8</div><div class="label">Ressenti</div></div>
+          </div>
+          <div class="card-row">
+            <div class="feed-card">
+              <h3>Dernieres interactions</h3>
+              <div class="feed-item"><div class="avatar">S</div><div style="flex:1"><div class="name">Sophie</div><div class="meta">Cafe Flore · 1h · Direct</div></div><span class="badge-pill badge-close">Close</span></div>
+              <div class="feed-item"><div class="avatar">E</div><div style="flex:1"><div class="name">Emma</div><div class="meta">Librairie · 5h · Situationnel</div></div><span class="badge-pill badge-neutral">Neutre</span></div>
+              <div class="feed-item"><div class="avatar">C</div><div style="flex:1"><div class="name">Clara</div><div class="meta">Rivoli · hier · Direct</div></div><span class="badge-pill badge-close">Close</span></div>
+            </div>
+            <div class="side-card">
+              <h3>Streak</h3>
+              <div style="text-align:center;padding:16px 0;">
+                <div style="font-size:40px;font-weight:800;color:#f472b6;">5</div>
+                <div style="font-size:11px;color:#6b6580;margin-top:4px;">jours consecutifs</div>
+                <div style="display:flex;justify-content:center;gap:4px;margin-top:12px;">
+                  <div style="width:8px;height:8px;border-radius:50%;background:linear-gradient(135deg,#c084fc,#f472b6);"></div>
+                  <div style="width:8px;height:8px;border-radius:50%;background:linear-gradient(135deg,#c084fc,#f472b6);"></div>
+                  <div style="width:8px;height:8px;border-radius:50%;background:linear-gradient(135deg,#c084fc,#f472b6);"></div>
+                  <div style="width:8px;height:8px;border-radius:50%;background:linear-gradient(135deg,#c084fc,#f472b6);"></div>
+                  <div style="width:8px;height:8px;border-radius:50%;background:linear-gradient(135deg,#c084fc,#f472b6);"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ DESIGN D ═══ -->
+  <div class="proposal">
+    <div class="proposal-header">
+      <div>
+        <h2>D — Electric Minimal</h2>
+        <p style="font-size:12px;color:#888;margin-top:4px;">Fond noir pur, typographie forte Space Grotesk, accents electriques. Ultra-clean, presque brutalist.</p>
+        <div class="palette">
+          <div class="swatch" style="background:#a78bfa"></div>
+          <div class="swatch" style="background:#ec4899"></div>
+          <div class="swatch" style="background:#60a5fa"></div>
+          <div class="swatch" style="background:#000000;border-color:rgba(255,255,255,0.2);"></div>
+        </div>
+      </div>
+      <span class="tag" style="background:rgba(167,139,250,0.12);color:#a78bfa;">Clean & Electric</span>
+    </div>
+    <div class="proposal-body design-d">
+      <div class="sidebar-mock">
+        <div class="logo"><div class="icon">GT</div><span>GameTrack</span></div>
+        <div class="nav-item active"><div class="dot"></div> Dashboard</div>
+        <div class="nav-item"><div class="dot"></div> Interactions</div>
+        <div class="nav-item"><div class="dot"></div> Sessions</div>
+        <div class="nav-item"><div class="dot"></div> Pipeline</div>
+        <div class="nav-item"><div class="dot"></div> Wings</div>
+        <div class="nav-item"><div class="dot"></div> Progression</div>
+        <div class="nav-item"><div class="dot"></div> Journal</div>
+      </div>
+      <div class="main-mock">
+        <div class="page-title">Dashboard</div>
+        <div class="hero-card">
+          <div class="level-num">4</div>
+          <div style="flex:1">
+            <div class="level-label">Niveau · Confirme</div>
+            <div style="font-size:16px;font-weight:600;margin-top:6px;">285 / 440 XP</div>
+            <div class="xp-bar"><div class="fill"></div></div>
+            <div class="streak-inline">🔥 5 jours</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:40px;font-weight:700;font-family:'Space Grotesk';color:#a78bfa;">52</div>
+            <div style="font-size:10px;color:#555;text-transform:uppercase;letter-spacing:1px;">Skill Score</div>
+          </div>
+        </div>
+        <div class="stat-grid">
+          <div class="stat-card"><div class="value">3</div><div class="label">Aujourd'hui</div></div>
+          <div class="stat-card"><div class="value">12</div><div class="label">Semaine</div></div>
+          <div class="stat-card"><div class="value">42%</div><div class="label">Close Rate</div></div>
+          <div class="stat-card"><div class="value">7.8</div><div class="label">Feeling</div></div>
+        </div>
+        <div class="card-row">
+          <div class="feed-card">
+            <h3>Recent</h3>
+            <div class="feed-item"><div class="avatar">S</div><div style="flex:1"><div class="name">Sophie</div><div class="meta">Cafe Flore · 1h</div></div><span class="badge-pill badge-close">Close</span></div>
+            <div class="feed-item"><div class="avatar">E</div><div style="flex:1"><div class="name">Emma</div><div class="meta">Librairie · 5h</div></div><span class="badge-pill badge-neutral">Neutre</span></div>
+            <div class="feed-item"><div class="avatar">C</div><div style="flex:1"><div class="name">Clara</div><div class="meta">Rivoli · hier</div></div><span class="badge-pill badge-close">Close</span></div>
+          </div>
+          <div class="feed-card">
+            <h3>Missions</h3>
+            <div style="margin-bottom:16px;">
+              <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px;"><span style="color:#e0e0e0;">3 interactions</span><span style="font-family:'Space Grotesk';font-weight:600;color:#a78bfa;">1/3</span></div>
+              <div class="xp-bar"><div class="fill" style="width:33%"></div></div>
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px;"><span style="color:#e0e0e0;">10 cette semaine</span><span style="font-family:'Space Grotesk';font-weight:600;color:#ec4899;">7/10</span></div>
+              <div class="xp-bar"><div class="fill" style="width:70%;background:linear-gradient(90deg,#ec4899,#a78bfa);"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

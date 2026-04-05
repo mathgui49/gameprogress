@@ -80,7 +80,7 @@ export default function WingsPage() {
 
   const tabs: { key: Tab; label: string; count?: number }[] = [
     { key: "wings", label: "Mes Wings", count: wingProfiles.length },
-    { key: "discover", label: "Decouvrir" },
+    { key: "discover", label: "Découvrir" },
     { key: "map", label: "Carte" },
     { key: "invitations", label: "Invitations", count: pendingReceived.length },
   ];
@@ -120,8 +120,8 @@ export default function WingsPage() {
           {!myProfile?.username && (
             <Card className="mb-4 !border-amber-400/20">
               <p className="text-sm text-amber-400 mb-2">Configure ton profil public d&apos;abord</p>
-              <p className="text-xs text-[var(--on-surface-variant)] mb-3">Va dans Parametres pour creer ton nom d&apos;utilisateur et rendre ton profil visible.</p>
-              <Link href="/settings"><Button size="sm">Aller aux parametres</Button></Link>
+              <p className="text-xs text-[var(--on-surface-variant)] mb-3">Va dans Paramètres pour créer ton nom d&apos;utilisateur et rendre ton profil visible.</p>
+              <Link href="/settings"><Button size="sm">Aller aux paramètres</Button></Link>
             </Card>
           )}
 
@@ -129,7 +129,7 @@ export default function WingsPage() {
             <EmptyState
               icon={<IconUsers size={28} />}
               title="Aucun wing"
-              description="Cherche des partenaires dans l'onglet Decouvrir ou invite quelqu'un avec son nom d'utilisateur."
+              description="Cherche des partenaires dans l'onglet Découvrir ou invite quelqu'un avec son nom d'utilisateur."
               action={<Button onClick={() => setTab("discover")}>Decouvrir</Button>}
             />
           ) : (

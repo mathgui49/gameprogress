@@ -38,7 +38,7 @@ interface Notification {
 
 const ACCOUNT_MENU = [
   { href: "/profil", label: "Profil", icon: "M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" },
-  { href: "/settings", label: "Parametres", icon: "M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z" },
+  { href: "/settings", label: "Paramètres", icon: "M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z" },
   { href: "/reports", label: "Rapports", icon: "M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" },
 ];
 
@@ -108,13 +108,13 @@ export function TopBar() {
     allNotifications.push({
       id: `sinv-${inv.id}`,
       icon: "📅",
-      text: `@${ownerName} t'invite a "${sessionTitle}"`,
+      text: `@${ownerName} t'invite à "${sessionTitle}"`,
       date: inv.createdAt,
       color: "text-cyan-400",
       action: (
         <div className="flex gap-2 mt-2">
           <Button size="sm" onClick={() => handleInviteResponse(inv.id, "accepted")}>Accepter</Button>
-          <Button size="sm" variant="ghost" onClick={() => handleInviteResponse(inv.id, "declined")}>Decliner</Button>
+          <Button size="sm" variant="ghost" onClick={() => handleInviteResponse(inv.id, "declined")}>Décliner</Button>
         </div>
       ),
     });
@@ -125,7 +125,7 @@ export function TopBar() {
   });
 
   gam.badges.filter((b) => b.unlockedAt).sort((a, b) => new Date(b.unlockedAt!).getTime() - new Date(a.unlockedAt!).getTime()).slice(0, 3).forEach((b) => {
-    allNotifications.push({ id: `badge-${b.id}`, icon: "🏅", text: `Badge debloque : ${b.name}`, date: b.unlockedAt!, color: "text-amber-400" });
+    allNotifications.push({ id: `badge-${b.id}`, icon: "🏅", text: `Badge débloqué : ${b.name}`, date: b.unlockedAt!, color: "text-amber-400" });
   });
 
   gam.milestones.filter((m) => m.unlockedAt).sort((a, b) => new Date(b.unlockedAt!).getTime() - new Date(a.unlockedAt!).getTime()).slice(0, 3).forEach((m) => {
@@ -133,7 +133,7 @@ export function TopBar() {
   });
 
   pendingReceived.forEach((r) => {
-    allNotifications.push({ id: `wing-${r.id}`, icon: "🤝", text: `Invitation wing recue`, date: r.createdAt, color: "text-[var(--tertiary)]" });
+    allNotifications.push({ id: `wing-${r.id}`, icon: "🤝", text: `Invitation wing reçue`, date: r.createdAt, color: "text-[var(--tertiary)]" });
   });
 
   allNotifications.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
@@ -150,6 +150,7 @@ export function TopBar() {
         <Tooltip text="Calendrier" position="bottom">
           <Link
             href="/calendrier"
+            aria-label="Calendrier"
             className={`relative p-2 rounded-xl transition-colors ${pathname === "/calendrier" ? "bg-[var(--primary)]/15 text-[var(--primary)]" : "text-[var(--outline)] hover:text-[var(--on-surface-variant)] hover:bg-[var(--border)]"}`}
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -161,6 +162,7 @@ export function TopBar() {
         <Tooltip text="Notifications" position="bottom">
           <button
             onClick={() => { setShowNotifs(true); markAllRead(); }}
+            aria-label="Notifications"
             className="relative p-2 rounded-xl text-[var(--outline)] hover:text-[var(--on-surface-variant)] hover:bg-[var(--border)] transition-colors"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -179,6 +181,7 @@ export function TopBar() {
           <Tooltip text="Mon compte" position="bottom">
           <button
             onClick={() => setShowAccount(!showAccount)}
+            aria-label="Mon compte"
             className="relative p-1 rounded-xl hover:bg-[var(--border)] transition-colors"
           >
             {authSession.user.image ? (
@@ -256,7 +259,7 @@ export function TopBar() {
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
               </svg>
-              Deconnexion
+              Déconnexion
             </button>
           </div>
         </div>

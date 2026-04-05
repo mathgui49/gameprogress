@@ -31,17 +31,17 @@ export default function NewInteractionPage() {
       </div>
 
       <InteractionForm
-        onSubmit={(data) => {
-          const interaction = add(data);
+        onSubmit={async (data) => {
+          const interaction = await add(data);
           // XP rewards
-          addXP(XP_VALUES.interaction_created, "Interaction cree");
-          if (data.note) addXP(XP_VALUES.interaction_with_note, "Note ajoutee");
+          addXP(XP_VALUES.interaction_created, "Interaction créée");
+          if (data.note) addXP(XP_VALUES.interaction_with_note, "Note ajoutée");
           if (data.result === "close") addXP(XP_VALUES.close, "Close !");
           updateStreak();
           // Auto-create contact on close (pipeline)
           if (data.result === "close") {
-            if (data.contactMethod && data.contactValue) addXP(XP_VALUES.contact_added, "Contact ajoute");
-            addContact({
+            if (data.contactMethod && data.contactValue) addXP(XP_VALUES.contact_added, "Contact ajouté");
+            await addContact({
               firstName: data.firstName || data.memorableElement || "Inconnue",
               sourceInteractionId: interaction.id,
               method: data.contactMethod || "other",

@@ -70,57 +70,57 @@ const FEATURES = [
   {
     icon: "M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.631 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58m-.119-8.54a6 6 0 00-7.381 5.84h4.8m2.58-5.84a14.927 14.927 0 00-2.58 5.84m2.699 2.7c-.103.021-.207.041-.311.06a15.09 15.09 0 01-2.448-2.448 14.9 14.9 0 01.06-.312m-2.24 2.39a4.493 4.493 0 00-1.757 4.306 4.493 4.493 0 004.306-1.758M16.5 9a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z",
     title: "Gamification Complete",
-    desc: "XP, niveaux, streaks, 18+ badges, milestones et missions personnalisees. Chaque action te rapproche du level suivant.",
+    desc: "XP, niveaux, streaks, 18+ badges, milestones et missions personnalisées. Chaque action te rapproche du level suivant.",
     color: "from-[#f472b6] to-[#c084fc]",
   },
   {
     icon: "M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941",
     title: "Progression & Analytics",
-    desc: "Score de competence, rang (Debutant a Maitre), rapports mensuels detailles, graphiques d'evolution et export PDF.",
+    desc: "Score de compétence, rang (Débutant à Maître), rapports mensuels détaillés, graphiques d'évolution et export PDF.",
     color: "from-[#818cf8] to-[#67e8f9]",
   },
   {
     icon: "M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z",
-    title: "Wings & Communaute",
+    title: "Wings & Communauté",
     desc: "Ajoute tes wings, partage tes sessions, compare-toi au classement, like et commente dans le feed communautaire.",
     color: "from-[#34d399] to-[#818cf8]",
   },
   {
     icon: "M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 010 3.75H5.625a1.875 1.875 0 010-3.75z",
     title: "Pipeline CRM",
-    desc: "Gere tes contacts en Kanban : du premier close au date, suis chaque etape avec rappels et timeline complete.",
+    desc: "Gère tes contacts en Kanban : du premier close au date, suis chaque étape avec rappels et timeline complète.",
     color: "from-[#f59e0b] to-[#f472b6]",
   },
   {
     icon: "M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487z",
-    title: "Journal & Reflexion",
-    desc: "Note tes reflexions, mindset et reviews. Partage avec tes wings ou garde-les privees. Gagne de l'XP en ecrivant.",
+    title: "Journal & Réflexion",
+    desc: "Note tes réflexions, mindset et reviews. Partage avec tes wings ou garde-les privées. Gagne de l'XP en écrivant.",
     color: "from-[#67e8f9] to-[#c084fc]",
   },
 ];
 
 const STEPS = [
-  { num: "01", title: "Cree ton profil", desc: "Connecte-toi en 2 secondes avec Google et personnalise ton profil.", icon: "M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" },
-  { num: "02", title: "Track tes interactions", desc: "Log chaque approche en detail : type, resultat, ressenti, notes. Rapide ou complet.", icon: "M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" },
-  { num: "03", title: "Progresse et domine", desc: "Gagne de l'XP, debloque des badges, complete des missions et grimpe au classement.", icon: "M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 01-.982-3.172M9.497 14.25a7.454 7.454 0 00.981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 007.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M18.75 4.236c.982.143 1.954.317 2.916.52A6.003 6.003 0 0016.27 9.728M18.75 4.236V4.5c0 2.108-.966 3.99-2.48 5.228m0 0a6.003 6.003 0 01-5.54 0" },
+  { num: "01", title: "Crée ton profil", desc: "Connecte-toi en 2 secondes avec Google et personnalise ton profil.", icon: "M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" },
+  { num: "02", title: "Track tes interactions", desc: "Log chaque approche en détail : type, résultat, ressenti, notes. Rapide ou complet.", icon: "M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" },
+  { num: "03", title: "Progresse et domine", desc: "Gagne de l'XP, débloque des badges, complète des missions et grimpe au classement.", icon: "M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 01-.982-3.172M9.497 14.25a7.454 7.454 0 00.981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 007.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M18.75 4.236c.982.143 1.954.317 2.916.52A6.003 6.003 0 0016.27 9.728M18.75 4.236V4.5c0 2.108-.966 3.99-2.48 5.228m0 0a6.003 6.003 0 01-5.54 0" },
 ];
 
 const RANKS = [
-  { name: "Debutant", color: "#6b6580" },
+  { name: "Débutant", color: "#6b6580" },
   { name: "Apprenti", color: "#67e8f9" },
-  { name: "Intermediaire", color: "#34d399" },
-  { name: "Confirme", color: "#818cf8" },
-  { name: "Avance", color: "#c084fc" },
+  { name: "Intermédiaire", color: "#34d399" },
+  { name: "Confirmé", color: "#818cf8" },
+  { name: "Avancé", color: "#c084fc" },
   { name: "Expert", color: "#f472b6" },
-  { name: "Maitre", color: "#f59e0b" },
+  { name: "Maître", color: "#f59e0b" },
 ];
 
 const SHOWCASE_TABS = [
-  { key: "dashboard", label: "Dashboard", desc: "Tableau de bord complet avec XP, streak, stats du jour et activite recente. Tout est visible en un coup d'oeil pour rester motive." },
-  { key: "progression", label: "Progression", desc: "Score de competence calcule automatiquement, rang evolutif, collection de badges et milestones a debloquer." },
-  { key: "missions", label: "Missions", desc: "Cree des missions personnalisees avec suivi automatique ou manuel. Deadline, XP reward, progression en temps reel." },
-  { key: "leaderboard", label: "Classement", desc: "Compare-toi aux autres joueurs. Classement par XP, niveau ou streak. Filtre par ville pour un defi local." },
-  { key: "pipeline", label: "Pipeline", desc: "CRM integre pour gerer tes contacts : du numero au date, suis chaque etape avec des rappels intelligents." },
+  { key: "dashboard", label: "Dashboard", desc: "Tableau de bord complet avec XP, streak, stats du jour et activité récente. Tout est visible en un coup d'œil pour rester motivé." },
+  { key: "progression", label: "Progression", desc: "Score de compétence calculé automatiquement, rang évolutif, collection de badges et milestones à débloquer." },
+  { key: "missions", label: "Missions", desc: "Crée des missions personnalisées avec suivi automatique ou manuel. Deadline, XP reward, progression en temps réel." },
+  { key: "leaderboard", label: "Classement", desc: "Compare-toi aux autres joueurs. Classement par XP, niveau ou streak. Filtre par ville pour un défi local." },
+  { key: "pipeline", label: "Pipeline", desc: "CRM intégré pour gérer tes contacts : du numéro au date, suis chaque étape avec des rappels intelligents." },
 ];
 
 export default function LandingPage() {
@@ -139,7 +139,7 @@ export default function LandingPage() {
       <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrollY > 50 ? "bg-[#0d0a12]/80 backdrop-blur-xl border-b border-[rgba(192,132,252,0.06)]" : ""}`}>
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Image src="/logo.png" alt="GameProgress" width={32} height={32} className="rounded-lg shadow-[0_0_16px_-4px_rgba(192,132,252,0.4)]" />
+            <Image src="/logo.webp" alt="GameProgress" width={32} height={32} className="rounded-lg shadow-[0_0_16px_-4px_rgba(192,132,252,0.4)]" />
             <span className="font-[family-name:var(--font-grotesk)] font-bold text-lg">GameProgress</span>
           </div>
           <div className="hidden md:flex items-center gap-8">
@@ -169,7 +169,7 @@ export default function LandingPage() {
           {/* Badge */}
           <Section>
             <div className="mb-6">
-              <Image src="/logo.png" alt="GameProgress" width={72} height={72} className="mx-auto rounded-2xl shadow-[0_0_32px_-8px_rgba(192,132,252,0.5)]" />
+              <Image src="/logo.webp" alt="GameProgress" width={72} height={72} className="mx-auto rounded-2xl shadow-[0_0_32px_-8px_rgba(192,132,252,0.5)]" />
             </div>
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#c084fc]/10 border border-[#c084fc]/20 mb-8">
               <span className="w-2 h-2 rounded-full bg-[#34d399] animate-pulse" />
@@ -201,7 +201,7 @@ export default function LandingPage() {
                 <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
               </Link>
               <a href="#showcase" className="px-8 py-3.5 rounded-xl border border-[rgba(192,132,252,0.2)] text-base font-medium text-[#a09bb2] hover:text-[#f0eef5] hover:border-[rgba(192,132,252,0.4)] transition-all hover:bg-[rgba(192,132,252,0.05)]">
-                Voir l&apos;apercu
+                Voir l&apos;aperçu
               </a>
             </div>
           </Section>
@@ -210,7 +210,7 @@ export default function LandingPage() {
           <Section delay={400}>
             <div className="flex items-center justify-center gap-6 sm:gap-10">
               {[
-                { icon: "M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z", label: "Donnees privees" },
+                { icon: "M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z", label: "Données privées" },
                 { icon: "M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3", label: "PWA Mobile" },
                 { icon: "M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z", label: "100% gratuit" },
               ].map((t) => (
@@ -425,10 +425,10 @@ export default function LandingPage() {
                   {activeTab === "pipeline" && (
                     <div className="space-y-2 animate-fade-in">
                       {[
-                        { name: "Emma", status: "Date planifie", color: "#818cf8" },
-                        { name: "Sarah", status: "Repondu", color: "#34d399" },
+                        { name: "Emma", status: "Date planifié", color: "#818cf8" },
+                        { name: "Sarah", status: "Répondu", color: "#34d399" },
                         { name: "Julie", status: "Nouveau", color: "#c084fc" },
-                        { name: "Lea", status: "Contacte", color: "#f59e0b" },
+                        { name: "Léa", status: "Contacté", color: "#f59e0b" },
                       ].map((c) => (
                         <div key={c.name} className="flex items-center gap-3 p-2.5 rounded-lg bg-[#1a1626]">
                           <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#c084fc]/20 to-[#f472b6]/20 flex items-center justify-center text-[10px] font-bold text-[#c084fc]">{c.name[0]}</div>
@@ -520,10 +520,10 @@ export default function LandingPage() {
           <Section>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {[
-                { value: 500, suffix: "+", label: "Interactions trackees" },
+                { value: 500, suffix: "+", label: "Interactions trackées" },
                 { value: 50, suffix: "+", label: "Utilisateurs actifs" },
-                { value: 10, suffix: "K+", label: "XP gagnes" },
-                { value: 200, suffix: "+", label: "Missions completees" },
+                { value: 10, suffix: "K+", label: "XP gagnés" },
+                { value: 200, suffix: "+", label: "Missions complétées" },
               ].map((s) => (
                 <div key={s.label} className="text-center p-6 rounded-2xl border border-[rgba(192,132,252,0.1)] bg-[#14111c] hover:border-[rgba(192,132,252,0.2)] transition-all hover:shadow-[0_0_32px_-8px_rgba(192,132,252,0.1)]">
                   <p className="text-3xl sm:text-4xl font-[family-name:var(--font-grotesk)] font-bold text-[#c084fc]">
@@ -623,18 +623,18 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-3">
-              <Image src="/logo.png" alt="GameProgress" width={32} height={32} className="rounded-lg" />
+              <Image src="/logo.webp" alt="GameProgress" width={32} height={32} className="rounded-lg" />
               <span className="font-[family-name:var(--font-grotesk)] font-bold">GameProgress</span>
             </div>
             <div className="flex items-center gap-8">
-              <a href="#features" className="text-xs text-[#6b6580] hover:text-[#a09bb2] transition-colors">Fonctionnalites</a>
-              <a href="#showcase" className="text-xs text-[#6b6580] hover:text-[#a09bb2] transition-colors">Apercu</a>
+              <a href="#features" className="text-xs text-[#6b6580] hover:text-[#a09bb2] transition-colors">Fonctionnalités</a>
+              <a href="#showcase" className="text-xs text-[#6b6580] hover:text-[#a09bb2] transition-colors">Aperçu</a>
               <a href="#gamification" className="text-xs text-[#6b6580] hover:text-[#a09bb2] transition-colors">Gamification</a>
-              <a href="#how" className="text-xs text-[#6b6580] hover:text-[#a09bb2] transition-colors">Comment ca marche</a>
+              <a href="#how" className="text-xs text-[#6b6580] hover:text-[#a09bb2] transition-colors">Comment ça marche</a>
             </div>
             <div className="text-center">
               <p className="text-xs text-[#3d3650]">&copy; 2025 GameProgress</p>
-              <p className="text-[10px] text-[#3d3650] mt-1">Developpe par Mathieu Guicheteau, propulse par MathBusiness</p>
+              <p className="text-[10px] text-[#3d3650] mt-1">Développé par Mathieu Guicheteau, propulsé par MathBusiness</p>
             </div>
           </div>
         </div>

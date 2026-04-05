@@ -4,10 +4,10 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 
 const QUOTES = [
-  { text: "Parfois on fait tout bien, mais le numero etait faux depuis le debut...", emoji: "📱" },
-  { text: "Tu as approach avec confiance, mais cette page t'a ghost.", emoji: "👻" },
-  { text: "Meme les meilleurs se prennent des vents. Cette page n'existe pas.", emoji: "💨" },
-  { text: "Elle avait l'air interessee... mais cette URL a disparu comme un match Tinder.", emoji: "🔥" },
+  { text: "Parfois on fait tout bien, mais le numéro était faux depuis le début...", emoji: "📱" },
+  { text: "Tu as approché avec confiance, mais cette page t'a ghost.", emoji: "👻" },
+  { text: "Même les meilleurs se prennent des vents. Cette page n'existe pas.", emoji: "💨" },
+  { text: "Elle avait l'air intéressée... mais cette URL a disparu comme un match Tinder.", emoji: "🔥" },
   { text: "404 : le close rate de cette page est de 0%. Essaie une autre approche.", emoji: "📊" },
 ];
 

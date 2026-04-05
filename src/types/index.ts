@@ -128,9 +128,9 @@ export const MISSION_TRACKING_LABELS: Record<MissionTrackingType, string> = {
   closes: "Closes",
   sessions: "Sessions",
   dates: "Dates",
-  journal: "Entrees journal",
+  journal: "Entrées journal",
   contacts: "Contacts",
-  custom: "Personnalise",
+  custom: "Personnalisé",
 };
 
 export interface Mission {
@@ -313,15 +313,15 @@ export const TYPE_COLORS: Record<ApproachType, string> = {
 
 export const STATUS_LABELS: Record<ContactStatus, string> = {
   new: "Nouveau",
-  contacted: "Contacte",
-  replied: "Repondu",
-  date_planned: "Date planifie",
+  contacted: "Contacté",
+  replied: "Répondu",
+  date_planned: "Date planifié",
   first_date: "Premier date",
   second_date: "Second date",
   kissclose: "Kiss close",
   fuckclose: "Fuck close",
-  advanced: "Avance",
-  archived: "Archive",
+  advanced: "Avancé",
+  archived: "Archivé",
 };
 
 export const STATUS_COLORS: Record<ContactStatus, string> = {
@@ -339,26 +339,26 @@ export const STATUS_COLORS: Record<ContactStatus, string> = {
 
 export const OBJECTION_LABELS: Record<ObjectionType, string> = {
   in_relationship: "En couple",
-  not_interested: "Pas interessee",
-  busy: "Pressee / pas le temps",
+  not_interested: "Pas intéressée",
+  busy: "Pressée / pas le temps",
   too_young: "Trop jeune",
   too_old: "Trop vieux",
   other: "Autre",
 };
 
 export const ARCHIVE_REASON_LABELS: Record<ArchiveReason, string> = {
-  no_interest: "Desinteret explicite",
+  no_interest: "Désintérêt explicite",
   ghosted: "Aucune nouvelle",
   taken: "En couple entre temps",
-  moved: "A demenage",
+  moved: "A déménagé",
   other: "Autre",
 };
 
 export const JOURNAL_TAG_LABELS: Record<JournalTag, string> = {
   mindset: "Mindset",
-  progress: "Progres",
+  progress: "Progrès",
   fear: "Peur",
-  reflection: "Reflexion",
+  reflection: "Réflexion",
   review: "Bilan",
   motivation: "Motivation",
 };
@@ -376,13 +376,13 @@ export const JOURNAL_TAG_COLORS: Record<JournalTag, string> = {
 export type SkillRank = "debutant" | "apprenti" | "intermediaire" | "confirme" | "avance" | "expert" | "maitre";
 
 export const SKILL_RANK_LABELS: Record<SkillRank, string> = {
-  debutant: "Debutant",
+  debutant: "Débutant",
   apprenti: "Apprenti",
-  intermediaire: "Intermediaire",
-  confirme: "Confirme",
-  avance: "Avance",
+  intermediaire: "Intermédiaire",
+  confirme: "Confirmé",
+  avance: "Avancé",
   expert: "Expert",
-  maitre: "Maitre",
+  maitre: "Maître",
 };
 
 export const SKILL_RANK_COLORS: Record<SkillRank, string> = {

@@ -72,7 +72,7 @@ export default function ContactsPage() {
                           </div>
                           <div>
                             <p className="text-sm font-semibold text-[var(--on-surface)]">{contact.firstName}</p>
-                            <p className="text-[10px] text-[var(--outline)]">{contact.method === "instagram" ? contact.methodValue : "Telephone"}</p>
+                            <p className="text-[10px] text-[var(--outline)]">{contact.method === "instagram" ? contact.methodValue : "Téléphone"}</p>
                           </div>
                         </div>
                       </div>
@@ -103,13 +103,13 @@ export default function ContactsPage() {
       {/* New contact modal */}
       <Modal open={showNew} onClose={() => setShowNew(false)} title="Nouveau contact">
         <div className="space-y-4">
-          <Input label="Prenom" placeholder="Prenom ou identifiant" value={newName} onChange={(e) => setNewName(e.target.value)} />
-          <Select label="Type de contact" options={[{ value: "instagram", label: "Instagram" }, { value: "phone", label: "Telephone" }, { value: "other", label: "Autre" }]} value={newMethod} onChange={(e) => setNewMethod(e.target.value as ContactMethod)} />
+          <Input label="Prénom" placeholder="Prénom ou identifiant" value={newName} onChange={(e) => setNewName(e.target.value)} />
+          <Select label="Type de contact" options={[{ value: "instagram", label: "Instagram" }, { value: "phone", label: "Téléphone" }, { value: "other", label: "Autre" }]} value={newMethod} onChange={(e) => setNewMethod(e.target.value as ContactMethod)} />
           <Input label="Valeur" placeholder={newMethod === "instagram" ? "@pseudo" : "06..."} value={newValue} onChange={(e) => setNewValue(e.target.value)} />
           <Button disabled={!newName.trim()} onClick={() => {
             add({ firstName: newName.trim(), sourceInteractionId: "", method: newMethod, methodValue: newValue, status: "new", tags: [], notes: "" });
             setNewName(""); setNewValue(""); setShowNew(false);
-          }}>Creer</Button>
+          }}>Créer</Button>
         </div>
       </Modal>
     </div>

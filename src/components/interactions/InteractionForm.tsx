@@ -39,15 +39,15 @@ const NEUTRAL_OBJECTIONS: { value: ObjectionType; label: string }[] = [
   { value: "other", label: "Autre" },
 ];
 const REJECTION_OBJECTIONS: { value: ObjectionType; label: string }[] = [
-  { value: "not_interested", label: "Pas interessee" },
-  { value: "busy", label: "Pressee / pas le temps" },
+  { value: "not_interested", label: "Pas intéressée" },
+  { value: "busy", label: "Pressée / pas le temps" },
   { value: "too_old", label: "Trop vieux / trop jeune" },
   { value: "other", label: "Autre" },
 ];
 
 const contactMethodOptionsClose = [
   { value: "instagram", label: "Instagram" },
-  { value: "phone", label: "Telephone" },
+  { value: "phone", label: "Téléphone" },
   { value: "other", label: "Autre" },
 ];
 
@@ -178,7 +178,7 @@ export function InteractionForm({ initial, defaultLocation, defaultSessionId, on
             ))}
           </div>
           {objection === "other" && (
-            <Input placeholder="Preciser l'objection..." value={objectionCustom} onChange={(e) => setObjectionCustom(e.target.value)} className="mt-2" />
+            <Input placeholder="Préciser l'objection..." value={objectionCustom} onChange={(e) => setObjectionCustom(e.target.value)} className="mt-2" />
           )}
         </div>
       )}
@@ -202,7 +202,7 @@ export function InteractionForm({ initial, defaultLocation, defaultSessionId, on
             ))}
           </div>
           {contactMethod && (
-            <Input label="Valeur" id="cv" placeholder={contactMethod === "instagram" ? "@pseudo" : contactMethod === "phone" ? "06..." : "Preciser"} value={contactValue} onChange={(e) => setContactValue(e.target.value)} />
+            <Input label="Valeur" id="cv" placeholder={contactMethod === "instagram" ? "@pseudo" : contactMethod === "phone" ? "06..." : "Préciser"} value={contactValue} onChange={(e) => setContactValue(e.target.value)} />
           )}
         </div>
       )}

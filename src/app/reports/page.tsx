@@ -132,7 +132,7 @@ export default function ReportsPage() {
               </span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-[var(--on-surface-variant)]">Missions completees</span>
+              <span className="text-sm text-[var(--on-surface-variant)]">Missions complétées</span>
               <span className="text-sm font-bold text-emerald-400">{completedMissions.length}</span>
             </div>
           </div>

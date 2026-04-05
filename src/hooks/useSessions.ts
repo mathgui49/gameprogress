@@ -3,80 +3,72 @@
 import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import type { Session } from "@/types";
-import { fetchAll, insertRow, updateRow, deleteRow, fetchAcceptedSessionsForUser } from "@/lib/db";
+import { insertRow, updateRow, deleteRow, fetchAcceptedSessionsForUser } from "@/lib/db";
+import { useSwrFetch, mutateTable } from "@/lib/swr";
 import { generateId } from "@/lib/utils";
 
 export function useSessions() {
   const { data: authSession } = useSession();
   const userId = authSession?.user?.email ?? "";
-  const [sessions, setSessions] = useState<Session[]>([]);
+  const { data: sessions, loaded: ownLoaded } = useSwrFetch<Session>("sessions", userId);
   const [invitedSessions, setInvitedSessions] = useState<Session[]>([]);
-  const [loaded, setLoaded] = useState(false);
+  const [invitedLoaded, setInvitedLoaded] = useState(false);
 
   useEffect(() => {
     if (!userId) return;
-    Promise.all([
-      fetchAll<Session>("sessions", userId),
-      fetchAcceptedSessionsForUser(userId),
-    ]).then(([own, invited]) => {
-      setSessions(own);
+    fetchAcceptedSessionsForUser(userId).then((invited) => {
       setInvitedSessions(invited);
-      setLoaded(true);
+      setInvitedLoaded(true);
     });
   }, [userId]);
 
+  const loaded = ownLoaded && invitedLoaded;
+
   const add = useCallback(
-    (input: Omit<Session, "id" | "createdAt">) => {
+    async (input: Omit<Session, "id" | "createdAt">) => {
       const item: Session = { ...input, id: generateId(), createdAt: new Date().toISOString() };
-      setSessions((prev) => [item, ...prev]);
-      insertRow("sessions", userId, item);
+      await insertRow("sessions", userId, item);
+      await mutateTable("sessions", userId);
       return item;
     },
     [userId]
   );
 
   const update = useCallback(
-    (id: string, input: Partial<Omit<Session, "id" | "createdAt">>) => {
-      setSessions((prev) => prev.map((s) => (s.id === id ? { ...s, ...input } : s)));
-      updateRow("sessions", id, input);
+    async (id: string, input: Partial<Omit<Session, "id" | "createdAt">>) => {
+      await updateRow("sessions", id, input);
+      await mutateTable("sessions", userId);
     },
-    []
+    [userId]
   );
 
   const addInteraction = useCallback(
-    (sessionId: string, interactionId: string) => {
-      setSessions((prev) =>
-        prev.map((s) => {
-          if (s.id !== sessionId || s.interactionIds.includes(interactionId)) return s;
-          const interactionIds = [...s.interactionIds, interactionId];
-          updateRow("sessions", sessionId, { interactionIds });
-          return { ...s, interactionIds };
-        })
-      );
+    async (sessionId: string, interactionId: string) => {
+      const sess = sessions.find((s) => s.id === sessionId);
+      if (!sess || sess.interactionIds.includes(interactionId)) return;
+      await updateRow("sessions", sessionId, { interactionIds: [...sess.interactionIds, interactionId] });
+      await mutateTable("sessions", userId);
     },
-    []
+    [sessions, userId]
   );
 
   const toggleGoal = useCallback(
-    (sessionId: string, goalIndex: number) => {
-      setSessions((prev) =>
-        prev.map((s) => {
-          if (s.id !== sessionId) return s;
-          const goals = s.goals.map((g, i) => (i === goalIndex ? { ...g, done: !g.done } : g));
-          updateRow("sessions", sessionId, { goals });
-          return { ...s, goals };
-        })
-      );
+    async (sessionId: string, goalIndex: number) => {
+      const sess = sessions.find((s) => s.id === sessionId);
+      if (!sess) return;
+      const goals = sess.goals.map((g, i) => (i === goalIndex ? { ...g, done: !g.done } : g));
+      await updateRow("sessions", sessionId, { goals });
+      await mutateTable("sessions", userId);
     },
-    []
+    [sessions, userId]
   );
 
   const remove = useCallback(
-    (id: string) => {
-      setSessions((prev) => prev.filter((s) => s.id !== id));
-      deleteRow("sessions", id);
+    async (id: string) => {
+      await deleteRow("sessions", id);
+      await mutateTable("sessions", userId);
     },
-    []
+    [userId]
   );
 
   const getById = useCallback(
@@ -84,7 +76,6 @@ export function useSessions() {
     [sessions, invitedSessions]
   );
 
-  // All sessions (own + invited) for calendar etc.
   const allSessions = [...sessions, ...invitedSessions];
 
   return { sessions, invitedSessions, allSessions, loaded, add, update, addInteraction, toggleGoal, remove, getById };

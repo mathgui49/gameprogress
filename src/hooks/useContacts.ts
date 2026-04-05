@@ -1,133 +1,106 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useCallback } from "react";
 import { useSession } from "next-auth/react";
 import type { Contact, ContactStatus, ContactEvent, Reminder, ArchiveReason, ArchiveInfo } from "@/types";
-import { fetchAll, insertRow, updateRow, deleteRow } from "@/lib/db";
+import { insertRow, updateRow, deleteRow } from "@/lib/db";
+import { useSwrFetch, mutateTable } from "@/lib/swr";
 import { generateId } from "@/lib/utils";
 
 export function useContacts() {
   const { data: session } = useSession();
   const userId = session?.user?.email ?? "";
-  const [contacts, setContacts] = useState<Contact[]>([]);
-  const [loaded, setLoaded] = useState(false);
-
-  useEffect(() => {
-    if (!userId) return;
-    fetchAll<Contact>("contacts", userId).then((data) => {
-      setContacts(data);
-      setLoaded(true);
-    });
-  }, [userId]);
+  const { data: contacts, loaded } = useSwrFetch<Contact>("contacts", userId);
 
   const add = useCallback(
-    (input: Omit<Contact, "id" | "createdAt" | "timeline" | "reminders" | "lastInteractionDate">) => {
+    async (input: Omit<Contact, "id" | "createdAt" | "timeline" | "reminders" | "lastInteractionDate">) => {
       const item: Contact = {
         ...input,
         id: generateId(),
-        timeline: [{ id: generateId(), type: "interaction", date: new Date().toISOString(), content: "Contact cree" }],
+        timeline: [{ id: generateId(), type: "interaction", date: new Date().toISOString(), content: "Contact créé" }],
         reminders: [],
         createdAt: new Date().toISOString(),
         lastInteractionDate: new Date().toISOString(),
       };
-      setContacts((prev) => [item, ...prev]);
-      insertRow("contacts", userId, item);
+      await insertRow("contacts", userId, item);
+      await mutateTable("contacts", userId);
       return item;
     },
     [userId]
   );
 
   const updateStatus = useCallback(
-    (id: string, status: ContactStatus) => {
-      setContacts((prev) =>
-        prev.map((c) => {
-          if (c.id !== id) return c;
-          const event: ContactEvent = { id: generateId(), type: "status_change", date: new Date().toISOString(), content: `Statut change vers "${status}"` };
-          const updated = { ...c, status, timeline: [...c.timeline, event] };
-          updateRow("contacts", id, { status, timeline: updated.timeline });
-          return updated;
-        })
-      );
+    async (id: string, status: ContactStatus) => {
+      const contact = contacts.find((c) => c.id === id);
+      if (!contact) return;
+      const event: ContactEvent = { id: generateId(), type: "status_change", date: new Date().toISOString(), content: `Statut changé vers "${status}"` };
+      await updateRow("contacts", id, { status, timeline: [...contact.timeline, event] });
+      await mutateTable("contacts", userId);
     },
-    []
+    [contacts, userId]
   );
 
   const addNote = useCallback(
-    (id: string, content: string) => {
-      setContacts((prev) =>
-        prev.map((c) => {
-          if (c.id !== id) return c;
-          const event: ContactEvent = { id: generateId(), type: "note", date: new Date().toISOString(), content };
-          const updated = { ...c, notes: content, timeline: [...c.timeline, event] };
-          updateRow("contacts", id, { notes: content, timeline: updated.timeline });
-          return updated;
-        })
-      );
+    async (id: string, content: string) => {
+      const contact = contacts.find((c) => c.id === id);
+      if (!contact) return;
+      const event: ContactEvent = { id: generateId(), type: "note", date: new Date().toISOString(), content };
+      await updateRow("contacts", id, { notes: content, timeline: [...contact.timeline, event] });
+      await mutateTable("contacts", userId);
     },
-    []
+    [contacts, userId]
   );
 
   const addReminder = useCallback(
-    (contactId: string, label: string, date: string) => {
-      setContacts((prev) =>
-        prev.map((c) => {
-          if (c.id !== contactId) return c;
-          const reminder: Reminder = { id: generateId(), contactId, label, date, done: false };
-          const event: ContactEvent = { id: generateId(), type: "reminder", date: new Date().toISOString(), content: `Rappel: ${label}` };
-          const updated = { ...c, reminders: [...c.reminders, reminder], timeline: [...c.timeline, event] };
-          updateRow("contacts", contactId, { reminders: updated.reminders, timeline: updated.timeline });
-          return updated;
-        })
-      );
+    async (contactId: string, label: string, date: string) => {
+      const contact = contacts.find((c) => c.id === contactId);
+      if (!contact) return;
+      const reminder: Reminder = { id: generateId(), contactId, label, date, done: false };
+      const event: ContactEvent = { id: generateId(), type: "reminder", date: new Date().toISOString(), content: `Rappel: ${label}` };
+      await updateRow("contacts", contactId, { reminders: [...contact.reminders, reminder], timeline: [...contact.timeline, event] });
+      await mutateTable("contacts", userId);
     },
-    []
+    [contacts, userId]
   );
 
   const toggleReminder = useCallback(
-    (contactId: string, reminderId: string) => {
-      setContacts((prev) =>
-        prev.map((c) => {
-          if (c.id !== contactId) return c;
-          const reminders = c.reminders.map((r) => (r.id === reminderId ? { ...r, done: !r.done } : r));
-          updateRow("contacts", contactId, { reminders });
-          return { ...c, reminders };
-        })
-      );
+    async (contactId: string, reminderId: string) => {
+      const contact = contacts.find((c) => c.id === contactId);
+      if (!contact) return;
+      const reminders = contact.reminders.map((r) => (r.id === reminderId ? { ...r, done: !r.done } : r));
+      await updateRow("contacts", contactId, { reminders });
+      await mutateTable("contacts", userId);
     },
-    []
+    [contacts, userId]
   );
 
   const updateTags = useCallback(
-    (id: string, tags: string[]) => {
-      setContacts((prev) => prev.map((c) => (c.id === id ? { ...c, tags } : c)));
-      updateRow("contacts", id, { tags });
+    async (id: string, tags: string[]) => {
+      await updateRow("contacts", id, { tags });
+      await mutateTable("contacts", userId);
     },
-    []
+    [userId]
   );
 
   const archive = useCallback(
-    (id: string, reason: ArchiveReason, customReason?: string) => {
-      setContacts((prev) =>
-        prev.map((c) => {
-          if (c.id !== id) return c;
-          const archiveInfo: ArchiveInfo = { reason, customReason, date: new Date().toISOString() };
-          const label = customReason || reason;
-          const event: ContactEvent = { id: generateId(), type: "status_change", date: new Date().toISOString(), content: `Archive — ${label}` };
-          const updated = { ...c, status: "archived" as ContactStatus, archiveInfo, timeline: [...c.timeline, event] };
-          updateRow("contacts", id, { status: "archived", archiveInfo, timeline: updated.timeline });
-          return updated;
-        })
-      );
+    async (id: string, reason: ArchiveReason, customReason?: string) => {
+      const contact = contacts.find((c) => c.id === id);
+      if (!contact) return;
+      const archiveInfo: ArchiveInfo = { reason, customReason, date: new Date().toISOString() };
+      const label = customReason || reason;
+      const event: ContactEvent = { id: generateId(), type: "status_change", date: new Date().toISOString(), content: `Archivé — ${label}` };
+      await updateRow("contacts", id, { status: "archived", archiveInfo, timeline: [...contact.timeline, event] });
+      await mutateTable("contacts", userId);
     },
-    []
+    [contacts, userId]
   );
 
   const remove = useCallback(
-    (id: string) => {
-      setContacts((prev) => prev.filter((c) => c.id !== id));
-      deleteRow("contacts", id);
+    async (id: string) => {
+      await deleteRow("contacts", id);
+      await mutateTable("contacts", userId);
     },
-    []
+    [userId]
   );
 
   const getById = useCallback(

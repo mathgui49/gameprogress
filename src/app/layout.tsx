@@ -29,8 +29,6 @@ export const viewport: Viewport = {
   themeColor: "#0d0a12",
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -38,14 +36,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="fr" className={`${inter.variable} ${grotesk.variable}`}>
       <head>
         <link rel="apple-touch-icon" href="/icon-192.png" />
+        <script dangerouslySetInnerHTML={{ __html: `if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js'))}` }} />
       </head>
       <body className="font-[family-name:var(--font-inter)] antialiased">
+        <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:px-4 focus:py-2 focus:bg-[var(--primary)] focus:text-white focus:rounded-lg focus:text-sm">
+          Aller au contenu
+        </a>
         <AuthProvider>
           <ToastProvider>
             <AnnouncementBar />
             <div className="flex min-h-screen">
               <Sidebar />
-              <main className="flex-1 min-w-0 pb-20 lg:pb-0">
+              <main id="main-content" className="flex-1 min-w-0 pb-20 lg:pb-0">
                 <TopBar />
                 {children}
               </main>

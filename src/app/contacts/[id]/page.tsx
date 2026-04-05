@@ -162,7 +162,7 @@ export default function ContactDetailPage({ params }: { params: Promise<{ id: st
         <div className="space-y-4">
           <Select label="Motif" options={Object.entries(ARCHIVE_REASON_LABELS).map(([v, l]) => ({ value: v, label: l }))} value={archiveReason} onChange={(e) => setArchiveReason(e.target.value as ArchiveReason)} />
           {archiveReason === "other" && (
-            <Input label="Preciser" placeholder="Motif personnalise..." value={archiveCustom} onChange={(e) => setArchiveCustom(e.target.value)} />
+            <Input label="Préciser" placeholder="Motif personnalisé..." value={archiveCustom} onChange={(e) => setArchiveCustom(e.target.value)} />
           )}
           <Button variant="danger" onClick={() => { archive(id, archiveReason, archiveReason === "other" ? archiveCustom : undefined); setShowArchive(false); }}>Archiver</Button>
         </div>

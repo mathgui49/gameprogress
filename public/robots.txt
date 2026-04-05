@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /landing
+Disallow: /admin
+Disallow: /api/
+Disallow: /settings
+Disallow: /profil
+
+Sitemap: https://gameprogress.app/sitemap.xml
