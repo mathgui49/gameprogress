@@ -10,6 +10,7 @@ import { TopBar } from "@/components/layout/TopBar";
 import { AnnouncementBar } from "@/components/layout/AnnouncementBar";
 import { AuthProvider } from "@/components/layout/AuthProvider";
 import { ToastProvider } from "@/components/ui/Toast";
+import { OfflineBanner } from "@/components/layout/OfflineBanner";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const grotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-grotesk" });
@@ -56,6 +57,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <MobileNav />
             <InstallPrompt />
             <Tutorial />
+            <OfflineBanner />
           </ToastProvider>
         </AuthProvider>
       </body>

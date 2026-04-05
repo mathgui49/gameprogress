@@ -6,11 +6,12 @@ import type { Contact, ContactStatus, ContactEvent, Reminder, ArchiveReason, Arc
 import { insertRowAction, updateRowAction, deleteRowAction } from "@/actions/db";
 import { useSwrFetch, mutateTable } from "@/lib/swr";
 import { generateId } from "@/lib/utils";
+import { addToSyncQueue, applyCacheUpdate } from "@/lib/offlineDb";
 
 export function useContacts() {
   const { data: session } = useSession();
   const userId = session?.user?.email ?? "";
-  const { data: contacts, loaded } = useSwrFetch<Contact>("contacts", userId);
+  const { data: contacts, loaded, key } = useSwrFetch<Contact>("contacts", userId);
 
   const add = useCallback(
     async (input: Omit<Contact, "id" | "createdAt" | "timeline" | "reminders" | "lastInteractionDate">) => {
@@ -22,11 +23,19 @@ export function useContacts() {
         createdAt: new Date().toISOString(),
         lastInteractionDate: new Date().toISOString(),
       };
+
+      if (!navigator.onLine) {
+        if (key) await applyCacheUpdate(key, "insert", item);
+        await addToSyncQueue({ action: "insert", table: "contacts", payload: item });
+        await mutateTable("contacts", userId);
+        return item;
+      }
+
       await insertRowAction("contacts", item);
       await mutateTable("contacts", userId);
       return item;
     },
-    [userId]
+    [userId, key]
   );
 
   const updateStatus = useCallback(
@@ -34,10 +43,19 @@ export function useContacts() {
       const contact = contacts.find((c) => c.id === id);
       if (!contact) return;
       const event: ContactEvent = { id: generateId(), type: "status_change", date: new Date().toISOString(), content: `Statut changé vers "${status}"` };
-      await updateRowAction("contacts", id, { status, timeline: [...contact.timeline, event] });
+      const payload = { status, timeline: [...contact.timeline, event] };
+
+      if (!navigator.onLine) {
+        if (key) await applyCacheUpdate(key, "update", { ...contact, ...payload });
+        await addToSyncQueue({ action: "update", table: "contacts", rowId: id, payload });
+        await mutateTable("contacts", userId);
+        return;
+      }
+
+      await updateRowAction("contacts", id, payload);
       await mutateTable("contacts", userId);
     },
-    [contacts, userId]
+    [contacts, userId, key]
   );
 
   const addNote = useCallback(
@@ -45,10 +63,19 @@ export function useContacts() {
       const contact = contacts.find((c) => c.id === id);
       if (!contact) return;
       const event: ContactEvent = { id: generateId(), type: "note", date: new Date().toISOString(), content };
-      await updateRowAction("contacts", id, { notes: content, timeline: [...contact.timeline, event] });
+      const payload = { notes: content, timeline: [...contact.timeline, event] };
+
+      if (!navigator.onLine) {
+        if (key) await applyCacheUpdate(key, "update", { ...contact, ...payload });
+        await addToSyncQueue({ action: "update", table: "contacts", rowId: id, payload });
+        await mutateTable("contacts", userId);
+        return;
+      }
+
+      await updateRowAction("contacts", id, payload);
       await mutateTable("contacts", userId);
     },
-    [contacts, userId]
+    [contacts, userId, key]
   );
 
   const addReminder = useCallback(
@@ -57,10 +84,19 @@ export function useContacts() {
       if (!contact) return;
       const reminder: Reminder = { id: generateId(), contactId, label, date, done: false };
       const event: ContactEvent = { id: generateId(), type: "reminder", date: new Date().toISOString(), content: `Rappel: ${label}` };
-      await updateRowAction("contacts", contactId, { reminders: [...contact.reminders, reminder], timeline: [...contact.timeline, event] });
+      const payload = { reminders: [...contact.reminders, reminder], timeline: [...contact.timeline, event] };
+
+      if (!navigator.onLine) {
+        if (key) await applyCacheUpdate(key, "update", { ...contact, ...payload });
+        await addToSyncQueue({ action: "update", table: "contacts", rowId: contactId, payload });
+        await mutateTable("contacts", userId);
+        return;
+      }
+
+      await updateRowAction("contacts", contactId, payload);
       await mutateTable("contacts", userId);
     },
-    [contacts, userId]
+    [contacts, userId, key]
   );
 
   const toggleReminder = useCallback(
@@ -68,18 +104,35 @@ export function useContacts() {
       const contact = contacts.find((c) => c.id === contactId);
       if (!contact) return;
       const reminders = contact.reminders.map((r) => (r.id === reminderId ? { ...r, done: !r.done } : r));
-      await updateRowAction("contacts", contactId, { reminders });
+      const payload = { reminders };
+
+      if (!navigator.onLine) {
+        if (key) await applyCacheUpdate(key, "update", { ...contact, ...payload });
+        await addToSyncQueue({ action: "update", table: "contacts", rowId: contactId, payload });
+        await mutateTable("contacts", userId);
+        return;
+      }
+
+      await updateRowAction("contacts", contactId, payload);
       await mutateTable("contacts", userId);
     },
-    [contacts, userId]
+    [contacts, userId, key]
   );
 
   const updateTags = useCallback(
     async (id: string, tags: string[]) => {
+      if (!navigator.onLine) {
+        const contact = contacts.find((c) => c.id === id);
+        if (contact && key) await applyCacheUpdate(key, "update", { ...contact, tags });
+        await addToSyncQueue({ action: "update", table: "contacts", rowId: id, payload: { tags } });
+        await mutateTable("contacts", userId);
+        return;
+      }
+
       await updateRowAction("contacts", id, { tags });
       await mutateTable("contacts", userId);
     },
-    [userId]
+    [contacts, userId, key]
   );
 
   const archive = useCallback(
@@ -89,18 +142,34 @@ export function useContacts() {
       const archiveInfo: ArchiveInfo = { reason, customReason, date: new Date().toISOString() };
       const label = customReason || reason;
       const event: ContactEvent = { id: generateId(), type: "status_change", date: new Date().toISOString(), content: `Archivé — ${label}` };
-      await updateRowAction("contacts", id, { status: "archived", archiveInfo, timeline: [...contact.timeline, event] });
+      const payload = { status: "archived" as ContactStatus, archiveInfo, timeline: [...contact.timeline, event] };
+
+      if (!navigator.onLine) {
+        if (key) await applyCacheUpdate(key, "update", { ...contact, ...payload });
+        await addToSyncQueue({ action: "update", table: "contacts", rowId: id, payload });
+        await mutateTable("contacts", userId);
+        return;
+      }
+
+      await updateRowAction("contacts", id, payload);
       await mutateTable("contacts", userId);
     },
-    [contacts, userId]
+    [contacts, userId, key]
   );
 
   const remove = useCallback(
     async (id: string) => {
+      if (!navigator.onLine) {
+        if (key) await applyCacheUpdate(key, "delete", { id } as Contact);
+        await addToSyncQueue({ action: "delete", table: "contacts", rowId: id, payload: {} });
+        await mutateTable("contacts", userId);
+        return;
+      }
+
       await deleteRowAction("contacts", id);
       await mutateTable("contacts", userId);
     },
-    [userId]
+    [userId, key]
   );
 
   const getById = useCallback(
