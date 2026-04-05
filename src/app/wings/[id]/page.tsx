@@ -91,6 +91,7 @@ export default function WingProfilePage() {
             <Button size="sm" onClick={() => sendRequest(wingUserId)}>Inviter</Button>
           )}
         </div>
+        {profile.bio && <p className="text-sm text-[#a09bb2] mt-3">{profile.bio}</p>}
       </Card>
 
       {/* Wing's sessions (only visible if connected) */}

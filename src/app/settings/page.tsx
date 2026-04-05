@@ -75,6 +75,7 @@ export default function SettingsPage() {
           <Input label="Nom d'utilisateur" id="pu" placeholder="ex: mathieu_75" value={publicProfile?.username ?? ""} onChange={(e) => { savePublic({ username: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, "") }); setPublicSaved(true); setTimeout(() => setPublicSaved(false), 2000); }} />
           <Input label="Prenom" id="pfn" placeholder="Ton prenom" value={publicProfile?.firstName ?? ""} onChange={(e) => { savePublic({ firstName: e.target.value }); setPublicSaved(true); setTimeout(() => setPublicSaved(false), 2000); }} />
           <Input label="Ville" id="ploc" placeholder="ex: Paris, Lyon, Marseille..." value={publicProfile?.location ?? ""} onChange={(e) => { savePublic({ location: e.target.value }); setPublicSaved(true); setTimeout(() => setPublicSaved(false), 2000); }} />
+          <TextArea label="Bio" id="pbio" placeholder="Quelques mots sur toi et ta game..." rows={2} value={publicProfile?.bio ?? ""} onChange={(e) => { savePublic({ bio: e.target.value }); setPublicSaved(true); setTimeout(() => setPublicSaved(false), 2000); }} />
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-[#a09bb2]">Profil visible publiquement</p>

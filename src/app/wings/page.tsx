@@ -254,23 +254,26 @@ function ProfileCard({ profile, isWing, hasPending, onInvite }: {
   onInvite: () => void;
 }) {
   return (
-    <div className="flex items-center justify-between">
-      <div className="flex items-center gap-3">
-        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#c084fc]/20 to-[#818cf8]/20 flex items-center justify-center">
-          <span className="text-xs font-bold text-[#c084fc]">{profile.firstName?.[0]?.toUpperCase() || profile.username?.[0]?.toUpperCase()}</span>
+    <div>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#c084fc]/20 to-[#818cf8]/20 flex items-center justify-center">
+            <span className="text-xs font-bold text-[#c084fc]">{profile.firstName?.[0]?.toUpperCase() || profile.username?.[0]?.toUpperCase()}</span>
+          </div>
+          <div>
+            <p className="text-sm font-medium text-white">{profile.firstName || profile.username}</p>
+            <p className="text-[10px] text-[#6b6580]">@{profile.username}{profile.location ? ` · ${profile.location}` : ""}</p>
+          </div>
         </div>
-        <div>
-          <p className="text-sm font-medium text-white">{profile.firstName || profile.username}</p>
-          <p className="text-[10px] text-[#6b6580]">@{profile.username}{profile.location ? ` · ${profile.location}` : ""}</p>
-        </div>
+        {isWing ? (
+          <span className="text-[10px] px-2 py-1 rounded-full bg-emerald-400/15 text-emerald-400">Wing</span>
+        ) : hasPending ? (
+          <span className="text-[10px] px-2 py-1 rounded-full bg-amber-400/15 text-amber-400">En attente</span>
+        ) : (
+          <Button size="sm" onClick={onInvite}>Inviter</Button>
+        )}
       </div>
-      {isWing ? (
-        <span className="text-[10px] px-2 py-1 rounded-full bg-emerald-400/15 text-emerald-400">Wing</span>
-      ) : hasPending ? (
-        <span className="text-[10px] px-2 py-1 rounded-full bg-amber-400/15 text-amber-400">En attente</span>
-      ) : (
-        <Button size="sm" onClick={onInvite}>Inviter</Button>
-      )}
+      {profile.bio && <p className="text-xs text-[#a09bb2] mt-2 ml-12">{profile.bio}</p>}
     </div>
   );
 }

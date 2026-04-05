@@ -156,6 +156,33 @@ export interface Session {
   notes: string;
   goals: { text: string; done: boolean }[];
   interactionIds: string[];
+  isPublic: boolean;
+  maxParticipants: number;
+  createdAt: string;
+}
+
+// ─── Session Social ──────────────────────────────────────
+export interface SessionParticipant {
+  id: string;
+  sessionId: string;
+  userId: string;
+  ownerUserId: string;
+  status: "pending" | "accepted" | "declined";
+  createdAt: string;
+}
+
+export interface SessionLike {
+  id: string;
+  sessionId: string;
+  userId: string;
+  createdAt: string;
+}
+
+export interface SessionComment {
+  id: string;
+  sessionId: string;
+  userId: string;
+  content: string;
   createdAt: string;
 }
 
@@ -182,6 +209,7 @@ export interface PublicProfile {
   username: string;
   firstName: string;
   location: string;
+  bio: string;
   isPublic: boolean;
   createdAt: string;
 }

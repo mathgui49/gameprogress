@@ -26,6 +26,7 @@ export function usePublicProfile() {
         username: profile?.username ?? "",
         firstName: profile?.firstName ?? "",
         location: profile?.location ?? "",
+        bio: profile?.bio ?? "",
         isPublic: profile?.isPublic ?? false,
         createdAt: profile?.createdAt ?? new Date().toISOString(),
         ...updates,

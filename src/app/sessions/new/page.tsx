@@ -18,6 +18,8 @@ export default function NewSessionPage() {
   const [notes, setNotes] = useState("");
   const [goalsText, setGoalsText] = useState("");
   const [date, setDate] = useState(new Date().toISOString().slice(0, 16));
+  const [isPublic, setIsPublic] = useState(false);
+  const [maxParticipants, setMaxParticipants] = useState(0);
 
   const toggleWing = (name: string) => {
     setSelectedWings((prev) => prev.includes(name) ? prev.filter((w) => w !== name) : [...prev, name]);
@@ -34,7 +36,7 @@ export default function NewSessionPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const goals = goalsText.split("\n").filter(Boolean).map((text) => ({ text: text.trim(), done: false }));
-    add({ title, date: new Date(date).toISOString(), location, wings: selectedWings, notes, goals, interactionIds: [] });
+    add({ title, date: new Date(date).toISOString(), location, wings: selectedWings, notes, goals, interactionIds: [], isPublic, maxParticipants });
     router.push("/sessions");
   };
 
@@ -88,6 +90,27 @@ export default function NewSessionPage() {
 
         <TextArea label="Objectifs (un par ligne)" placeholder={"Faire 5 approches\nTester une approche directe\nRester plus de 3 min"} rows={3} value={goalsText} onChange={(e) => setGoalsText(e.target.value)} />
         <TextArea label="Notes" placeholder="Notes de session..." rows={3} value={notes} onChange={(e) => setNotes(e.target.value)} />
+
+        {/* Public session toggle */}
+        <div className="p-4 rounded-xl bg-[#14111c] border border-[rgba(192,132,252,0.08)] space-y-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-white font-medium">Session publique</p>
+              <p className="text-[10px] text-[#6b6580]">Visible dans le feed, d&apos;autres joueurs peuvent rejoindre</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setIsPublic(!isPublic)}
+              className={`relative w-11 h-6 rounded-full transition-colors ${isPublic ? "bg-[#c084fc]" : "bg-[#3d3650]"}`}
+            >
+              <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white transition-transform ${isPublic ? "translate-x-5" : ""}`} />
+            </button>
+          </div>
+          {isPublic && (
+            <Input label="Places max (0 = illimite)" type="number" min={0} value={String(maxParticipants)} onChange={(e) => setMaxParticipants(Number(e.target.value))} />
+          )}
+        </div>
+
         <div className="flex items-center gap-3 pt-2">
           <Button type="submit" size="lg">Creer la session</Button>
           <Button type="button" variant="ghost" size="lg" onClick={() => router.back()}>Annuler</Button>
