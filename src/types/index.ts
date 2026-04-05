@@ -176,6 +176,27 @@ export interface UserProfile {
   createdAt: string;
 }
 
+// ─── Public Profile (Social) ─────────────────────────────
+export interface PublicProfile {
+  userId: string;
+  username: string;
+  firstName: string;
+  location: string;
+  isPublic: boolean;
+  createdAt: string;
+}
+
+// ─── Wing Request ────────────────────────────────────────
+export type WingRequestStatus = "pending" | "accepted" | "declined";
+
+export interface WingRequest {
+  id: string;
+  fromUserId: string;
+  toUserId: string;
+  status: WingRequestStatus;
+  createdAt: string;
+}
+
 // ─── Labels & Colors ──────────────────────────────────────
 export const APPROACH_LABELS: Record<ApproachType, string> = {
   direct: "Direct",

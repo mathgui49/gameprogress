@@ -74,6 +74,73 @@ export async function deleteRow(table: string, id: string) {
   if (error) console.error(`delete ${table}:`, error);
 }
 
+// Custom queries for social features
+
+export async function searchPublicProfiles(location?: string) {
+  let query = supabase.from("public_profiles").select("*").eq("is_public", true);
+  if (location) query = query.ilike("location", `%${location}%`);
+  const { data, error } = await query.order("created_at", { ascending: false });
+  if (error) { console.error("search profiles:", error); return []; }
+  return (data || []).map((r) => fromRow<any>(r));
+}
+
+export async function findProfileByUsername(username: string) {
+  const { data, error } = await supabase
+    .from("public_profiles")
+    .select("*")
+    .eq("username", username)
+    .single();
+  if (error || !data) return null;
+  return fromRow<any>(data);
+}
+
+export async function fetchWingRequests(userId: string) {
+  const { data: sent, error: e1 } = await supabase
+    .from("wing_requests")
+    .select("*")
+    .eq("from_user_id", userId)
+    .order("created_at", { ascending: false });
+  const { data: received, error: e2 } = await supabase
+    .from("wing_requests")
+    .select("*")
+    .eq("to_user_id", userId)
+    .order("created_at", { ascending: false });
+  if (e1) console.error("fetch sent requests:", e1);
+  if (e2) console.error("fetch received requests:", e2);
+  return {
+    sent: (sent || []).map((r) => fromRow<any>(r)),
+    received: (received || []).map((r) => fromRow<any>(r)),
+  };
+}
+
+export async function updateWingRequestStatus(requestId: string, status: string) {
+  const { error } = await supabase
+    .from("wing_requests")
+    .update({ status })
+    .eq("id", requestId);
+  if (error) console.error("update request:", error);
+}
+
+export async function fetchProfilesByIds(userIds: string[]) {
+  if (userIds.length === 0) return [];
+  const { data, error } = await supabase
+    .from("public_profiles")
+    .select("*")
+    .in("user_id", userIds);
+  if (error) { console.error("fetch profiles by ids:", error); return []; }
+  return (data || []).map((r) => fromRow<any>(r));
+}
+
+export async function fetchSessionsByUserId(userId: string) {
+  const { data, error } = await supabase
+    .from("sessions")
+    .select("*")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false });
+  if (error) { console.error("fetch sessions:", error); return []; }
+  return (data || []).map((r) => fromRow<any>(r));
+}
+
 const ALL_TABLES = ["interactions", "contacts", "sessions", "wings", "missions", "journal_entries", "profiles", "gamification"];
 
 export async function clearAllUserData(userId: string) {
