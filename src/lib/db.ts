@@ -289,12 +289,18 @@ export async function fetchLeaderboard(location?: string) {
     .select("*")
     .in("user_id", userIds);
 
+  const { computeTotalXP, levelFromXP } = await import("@/lib/xp");
+  const now = new Date();
+
   return profiles.map((p: any) => {
     const gam = (gamData || []).find((g: any) => g.user_id === p.user_id);
+    const events = gam?.xp_events || [];
+    const totalXP = computeTotalXP(events, now);
+    const level = levelFromXP(totalXP);
     return {
       ...fromRow<any>(p),
-      xp: gam?.xp ?? 0,
-      level: gam?.level ?? 1,
+      xp: totalXP,
+      level,
       streak: gam?.streak ?? 0,
     };
   }).sort((a: any, b: any) => (b.level * 10000 + b.xp) - (a.level * 10000 + a.xp));
@@ -788,9 +794,11 @@ export async function fetchCommunityBenchmarks(): Promise<CommunityBenchmarks> {
   const recentCount = interactions.filter((i: any) => i.created_at >= fourWeeksAgo).length;
   const avgInteractionsPerWeek = totalUsers > 0 ? Math.round((recentCount / totalUsers / 4) * 10) / 10 : 0;
 
-  // Average level
+  // Average level (computed from events with decay)
+  const { computeTotalXP: computeXP, levelFromXP: levelFrom } = await import("@/lib/xp");
+  const nowDate = new Date();
   const avgLevel = gamData.length > 0
-    ? Math.round((gamData.reduce((s: number, g: any) => s + (g.level ?? 1), 0) / gamData.length) * 10) / 10
+    ? Math.round((gamData.reduce((s: number, g: any) => s + levelFrom(computeXP(g.xp_events || [], nowDate)), 0) / gamData.length) * 10) / 10
     : 1;
 
   return { avgCloseRate, avgFeelingScore, avgInteractionsPerWeek, avgLevel, totalUsers };
@@ -1250,31 +1258,34 @@ export async function fetchLeaderboardWithXpDetails(location?: string) {
   const userIds = profiles.map((p: any) => p.user_id);
   const { data: gamData } = await supabase.from("gamification").select("*").in("user_id", userIds);
 
+  const { computeTotalXP, levelFromXP, effectiveXP } = await import("@/lib/xp");
+  const now = new Date();
+  const weekAgo = new Date(now.getTime() - 7 * 86400000);
+
   return profiles.map((p: any) => {
     const gam = (gamData || []).find((g: any) => g.user_id === p.user_id);
-    const xpEvents = gam?.xp_events || [];
-    const now = new Date();
-    const weekAgo = new Date(now.getTime() - 7 * 86400000);
-    const weekXp = Array.isArray(xpEvents)
-      ? xpEvents.filter((e: any) => new Date(e.date) >= weekAgo).reduce((s: number, e: any) => s + (e.amount || 0), 0)
-      : 0;
+    const xpEvents: any[] = gam?.xp_events || [];
+    const totalXP = computeTotalXP(xpEvents, now);
+    const level = levelFromXP(totalXP);
 
-    // XP breakdown by category
+    // Weekly XP: sum of effective XP for events created this week
+    const weekXp = xpEvents
+      .filter((e: any) => new Date(e.date) >= weekAgo)
+      .reduce((s: number, e: any) => s + effectiveXP(e, now), 0);
+
+    // XP breakdown by category (with decay)
     const breakdown: Record<string, number> = {};
-    if (Array.isArray(xpEvents)) {
-      xpEvents.forEach((e: any) => {
-        const cat = e.reason || "other";
-        breakdown[cat] = (breakdown[cat] || 0) + (e.amount || 0);
-      });
-    }
+    xpEvents.forEach((e: any) => {
+      const cat = e.category || e.reason || "other";
+      breakdown[cat] = (breakdown[cat] || 0) + effectiveXP(e, now);
+    });
 
     return {
       ...fromRow<any>(p),
-      xp: gam?.xp ?? 0,
-      level: gam?.level ?? 1,
+      xp: totalXP,
+      level,
       streak: gam?.streak ?? 0,
-      lastWeekXp: gam?.xp !== undefined ? (gam.xp - weekXp) : undefined,
-      weeklyXp: weekXp,
+      weeklyXp: Math.floor(weekXp),
       xpBreakdown: breakdown,
     };
   }).sort((a: any, b: any) => (b.level * 10000 + b.xp) - (a.level * 10000 + a.xp));

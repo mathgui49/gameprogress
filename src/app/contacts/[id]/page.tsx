@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useContacts } from "@/hooks/useContacts";
 import { useInteractions } from "@/hooks/useInteractions";
 import { useGamification } from "@/hooks/useGamification";
-import { STATUS_LABELS, STATUS_COLORS, ARCHIVE_REASON_LABELS, XP_VALUES, type ContactStatus, type ArchiveReason } from "@/types";
+import { STATUS_LABELS, STATUS_COLORS, ARCHIVE_REASON_LABELS, type ContactStatus, type ArchiveReason } from "@/types";
 import { formatDate, formatRelative } from "@/lib/utils";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
@@ -30,7 +30,7 @@ export default function ContactDetailPage({ params }: { params: Promise<{ id: st
   const router = useRouter();
   const { getById, updateStatus, archive, addNote, addReminder, toggleReminder, remove, loaded } = useContacts();
   const { interactions } = useInteractions();
-  const { addXP } = useGamification();
+  const { updatePipelineXP } = useGamification();
   const [noteInput, setNoteInput] = useState("");
   const [reminderLabel, setReminderLabel] = useState("");
   const [reminderDate, setReminderDate] = useState("");
@@ -39,25 +39,13 @@ export default function ContactDetailPage({ params }: { params: Promise<{ id: st
   const [archiveReason, setArchiveReason] = useState<ArchiveReason>("ghosted");
   const [archiveCustom, setArchiveCustom] = useState("");
 
-  const PIPELINE_XP: Partial<Record<ContactStatus, { amount: number; reason: string }>> = {
-    contacted: { amount: XP_VALUES.pipeline_contacted, reason: "Contact contacte" },
-    replied: { amount: XP_VALUES.pipeline_replied, reason: "Reponse recue" },
-    date_planned: { amount: XP_VALUES.pipeline_date_planned, reason: "Date planifie" },
-    first_date: { amount: XP_VALUES.pipeline_first_date, reason: "Premier date" },
-    kissclose: { amount: XP_VALUES.pipeline_kissclose, reason: "Kiss close" },
-    fuckclose: { amount: XP_VALUES.pipeline_fuckclose, reason: "Fuck close" },
-  };
-
   const handleStatusChange = async (newStatus: ContactStatus) => {
     const c = getById(id);
     if (!c) return;
     await updateStatus(id, newStatus);
-    const xp = PIPELINE_XP[newStatus];
-    if (xp) {
-      const oldIdx = PIPELINE_STEPS.indexOf(c.status);
-      const newIdx = PIPELINE_STEPS.indexOf(newStatus);
-      if (newIdx > oldIdx) addXP(xp.amount, xp.reason);
-    }
+    const oldIdx = PIPELINE_STEPS.indexOf(c.status);
+    const newIdx = PIPELINE_STEPS.indexOf(newStatus);
+    if (newIdx > oldIdx) updatePipelineXP(c.sourceInteractionId, newStatus);
   };
 
   if (!loaded) return <div className="flex items-center justify-center h-screen"><div className="w-8 h-8 border-2 border-[var(--primary)]/30 border-t-[var(--primary)] rounded-full animate-spin" /></div>;

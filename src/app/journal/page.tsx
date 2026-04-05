@@ -6,7 +6,7 @@ import { useGamification } from "@/hooks/useGamification";
 import { useInteractions } from "@/hooks/useInteractions";
 import { useWingRequests } from "@/hooks/useWingRequests";
 import type { JournalTag, Visibility, JournalAttachment, JournalEntry, JournalDraft, Interaction } from "@/types";
-import { JOURNAL_TAG_LABELS, JOURNAL_TAG_COLORS, XP_VALUES } from "@/types";
+import { JOURNAL_TAG_LABELS, JOURNAL_TAG_COLORS, XP } from "@/types";
 import { formatDate, formatDateShort, generateId } from "@/lib/utils";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -232,7 +232,8 @@ export default function JournalPage() {
       update(editingId, content, tag, visibility, linkedInteractionIds, selectedCollectionId);
     } else {
       add(content, tag, visibility, "entry", null, attachments, linkedInteractionIds, selectedCollectionId, isCollaborative);
-      addXP(XP_VALUES.journal_entry, "Entrée journal");
+      const wordCount = content.replace(/<[^>]*>/g, " ").split(/\s+/).filter(Boolean).length;
+      addXP(wordCount > 200 ? XP.journal_entry_long : XP.journal_entry, "Entrée journal", "journal");
       // Remove draft after publishing
       if (draftId) removeDraft(draftId);
     }

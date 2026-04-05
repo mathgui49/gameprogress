@@ -7,14 +7,13 @@ import { useContacts } from "@/hooks/useContacts";
 import { useSessions } from "@/hooks/useSessions";
 import { useGamification } from "@/hooks/useGamification";
 import { InteractionForm } from "@/components/interactions/InteractionForm";
-import { XP_VALUES } from "@/types";
 
 export default function NewInteractionPage() {
   const router = useRouter();
   const { add } = useInteractions();
   const { add: addContact } = useContacts();
   const { allSessions, addInteraction: linkToSession } = useSessions();
-  const { addXP, updateStreak } = useGamification();
+  const { addInteractionXP, updateStreak } = useGamification();
 
   // Auto-detect active session: session between -30min and +4h from now
   const autoSession = useMemo(() => {
@@ -57,14 +56,12 @@ export default function NewInteractionPage() {
           if (autoSession) {
             await linkToSession(autoSession.id, interaction.id);
           }
-          // XP rewards
-          addXP(XP_VALUES.interaction_created, "Interaction créée");
-          if (data.note) addXP(XP_VALUES.interaction_with_note, "Note ajoutée");
-          if (data.result === "close") addXP(XP_VALUES.close, "Close !");
+          // XP — single event per interaction, with wing detection
+          const hasWing = autoSession ? autoSession.wings.length > 0 : false;
+          addInteractionXP(data.result as "close" | "neutral" | "rejection", interaction.id, hasWing);
           updateStreak();
           // Auto-create contact on close (pipeline)
           if (data.result === "close") {
-            if (data.contactMethod && data.contactValue) addXP(XP_VALUES.contact_added, "Contact ajouté");
             await addContact({
               firstName: data.firstName || data.memorableElement || "Inconnue",
               sourceInteractionId: interaction.id,

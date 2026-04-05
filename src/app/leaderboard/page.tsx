@@ -21,7 +21,6 @@ interface LeaderboardEntry {
   xp: number;
   level: number;
   streak: number;
-  lastWeekXp?: number;
   weeklyXp?: number;
   xpBreakdown?: Record<string, number>;
 }

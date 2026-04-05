@@ -5,7 +5,7 @@ import { useContacts } from "@/hooks/useContacts";
 import { useInteractions } from "@/hooks/useInteractions";
 import { useGamification } from "@/hooks/useGamification";
 import type { Contact, ContactStatus, ContactMethod, ArchiveReason } from "@/types";
-import { STATUS_LABELS, STATUS_COLORS, ARCHIVE_REASON_LABELS, XP_VALUES } from "@/types";
+import { STATUS_LABELS, STATUS_COLORS, ARCHIVE_REASON_LABELS } from "@/types";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -180,7 +180,7 @@ function ContactCard({
 export default function ContactsPage() {
   const { contacts, loaded, add, updateStatus, archive, remove, addNote } = useContacts();
   const { interactions } = useInteractions();
-  const { addXP } = useGamification();
+  const { updatePipelineXP } = useGamification();
   const [viewMode, setViewMode] = useState<ViewMode>("kanban");
   const [showNew, setShowNew] = useState(false);
   const [newName, setNewName] = useState("");
@@ -311,28 +311,18 @@ export default function ContactsPage() {
   };
 
   // ─── Quick status from card ─────────────────────────
-  const PIPELINE_XP: Partial<Record<ContactStatus, { amount: number; reason: string }>> = {
-    contacted: { amount: XP_VALUES.pipeline_contacted, reason: "Contact contacte" },
-    replied: { amount: XP_VALUES.pipeline_replied, reason: "Reponse recue" },
-    date_planned: { amount: XP_VALUES.pipeline_date_planned, reason: "Date planifie" },
-    first_date: { amount: XP_VALUES.pipeline_first_date, reason: "Premier date" },
-    kissclose: { amount: XP_VALUES.pipeline_kissclose, reason: "Kiss close" },
-    fuckclose: { amount: XP_VALUES.pipeline_fuckclose, reason: "Fuck close" },
-  };
-
   const handleQuickStatus = async (id: string, status: ContactStatus) => {
     const contact = contacts.find((c) => c.id === id);
     if (status === "archived") {
       await archive(id, "no_interest");
     } else {
       await updateStatus(id, status);
-      // Award XP for progression (only if moving forward)
-      const xpReward = PIPELINE_XP[status];
-      if (xpReward && contact) {
+      // Update pipeline XP (replaces the interaction's XP with new coef)
+      if (contact) {
         const oldIdx = PIPELINE_ORDER.indexOf(contact.status);
         const newIdx = PIPELINE_ORDER.indexOf(status);
         if (newIdx > oldIdx) {
-          addXP(xpReward.amount, xpReward.reason);
+          updatePipelineXP(contact.sourceInteractionId, status);
         }
       }
     }

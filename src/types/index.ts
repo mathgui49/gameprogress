@@ -85,12 +85,8 @@ export interface Contact {
 }
 
 // ─── Gamification ─────────────────────────────────────────
-export interface XPEvent {
-  id: string;
-  amount: number;
-  reason: string;
-  date: string;
-}
+// XPEvent is defined in @/lib/xp — re-exported here for convenience
+export type { XPEvent, XPCategory } from "@/lib/xp";
 
 export interface Badge {
   id: string;
@@ -126,12 +122,13 @@ export interface BadgeCategory {
 }
 
 export interface GamificationState {
-  xp: number;
-  level: number;
-  xpEvents: XPEvent[];
+  xpEvents: import("@/lib/xp").XPEvent[];
   streak: number;
   bestStreak: number;
+  bestLevel: number;
   lastActiveDate: string;
+  dailyInteractionXp: number; // raw interaction XP earned today (before streak), for cap
+  dailyDate: string;          // YYYY-MM-DD of current day tracking
   badges: Badge[];
   milestones: Milestone[];
 }
@@ -636,22 +633,5 @@ export interface CollaborativeEntry {
 }
 
 // ─── XP config ────────────────────────────────────────────
-export const XP_VALUES = {
-  interaction_created: 10,
-  interaction_with_note: 5,
-  close: 25,
-  contact_added: 15,
-  mission_completed: 30,
-  streak_bonus: 10,
-  journal_entry: 5,
-  pipeline_contacted: 5,
-  pipeline_replied: 10,
-  pipeline_date_planned: 15,
-  pipeline_first_date: 20,
-  pipeline_kissclose: 30,
-  pipeline_fuckclose: 40,
-} as const;
-
-export function xpForLevel(level: number): number {
-  return Math.floor(100 * Math.pow(1.3, level - 1));
-}
+// All XP constants, level curve, and computation live in @/lib/xp
+export { XP, PIPELINE_COEFS, xpForLevel, levelFromXP, xpProgress, streakCoef, computeTotalXP, challengeXP, DAILY_INTERACTION_CAP } from "@/lib/xp";

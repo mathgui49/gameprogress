@@ -122,12 +122,13 @@ export function generateDefaultMilestones(): Milestone[] {
 
 export function generateDefaultGamification(): GamificationState {
   return {
-    xp: 0,
-    level: 1,
     xpEvents: [],
     streak: 0,
     bestStreak: 0,
+    bestLevel: 1,
     lastActiveDate: "",
+    dailyInteractionXp: 0,
+    dailyDate: "",
     badges: generateDefaultBadges(),
     milestones: generateDefaultMilestones(),
   };

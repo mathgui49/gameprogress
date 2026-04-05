@@ -7,7 +7,6 @@ import { useInteractions } from "@/hooks/useInteractions";
 import { useContacts } from "@/hooks/useContacts";
 import { useGamification } from "@/hooks/useGamification";
 import type { ApproachType, ResultType, ContactMethod } from "@/types";
-import { XP_VALUES } from "@/types";
 import { VoiceInput } from "@/components/ui/VoiceInput";
 import { Tooltip } from "@/components/ui/Tooltip";
 
@@ -24,7 +23,7 @@ export function QuickAddButton() {
   const [open, setOpen] = useState(false);
   const [showQuick, setShowQuick] = useState(false);
   const { add } = useInteractions();
-  const { addXP, updateStreak } = useGamification();
+  const { addInteractionXP, updateStreak } = useGamification();
 
   if (pathname === "/login" || pathname === "/landing") return null;
   const { add: addContact } = useContacts();
@@ -51,12 +50,9 @@ export function QuickAddButton() {
       discussionTopics: "", feedback: "", contactMethod: qContactMethod, contactValue: qContactValue,
       sessionId: "", tags: [], contextPhoto: null, date: new Date().toISOString(),
     });
-    addXP(XP_VALUES.interaction_created, "Interaction rapide");
-    if (qNote) addXP(XP_VALUES.interaction_with_note, "Note ajoutée");
-    if (qResult === "close") addXP(XP_VALUES.close, "Close !");
+    addInteractionXP(qResult as "close" | "neutral" | "rejection", interaction.id);
     updateStreak();
     if (qResult === "close") {
-      if (qContactMethod && qContactValue) addXP(XP_VALUES.contact_added, "Contact ajouté");
       await addContact({ firstName: qName || "Inconnue", sourceInteractionId: interaction.id, method: qContactMethod || "other", methodValue: qContactValue || "", status: "new", tags: [], notes: "" });
     }
     resetQuick();
