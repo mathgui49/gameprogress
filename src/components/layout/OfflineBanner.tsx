@@ -8,18 +8,16 @@ export function OfflineBanner() {
   const userId = session?.user?.email ?? "";
   const { online, pendingCount, syncing, initialized } = useOfflineSync(userId);
 
-  // Don't show until we've checked and cleaned the sync queue
   if (!initialized) return null;
-  // Only show when truly offline or actively syncing with pending items
   if (online && !syncing) return null;
   if (online && pendingCount === 0) return null;
 
   return (
     <div
-      className={`fixed bottom-20 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-xl border text-xs font-medium flex items-center gap-2 shadow-lg transition-all duration-300 ${
+      className={`fixed bottom-20 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-[14px] border text-xs font-medium flex items-center gap-2 glass-heavy shadow-[0_8px_32px_-8px_rgba(0,0,0,0.4)] transition-all duration-300 ${
         !online
-          ? "bg-amber-500/15 border-amber-500/30 text-amber-400"
-          : "bg-emerald-500/15 border-emerald-500/30 text-emerald-400"
+          ? "border-amber-500/30 text-amber-400"
+          : "border-emerald-500/30 text-emerald-400"
       }`}
     >
       {!online ? (

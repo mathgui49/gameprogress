@@ -13,11 +13,11 @@ export function Card({ children, className, hover, onClick, glass }: CardProps) 
     <div
       onClick={onClick}
       className={cn(
-        "rounded-xl p-5",
+        "rounded-[var(--radius-card)] p-5",
         glass
-          ? "glass border border-[var(--border)]"
-          : "bg-[var(--surface-high)] border border-[var(--border)]",
-        hover && "cursor-pointer transition-all duration-200 hover:bg-[var(--card-hover)] hover:border-[var(--border-hover)] hover:shadow-[0_0_24px_-8px_var(--neon-purple)]",
+          ? "glass-card glass-reflect"
+          : "glass-card glass-reflect",
+        hover && "cursor-pointer transition-all duration-200 hover:border-[var(--glass-border-hover)] hover:shadow-[0_8px_32px_-8px_rgba(0,0,0,0.3),0_0_12px_-4px_var(--neon-purple)]",
         onClick && "cursor-pointer",
         className
       )}

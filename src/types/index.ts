@@ -108,6 +108,19 @@ export interface Milestone {
   unlockedAt: string | null;
 }
 
+export interface BadgeTier {
+  threshold: number;
+  name: string;
+  icon: string;
+}
+
+export interface BadgeCategory {
+  id: string;
+  label: string;
+  key: string;
+  tiers: BadgeTier[];
+}
+
 export interface GamificationState {
   xp: number;
   level: number;

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { useGamification } from "@/hooks/useGamification";
@@ -27,7 +28,7 @@ interface SessionInvite {
 
 interface Notification {
   id: string;
-  icon: string;
+  icon: string; // SVG path
   text: string;
   date: string;
   color: string;
@@ -36,9 +37,46 @@ interface Notification {
 
 const ACCOUNT_MENU = [
   { href: "/profil", label: "Profil", icon: "M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" },
-  { href: "/settings", label: "Paramètres", icon: "M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z" },
+  { href: "/settings", label: "Param\u00e8tres", icon: "M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z" },
   { href: "/reports", label: "Rapports", icon: "M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" },
 ];
+
+// SVG icon paths for notification types (no emojis)
+const NOTIF_ICONS: Record<string, string> = {
+  calendar: "M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z",
+  xp: "M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z",
+  badge: "M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z",
+  milestone: "M13 7h8m0 0v8m0-8l-8 8-4-4-6 6",
+  wing: "M17 20h5v-2a3 3 0 00-5.356-1.857M9 20H4v-2a3 3 0 015.356-1.857M13 7a4 4 0 11-8 0 4 4 0 018 0zm6 3a2 2 0 11-4 0 2 2 0 014 0z",
+};
+
+// Page title mapping
+const PAGE_TITLES: Record<string, string> = {
+  "/": "Dashboard",
+  "/interactions": "Interactions",
+  "/sessions": "Sessions",
+  "/contacts": "Pipeline",
+  "/wings": "Wings",
+  "/feed": "Feed",
+  "/leaderboard": "Classement",
+  "/missions": "Missions",
+  "/progression": "Progression",
+  "/journal": "Journal",
+  "/calendrier": "Calendrier",
+  "/profil": "Profil",
+  "/settings": "Param\u00e8tres",
+  "/reports": "Rapports",
+  "/admin": "Admin",
+};
+
+function getPageTitle(pathname: string): string {
+  if (PAGE_TITLES[pathname]) return PAGE_TITLES[pathname];
+  // Handle dynamic routes like /interactions/xxx, /contacts/xxx, etc.
+  for (const [path, title] of Object.entries(PAGE_TITLES)) {
+    if (pathname.startsWith(path + "/")) return title;
+  }
+  return "GameProgress";
+}
 
 export function TopBar() {
   const pathname = usePathname();
@@ -98,7 +136,7 @@ export function TopBar() {
 
   if (pathname === "/login" || pathname === "/landing") return null;
 
-  // Build notifications
+  // Build notifications (NO emojis — SVG icons only)
   const allNotifications: Notification[] = [];
 
   sessionInvites.forEach((inv) => {
@@ -106,33 +144,33 @@ export function TopBar() {
     const sessionTitle = inv.session?.title || "une session";
     allNotifications.push({
       id: `sinv-${inv.id}`,
-      icon: "📅",
-      text: `@${ownerName} t'invite à "${sessionTitle}"`,
+      icon: NOTIF_ICONS.calendar,
+      text: `@${ownerName} t'invite \u00e0 "${sessionTitle}"`,
       date: inv.createdAt,
       color: "text-cyan-400",
       action: (
         <div className="flex gap-2 mt-2">
           <Button size="sm" onClick={() => handleInviteResponse(inv.id, "accepted")}>Accepter</Button>
-          <Button size="sm" variant="ghost" onClick={() => handleInviteResponse(inv.id, "declined")}>Décliner</Button>
+          <Button size="sm" variant="ghost" onClick={() => handleInviteResponse(inv.id, "declined")}>D\u00e9cliner</Button>
         </div>
       ),
     });
   });
 
   gam.xpEvents.slice(0, 5).forEach((e) => {
-    allNotifications.push({ id: `xp-${e.id}`, icon: "⚡", text: `+${e.amount} XP — ${e.reason}`, date: e.date, color: "text-[var(--primary)]" });
+    allNotifications.push({ id: `xp-${e.id}`, icon: NOTIF_ICONS.xp, text: `+${e.amount} XP \u2014 ${e.reason}`, date: e.date, color: "text-[var(--primary)]" });
   });
 
   gam.badges.filter((b) => b.unlockedAt).sort((a, b) => new Date(b.unlockedAt!).getTime() - new Date(a.unlockedAt!).getTime()).slice(0, 3).forEach((b) => {
-    allNotifications.push({ id: `badge-${b.id}`, icon: "🏅", text: `Badge débloqué : ${b.name}`, date: b.unlockedAt!, color: "text-amber-400" });
+    allNotifications.push({ id: `badge-${b.id}`, icon: NOTIF_ICONS.badge, text: `Badge d\u00e9bloqu\u00e9 : ${b.name}`, date: b.unlockedAt!, color: "text-amber-400" });
   });
 
   gam.milestones.filter((m) => m.unlockedAt).sort((a, b) => new Date(b.unlockedAt!).getTime() - new Date(a.unlockedAt!).getTime()).slice(0, 3).forEach((m) => {
-    allNotifications.push({ id: `ms-${m.id}`, icon: "🎯", text: `Milestone atteint : ${m.name}`, date: m.unlockedAt!, color: "text-emerald-400" });
+    allNotifications.push({ id: `ms-${m.id}`, icon: NOTIF_ICONS.milestone, text: `Milestone atteint : ${m.name}`, date: m.unlockedAt!, color: "text-emerald-400" });
   });
 
   pendingReceived.forEach((r) => {
-    allNotifications.push({ id: `wing-${r.id}`, icon: "🤝", text: `Invitation wing reçue`, date: r.createdAt, color: "text-[var(--tertiary)]" });
+    allNotifications.push({ id: `wing-${r.id}`, icon: NOTIF_ICONS.wing, text: `Invitation wing re\u00e7ue`, date: r.createdAt, color: "text-[var(--tertiary)]" });
   });
 
   allNotifications.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
@@ -143,14 +181,66 @@ export function TopBar() {
     return Date.now() - d.getTime() < 24 * 3600 * 1000;
   }).length);
 
+  const pageTitle = getPageTitle(pathname);
+
   return (
     <>
-      <div className="flex items-center justify-end gap-1 px-4 pt-4 lg:px-8 lg:pt-6">
+      {/* ═══ Mobile Header: logo | title | icons ═══ */}
+      <div className="lg:hidden flex items-center justify-between px-4 pt-4 pb-2">
+        {/* Left: Logo */}
+        <div className="flex items-center gap-2 min-w-[40px]">
+          <div className="w-8 h-8 rounded-[10px] border border-[var(--primary)]/30 flex items-center justify-center animate-logo-pulse">
+            <Image src="/logo.webp" alt="GameProgress" width={20} height={20} className="rounded-[5px]" priority />
+          </div>
+        </div>
+
+        {/* Center: Page title */}
+        <h1 className="text-[15px] font-[family-name:var(--font-grotesk)] font-bold text-[var(--on-surface)] tracking-tight truncate">
+          {pageTitle}
+        </h1>
+
+        {/* Right: Icons */}
+        <div className="flex items-center gap-0.5 min-w-[40px] justify-end">
+          <button
+            onClick={() => { setShowNotifs(true); markAllRead(); }}
+            aria-label="Notifications"
+            className="relative p-2 rounded-[12px] text-[var(--outline)] hover:text-[var(--on-surface-variant)] hover:bg-[var(--border)] transition-colors"
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
+            </svg>
+            {notifCount > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-[var(--error)] text-[8px] font-bold text-white flex items-center justify-center">
+                {notifCount > 9 ? "9+" : notifCount}
+              </span>
+            )}
+          </button>
+
+          {authSession?.user && (
+            <button
+              onClick={() => setShowAccount(!showAccount)}
+              aria-label="Mon compte"
+              className="relative p-1 rounded-[12px] hover:bg-[var(--border)] transition-colors"
+            >
+              {authSession.user.image ? (
+                <img src={authSession.user.image} alt="" className="w-7 h-7 rounded-full" referrerPolicy="no-referrer" />
+              ) : (
+                <div className="w-7 h-7 rounded-full bg-[var(--primary)]/20 flex items-center justify-center text-[10px] font-bold text-[var(--primary)]">
+                  {authSession.user.name?.[0]?.toUpperCase() || "?"}
+                </div>
+              )}
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* ═══ Desktop TopBar: right-aligned icons ═══ */}
+      <div className="hidden lg:flex items-center justify-end gap-1 px-8 pt-6">
         <Tooltip text="Calendrier" position="bottom">
           <Link
             href="/calendrier"
             aria-label="Calendrier"
-            className={`relative p-2 rounded-xl transition-colors ${pathname === "/calendrier" ? "bg-[var(--primary)]/15 text-[var(--primary)]" : "text-[var(--outline)] hover:text-[var(--on-surface-variant)] hover:bg-[var(--border)]"}`}
+            className={`relative p-2 rounded-[12px] transition-colors ${pathname === "/calendrier" ? "bg-[var(--primary)]/15 text-[var(--primary)]" : "text-[var(--outline)] hover:text-[var(--on-surface-variant)] hover:bg-[var(--border)]"}`}
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
@@ -162,45 +252,44 @@ export function TopBar() {
           <button
             onClick={() => { setShowNotifs(true); markAllRead(); }}
             aria-label="Notifications"
-            className="relative p-2 rounded-xl text-[var(--outline)] hover:text-[var(--on-surface-variant)] hover:bg-[var(--border)] transition-colors"
+            className="relative p-2 rounded-[12px] text-[var(--outline)] hover:text-[var(--on-surface-variant)] hover:bg-[var(--border)] transition-colors"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
             </svg>
             {notifCount > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-[var(--error)] text-[8px] font-bold text-[var(--on-surface)] flex items-center justify-center">
+              <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-[var(--error)] text-[8px] font-bold text-white flex items-center justify-center">
                 {notifCount > 9 ? "9+" : notifCount}
               </span>
             )}
           </button>
         </Tooltip>
 
-        {/* Account avatar */}
         {authSession?.user && (
           <Tooltip text="Mon compte" position="bottom">
-          <button
-            onClick={() => setShowAccount(!showAccount)}
-            aria-label="Mon compte"
-            className="relative p-1 rounded-xl hover:bg-[var(--border)] transition-colors"
-          >
-            {authSession.user.image ? (
-              <img src={authSession.user.image} alt="" className="w-7 h-7 rounded-full" referrerPolicy="no-referrer" />
-            ) : (
-              <div className="w-7 h-7 rounded-full bg-[var(--primary)]/20 flex items-center justify-center text-[10px] font-bold text-[var(--primary)]">
-                {authSession.user.name?.[0]?.toUpperCase() || "?"}
-              </div>
-            )}
-          </button>
+            <button
+              onClick={() => setShowAccount(!showAccount)}
+              aria-label="Mon compte"
+              className="relative p-1 rounded-[12px] hover:bg-[var(--border)] transition-colors"
+            >
+              {authSession.user.image ? (
+                <img src={authSession.user.image} alt="" className="w-7 h-7 rounded-full" referrerPolicy="no-referrer" />
+              ) : (
+                <div className="w-7 h-7 rounded-full bg-[var(--primary)]/20 flex items-center justify-center text-[10px] font-bold text-[var(--primary)]">
+                  {authSession.user.name?.[0]?.toUpperCase() || "?"}
+                </div>
+              )}
+            </button>
           </Tooltip>
         )}
       </div>
 
-      {/* Account dropdown */}
+      {/* Account dropdown — glass style */}
       {showAccount && authSession?.user && (
         <div className="fixed inset-0 z-50" onClick={() => setShowAccount(false)}>
-          <div className="absolute top-14 right-4 lg:right-8 bg-[var(--surface)] border border-[var(--border-hover)] rounded-xl p-4 w-64 shadow-xl z-50" onClick={(e) => e.stopPropagation()}>
+          <div className="absolute top-14 right-4 lg:right-8 glass-card p-4 w-64 shadow-xl z-50" onClick={(e) => e.stopPropagation()}>
             {/* User info */}
-            <div className="flex items-center gap-3 mb-3 pb-3 border-b border-[var(--border)]">
+            <div className="flex items-center gap-3 mb-3 pb-3 border-b border-[var(--glass-border)]">
               {authSession.user.image ? (
                 <img src={authSession.user.image} alt="" className="w-10 h-10 rounded-full" referrerPolicy="no-referrer" />
               ) : (
@@ -215,7 +304,7 @@ export function TopBar() {
             </div>
 
             {/* Menu links */}
-            <div className="space-y-0.5 mb-3 pb-3 border-b border-[var(--border)]">
+            <div className="space-y-0.5 mb-3 pb-3 border-b border-[var(--glass-border)]">
               {ACCOUNT_MENU.map((item) => {
                 const active = pathname === item.href;
                 return (
@@ -223,7 +312,7 @@ export function TopBar() {
                     key={item.href}
                     href={item.href}
                     onClick={() => setShowAccount(false)}
-                    className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${active ? "text-[var(--primary)] bg-[var(--border)]" : "text-[var(--on-surface-variant)] hover:bg-[var(--border)] hover:text-[var(--on-surface)]"}`}
+                    className={`flex items-center gap-3 px-3 py-2 rounded-[12px] text-sm transition-colors ${active ? "text-[var(--primary)] bg-[var(--border)]" : "text-[var(--on-surface-variant)] hover:bg-[var(--border)] hover:text-[var(--on-surface)]"}`}
                   >
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                       <path strokeLinecap="round" strokeLinejoin="round" d={item.icon} />
@@ -234,13 +323,13 @@ export function TopBar() {
               })}
             </div>
 
-            {/* Admin (visible only for admin) */}
+            {/* Admin */}
             {userId === "mathieu.guicheteau7@gmail.com" && (
-              <div className="mb-3 pb-3 border-b border-[var(--border)]">
+              <div className="mb-3 pb-3 border-b border-[var(--glass-border)]">
                 <Link
                   href="/admin"
                   onClick={() => setShowAccount(false)}
-                  className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${pathname === "/admin" ? "text-[var(--primary)] bg-[var(--border)]" : "text-[var(--on-surface-variant)] hover:bg-[var(--border)] hover:text-[var(--on-surface)]"}`}
+                  className={`flex items-center gap-3 px-3 py-2 rounded-[12px] text-sm transition-colors ${pathname === "/admin" ? "text-[var(--primary)] bg-[var(--border)]" : "text-[var(--on-surface-variant)] hover:bg-[var(--border)] hover:text-[var(--on-surface)]"}`}
                 >
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
@@ -253,21 +342,28 @@ export function TopBar() {
             {/* Logout */}
             <button
               onClick={() => signOut({ redirectTo: "/login" })}
-              className="flex items-center gap-3 w-full text-left text-sm text-[var(--error)] hover:bg-[var(--error)]/10 rounded-lg px-3 py-2 transition-colors"
+              className="flex items-center gap-3 w-full text-left text-sm text-[var(--error)] hover:bg-[var(--error)]/10 rounded-[12px] px-3 py-2 transition-colors"
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
               </svg>
-              Déconnexion
+              D\u00e9connexion
             </button>
           </div>
         </div>
       )}
 
-      {/* Notifications modal */}
+      {/* ═══ Notifications modal — Premium glass ═══ */}
       <Modal open={showNotifs} onClose={() => setShowNotifs(false)} title="Notifications">
         {notifications.length === 0 ? (
-          <p className="text-sm text-[var(--outline)] text-center py-4">Aucune notification.</p>
+          <div className="flex flex-col items-center py-8">
+            <div className="w-12 h-12 rounded-[14px] bg-[var(--surface-high)] flex items-center justify-center mb-3">
+              <svg className="w-6 h-6 text-[var(--outline)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
+              </svg>
+            </div>
+            <p className="text-sm text-[var(--outline)]">Aucune notification.</p>
+          </div>
         ) : (
           <div className="space-y-2 max-h-[60vh] overflow-y-auto">
             {notifications.length > 1 && (
@@ -279,12 +375,16 @@ export function TopBar() {
               </button>
             )}
             {notifications.slice(0, 20).map((n) => (
-              <Card key={n.id} className="!p-3 relative group">
+              <Card key={n.id} glass className="!p-3 relative group">
                 <div className="flex items-start gap-3">
-                  <span className="text-lg">{n.icon}</span>
+                  <div className="w-8 h-8 rounded-[10px] bg-[var(--surface-high)] flex items-center justify-center shrink-0">
+                    <svg className={`w-4 h-4 ${n.color}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d={n.icon} />
+                    </svg>
+                  </div>
                   <div className="flex-1 min-w-0">
                     <p className={`text-xs font-medium ${n.color}`}>{n.text}</p>
-                    <p className="text-[10px] text-[var(--outline)]">{formatRelative(n.date)}</p>
+                    <p className="text-[10px] text-[var(--outline)] mt-0.5">{formatRelative(n.date)}</p>
                     {n.action}
                   </div>
                   {!n.action && (

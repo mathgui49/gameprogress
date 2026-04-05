@@ -36,7 +36,7 @@ export function Tooltip({ text, children, position = "top", delay = 300, classNa
       {visible && (
         <span
           role="tooltip"
-          className={`absolute z-50 px-2.5 py-1.5 text-[11px] font-medium rounded-lg bg-[var(--surface-bright)] border border-[var(--border)] text-[var(--on-surface-variant)] shadow-lg whitespace-nowrap pointer-events-none animate-fade-in ${positionClasses[position]}`}
+          className={`absolute z-50 px-2.5 py-1.5 text-[11px] font-medium rounded-[10px] glass-heavy text-[var(--on-surface-variant)] shadow-lg whitespace-nowrap pointer-events-none animate-fade-in ${positionClasses[position]}`}
         >
           {text}
         </span>

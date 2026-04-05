@@ -1,4 +1,4 @@
-import type { Interaction, Contact, Mission, JournalEntry, GamificationState, Badge, Milestone } from "@/types";
+import type { Interaction, Contact, Mission, JournalEntry, GamificationState, Badge, Milestone, BadgeCategory } from "@/types";
 import { generateId } from "./utils";
 
 const DEFAULTS = { memorableElement: "", womanScore: 7, confidenceScore: 5, objection: null, objectionCustom: "", discussionTopics: "", feedback: "", contactMethod: null, contactValue: "", sessionId: "" } as const;
@@ -132,3 +132,102 @@ export function generateDefaultGamification(): GamificationState {
     milestones: generateDefaultMilestones(),
   };
 }
+
+export const BADGE_CATEGORIES: BadgeCategory[] = [
+  {
+    id: "interactions", label: "Interactions", key: "interactions",
+    tiers: [
+      { threshold: 1, name: "Ice Breaker", icon: "🎯" },
+      { threshold: 10, name: "Causeur", icon: "🗣️" },
+      { threshold: 50, name: "Social Butterfly", icon: "🦋" },
+      { threshold: 100, name: "Machine à Parler", icon: "🔥" },
+      { threshold: 500, name: "Légende Sociale", icon: "👑" },
+    ],
+  },
+  {
+    id: "closes", label: "Closes", key: "closes",
+    tiers: [
+      { threshold: 1, name: "Premier Sang", icon: "✨" },
+      { threshold: 5, name: "Séducteur", icon: "💫" },
+      { threshold: 10, name: "Closer Pro", icon: "💎" },
+      { threshold: 25, name: "Heartbreaker", icon: "💜" },
+      { threshold: 50, name: "Close Machine", icon: "🏆" },
+    ],
+  },
+  {
+    id: "dates", label: "Dates", key: "dates",
+    tiers: [
+      { threshold: 1, name: "First Date", icon: "❤️" },
+      { threshold: 5, name: "Lover Boy", icon: "💕" },
+      { threshold: 10, name: "Dateur Pro", icon: "💘" },
+      { threshold: 25, name: "Roi du Rendez-vous", icon: "👑" },
+    ],
+  },
+  {
+    id: "sessions", label: "Sessions", key: "sessions",
+    tiers: [
+      { threshold: 1, name: "Rookie", icon: "📅" },
+      { threshold: 5, name: "Habitué", icon: "📆" },
+      { threshold: 10, name: "Régulier", icon: "🗓️" },
+      { threshold: 25, name: "Vétéran", icon: "🎯" },
+      { threshold: 50, name: "No Life du Game", icon: "🏆" },
+    ],
+  },
+  {
+    id: "wings", label: "Wings", key: "wings",
+    tiers: [
+      { threshold: 1, name: "Solo Plus One", icon: "🤝" },
+      { threshold: 3, name: "Squad Leader", icon: "👥" },
+      { threshold: 5, name: "Chef de Meute", icon: "🐺" },
+      { threshold: 10, name: "Général", icon: "👑" },
+    ],
+  },
+  {
+    id: "streak", label: "Jours actifs", key: "streak",
+    tiers: [
+      { threshold: 3, name: "Motivé", icon: "⚡" },
+      { threshold: 7, name: "Discipliné", icon: "🔥" },
+      { threshold: 14, name: "Acharné", icon: "💪" },
+      { threshold: 30, name: "Inarrêtable", icon: "🏆" },
+      { threshold: 60, name: "Machine de Guerre", icon: "💎" },
+      { threshold: 100, name: "Légende Vivante", icon: "👑" },
+    ],
+  },
+  {
+    id: "journal", label: "Journal", key: "journal",
+    tiers: [
+      { threshold: 1, name: "Première Note", icon: "📝" },
+      { threshold: 10, name: "Chroniqueur", icon: "📖" },
+      { threshold: 20, name: "Écrivain", icon: "✍️" },
+      { threshold: 50, name: "Philosophe du Game", icon: "📚" },
+    ],
+  },
+  {
+    id: "contacts", label: "Contacts", key: "contacts",
+    tiers: [
+      { threshold: 1, name: "Premier Numéro", icon: "📱" },
+      { threshold: 5, name: "Collecteur", icon: "📲" },
+      { threshold: 10, name: "Réseauteur", icon: "📡" },
+      { threshold: 25, name: "Carnet Plein", icon: "📇" },
+      { threshold: 50, name: "Social King", icon: "👑" },
+    ],
+  },
+  {
+    id: "missions", label: "Missions", key: "missions",
+    tiers: [
+      { threshold: 1, name: "Première Mission", icon: "🎖️" },
+      { threshold: 5, name: "Agent en Herbe", icon: "🕵️" },
+      { threshold: 10, name: "Agent Double", icon: "🎯" },
+      { threshold: 25, name: "Agent Secret", icon: "👑" },
+    ],
+  },
+  {
+    id: "level", label: "Niveau", key: "level",
+    tiers: [
+      { threshold: 5, name: "Apprenti", icon: "⭐" },
+      { threshold: 10, name: "Confirmé", icon: "🌟" },
+      { threshold: 20, name: "Expert", icon: "💫" },
+      { threshold: 50, name: "Maître du Game", icon: "👑" },
+    ],
+  },
+];

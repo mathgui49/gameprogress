@@ -4,9 +4,9 @@ import { ToastContext, useToastState } from "@/hooks/useToast";
 import type { Toast } from "@/hooks/useToast";
 
 const COLORS = {
-  success: "bg-emerald-500/15 text-emerald-400 border-emerald-500/20",
-  error: "bg-[#fb7185]/15 text-[#fb7185] border-[#fb7185]/20",
-  info: "bg-[var(--primary)]/15 text-[var(--primary)] border-[var(--primary)]/20",
+  success: "text-emerald-400 border-emerald-500/20",
+  error: "text-[#fb7185] border-[#fb7185]/20",
+  info: "text-[var(--primary)] border-[var(--primary)]/20",
 };
 
 const ICONS: Record<Toast["type"], string> = {
@@ -35,7 +35,7 @@ function ToastContainer({ toasts, onDismiss }: { toasts: Toast[]; onDismiss: (id
         <div
           key={toast.id}
           onClick={() => onDismiss(toast.id)}
-          className={`flex items-center gap-2.5 px-4 py-2.5 rounded-xl border backdrop-blur-lg text-sm font-medium cursor-pointer animate-scale-in shadow-lg ${COLORS[toast.type]}`}
+          className={`flex items-center gap-2.5 px-4 py-2.5 rounded-[14px] border glass-heavy text-sm font-medium cursor-pointer animate-scale-in shadow-[0_8px_32px_-8px_rgba(0,0,0,0.4)] ${COLORS[toast.type]}`}
         >
           <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
             <path strokeLinecap="round" strokeLinejoin="round" d={ICONS[toast.type]} />

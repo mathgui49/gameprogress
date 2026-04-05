@@ -7,15 +7,15 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variants = {
   primary: "bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] text-white hover:shadow-[0_0_20px_-4px_var(--neon-purple)] font-semibold",
-  secondary: "bg-[var(--surface-high)] border border-[var(--border)] text-[var(--on-surface-variant)] hover:bg-[var(--surface-bright)] hover:text-[var(--on-surface)] hover:border-[var(--border-hover)]",
+  secondary: "glass-card text-[var(--on-surface-variant)] hover:text-[var(--on-surface)] hover:border-[var(--glass-border-hover)]",
   ghost: "text-[var(--on-surface-variant)] hover:text-[var(--on-surface)] hover:bg-[var(--border)]",
-  danger: "bg-[var(--error)]/10 text-[var(--error)] hover:bg-[var(--error)]/20",
+  danger: "bg-[var(--error)]/10 text-[var(--error)] hover:bg-[var(--error)]/20 border border-[var(--error)]/10",
 };
 
 const sizes = {
-  sm: "px-3 py-1.5 text-xs rounded-lg",
-  md: "px-4 py-2.5 text-sm rounded-lg",
-  lg: "px-6 py-3 text-sm rounded-lg",
+  sm: "px-3 py-1.5 text-xs rounded-[10px]",
+  md: "px-4 py-2.5 text-sm rounded-[12px]",
+  lg: "px-6 py-3 text-sm rounded-[14px]",
 };
 
 export function Button({ variant = "primary", size = "md", className, children, ...props }: ButtonProps) {
