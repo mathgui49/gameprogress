@@ -148,22 +148,23 @@ function PostComposer({ onPost, userProfile }: { onPost: () => void; userProfile
   const extractMentions = (text: string) => [...text.matchAll(/@(\w+)/g)].map((m) => m[1]);
 
   const handlePost = async () => {
-    const text = editorRef.current?.innerText || content;
-    if (!text.trim()) return;
+    const plainText = editorRef.current?.innerText || content;
+    const htmlContent = editorRef.current?.innerHTML || content;
+    if (!plainText.trim()) return;
     setPosting(true);
     try {
       await createPostAction({
-        content: text.trim(),
+        content: htmlContent.trim(),
         visibility,
         postType: images.length > 0 ? "photo" : "text",
         images,
-        hashtags: extractHashtags(text),
-        mentions: extractMentions(text),
+        hashtags: extractHashtags(plainText),
+        mentions: extractMentions(plainText),
         linkedSessionId: null,
       });
       setContent("");
       setImages([]);
-      if (editorRef.current) editorRef.current.innerText = "";
+      if (editorRef.current) editorRef.current.innerHTML = "";
       setOpen(false);
       onPost();
     } finally {
@@ -224,6 +225,35 @@ function PostComposer({ onPost, userProfile }: { onPost: () => void; userProfile
         </select>
       </div>
 
+      {/* Formatting toolbar */}
+      <div className="flex items-center gap-0.5 mb-2 pb-2 border-b border-[var(--border)]">
+        {[
+          { cmd: "bold", icon: "B", style: "font-bold" },
+          { cmd: "italic", icon: "I", style: "italic" },
+          { cmd: "underline", icon: "U", style: "underline" },
+          { cmd: "strikeThrough", icon: "S", style: "line-through" },
+        ].map((b) => (
+          <button
+            key={b.cmd}
+            type="button"
+            onMouseDown={(e) => { e.preventDefault(); document.execCommand(b.cmd, false); editorRef.current?.focus(); }}
+            className="w-7 h-7 rounded-md flex items-center justify-center text-xs text-[var(--on-surface-variant)] hover:bg-[var(--surface-bright)] hover:text-[var(--primary)] transition-colors"
+            title={b.cmd}
+          >
+            <span className={b.style}>{b.icon}</span>
+          </button>
+        ))}
+        <div className="w-px h-4 bg-[var(--border)] mx-1" />
+        <button
+          type="button"
+          onMouseDown={(e) => { e.preventDefault(); document.execCommand("insertUnorderedList", false); editorRef.current?.focus(); }}
+          className="w-7 h-7 rounded-md flex items-center justify-center text-[var(--on-surface-variant)] hover:bg-[var(--surface-bright)] hover:text-[var(--primary)] transition-colors"
+          title="Liste"
+        >
+          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0ZM3.75 12h.007v.008H3.75V12Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm-.375 5.25h.007v.008H3.75v-.008Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" /></svg>
+        </button>
+      </div>
+
       {/* Rich editor */}
       <div
         ref={editorRef}
@@ -272,7 +302,7 @@ function PostComposer({ onPost, userProfile }: { onPost: () => void; userProfile
           </button>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="sm" onClick={() => { setOpen(false); setContent(""); setImages([]); if (editorRef.current) editorRef.current.innerText = ""; }}>Annuler</Button>
+          <Button variant="ghost" size="sm" onClick={() => { setOpen(false); setContent(""); setImages([]); if (editorRef.current) editorRef.current.innerHTML = ""; }}>Annuler</Button>
           <Button size="sm" onClick={handlePost} disabled={posting || !content.trim()}>
             {posting ? "..." : "Publier"}
           </Button>
@@ -498,8 +528,23 @@ function ShareButton({ title, text }: { title: string; text: string }) {
   );
 }
 
-// ─── Render post content with hashtags/mentions ───────
+// ─── Render post content with hashtags/mentions + rich HTML ───
 function RichContent({ text }: { text: string }) {
+  // If content has HTML tags (from rich editor), render as HTML with hashtag/mention coloring
+  const hasHtml = /<[a-z][\s\S]*>/i.test(text);
+  if (hasHtml) {
+    // Highlight hashtags and mentions within HTML
+    const highlighted = text
+      .replace(/(#\w+)/g, '<span style="color:var(--primary);font-weight:500">$1</span>')
+      .replace(/(@\w+)/g, '<span style="color:var(--tertiary);font-weight:500">$1</span>');
+    return (
+      <div
+        className="text-sm text-[var(--on-surface-variant)] leading-relaxed break-words [&_b]:font-bold [&_i]:italic [&_u]:underline [&_s]:line-through [&_ul]:list-disc [&_ul]:pl-4 [&_ol]:list-decimal [&_ol]:pl-4"
+        dangerouslySetInnerHTML={{ __html: highlighted }}
+      />
+    );
+  }
+  // Plain text fallback
   const parts = text.split(/(#\w+|@\w+)/g);
   return (
     <p className="text-sm text-[var(--on-surface-variant)] leading-relaxed whitespace-pre-wrap break-words">
