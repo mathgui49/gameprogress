@@ -7,9 +7,10 @@ interface TooltipProps {
   children: React.ReactNode;
   position?: "top" | "bottom" | "left" | "right";
   delay?: number;
+  className?: string;
 }
 
-export function Tooltip({ text, children, position = "top", delay = 300 }: TooltipProps) {
+export function Tooltip({ text, children, position = "top", delay = 300, className }: TooltipProps) {
   const [visible, setVisible] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -30,7 +31,7 @@ export function Tooltip({ text, children, position = "top", delay = 300 }: Toolt
   };
 
   return (
-    <div className="relative inline-flex" onMouseEnter={show} onMouseLeave={hide} onFocus={show} onBlur={hide}>
+    <div className={`relative inline-flex ${className ?? ""}`} onMouseEnter={show} onMouseLeave={hide} onFocus={show} onBlur={hide}>
       {children}
       {visible && (
         <span
