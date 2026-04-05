@@ -8,6 +8,8 @@ export function OfflineBanner() {
   const userId = session?.user?.email ?? "";
   const { online, pendingCount, syncing } = useOfflineSync(userId);
 
+  // Only show when truly offline or actively syncing
+  if (online && !syncing) return null;
   if (online && pendingCount === 0) return null;
 
   return (

@@ -23,7 +23,7 @@ export default async function Image() {
           background: "linear-gradient(135deg, #0f0a1e 0%, #1a1035 40%, #2d1b69 100%)",
         }}
       >
-        <img src={logoSrc} width="160" height="160" style={{ marginBottom: 32 }} />
+        <img src={logoSrc} width={160} height={160} style={{ marginBottom: 32 }} />
         <div
           style={{
             fontSize: 64,

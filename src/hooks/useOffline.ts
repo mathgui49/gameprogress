@@ -39,15 +39,19 @@ export function useOfflineSync(userId: string) {
   const [syncing, setSyncing] = useState(false);
   const syncingRef = useRef(false);
 
-  // Check pending count periodically
+  // On mount: clear stale queue entries if online (they were from failed attempts)
   useEffect(() => {
-    const check = async () => {
+    const init = async () => {
       const queue = await getSyncQueue();
-      setPendingCount(queue.length);
+      if (navigator.onLine && queue.length > 0) {
+        // Try to sync, but if entries fail (already synced via SWR), clear them
+        await processQueue();
+      }
+      const remaining = await getSyncQueue();
+      setPendingCount(remaining.length);
     };
-    check();
-    const interval = setInterval(check, 3000);
-    return () => clearInterval(interval);
+    init();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const processQueue = useCallback(async () => {
@@ -64,15 +68,21 @@ export function useOfflineSync(userId: string) {
 
       const affectedTables = new Set<string>();
 
+      const ONE_HOUR = 60 * 60 * 1000;
       for (const entry of queue) {
+        // Drop stale entries older than 1 hour
+        if (Date.now() - entry.createdAt > ONE_HOUR) {
+          await removeSyncEntry(entry.id);
+          continue;
+        }
         try {
           await executeSyncEntry(entry);
           await removeSyncEntry(entry.id);
           affectedTables.add(entry.table);
         } catch (err) {
           console.error("Sync failed for entry:", entry.id, err);
-          // Stop on first failure to maintain order
-          break;
+          // Remove entry that fails to avoid infinite retry loop
+          await removeSyncEntry(entry.id);
         }
       }
 
