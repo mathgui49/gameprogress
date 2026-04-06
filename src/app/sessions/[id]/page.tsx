@@ -105,6 +105,8 @@ export default function SessionDetailPage({ params }: { params: Promise<{ id: st
   const [editDate, setEditDate] = useState("");
   const [editIsPublic, setEditIsPublic] = useState(false);
   const [editMaxParticipants, setEditMaxParticipants] = useState(0);
+  const [editDurationH, setEditDurationH] = useState(0);
+  const [editDurationM, setEditDurationM] = useState(0);
   const [showFieldReport, setShowFieldReport] = useState(false);
   const [frVisibility, setFrVisibility] = useState<Visibility>("private");
   const [participants, setParticipants] = useState<ParticipantWithProfile[]>([]);
@@ -272,7 +274,7 @@ export default function SessionDetailPage({ params }: { params: Promise<{ id: st
               </span>
             </Button>
           )}
-          {isOwner && <Button variant="secondary" size="sm" onClick={() => { setEditTitle(session.title || ""); setEditLocation(session.location || ""); setEditNotes(session.notes || ""); setEditDate(new Date(session.date).toISOString().slice(0, 16)); setEditIsPublic(session.isPublic); setEditMaxParticipants(session.maxParticipants); setEditing(true); }}>Modifier</Button>}
+          {isOwner && <Button variant="secondary" size="sm" onClick={() => { setEditTitle(session.title || ""); setEditLocation(session.location || ""); setEditNotes(session.notes || ""); setEditDate(new Date(session.date).toISOString().slice(0, 16)); setEditIsPublic(session.isPublic); setEditMaxParticipants(session.maxParticipants); setEditDurationH(session.estimatedDuration ? Math.floor(session.estimatedDuration / 60) : 0); setEditDurationM(session.estimatedDuration ? session.estimatedDuration % 60 : 0); setEditing(true); }}>Modifier</Button>}
           {isOwner && <Button variant="danger" size="sm" onClick={() => setShowDelete(true)}>Supprimer</Button>}
         </div>
       </div>
@@ -562,11 +564,20 @@ export default function SessionDetailPage({ params }: { params: Promise<{ id: st
 
       {/* Edit session modal */}
       <Modal open={editing} onClose={() => setEditing(false)} title="Modifier la session">
-        <form onSubmit={async (e) => { e.preventDefault(); await update(id, { title: editTitle, location: editLocation, notes: editNotes, date: new Date(editDate).toISOString(), isPublic: editIsPublic, maxParticipants: editMaxParticipants }); setEditing(false); }} className="space-y-4">
+        <form onSubmit={async (e) => { e.preventDefault(); const dur = editDurationH * 60 + editDurationM; await update(id, { title: editTitle, location: editLocation, notes: editNotes, date: new Date(editDate).toISOString(), isPublic: editIsPublic, maxParticipants: editMaxParticipants, estimatedDuration: dur > 0 ? dur : null }); setEditing(false); }} className="space-y-4">
           <Input label="Titre" value={editTitle} onChange={(e) => setEditTitle(e.target.value)} placeholder="Titre de la session" />
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Input label="Date" type="datetime-local" value={editDate} onChange={(e) => setEditDate(e.target.value)} />
             <Input label="Lieu" value={editLocation} onChange={(e) => setEditLocation(e.target.value)} placeholder="Lieu" />
+          </div>
+          <div>
+            <p className="text-xs font-medium text-[var(--on-surface-variant)] mb-2">Durée estimée</p>
+            <div className="flex items-center gap-2">
+              <Input label="" type="number" min={0} max={12} value={String(editDurationH)} onChange={(e) => setEditDurationH(Number(e.target.value))} placeholder="0" />
+              <span className="text-xs text-[var(--on-surface-variant)]">h</span>
+              <Input label="" type="number" min={0} max={59} step={5} value={String(editDurationM)} onChange={(e) => setEditDurationM(Number(e.target.value))} placeholder="0" />
+              <span className="text-xs text-[var(--on-surface-variant)]">min</span>
+            </div>
           </div>
           <TextArea label="Notes" value={editNotes} onChange={(e) => setEditNotes(e.target.value)} placeholder="Notes..." rows={3} />
           <div className="flex items-center justify-between">
@@ -579,7 +590,7 @@ export default function SessionDetailPage({ params }: { params: Promise<{ id: st
             </button>
           </div>
           {editIsPublic && (
-            <Input label="Places max (0 = illimite)" type="number" min={0} value={String(editMaxParticipants)} onChange={(e) => setEditMaxParticipants(Number(e.target.value))} />
+            <Input label="Places max (0 = illimité)" type="number" min={0} value={String(editMaxParticipants)} onChange={(e) => setEditMaxParticipants(Number(e.target.value))} />
           )}
           <div className="flex items-center gap-3 pt-2">
             <Button type="submit">Enregistrer</Button>
