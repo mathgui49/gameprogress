@@ -388,7 +388,7 @@ export default function ContactsPage() {
       <div className="flex items-start justify-between mb-4">
         <div>
           <h1 className="text-2xl font-[family-name:var(--font-grotesk)] font-bold tracking-tight mb-1">
-            <span className="bg-gradient-to-r from-[#c084fc] to-[#34d399] bg-clip-text text-transparent">Pipeline</span>
+            <span className="bg-gradient-to-r from-[#c084fc] to-[#34d399] bg-clip-text text-transparent animate-gradient-text">Pipeline</span>
           </h1>
           <p className="text-sm text-[var(--on-surface-variant)]">Suis tes contacts du close jusqu&apos;au date — {contacts.filter((c) => c.status !== "archived").length} actif{contacts.filter((c) => c.status !== "archived").length > 1 ? "s" : ""}</p>
         </div>

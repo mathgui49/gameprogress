@@ -60,7 +60,7 @@ export default function BetaPage() {
           Programme Beta Testeurs
         </div>
         <h1 className="text-3xl font-[family-name:var(--font-grotesk)] font-bold tracking-tight mb-3">
-          <span className="bg-gradient-to-r from-[#c084fc] to-[#f472b6] bg-clip-text text-transparent">Deviens Beta Testeur</span>
+          <span className="bg-gradient-to-r from-[#c084fc] to-[#f472b6] bg-clip-text text-transparent animate-gradient-text">Deviens Beta Testeur</span>
         </h1>
         <p className="text-sm text-[var(--on-surface-variant)] max-w-md mx-auto">
           Tu as été invité à rejoindre le programme bêta de GameProgress. Accède à toutes les fonctionnalités GameMax pendant 1 an, gratuitement.

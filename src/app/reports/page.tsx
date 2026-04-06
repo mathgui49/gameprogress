@@ -242,7 +242,7 @@ export default function ReportsPage() {
       <div className="mb-8">
         <div className="flex items-center justify-between mb-1">
           <h1 className="text-2xl font-[family-name:var(--font-grotesk)] font-bold tracking-tight">
-            <span className="bg-gradient-to-r from-[#f59e0b] to-[#c084fc] bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-[#f59e0b] to-[#c084fc] bg-clip-text text-transparent animate-gradient-text">
               Statistiques
             </span>
           </h1>

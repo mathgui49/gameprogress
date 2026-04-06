@@ -187,7 +187,7 @@ export default function WingsPage() {
     return (
       <div className="px-4 py-6 lg:px-8 lg:py-8 max-w-3xl mx-auto animate-fade-in">
         <div className="mb-6">
-          <h1 className="text-2xl font-[family-name:var(--font-grotesk)] font-bold tracking-tight mb-1"><span className="bg-gradient-to-r from-[#818cf8] to-[#34d399] bg-clip-text text-transparent">Wings</span></h1>
+          <h1 className="text-2xl font-[family-name:var(--font-grotesk)] font-bold tracking-tight mb-1"><span className="bg-gradient-to-r from-[#818cf8] to-[#34d399] bg-clip-text text-transparent animate-gradient-text">Wings</span></h1>
           <p className="text-sm text-[var(--on-surface-variant)]">Tes partenaires de game</p>
         </div>
         <ProfileIncompleteNotice />
@@ -220,7 +220,7 @@ export default function WingsPage() {
       <div className="mb-6">
         <div className="flex items-start justify-between mb-3">
           <div>
-            <h1 className="text-2xl font-[family-name:var(--font-grotesk)] font-bold tracking-tight mb-1"><span className="bg-gradient-to-r from-[#818cf8] to-[#34d399] bg-clip-text text-transparent">Wings</span></h1>
+            <h1 className="text-2xl font-[family-name:var(--font-grotesk)] font-bold tracking-tight mb-1"><span className="bg-gradient-to-r from-[#818cf8] to-[#34d399] bg-clip-text text-transparent animate-gradient-text">Wings</span></h1>
             <p className="text-sm text-[var(--on-surface-variant)]">Tes partenaires de game{!isPremium ? ` (${wingProfiles.length}/${FREE_LIMITS.maxWings})` : ""}</p>
           </div>
         </div>

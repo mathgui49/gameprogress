@@ -53,7 +53,7 @@ export default function BetaProgrammePage() {
         </div>
         <div>
           <h1 className="text-2xl font-[family-name:var(--font-grotesk)] font-bold tracking-tight">
-            <span className="bg-gradient-to-r from-[#c084fc] to-[#f472b6] bg-clip-text text-transparent">Programme Beta</span>
+            <span className="bg-gradient-to-r from-[#c084fc] to-[#f472b6] bg-clip-text text-transparent animate-gradient-text">Programme Beta</span>
           </h1>
           <div className="flex items-center gap-2 mt-1">
             <Badge className="bg-emerald-400/15 text-emerald-400">Beta Testeur</Badge>

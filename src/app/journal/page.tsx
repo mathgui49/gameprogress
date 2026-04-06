@@ -316,7 +316,7 @@ export default function JournalPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h1 className="text-2xl font-[family-name:var(--font-grotesk)] font-bold tracking-tight mb-1"><span className="bg-gradient-to-r from-[#67e8f9] to-[#c084fc] bg-clip-text text-transparent">Journal</span></h1>
+          <h1 className="text-2xl font-[family-name:var(--font-grotesk)] font-bold tracking-tight mb-1"><span className="bg-gradient-to-r from-[#67e8f9] to-[#c084fc] bg-clip-text text-transparent animate-gradient-text">Journal</span></h1>
           <p className="text-sm text-[var(--on-surface-variant)]">{entries.length} post{entries.length > 1 ? "s" : ""}{drafts.length > 0 ? ` · ${drafts.length} brouillon${drafts.length > 1 ? "s" : ""}` : ""}</p>
         </div>
         <div className="flex items-center gap-2">

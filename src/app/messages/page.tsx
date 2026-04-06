@@ -141,7 +141,7 @@ export default function MessagesPage() {
       <div className="px-4 py-6 lg:px-8 lg:py-8 max-w-3xl mx-auto animate-fade-in">
         <div className="mb-6">
           <h1 className="text-2xl font-[family-name:var(--font-grotesk)] font-bold tracking-tight mb-1">
-            <span className="bg-gradient-to-r from-[#818cf8] to-[#67e8f9] bg-clip-text text-transparent">Messages</span>
+            <span className="bg-gradient-to-r from-[#818cf8] to-[#67e8f9] bg-clip-text text-transparent animate-gradient-text">Messages</span>
           </h1>
           <p className="text-sm text-[var(--on-surface-variant)]">Tes conversations</p>
         </div>
@@ -158,7 +158,7 @@ export default function MessagesPage() {
           <div className="flex items-center justify-between mb-6">
             <div>
               <h1 className="text-2xl font-[family-name:var(--font-grotesk)] font-bold tracking-tight mb-1">
-                <span className="bg-gradient-to-r from-[#818cf8] to-[#67e8f9] bg-clip-text text-transparent">Messages</span>
+                <span className="bg-gradient-to-r from-[#818cf8] to-[#67e8f9] bg-clip-text text-transparent animate-gradient-text">Messages</span>
               </h1>
               <p className="text-sm text-[var(--on-surface-variant)]">
                 {totalUnread > 0 ? `${totalUnread} message${totalUnread > 1 ? "s" : ""} non lu${totalUnread > 1 ? "s" : ""}` : "Tes conversations"}

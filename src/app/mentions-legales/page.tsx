@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 export default function MentionsLegalesPage() {
   return (
     <div className="min-h-screen bg-[var(--surface)] text-[var(--on-surface)] px-4 py-10 max-w-3xl mx-auto">
-      <h1 className="text-2xl font-[family-name:var(--font-grotesk)] font-bold mb-8 bg-gradient-to-r from-[#8a839e] to-[#c084fc] bg-clip-text text-transparent">
+      <h1 className="text-2xl font-[family-name:var(--font-grotesk)] font-bold mb-8 bg-gradient-to-r from-[#8a839e] to-[#c084fc] bg-clip-text text-transparent animate-gradient-text">
         Mentions Légales
       </h1>
       <p className="text-xs text-[var(--on-surface-variant)] mb-6">Dernière mise à jour : 5 avril 2026</p>

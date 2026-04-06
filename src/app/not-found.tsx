@@ -23,7 +23,7 @@ export default function NotFound() {
       <div className="text-center max-w-md animate-fade-in">
         {/* 404 number with glow */}
         <div className="relative mb-8">
-          <h1 className="text-[120px] sm:text-[160px] font-[family-name:var(--font-grotesk)] font-bold leading-none bg-gradient-to-b from-[var(--primary)] to-[var(--primary)]/20 bg-clip-text text-transparent select-none">
+          <h1 className="text-[120px] sm:text-[160px] font-[family-name:var(--font-grotesk)] font-bold leading-none bg-gradient-to-b from-[var(--primary)] to-[var(--primary)]/20 bg-clip-text text-transparent animate-gradient-text select-none">
             404
           </h1>
           <div className="absolute inset-0 flex items-center justify-center">

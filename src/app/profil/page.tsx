@@ -70,7 +70,7 @@ export default function ProfilPage() {
   return (
     <div className="px-4 py-6 lg:px-8 lg:py-8 max-w-2xl mx-auto animate-fade-in">
       <div className="mb-8">
-        <h1 className="text-2xl lg:text-3xl font-[family-name:var(--font-grotesk)] font-bold tracking-tight mb-1"><span className="bg-gradient-to-r from-[#c084fc] to-[#818cf8] bg-clip-text text-transparent">Profil</span></h1>
+        <h1 className="text-2xl lg:text-3xl font-[family-name:var(--font-grotesk)] font-bold tracking-tight mb-1"><span className="bg-gradient-to-r from-[#c084fc] to-[#818cf8] bg-clip-text text-transparent animate-gradient-text">Profil</span></h1>
         <p className="text-sm text-[var(--on-surface-variant)]">Configure ton profil public visible par les autres gamers</p>
       </div>
 

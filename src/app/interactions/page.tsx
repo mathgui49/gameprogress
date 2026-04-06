@@ -260,7 +260,7 @@ export default function InteractionsPage() {
       <div className="flex items-start justify-between mb-4">
         <div>
           <h1 className="text-2xl lg:text-3xl font-[family-name:var(--font-grotesk)] font-bold tracking-tight mb-1">
-            <span className="bg-gradient-to-r from-[#c084fc] to-[#818cf8] bg-clip-text text-transparent">Interactions</span>
+            <span className="bg-gradient-to-r from-[#c084fc] to-[#818cf8] bg-clip-text text-transparent animate-gradient-text">Interactions</span>
           </h1>
           <p className="text-sm text-[var(--on-surface-variant)]">Historique de tes approches et rencontres — {interactions.length} interaction{interactions.length !== 1 ? "s" : ""}</p>
         </div>

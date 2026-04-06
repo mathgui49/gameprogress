@@ -27,7 +27,7 @@ export default function AbonnementPage() {
     return (
       <div className="px-4 py-6 lg:px-8 lg:py-8 max-w-2xl mx-auto animate-fade-in">
         <h1 className="text-2xl font-[family-name:var(--font-grotesk)] font-bold tracking-tight mb-1">
-          <span className="bg-gradient-to-r from-[#c084fc] to-[#f472b6] bg-clip-text text-transparent">Mon abonnement</span>
+          <span className="bg-gradient-to-r from-[#c084fc] to-[#f472b6] bg-clip-text text-transparent animate-gradient-text">Mon abonnement</span>
         </h1>
         <p className="text-sm text-[var(--on-surface-variant)] mb-6">Gère ton abonnement GameMax</p>
 
@@ -93,7 +93,7 @@ export default function AbonnementPage() {
     <div className="px-4 py-6 lg:px-8 lg:py-8 max-w-3xl mx-auto animate-fade-in">
       <div className="text-center mb-8">
         <h1 className="text-2xl font-[family-name:var(--font-grotesk)] font-bold tracking-tight mb-2">
-          <span className="bg-gradient-to-r from-[#c084fc] to-[#f472b6] bg-clip-text text-transparent">Passe à GameMax</span>
+          <span className="bg-gradient-to-r from-[#c084fc] to-[#f472b6] bg-clip-text text-transparent animate-gradient-text">Passe à GameMax</span>
         </h1>
         <p className="text-sm text-[var(--on-surface-variant)]">Débloque tout le potentiel de GameProgress</p>
       </div>
