@@ -213,7 +213,7 @@ export default function ReportsPage() {
         <div>
           <h1 className="text-2xl font-[family-name:var(--font-grotesk)] font-bold tracking-tight mb-1">
             <span className="bg-gradient-to-r from-[#f59e0b] to-[#c084fc] bg-clip-text text-transparent">
-              Rapport & Analytics
+              Statistiques
             </span>
           </h1>
           <p className="text-sm text-[var(--on-surface-variant)]">Analyse détaillée de tes performances — <span className="capitalize">{periodDescription}</span></p>
