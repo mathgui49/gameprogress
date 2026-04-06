@@ -187,7 +187,7 @@ function ContactCard({
             )}
             <div className="flex items-center justify-between">
               <span className={`text-[9px] ${stale ? "text-amber-400 font-medium" : "text-[var(--outline)]"}`}>
-                {stale ? `${inactiveDays}j sans activite` : timeSinceLabel(contact.lastInteractionDate)}
+                {stale ? `${inactiveDays}j sans activité` : timeSinceLabel(contact.lastInteractionDate)}
               </span>
               <Badge className={`!text-[8px] !px-1.5 !py-0 ${STATUS_COLORS[contact.status]}`}>{STATUS_LABELS[contact.status]}</Badge>
             </div>
@@ -326,7 +326,7 @@ export default function ContactsPage() {
 
   // ─── CSV Export ─────────────────────────────────────
   const exportCSV = () => {
-    const headers = ["Prenom", "Statut", "Methode", "Valeur", "Tags", "Notes", "Derniere activite", "Cree le"];
+    const headers = ["Prénom", "Statut", "Méthode", "Valeur", "Tags", "Notes", "Dernière activité", "Créé le"];
     const rows = filtered.map((c) => [
       c.firstName, STATUS_LABELS[c.status], c.method, c.methodValue,
       c.tags.join(", "), (c.notes || "").replace(/\n/g, " "),
@@ -411,7 +411,7 @@ export default function ContactsPage() {
       {staleSuggestions.length > 0 && (
         <button onClick={() => setShowStaleSuggest(true)} className="w-full mb-4 px-3 py-2 rounded-xl bg-amber-500/5 border border-amber-500/10 flex items-center gap-2 hover:bg-amber-500/10 transition-colors text-left">
           <svg className="w-4 h-4 text-amber-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" /></svg>
-          <span className="text-xs text-amber-400">{staleSuggestions.length} contact{staleSuggestions.length > 1 ? "s" : ""} sans activite depuis 14+ jours</span>
+          <span className="text-xs text-amber-400">{staleSuggestions.length} contact{staleSuggestions.length > 1 ? "s" : ""} sans activité depuis 14+ jours</span>
           <span className="text-[10px] text-amber-400/60 ml-auto">Archiver ?</span>
         </button>
       )}
@@ -434,7 +434,7 @@ export default function ContactsPage() {
           onClick={() => { setBulkMode(!bulkMode); setSelected(new Set()); }}
           className={`px-3 py-1.5 text-xs rounded-lg transition-all ${bulkMode ? "bg-red-500/10 text-red-400" : "bg-[var(--surface-high)] text-[var(--on-surface-variant)] hover:bg-[var(--surface-bright)]"}`}
         >
-          {bulkMode ? "Annuler" : "Selectionner"}
+          {bulkMode ? "Annuler" : "Sélectionner"}
         </button>
       </div>
 
@@ -469,11 +469,11 @@ export default function ContactsPage() {
               </div>
             </div>
             <div>
-              <p className="text-[10px] text-[var(--outline)] uppercase tracking-wider mb-1">Methode</p>
+              <p className="text-[10px] text-[var(--outline)] uppercase tracking-wider mb-1">Méthode</p>
               <div className="flex flex-wrap gap-1">
                 {(["", "instagram", "phone", "other"] as (ContactMethod | "")[]).map((m) => (
                   <button key={m} onClick={() => setFilterMethod(m)} className={`text-[10px] px-2 py-1 rounded-full transition-all ${filterMethod === m ? "bg-[var(--primary)]/15 text-[var(--primary)]" : "bg-[var(--surface-high)] text-[var(--outline)] hover:bg-[var(--surface-bright)]"}`}>
-                    {m === "" ? "Toutes" : m === "instagram" ? "Instagram" : m === "phone" ? "Telephone" : "Autre"}
+                    {m === "" ? "Toutes" : m === "instagram" ? "Instagram" : m === "phone" ? "Téléphone" : "Autre"}
                   </button>
                 ))}
               </div>
@@ -488,7 +488,7 @@ export default function ContactsPage() {
       {/* Bulk action bar */}
       {bulkMode && selected.size > 0 && (
         <div className="flex items-center gap-3 mb-4 px-3 py-2 rounded-xl bg-[var(--primary)]/5 border border-[var(--primary)]/10 animate-fade-in">
-          <span className="text-xs text-[var(--primary)] font-medium">{selected.size} selectionne{selected.size > 1 ? "s" : ""}</span>
+          <span className="text-xs text-[var(--primary)] font-medium">{selected.size} sélectionné{selected.size > 1 ? "s" : ""}</span>
           <div className="flex-1" />
           <Button size="sm" variant="secondary" onClick={() => setShowBulkAction("status")}>Changer statut</Button>
           <Button size="sm" variant="secondary" onClick={() => setShowBulkAction("archive")}>Archiver</Button>
@@ -500,7 +500,7 @@ export default function ContactsPage() {
       {contacts.length === 0 ? (
         <EmptyState icon={<IconUsers size={32} className="text-[var(--primary)]" />} title="Aucun contact" description="Les contacts apparaissent ici quand tu obtiens un close lors d'une interaction." />
       ) : filtered.length === 0 ? (
-        <EmptyState icon={<IconUsers size={28} />} title="Aucun resultat" description="Essaie d'ajuster tes filtres." />
+        <EmptyState icon={<IconUsers size={28} />} title="Aucun résultat" description="Essaie d'ajuster tes filtres." />
       ) : viewMode === "kanban" ? (
         /* ── KANBAN VIEW ── */
         <div className="flex flex-col md:flex-row md:gap-3 md:overflow-x-auto md:pb-4 md:no-scrollbar gap-6" onDragEnd={handleDragEnd}>
@@ -563,8 +563,8 @@ export default function ContactsPage() {
       {/* New contact */}
       <Modal open={showNew} onClose={() => setShowNew(false)} title="Nouveau contact">
         <div className="space-y-4">
-          <Input label="Prenom" placeholder="Prenom ou identifiant" value={newName} onChange={(e) => setNewName(e.target.value)} />
-          <Select label="Type de contact" options={[{ value: "instagram", label: "Instagram" }, { value: "phone", label: "Telephone" }, { value: "other", label: "Autre" }]} value={newMethod} onChange={(e) => setNewMethod(e.target.value as ContactMethod)} />
+          <Input label="Prénom" placeholder="Prénom ou identifiant" value={newName} onChange={(e) => setNewName(e.target.value)} />
+          <Select label="Type de contact" options={[{ value: "instagram", label: "Instagram" }, { value: "phone", label: "Téléphone" }, { value: "other", label: "Autre" }]} value={newMethod} onChange={(e) => setNewMethod(e.target.value as ContactMethod)} />
           <Input label="Valeur" placeholder={newMethod === "instagram" ? "@pseudo" : "06..."} value={newValue} onChange={(e) => setNewValue(e.target.value)} />
           <Select label="Statut" options={PIPELINE_ORDER.map((s) => ({ value: s, label: STATUS_LABELS[s] }))} value={newStatus} onChange={(e) => setNewStatus(e.target.value as ContactStatus)} />
           <Button disabled={!newName.trim()} onClick={async (e) => {

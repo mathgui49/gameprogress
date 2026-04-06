@@ -10,7 +10,7 @@ interface ActivityFeedProps {
 
 export function ActivityFeed({ interactions }: ActivityFeedProps) {
   if (interactions.length === 0) {
-    return <div className="text-center py-8 text-[var(--outline)] text-sm">Aucune activite recente</div>;
+    return <div className="text-center py-8 text-[var(--outline)] text-sm">Aucune activité récente</div>;
   }
 
   return (

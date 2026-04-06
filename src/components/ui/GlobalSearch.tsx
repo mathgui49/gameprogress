@@ -25,7 +25,7 @@ const PAGES: SearchResult[] = [
   { type: "page", id: "progression", title: "Progression", href: "/progression" },
   { type: "page", id: "leaderboard", title: "Leaderboard", href: "/leaderboard" },
   { type: "page", id: "feed", title: "Feed", href: "/feed" },
-  { type: "page", id: "settings", title: "Parametres", href: "/settings" },
+  { type: "page", id: "settings", title: "Paramètres", href: "/settings" },
   { type: "page", id: "guide", title: "Guide", href: "/guide" },
 ];
 
@@ -151,7 +151,7 @@ export function GlobalSearch() {
 
         <div className="max-h-[50vh] overflow-y-auto py-2">
           {results.length === 0 ? (
-            <p className="px-4 py-6 text-center text-xs text-[var(--outline)]">Aucun resultat</p>
+            <p className="px-4 py-6 text-center text-xs text-[var(--outline)]">Aucun résultat</p>
           ) : (
             results.map((r, i) => (
               <button

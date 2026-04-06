@@ -95,7 +95,7 @@ export default function SettingsPage() {
     <div className="px-4 py-6 lg:px-8 lg:py-8 max-w-2xl mx-auto animate-fade-in">
       <div className="mb-8">
         <h1 className="text-2xl lg:text-3xl font-[family-name:var(--font-grotesk)] font-bold tracking-tight mb-1"><span className="bg-gradient-to-r from-[#8a839e] to-[#c084fc] bg-clip-text text-transparent">Paramètres</span></h1>
-        <p className="text-sm text-[var(--on-surface-variant)]">Gere ton compte, ta confidentialite et tes preferences</p>
+        <p className="text-sm text-[var(--on-surface-variant)]">Gère ton compte, ta confidentialité et tes préférences</p>
       </div>
 
       <Card className="mb-4">
@@ -181,11 +181,11 @@ export default function SettingsPage() {
 
       <Card className="mb-4">
         <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-[var(--on-surface)] mb-3">Installer l&apos;app</h2>
-        <p className="text-xs text-[var(--on-surface-variant)] mb-3">Ajoute GameProgress sur ton ecran d&apos;accueil pour un acces rapide.</p>
+        <p className="text-xs text-[var(--on-surface-variant)] mb-3">Ajoute GameProgress sur ton écran d&apos;accueil pour un accès rapide.</p>
         {installPrompt ? (
           <Button size="sm" onClick={() => { (installPrompt as any).prompt(); }}>Installer</Button>
         ) : (
-          <p className="text-xs text-[var(--outline)]">Sur mobile : ouvre le menu du navigateur → &quot;Ajouter a l&apos;ecran d&apos;accueil&quot;.<br/>Sur PC : clique sur l&apos;icone d&apos;installation dans la barre d&apos;adresse.</p>
+          <p className="text-xs text-[var(--outline)]">Sur mobile : ouvre le menu du navigateur → &quot;Ajouter à l&apos;écran d&apos;accueil&quot;.<br/>Sur PC : clique sur l&apos;icône d&apos;installation dans la barre d&apos;adresse.</p>
         )}
       </Card>
 
@@ -274,7 +274,7 @@ export default function SettingsPage() {
 
       <Card className="mb-4">
         <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-[var(--on-surface)] mb-3">Aide</h2>
-        <p className="text-xs text-[var(--on-surface-variant)] mb-3">Redecouvre les fonctionnalites de GameProgress.</p>
+        <p className="text-xs text-[var(--on-surface-variant)] mb-3">Redécouvre les fonctionnalités de GameProgress.</p>
         <TutorialResetButton />
       </Card>
 

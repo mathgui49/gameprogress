@@ -694,7 +694,7 @@ export default function FeedPage() {
         <h1 className="text-2xl font-[family-name:var(--font-grotesk)] font-bold tracking-tight mb-1">
           <span className="bg-gradient-to-r from-[#f472b6] to-[#818cf8] bg-clip-text text-transparent">Feed</span>
         </h1>
-        <p className="text-sm text-[var(--on-surface-variant)]">Partage et decouvre l&apos;activite de tes wings et de la communaute</p>
+        <p className="text-sm text-[var(--on-surface-variant)]">Partage et découvre l&apos;activité de tes wings et de la communauté</p>
       </div>
 
       {/* Pull to refresh indicator */}
@@ -744,8 +744,8 @@ export default function FeedPage() {
       ) : feed.length === 0 ? (
         <EmptyState
           icon={<svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 0 1-2.25 2.25M16.5 7.5V18a2.25 2.25 0 0 0 2.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 0 0 2.25 2.25h13.5M6 7.5h3v3H6v-3Z" /></svg>}
-          title="Aucune activite"
-          description={scope === "wings" ? "Tes wings n'ont encore rien partage." : "Personne n'a encore partage de contenu."}
+          title="Aucune activité"
+          description={scope === "wings" ? "Tes wings n'ont encore rien partagé." : "Personne n'a encore partagé de contenu."}
         />
       ) : (
         <div className="space-y-4">
@@ -797,7 +797,7 @@ export default function FeedPage() {
                   </div>
                   <p className="text-sm text-[var(--on-surface-variant)] leading-relaxed line-clamp-5 whitespace-pre-wrap">{item.data.content}</p>
                   <div className="flex items-center gap-4 pt-2 mt-3 border-t border-[var(--border)]">
-                    <ShareButton title="Journal" text={`${item.profile?.firstName || "Quelqu'un"} a partage une entree de journal`} />
+                    <ShareButton title="Journal" text={`${item.profile?.firstName || "Quelqu'un"} a partagé une entrée de journal`} />
                   </div>
                 </Card>
               )}

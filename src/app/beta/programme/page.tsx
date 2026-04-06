@@ -28,7 +28,7 @@ export default function BetaProgrammePage() {
   if (!isBeta) {
     return (
       <div className="px-4 py-6 lg:px-8 lg:py-8 max-w-2xl mx-auto animate-fade-in text-center">
-        <p className="text-sm text-[var(--on-surface-variant)] mb-4">Cette page est reservee aux beta testeurs.</p>
+        <p className="text-sm text-[var(--on-surface-variant)] mb-4">Cette page est réservée aux bêta testeurs.</p>
         <Button onClick={() => router.push("/")}>Retour au dashboard</Button>
       </div>
     );
@@ -72,7 +72,7 @@ export default function BetaProgrammePage() {
           </div>
           {expiryDate && (
             <div className="flex items-center justify-between">
-              <span className="text-sm text-[var(--on-surface-variant)]">Acces GameMax jusqu&apos;au</span>
+              <span className="text-sm text-[var(--on-surface-variant)]">Accès GameMax jusqu&apos;au</span>
               <span className="text-sm font-medium text-[var(--on-surface)]">{expiryDate}</span>
             </div>
           )}
@@ -89,20 +89,20 @@ export default function BetaProgrammePage() {
       <Card className="!p-5 mb-6">
         <h2 className="text-base font-semibold text-[var(--on-surface)] mb-3">Tes retours comptent</h2>
         <p className="text-sm text-[var(--on-surface-variant)] mb-4">
-          En tant que beta testeur, chaque retour que tu fais aide a ameliorer GameProgress pour tout le monde. N&apos;hesite pas a signaler :
+          En tant que bêta testeur, chaque retour que tu fais aide à améliorer GameProgress pour tout le monde. N&apos;hésite pas à signaler :
         </p>
         <ul className="space-y-2 text-sm text-[var(--on-surface-variant)]">
           <li className="flex items-center gap-2">
             <svg className="w-4 h-4 text-[#fb7185] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M12 12.75c1.148 0 2.278.08 3.383.237 1.037.146 1.866.966 1.866 2.013 0 3.728-2.35 6.75-5.25 6.75S6.75 18.728 6.75 15c0-1.046.83-1.867 1.866-2.013A24.204 24.204 0 0112 12.75zm0 0c2.883 0 5.647.508 8.207 1.44a23.91 23.91 0 01-1.152 3.31M12 12.75c-2.883 0-5.647.508-8.208 1.44.421 1.14.933 2.247 1.153 3.31" /></svg>
-            Bugs et erreurs rencontres
+            Bugs et erreurs rencontrés
           </li>
           <li className="flex items-center gap-2">
             <svg className="w-4 h-4 text-amber-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 7.478a12.06 12.06 0 01-4.5 0m3.75 2.383a14.406 14.406 0 01-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 10-7.517 0c.85.493 1.509 1.333 1.509 2.316V18" /></svg>
-            Idees de fonctionnalites
+            Idées de fonctionnalités
           </li>
           <li className="flex items-center gap-2">
             <svg className="w-4 h-4 text-[var(--primary)] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" /></svg>
-            Suggestions d&apos;amelioration UX
+            Suggestions d&apos;amélioration UX
           </li>
         </ul>
       </Card>

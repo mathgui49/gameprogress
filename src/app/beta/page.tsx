@@ -63,7 +63,7 @@ export default function BetaPage() {
           <span className="bg-gradient-to-r from-[#c084fc] to-[#f472b6] bg-clip-text text-transparent">Deviens Beta Testeur</span>
         </h1>
         <p className="text-sm text-[var(--on-surface-variant)] max-w-md mx-auto">
-          Tu as ete invite a rejoindre le programme beta de GameProgress. Accede a toutes les fonctionnalites GameMax pendant 1 an, gratuitement.
+          Tu as été invité à rejoindre le programme bêta de GameProgress. Accède à toutes les fonctionnalités GameMax pendant 1 an, gratuitement.
         </p>
       </div>
 
@@ -101,22 +101,22 @@ export default function BetaPage() {
             <li className="flex items-start gap-3">
               <svg className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
               <div>
-                <p className="text-sm font-medium text-[var(--on-surface)]">Acces complet a GameMax pendant 1 an</p>
-                <p className="text-xs text-[var(--outline)]">Toutes les fonctionnalites premium, sans payer</p>
+                <p className="text-sm font-medium text-[var(--on-surface)]">Accès complet à GameMax pendant 1 an</p>
+                <p className="text-xs text-[var(--outline)]">Toutes les fonctionnalités premium, sans payer</p>
               </div>
             </li>
             <li className="flex items-start gap-3">
               <svg className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
               <div>
                 <p className="text-sm font-medium text-[var(--on-surface)]">Influence le produit</p>
-                <p className="text-xs text-[var(--outline)]">Tes retours et suggestions sont pris en compte en priorite</p>
+                <p className="text-xs text-[var(--outline)]">Tes retours et suggestions sont pris en compte en priorité</p>
               </div>
             </li>
             <li className="flex items-start gap-3">
               <svg className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
               <div>
-                <p className="text-sm font-medium text-[var(--on-surface)]">Acces anticipe aux nouvelles features</p>
-                <p className="text-xs text-[var(--outline)]">Tu seras le premier a tester les nouveautes</p>
+                <p className="text-sm font-medium text-[var(--on-surface)]">Accès anticipé aux nouvelles features</p>
+                <p className="text-xs text-[var(--outline)]">Tu seras le premier à tester les nouveautés</p>
               </div>
             </li>
           </ul>
@@ -128,19 +128,19 @@ export default function BetaPage() {
         <h2 className="text-lg font-semibold text-[var(--on-surface)] mb-2">Ce qu&apos;on attend de toi</h2>
         <ul className="space-y-2 text-sm text-[var(--on-surface-variant)]">
           <li className="flex items-center gap-2">
-            <span className="text-[var(--primary)]">1.</span> Utilise l&apos;app regulierement et explore toutes les features
+            <span className="text-[var(--primary)]">1.</span> Utilise l&apos;app régulièrement et explore toutes les features
           </li>
           <li className="flex items-center gap-2">
-            <span className="text-[var(--primary)]">2.</span> Signale les bugs, problemes d&apos;UX ou idees d&apos;amelioration
+            <span className="text-[var(--primary)]">2.</span> Signale les bugs, problèmes d&apos;UX ou idées d&apos;amélioration
           </li>
           <li className="flex items-center gap-2">
-            <span className="text-[var(--primary)]">3.</span> Donne ton avis honnete — positif ou negatif, tout est utile
+            <span className="text-[var(--primary)]">3.</span> Donne ton avis honnête — positif ou négatif, tout est utile
           </li>
         </ul>
       </Card>
 
       {/* Plan comparison */}
-      <h2 className="text-base font-semibold text-[var(--on-surface)] mb-1 text-center">Ce a quoi tu vas avoir acces</h2>
+      <h2 className="text-base font-semibold text-[var(--on-surface)] mb-1 text-center">Ce à quoi tu vas avoir accès</h2>
       <p className="text-xs text-[var(--outline)] text-center mb-4">Au lieu de 6.99€/mois, c&apos;est offert</p>
 
       <div className="flex justify-end gap-6 mb-2 px-3">
@@ -180,18 +180,18 @@ export default function BetaPage() {
                 <svg className="w-6 h-6 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
               </div>
               <p className="text-lg font-semibold text-emerald-400">Bienvenue dans le programme beta !</p>
-              <p className="text-sm text-[var(--on-surface-variant)]">Tu as maintenant acces a toutes les fonctionnalites GameMax. Bonne game !</p>
+              <p className="text-sm text-[var(--on-surface-variant)]">Tu as maintenant accès à toutes les fonctionnalités GameMax. Bonne game !</p>
               <Button onClick={() => router.push("/")}>Aller au dashboard</Button>
             </div>
           </Card>
         ) : isBeta ? (
           <Card className="!p-6 border-[var(--primary)]/30">
-            <p className="text-sm text-[var(--on-surface-variant)]">Tu fais deja partie du programme beta !</p>
+            <p className="text-sm text-[var(--on-surface-variant)]">Tu fais déjà partie du programme bêta !</p>
             <Button onClick={() => router.push("/beta/programme")} className="mt-3">Voir mon programme</Button>
           </Card>
         ) : isPremium ? (
           <Card className="!p-6">
-            <p className="text-sm text-[var(--on-surface-variant)]">Tu as deja un abonnement GameMax actif.</p>
+            <p className="text-sm text-[var(--on-surface-variant)]">Tu as déjà un abonnement GameMax actif.</p>
           </Card>
         ) : !session ? (
           <Card className="!p-6">
@@ -200,7 +200,7 @@ export default function BetaPage() {
           </Card>
         ) : spots?.remaining === 0 ? (
           <Card className="!p-6 border-[#fb7185]/30">
-            <p className="text-sm text-[#fb7185]">Le programme beta est complet. Toutes les places ont ete prises.</p>
+            <p className="text-sm text-[#fb7185]">Le programme bêta est complet. Toutes les places ont été prises.</p>
           </Card>
         ) : (
           <>
@@ -208,7 +208,7 @@ export default function BetaPage() {
             <Button size="lg" onClick={handleJoin} disabled={joining || !loaded}>
               {joining ? "Inscription..." : "Rejoindre le programme beta"}
             </Button>
-            <p className="text-[10px] text-[var(--outline)]">Aucun paiement requis. Acces GameMax pendant 1 an.</p>
+            <p className="text-[10px] text-[var(--outline)]">Aucun paiement requis. Accès GameMax pendant 1 an.</p>
           </>
         )}
       </div>

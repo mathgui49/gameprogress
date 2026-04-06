@@ -75,13 +75,13 @@ export function InstallPrompt() {
         </div>
 
         <h2 className="text-lg font-[family-name:var(--font-grotesk)] font-semibold text-[var(--on-surface)] text-center mb-2">
-          {isMobile ? "Ajouter a l'ecran d'accueil" : "Ajouter aux favoris"}
+          {isMobile ? "Ajouter à l'écran d'accueil" : "Ajouter aux favoris"}
         </h2>
 
         <p className="text-sm text-[var(--on-surface-variant)] text-center mb-5 leading-relaxed">
           {isMobile
-            ? "Accede a GameProgress en un tap depuis ton ecran d'accueil, comme une app native."
-            : "Ajoute GameProgress a tes favoris pour y acceder rapidement depuis ton navigateur."
+            ? "Accède à GameProgress en un tap depuis ton écran d'accueil, comme une app native."
+            : "Ajoute GameProgress à tes favoris pour y accéder rapidement depuis ton navigateur."
           }
         </p>
 
@@ -103,7 +103,7 @@ export function InstallPrompt() {
               </div>
               <div className="flex items-start gap-3">
                 <span className="w-6 h-6 rounded-full bg-[var(--primary)]/15 text-[var(--primary)] flex items-center justify-center text-xs font-bold shrink-0">2</span>
-                <p className="text-sm text-[var(--on-surface-variant)]">Choisis <span className="text-[var(--on-surface)] font-medium">&quot;Sur l&apos;ecran d&apos;accueil&quot;</span></p>
+                <p className="text-sm text-[var(--on-surface-variant)]">Choisis <span className="text-[var(--on-surface)] font-medium">&quot;Sur l&apos;écran d&apos;accueil&quot;</span></p>
               </div>
               <div className="flex items-start gap-3">
                 <span className="w-6 h-6 rounded-full bg-[var(--primary)]/15 text-[var(--primary)] flex items-center justify-center text-xs font-bold shrink-0">3</span>

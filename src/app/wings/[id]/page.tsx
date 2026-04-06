@@ -150,7 +150,7 @@ export default function WingProfilePage() {
             </Card>
           </Tooltip>
           {gam.streak > 0 && (
-            <Tooltip text="Jours consecutifs d'activite" position="bottom">
+            <Tooltip text="Jours consécutifs d'activité" position="bottom">
               <Card className="text-center !p-4 w-full">
                 <p className="text-2xl font-[family-name:var(--font-grotesk)] font-bold text-amber-400">{gam.streak}</p>
                 <p className="text-[10px] text-[var(--outline)]">Streak</p>

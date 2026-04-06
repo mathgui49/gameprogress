@@ -192,7 +192,7 @@ export default function InteractionsPage() {
 
   // ─── CSV Export ─────────────────────────────────────
   const exportCSV = () => {
-    const headers = ["Date", "Prenom", "Element marquant", "Lieu", "Type", "Resultat", "Duree", "Ressenti", "Note fille", "Objection", "Tags", "Note", "Feedback", "Sujets discussion"];
+    const headers = ["Date", "Prénom", "Élément marquant", "Lieu", "Type", "Résultat", "Durée", "Ressenti", "Note fille", "Objection", "Tags", "Note", "Feedback", "Sujets discussion"];
     const rows = sorted.map((i) => [
       new Date(i.date).toLocaleDateString("fr-FR"),
       i.firstName,
@@ -328,7 +328,7 @@ export default function InteractionsPage() {
           onClick={() => { setBulkMode(!bulkMode); setSelected(new Set()); }}
           className={`px-3 py-1.5 text-xs rounded-lg transition-all ${bulkMode ? "bg-red-500/10 text-red-400" : "bg-[var(--surface-high)] text-[var(--on-surface-variant)] hover:bg-[var(--surface-bright)]"}`}
         >
-          {bulkMode ? "Annuler" : "Selectionner"}
+          {bulkMode ? "Annuler" : "Sélectionner"}
         </button>
       </div>
 
@@ -367,7 +367,7 @@ export default function InteractionsPage() {
               </div>
             </div>
             <div>
-              <p className="text-[10px] text-[var(--outline)] uppercase tracking-wider mb-1">Resultat</p>
+              <p className="text-[10px] text-[var(--outline)] uppercase tracking-wider mb-1">Résultat</p>
               <div className="flex flex-wrap gap-1">
                 {(["", "close", "neutral", "rejection"] as (ResultType | "")[]).map((v) => (
                   <button key={v} onClick={() => setFilterResult(v)} className={`text-[10px] px-2 py-1 rounded-full transition-all ${filterResult === v ? (v ? RESULT_COLORS[v] : "bg-[var(--outline-variant)]/20 text-[var(--on-surface)]") : "bg-[var(--surface-high)] text-[var(--outline)] hover:bg-[var(--surface-bright)]"}`}>
@@ -377,7 +377,7 @@ export default function InteractionsPage() {
               </div>
             </div>
             <div>
-              <p className="text-[10px] text-[var(--outline)] uppercase tracking-wider mb-1">Duree</p>
+              <p className="text-[10px] text-[var(--outline)] uppercase tracking-wider mb-1">Durée</p>
               <div className="flex flex-wrap gap-1">
                 {(["", "short", "medium", "long"] as (DurationType | "")[]).map((v) => (
                   <button key={v} onClick={() => setFilterDuration(v)} className={`text-[10px] px-2 py-1 rounded-full transition-all ${filterDuration === v ? "bg-[var(--outline-variant)]/20 text-[var(--on-surface)]" : "bg-[var(--surface-high)] text-[var(--outline)] hover:bg-[var(--surface-bright)]"}`}>
@@ -425,7 +425,7 @@ export default function InteractionsPage() {
             { key: "date" as SortKey, label: "Date" },
             { key: "feeling" as SortKey, label: "Ressenti" },
             { key: "woman" as SortKey, label: "Note fille" },
-            { key: "result" as SortKey, label: "Resultat" },
+            { key: "result" as SortKey, label: "Résultat" },
           ]).map((s) => (
             <button
               key={s.key}
@@ -438,14 +438,14 @@ export default function InteractionsPage() {
               )}
             </button>
           ))}
-          <span className="text-[10px] text-[var(--outline)] ml-1">{filtered.length} resultat{filtered.length !== 1 ? "s" : ""}</span>
+          <span className="text-[10px] text-[var(--outline)] ml-1">{filtered.length} résultat{filtered.length !== 1 ? "s" : ""}</span>
         </div>
       )}
 
       {/* Bulk bar */}
       {bulkMode && selected.size > 0 && (
         <div className="flex items-center gap-3 mb-4 px-3 py-2 rounded-xl bg-red-500/5 border border-red-500/10 animate-fade-in">
-          <span className="text-xs text-red-400 font-medium">{selected.size} selectionne{selected.size > 1 ? "s" : ""}</span>
+          <span className="text-xs text-red-400 font-medium">{selected.size} sélectionné{selected.size > 1 ? "s" : ""}</span>
           <div className="flex-1" />
           <Button variant="danger" size="sm" onClick={() => setShowBulkDelete(true)}>Supprimer</Button>
         </div>
@@ -456,8 +456,8 @@ export default function InteractionsPage() {
         sorted.length === 0 ? (
           <EmptyState
             icon={<IconMessageCircle size={28} />}
-            title={activeFilterCount > 0 || searchQuery ? "Aucun resultat" : "Aucune interaction"}
-            description={activeFilterCount > 0 || searchQuery ? "Essaie d'ajuster tes filtres." : "Commence par ajouter ta premiere interaction."}
+            title={activeFilterCount > 0 || searchQuery ? "Aucun résultat" : "Aucune interaction"}
+            description={activeFilterCount > 0 || searchQuery ? "Essaie d'ajuster tes filtres." : "Commence par ajouter ta première interaction."}
             action={!searchQuery && !activeFilterCount ? <Link href="/interactions/new"><Button size="lg">Ajouter</Button></Link> : undefined}
           />
         ) : (

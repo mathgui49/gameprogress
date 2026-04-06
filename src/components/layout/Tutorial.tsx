@@ -18,7 +18,7 @@ const STEPS: TutorialStep[] = [
     icon: "M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z",
     title: "Bienvenue sur GameProgress !",
     description: "GameProgress est ton compagnon de progression sociale. Suis tes interactions, fixe des objectifs, progresse et connecte-toi avec d'autres utilisateurs.",
-    tip: "Ce tutoriel te guide a travers les fonctionnalites cles. Tu peux le revoir a tout moment depuis les parametres.",
+    tip: "Ce tutoriel te guide à travers les fonctionnalités clés. Tu peux le revoir à tout moment depuis les paramètres.",
   },
   {
     icon: "M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z",
@@ -160,7 +160,7 @@ export function Tutorial() {
                 onClick={prev}
                 className="flex-1 px-4 py-2.5 text-sm font-medium rounded-xl border border-[var(--border)] text-[var(--on-surface-variant)] hover:bg-[var(--surface-high)] transition-colors"
               >
-                Precedent
+                Précédent
               </button>
             )}
             {isLast ? (

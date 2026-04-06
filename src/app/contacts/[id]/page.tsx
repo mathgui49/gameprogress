@@ -87,7 +87,7 @@ export default function ContactDetailPage({ params }: { params: Promise<{ id: st
             <div className="flex items-center gap-2 mt-1">
               <Badge className={STATUS_COLORS[contact.status]}>{STATUS_LABELS[contact.status]}</Badge>
               {inactiveDays >= 5 && contact.status !== "archived" && (
-                <span className="text-[10px] text-amber-400 font-medium">{inactiveDays}j sans activite</span>
+                <span className="text-[10px] text-amber-400 font-medium">{inactiveDays}j sans activité</span>
               )}
             </div>
           </div>
@@ -132,7 +132,7 @@ export default function ContactDetailPage({ params }: { params: Promise<{ id: st
               </span>
               {statusChanges.length >= 2 && (
                 <span>
-                   · Derniere etape : {daysBetween(statusChanges[statusChanges.length - 2].date, statusChanges[statusChanges.length - 1].date)}j
+                   · Dernière étape : {daysBetween(statusChanges[statusChanges.length - 2].date, statusChanges[statusChanges.length - 1].date)}j
                 </span>
               )}
             </div>
@@ -283,19 +283,19 @@ export default function ContactDetailPage({ params }: { params: Promise<{ id: st
           <Card className="!p-4">
             <div className="space-y-2 text-xs">
               <div className="flex justify-between">
-                <span className="text-[var(--outline)]">Methode</span>
-                <span className="text-[var(--on-surface)]">{contact.method === "instagram" ? "Instagram" : contact.method === "phone" ? "Telephone" : "Autre"}</span>
+                <span className="text-[var(--outline)]">Méthode</span>
+                <span className="text-[var(--on-surface)]">{contact.method === "instagram" ? "Instagram" : contact.method === "phone" ? "Téléphone" : "Autre"}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-[var(--outline)]">Contact</span>
                 <span className="text-[var(--on-surface)]">{contact.methodValue || "—"}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-[var(--outline)]">Cree le</span>
+                <span className="text-[var(--outline)]">Créé le</span>
                 <span className="text-[var(--on-surface)]">{formatDate(contact.createdAt)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-[var(--outline)]">Derniere activite</span>
+                <span className="text-[var(--outline)]">Dernière activité</span>
                 <span className="text-[var(--on-surface)]">{formatRelative(contact.lastInteractionDate)}</span>
               </div>
             </div>

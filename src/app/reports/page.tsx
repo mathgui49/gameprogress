@@ -473,15 +473,15 @@ export default function ReportsPage() {
         })()}
       </Card>
 
-      {/* Pipeline — Temps moyen par etape + methode stats */}
+      {/* Pipeline — Temps moyen par étape + méthode stats */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card>
           <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-[var(--on-surface)] mb-3">
-            Temps moyen par etape
+            Temps moyen par étape
           </h2>
           {(() => {
             const steps = ["new", "contacted", "replied", "date_planned", "first_date", "second_date", "kissclose", "fuckclose"];
-            const stepLabels: Record<string, string> = { new: "Close → Contact", contacted: "Contact → Reponse", replied: "Reponse → Date", date_planned: "Date → 1er RDV", first_date: "1er → 2e RDV", second_date: "2e RDV → Kiss", kissclose: "Kiss → Fuck" };
+            const stepLabels: Record<string, string> = { new: "Close → Contact", contacted: "Contact → Réponse", replied: "Réponse → Date", date_planned: "Date → 1er RDV", first_date: "1er → 2e RDV", second_date: "2e RDV → Kiss", kissclose: "Kiss → Fuck" };
             const durations: { label: string; avg: number }[] = [];
 
             contacts.forEach((c) => {
@@ -511,11 +511,11 @@ export default function ReportsPage() {
 
         <Card>
           <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-[var(--on-surface)] mb-3">
-            Taux de reponse par methode
+            Taux de réponse par méthode
           </h2>
           {(() => {
             const methods = ["instagram", "phone", "other"] as const;
-            const methodLabels = { instagram: "Instagram", phone: "Telephone", other: "Autre" };
+            const methodLabels = { instagram: "Instagram", phone: "Téléphone", other: "Autre" };
             const stats = methods.map((m) => {
               const total = contacts.filter((c) => c.method === m).length;
               const replied = contacts.filter((c) => c.method === m && ["replied", "date_planned", "first_date", "second_date", "kissclose", "fuckclose", "advanced"].includes(c.status)).length;

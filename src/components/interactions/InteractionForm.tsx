@@ -255,7 +255,7 @@ export function InteractionForm({ initial, defaultLocation, defaultSessionId, co
     <form onSubmit={handleSubmit} className="space-y-5">
       {/* Identity */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <Input label="Prenom" id="fn" placeholder="Optionnel" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
+        <Input label="Prénom" id="fn" placeholder="Optionnel" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
         <Input label="Element marquant" id="memo" placeholder="Pour te souvenir d'elle" value={memorableElement} onChange={(e) => setMemorableElement(e.target.value)} />
       </div>
 
@@ -291,8 +291,8 @@ export function InteractionForm({ initial, defaultLocation, defaultSessionId, co
       {/* Core fields */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Select label="Type" id="type" options={typeOptions} value={type} onChange={(e) => setType(e.target.value as ApproachType)} />
-        <Select label="Resultat" id="result" options={resultOptions} value={result} onChange={(e) => handleResultChange(e.target.value as ResultType | "")} />
-        <Select label="Duree" id="dur" options={durationOptions} value={duration} onChange={(e) => setDuration(e.target.value as DurationType)} />
+        <Select label="Résultat" id="result" options={resultOptions} value={result} onChange={(e) => handleResultChange(e.target.value as ResultType | "")} />
+        <Select label="Durée" id="dur" options={durationOptions} value={duration} onChange={(e) => setDuration(e.target.value as DurationType)} />
       </div>
 
       {/* Contact info (shown when close) */}
@@ -331,7 +331,7 @@ export function InteractionForm({ initial, defaultLocation, defaultSessionId, co
       {/* Objection — only for neutral/rejection */}
       {(result === "neutral" || result === "rejection") && (
         <div>
-          <p className="text-xs font-medium text-[var(--on-surface-variant)] mb-2">Objection recue</p>
+          <p className="text-xs font-medium text-[var(--on-surface-variant)] mb-2">Objection reçue</p>
           <div className="flex flex-wrap gap-2">
             <button
               type="button"

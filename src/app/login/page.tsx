@@ -14,7 +14,7 @@ export default function LoginPage() {
         </div>
 
         <h1 className="text-2xl font-[family-name:var(--font-grotesk)] font-bold text-[var(--on-surface)] mb-2">GameProgress</h1>
-        <p className="text-sm text-[var(--on-surface-variant)] mb-8">Connecte-toi pour acceder a ton tracker</p>
+        <p className="text-sm text-[var(--on-surface-variant)] mb-8">Connecte-toi pour accéder à ton tracker</p>
 
         {/* Google Sign-In */}
         <button

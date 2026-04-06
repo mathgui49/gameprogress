@@ -97,7 +97,7 @@ export default function InteractionDetailPage({ params }: { params: Promise<{ id
           </div>
         </Card>
         <Card className="text-center !p-4">
-          <p className="text-[10px] text-[var(--outline)] uppercase tracking-wider mb-1">Attractivite fille</p>
+          <p className="text-[10px] text-[var(--outline)] uppercase tracking-wider mb-1">Attractivité fille</p>
           <p className="text-2xl font-bold text-[var(--tertiary)]">{interaction.womanScore ?? "-"}<span className="text-sm text-[var(--outline)]">/10</span></p>
           {interaction.womanScore != null && (
             <div className="w-full bg-[var(--surface-high)] rounded-full h-1.5 mt-2">
@@ -106,7 +106,7 @@ export default function InteractionDetailPage({ params }: { params: Promise<{ id
           )}
         </Card>
         <Card className="text-center !p-4">
-          <p className="text-[10px] text-[var(--outline)] uppercase tracking-wider mb-1">Duree</p>
+          <p className="text-[10px] text-[var(--outline)] uppercase tracking-wider mb-1">Durée</p>
           <p className="text-sm font-semibold text-[var(--on-surface)]">{DURATION_LABELS[interaction.duration]}</p>
         </Card>
         <Card className="text-center !p-4">

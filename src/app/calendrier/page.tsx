@@ -370,7 +370,7 @@ export default function CalendrierPage() {
             {currentDate.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
           </h2>
           {getEventsForDay(currentDate).length === 0 ? (
-            <p className="text-sm text-[var(--outline)] text-center py-8">Aucun evenement ce jour.</p>
+            <p className="text-sm text-[var(--outline)] text-center py-8">Aucun événement ce jour.</p>
           ) : (
             <div className="space-y-2">
               {getEventsForDay(currentDate).map((e) => (

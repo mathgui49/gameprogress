@@ -192,7 +192,7 @@ export function QuickAddButton() {
               </div>
 
               {interactionAtLimit ? (
-                <p className="text-xs text-center text-[var(--error)] bg-[var(--error)]/10 rounded-xl px-3 py-2">Limite du plan gratuit atteinte ({FREE_LIMITS.interactionsPerMonth}/{FREE_LIMITS.interactionsPerMonth}). Passe a GameMax pour continuer.</p>
+                <p className="text-xs text-center text-[var(--error)] bg-[var(--error)]/10 rounded-xl px-3 py-2">Limite du plan gratuit atteinte ({FREE_LIMITS.interactionsPerMonth}/{FREE_LIMITS.interactionsPerMonth}). Passe à GameMax pour continuer.</p>
               ) : (
                 <button onClick={submitQuick} disabled={submitting}
                   className="w-full py-2.5 rounded-[14px] bg-gradient-to-r from-[#c084fc] to-[#f472b6] text-sm font-semibold text-white hover:opacity-90 hover:shadow-[0_0_20px_-4px_var(--neon-purple)] transition-all disabled:opacity-50 disabled:cursor-not-allowed">

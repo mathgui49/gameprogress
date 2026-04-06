@@ -211,7 +211,7 @@ export default function AdminPage() {
       {/* USERS */}
       {tab === "users" && (
         <div className="space-y-4">
-          <Input placeholder="Rechercher par username, prenom ou email..." value={searchUser} onChange={(e) => setSearchUser(e.target.value)} />
+          <Input placeholder="Rechercher par username, prénom ou email..." value={searchUser} onChange={(e) => setSearchUser(e.target.value)} />
           <div className="space-y-2">
             {filteredProfiles.map((p) => (
               <Card key={p.userId} className="!p-4">

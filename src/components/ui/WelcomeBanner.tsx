@@ -29,7 +29,7 @@ export function WelcomeBanner() {
             Bienvenue sur GameProgress !
           </h2>
           <p className="text-sm text-[var(--on-surface-variant)] mb-3">
-            Commence par ajouter ta premiere interaction ou decouvre toutes les fonctionnalites.
+            Commence par ajouter ta première interaction ou découvre toutes les fonctionnalités.
           </p>
           <div className="flex flex-wrap gap-2">
             <Link
@@ -37,13 +37,13 @@ export function WelcomeBanner() {
               className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[var(--primary)] text-white text-xs font-medium hover:opacity-90 transition-opacity"
             >
               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
-              Premiere interaction
+              Première interaction
             </Link>
             <Link
               href="/guide"
               className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border border-[var(--border)] text-xs font-medium text-[var(--on-surface-variant)] hover:text-[var(--on-surface)] hover:border-[var(--primary)]/30 transition-colors"
             >
-              Decouvrir le guide
+              Découvrir le guide
             </Link>
           </div>
         </div>
