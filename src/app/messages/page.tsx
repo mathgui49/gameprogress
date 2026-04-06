@@ -247,10 +247,10 @@ export default function MessagesPage() {
           </div>
         </>
       ) : (
-        /* Chat view */
-        <div className="flex flex-col h-[calc(100vh-160px)]">
+        /* Chat view — full height, input fixed at bottom */
+        <div className="fixed inset-0 z-30 flex flex-col bg-[var(--background)]">
           {/* Header */}
-          <div className="flex items-center gap-3 mb-3 pb-3 border-b border-[var(--border)]">
+          <div className="flex items-center gap-3 px-4 py-3 border-b border-[var(--border)] shrink-0">
             <button onClick={() => setChatTarget(null)} className="p-1 text-[var(--outline)] hover:text-[var(--on-surface)]">
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
             </button>
@@ -285,11 +285,10 @@ export default function MessagesPage() {
           {/* Messages */}
           <div
             ref={chatContainerRef}
-            className="flex-1 overflow-y-auto space-y-2 px-1 mb-3"
+            className="flex-1 overflow-y-auto space-y-2 px-4 py-3"
             onScroll={() => {
               const el = chatContainerRef.current;
               if (!el) return;
-              // If user is within 80px of the bottom, auto-scroll on new messages
               shouldAutoScroll.current = el.scrollHeight - el.scrollTop - el.clientHeight < 80;
             }}>
             {[...currentMessages].reverse().map((msg) => {
@@ -319,18 +318,20 @@ export default function MessagesPage() {
             <div ref={chatEndRef} />
           </div>
 
-          {/* Input */}
-          <div className="flex gap-2">
-            <Input
-              value={chatInput}
-              onChange={(e) => setChatInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleSend()}
-              placeholder="Message..."
-              className="flex-1"
-            />
-            <Button onClick={handleSend}>
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" /></svg>
-            </Button>
+          {/* Input — fixed at bottom */}
+          <div className="shrink-0 px-4 py-3 border-t border-[var(--border)] bg-[var(--background)]">
+            <div className="flex gap-2 max-w-3xl mx-auto">
+              <Input
+                value={chatInput}
+                onChange={(e) => setChatInput(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleSend()}
+                placeholder="Message..."
+                className="flex-1"
+              />
+              <Button onClick={handleSend}>
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" /></svg>
+              </Button>
+            </div>
           </div>
         </div>
       )}

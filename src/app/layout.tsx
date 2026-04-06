@@ -13,7 +13,6 @@ import { ToastProvider } from "@/components/ui/Toast";
 import { OfflineBanner } from "@/components/layout/OfflineBanner";
 import { GlobalSearch } from "@/components/ui/GlobalSearch";
 import { PageTabs } from "@/components/layout/PageTabs";
-import { TipsBar } from "@/components/layout/TipsBar";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 const grotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-grotesk", display: "swap" });
@@ -76,7 +75,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <AuthProvider>
           <ToastProvider>
             <AnnouncementBar />
-            <TipsBar />
             <div className="flex min-h-screen relative z-[1]">
               <Sidebar />
               <main id="main-content" className="flex-1 min-w-0 pb-20 lg:pb-0">
