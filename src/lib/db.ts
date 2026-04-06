@@ -109,10 +109,14 @@ export async function updateRow(table: string, id: string, obj: any, userId?: st
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
+// Tables keyed by user_id (one row per user, no separate id column)
+const USER_KEYED_TABLES = new Set(["profiles", "gamification", "public_profiles"]);
+
 export async function upsertRow(table: string, userId: string, obj: any) {
   const row = toRow(obj);
   row.user_id = userId;
-  const { error } = await supabase.from(table).upsert(row);
+  const opts = USER_KEYED_TABLES.has(table) ? { onConflict: "user_id" } : undefined;
+  const { error } = await supabase.from(table).upsert(row, opts);
   if (error) {
     console.error(`upsert ${table}:`, error);
     throw new Error(`Upsert failed: ${error.message}`);
