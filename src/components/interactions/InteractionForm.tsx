@@ -13,6 +13,7 @@ interface InteractionFormProps {
   initial?: Interaction | null;
   defaultLocation?: string;
   defaultSessionId?: string;
+  contactAtLimit?: boolean;
   onSubmit: (data: Omit<Interaction, "id" | "createdAt">) => void | Promise<void>;
 }
 
@@ -134,7 +135,7 @@ function ScoreSlider({ label, value, onChange, color }: { label: string; value: 
   );
 }
 
-export function InteractionForm({ initial, defaultLocation, defaultSessionId, onSubmit }: InteractionFormProps) {
+export function InteractionForm({ initial, defaultLocation, defaultSessionId, contactAtLimit, onSubmit }: InteractionFormProps) {
   const router = useRouter();
   const [firstName, setFirstName] = useState(initial?.firstName ?? "");
   const [memorableElement, setMemorableElement] = useState(initial?.memorableElement ?? "");
@@ -298,6 +299,11 @@ export function InteractionForm({ initial, defaultLocation, defaultSessionId, on
       {result === "close" && (
         <div className="p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/10 space-y-4">
           <p className="text-xs font-semibold text-emerald-400 uppercase tracking-wider">Contact obtenu</p>
+          {contactAtLimit && (
+            <p className="text-xs text-amber-400 bg-amber-400/10 rounded-lg px-3 py-2">
+              Limite de contacts actifs atteinte (plan gratuit). Le contact ne sera pas ajouté automatiquement au pipeline. Passe à GameMax pour des contacts illimités.
+            </p>
+          )}
           <div className="flex flex-wrap gap-2">
             {contactMethodOptionsClose.map((o) => (
               <button

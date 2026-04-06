@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useSessions } from "@/hooks/useSessions";
 import { useInteractions } from "@/hooks/useInteractions";
@@ -11,6 +11,7 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import Link from "next/link";
+import { fetchPublicSessionsAction } from "@/actions/db";
 import type { Session, Mission, Reminder, Interaction } from "@/types";
 
 type CalendarView = "month" | "week" | "day";
@@ -35,6 +36,7 @@ const LAYER_CONFIG: { key: Layer; label: string; color: string }[] = [
   { key: "reminders", label: "Rappels", color: "bg-amber-400" },
   { key: "missions", label: "Missions", color: "bg-emerald-400" },
   { key: "plan_dates", label: "Plan", color: "bg-cyan-400" },
+  { key: "public_sessions", label: "Sessions publiques", color: "bg-orange-400" },
 ];
 
 const WEEKDAYS = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"];
@@ -66,7 +68,12 @@ export default function CalendrierPage() {
   const [view, setView] = useState<CalendarView>("month");
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
-  const [activeLayers, setActiveLayers] = useState<Set<Layer>>(new Set(["sessions", "interactions", "reminders", "missions", "plan_dates"]));
+  const [activeLayers, setActiveLayers] = useState<Set<Layer>>(new Set(["sessions", "interactions", "reminders", "missions", "plan_dates", "public_sessions"]));
+  const [publicSessions, setPublicSessions] = useState<Session[]>([]);
+
+  useEffect(() => {
+    fetchPublicSessionsAction().then((s) => setPublicSessions(s as Session[]));
+  }, []);
 
   const toggleLayer = (layer: Layer) => {
     setActiveLayers((prev) => {
@@ -152,6 +159,23 @@ export default function CalendrierPage() {
       });
     }
 
+    // Public sessions (exclude own sessions already shown)
+    if (activeLayers.has("public_sessions")) {
+      const ownSessionIds = new Set(sessions.map((s) => s.id));
+      publicSessions.forEach((s) => {
+        if (ownSessionIds.has(s.id)) return;
+        items.push({
+          id: `public-session-${s.id}`,
+          title: s.title || "Session publique",
+          date: s.date,
+          type: "public_session",
+          color: "bg-orange-400/15 text-orange-400 border-orange-400/20",
+          editable: false,
+          source: s,
+        });
+      });
+    }
+
     // Plan dates
     if (activeLayers.has("plan_dates")) {
       const now = new Date();
@@ -181,7 +205,7 @@ export default function CalendrierPage() {
     }
 
     return items;
-  }, [sessions, interactions, allReminders, missions, activeLayers, isPremium, subscription]);
+  }, [sessions, interactions, allReminders, missions, publicSessions, activeLayers, isPremium, subscription]);
 
   // Navigation
   const navigate = (dir: -1 | 1) => {
@@ -383,11 +407,16 @@ export default function CalendrierPage() {
               {" a "}{formatTime(selectedEvent.date)}
             </p>
 
-            {selectedEvent.type === "session" && (
+            {(selectedEvent.type === "session" || selectedEvent.type === "public_session") && (
               <div className="space-y-2 text-xs text-[var(--on-surface-variant)]">
                 {(selectedEvent.source as Session).location && <p>Lieu : {(selectedEvent.source as Session).location}</p>}
                 {(selectedEvent.source as Session).address && <p>Adresse : {(selectedEvent.source as Session).address}</p>}
-                {(selectedEvent.source as Session).notes && <p>Notes : {(selectedEvent.source as Session).notes}</p>}
+                {selectedEvent.type === "session" && (selectedEvent.source as Session).notes && <p>Notes : {(selectedEvent.source as Session).notes}</p>}
+                {selectedEvent.type === "public_session" && (
+                  <Link href={`/sessions/${(selectedEvent.source as Session).id}`} className="text-[var(--primary)] hover:underline text-xs">
+                    Voir la session
+                  </Link>
+                )}
               </div>
             )}
 

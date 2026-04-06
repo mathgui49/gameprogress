@@ -57,6 +57,7 @@ export default function NewInteractionPage() {
       <InteractionForm
         defaultSessionId={autoSession?.id}
         defaultLocation={autoSession?.location}
+        contactAtLimit={contactAtLimit}
         onSubmit={async (data) => {
           const interaction = await add(data);
           // Auto-link to session if detected
