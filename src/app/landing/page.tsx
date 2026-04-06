@@ -204,9 +204,9 @@ export default function LandingPage() {
           </Section>
 
           <Section delay={100}>
-            <h1 className="text-4xl sm:text-5xl lg:text-7xl font-[family-name:var(--font-grotesk)] font-bold leading-[1.1] mb-6">
+            <h1 className="text-4xl sm:text-5xl lg:text-7xl font-[family-name:var(--font-grotesk)] font-bold leading-[1.1] mb-6 text-white">
               Transforme chaque{" "}
-              <span className="bg-gradient-to-r from-[#c084fc] via-[#f472b6] to-[#818cf8] bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-[#c084fc] via-[#f472b6] to-[#818cf8] bg-clip-text text-transparent animate-gradient-text">
                 interaction
               </span>
               <br />en progression
@@ -343,9 +343,9 @@ export default function LandingPage() {
           <Section>
             <div className="text-center mb-16">
               <span className="text-xs font-semibold tracking-widest uppercase text-[#c084fc] mb-3 block">Features</span>
-              <h2 className="text-3xl sm:text-4xl font-[family-name:var(--font-grotesk)] font-bold mb-4">
+              <h2 className="text-3xl sm:text-4xl font-[family-name:var(--font-grotesk)] font-bold mb-4 text-white">
                 Tout ce dont tu as besoin pour{" "}
-                <span className="bg-gradient-to-r from-[#c084fc] to-[#f472b6] bg-clip-text text-transparent">progresser</span>
+                <span className="bg-gradient-to-r from-[#c084fc] to-[#f472b6] bg-clip-text text-transparent animate-gradient-text">progresser</span>
               </h2>
               <p className="text-[#a09bb2] max-w-xl mx-auto">La solution la plus complète du marché. 6 modules puissants qui travaillent ensemble pour tracker, analyser et booster ta progression sociale.</p>
             </div>
@@ -377,9 +377,9 @@ export default function LandingPage() {
           <Section>
             <div className="text-center mb-12">
               <span className="text-xs font-semibold tracking-widest uppercase text-[#818cf8] mb-3 block">Aperçu</span>
-              <h2 className="text-3xl sm:text-4xl font-[family-name:var(--font-grotesk)] font-bold mb-4">
+              <h2 className="text-3xl sm:text-4xl font-[family-name:var(--font-grotesk)] font-bold mb-4 text-white">
                 Découvre l&apos;expérience{" "}
-                <span className="bg-gradient-to-r from-[#818cf8] to-[#67e8f9] bg-clip-text text-transparent">GameProgress</span>
+                <span className="bg-gradient-to-r from-[#818cf8] to-[#67e8f9] bg-clip-text text-transparent animate-gradient-text">GameProgress</span>
               </h2>
             </div>
           </Section>
@@ -519,9 +519,9 @@ export default function LandingPage() {
           <Section>
             <div className="text-center mb-16">
               <span className="text-xs font-semibold tracking-widest uppercase text-[#f472b6] mb-3 block">Gamification</span>
-              <h2 className="text-3xl sm:text-4xl font-[family-name:var(--font-grotesk)] font-bold mb-4">
+              <h2 className="text-3xl sm:text-4xl font-[family-name:var(--font-grotesk)] font-bold mb-4 text-white">
                 Chaque action te fait{" "}
-                <span className="bg-gradient-to-r from-[#f472b6] to-[#f59e0b] bg-clip-text text-transparent">progresser</span>
+                <span className="bg-gradient-to-r from-[#f472b6] to-[#f59e0b] bg-clip-text text-transparent animate-gradient-text">progresser</span>
               </h2>
             </div>
           </Section>
@@ -587,9 +587,9 @@ export default function LandingPage() {
           <Section>
             <div className="text-center mb-12">
               <span className="text-xs font-semibold tracking-widest uppercase text-[#f59e0b] mb-3 block">Tarifs</span>
-              <h2 className="text-3xl sm:text-4xl font-[family-name:var(--font-grotesk)] font-bold mb-4">
+              <h2 className="text-3xl sm:text-4xl font-[family-name:var(--font-grotesk)] font-bold mb-4 text-white">
                 Choisis ton{" "}
-                <span className="bg-gradient-to-r from-[#c084fc] to-[#f472b6] bg-clip-text text-transparent">plan</span>
+                <span className="bg-gradient-to-r from-[#c084fc] to-[#f472b6] bg-clip-text text-transparent animate-gradient-text">plan</span>
               </h2>
               <p className="text-[#a09bb2] max-w-lg mx-auto">
                 Commence avec le plan gratuit et passe à {PLAN_NAME_PRO} quand tu es prêt à débloquer tout le potentiel.
@@ -770,7 +770,7 @@ export default function LandingPage() {
           <Section>
             <div className="text-center mb-16">
               <span className="text-xs font-semibold tracking-widest uppercase text-[#34d399] mb-3 block">Comment ça marche</span>
-              <h2 className="text-3xl sm:text-4xl font-[family-name:var(--font-grotesk)] font-bold">
+              <h2 className="text-3xl sm:text-4xl font-[family-name:var(--font-grotesk)] font-bold text-white">
                 3 étapes pour commencer
               </h2>
             </div>
@@ -848,9 +848,9 @@ export default function LandingPage() {
         <div className="absolute inset-0 bg-gradient-to-t from-[#c084fc]/[0.04] to-transparent" />
         <div className="max-w-3xl mx-auto relative text-center">
           <Section>
-            <h2 className="text-3xl sm:text-5xl font-[family-name:var(--font-grotesk)] font-bold mb-6">
+            <h2 className="text-3xl sm:text-5xl font-[family-name:var(--font-grotesk)] font-bold mb-6 text-white">
               Prêt à transformer{" "}
-              <span className="bg-gradient-to-r from-[#c084fc] via-[#f472b6] to-[#818cf8] bg-clip-text text-transparent">ton game</span> ?
+              <span className="bg-gradient-to-r from-[#c084fc] via-[#f472b6] to-[#818cf8] bg-clip-text text-transparent animate-gradient-text">ton game</span> ?
             </h2>
             <p className="text-lg text-[#a09bb2] mb-4">
               Rejoins GameProgress et commence à tracker ta progression dès aujourd&apos;hui.
