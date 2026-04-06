@@ -6,6 +6,7 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 const BUCKET = "uploads";
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const MAX_IMAGE_DIMENSION = 4096; // Max width or height in pixels
 
 /**
  * Upload a file to Supabase Storage and return the public URL.
@@ -29,6 +30,14 @@ export async function uploadImage(
     return null;
   }
 
+  // Validate image dimensions using sharp-compatible approach
+  // Check PNG/JPEG headers for dimensions without a full decode
+  const dims = parseImageDimensions(buffer);
+  if (dims && (dims.width > MAX_IMAGE_DIMENSION || dims.height > MAX_IMAGE_DIMENSION)) {
+    console.error(`Image too large: ${dims.width}x${dims.height} (max ${MAX_IMAGE_DIMENSION})`);
+    return null;
+  }
+
   const fileName = `${folder}/${userId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
 
   const { error } = await supabase.storage
@@ -48,6 +57,36 @@ export async function uploadImage(
     .getPublicUrl(fileName);
 
   return publicUrl;
+}
+
+/** Parse width/height from image binary headers (PNG, JPEG, GIF, WebP). */
+function parseImageDimensions(buffer: Buffer): { width: number; height: number } | null {
+  try {
+    // PNG: bytes 16-23 contain width (4 bytes) and height (4 bytes) in IHDR
+    if (buffer[0] === 0x89 && buffer[1] === 0x50) {
+      return { width: buffer.readUInt32BE(16), height: buffer.readUInt32BE(20) };
+    }
+    // JPEG: scan for SOF0/SOF2 markers (0xFFC0/0xFFC2)
+    if (buffer[0] === 0xFF && buffer[1] === 0xD8) {
+      let offset = 2;
+      while (offset < buffer.length - 8) {
+        if (buffer[offset] !== 0xFF) break;
+        const marker = buffer[offset + 1];
+        if (marker === 0xC0 || marker === 0xC2) {
+          return { height: buffer.readUInt16BE(offset + 5), width: buffer.readUInt16BE(offset + 7) };
+        }
+        const segLen = buffer.readUInt16BE(offset + 2);
+        offset += 2 + segLen;
+      }
+    }
+    // GIF: bytes 6-9
+    if (buffer[0] === 0x47 && buffer[1] === 0x49 && buffer[2] === 0x46) {
+      return { width: buffer.readUInt16LE(6), height: buffer.readUInt16LE(8) };
+    }
+  } catch {
+    // Parsing failed — skip dimension check
+  }
+  return null;
 }
 
 /**

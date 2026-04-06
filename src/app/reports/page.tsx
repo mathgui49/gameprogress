@@ -51,35 +51,6 @@ export default function ReportsPage() {
   const { benchmarks } = useBenchmarks();
   const { isPremium } = useSubscription();
 
-  // Free users see a teaser then an upgrade prompt
-  if (loaded && !isPremium) {
-    return (
-      <div className="px-4 py-6 lg:px-8 lg:py-8 max-w-4xl mx-auto animate-fade-in">
-        <div className="mb-8">
-          <h1 className="text-2xl lg:text-3xl font-[family-name:var(--font-grotesk)] font-bold tracking-tight mb-1">
-            <span className="bg-gradient-to-r from-[#818cf8] to-[#67e8f9] bg-clip-text text-transparent">Rapports</span>
-          </h1>
-          <p className="text-sm text-[var(--on-surface-variant)]">Tes analytics détaillés et tendances</p>
-        </div>
-        {/* Basic stats teaser */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-          {[
-            { label: "Total interactions", value: interactions.length },
-            { label: "Closes", value: interactions.filter((i) => i.result === "close").length },
-            { label: "Streak", value: gam.streak + "j" },
-            { label: "Niveau", value: gam.level },
-          ].map((s) => (
-            <Card key={s.label} className="text-center !p-4">
-              <p className="text-xl font-[family-name:var(--font-grotesk)] font-bold text-[var(--on-surface)]">{s.value}</p>
-              <p className="text-[10px] text-[var(--outline)] mt-1">{s.label}</p>
-            </Card>
-          ))}
-        </div>
-        <UpgradeCard feature="Rapports & Analytics avancés" />
-      </div>
-    );
-  }
-
   const analytics = useMemo(() => {
     if (!loaded) return null;
 
@@ -255,6 +226,14 @@ export default function ReportsPage() {
           <ExportButton targetRef={reportRef} />
         </div>
       </div>
+
+      {/* Upgrade hint for free users */}
+      {!isPremium && (
+        <div className="mb-6 px-4 py-3 rounded-xl bg-[var(--primary)]/5 border border-[var(--primary)]/10 flex items-center gap-3">
+          <svg className="w-5 h-5 text-[var(--primary)] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456z" /></svg>
+          <p className="text-xs text-[var(--primary)]">Données limitées à la semaine en cours. Passe à {PLAN_NAME_PRO} pour l&apos;historique complet et l&apos;export PDF.</p>
+        </div>
+      )}
 
       {/* Key metrics */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-6">

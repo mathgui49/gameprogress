@@ -93,6 +93,9 @@ export default function InteractionsPage() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [showBulkDelete, setShowBulkDelete] = useState(false);
 
+  // Calendar day detail
+  const [selectedCalDay, setSelectedCalDay] = useState<string | null>(null);
+
   // Calendar
   const [calMonth, setCalMonth] = useState(new Date().getMonth());
   const [calYear, setCalYear] = useState(new Date().getFullYear());
@@ -262,7 +265,7 @@ export default function InteractionsPage() {
           <p className="text-sm text-[var(--on-surface-variant)]">Historique de tes approches et rencontres — {interactions.length} interaction{interactions.length !== 1 ? "s" : ""}</p>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={exportCSV} className="p-2 rounded-lg hover:bg-[var(--surface-bright)] text-[var(--outline)] transition-colors" title="Exporter CSV">
+          <button onClick={isPremium ? exportCSV : undefined} className={`p-2 rounded-lg transition-colors ${isPremium ? "hover:bg-[var(--surface-bright)] text-[var(--outline)]" : "text-[var(--outline)]/40 cursor-not-allowed"}`} title={isPremium ? "Exporter CSV" : "Export réservé à GameMax"}>
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
           </button>
           <Link href={atLimit ? "#" : "/interactions/new"} onClick={atLimit ? (e: React.MouseEvent) => e.preventDefault() : undefined}>
@@ -512,9 +515,10 @@ export default function InteractionsPage() {
               return (
                 <div
                   key={day}
+                  onClick={() => count > 0 ? setSelectedCalDay(dateKey) : undefined}
                   className={`relative flex flex-col items-center py-1.5 rounded-lg text-xs transition-all ${
                     isToday ? "ring-1 ring-[var(--primary)]/30" : ""
-                  } ${count > 0 ? "bg-[var(--surface-high)] hover:bg-[var(--surface-bright)] cursor-default" : ""}`}
+                  } ${count > 0 ? "bg-[var(--surface-high)] hover:bg-[var(--surface-bright)] cursor-pointer" : ""}`}
                   title={count > 0 ? `${count} interaction${count > 1 ? "s" : ""}${hasClose ? " (close!)": ""}` : undefined}
                 >
                   <span className={`${count > 0 ? "text-[var(--on-surface)] font-medium" : "text-[var(--outline)]"}`}>{day}</span>
@@ -532,6 +536,35 @@ export default function InteractionsPage() {
           </div>
         </div>
       )}
+
+      {/* Calendar day detail modal */}
+      <Modal open={!!selectedCalDay} onClose={() => setSelectedCalDay(null)} title={selectedCalDay ? new Date(selectedCalDay + "T12:00:00").toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" }) : ""}>
+        {selectedCalDay && (calendarMap[selectedCalDay] || []).length > 0 ? (
+          <div className="space-y-2">
+            {(calendarMap[selectedCalDay] || []).map((i) => (
+              <Link key={i.id} href={`/interactions/${i.id}`} onClick={() => setSelectedCalDay(null)} className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-[var(--surface-high)] transition-all">
+                <div className="w-8 h-8 rounded-lg bg-[var(--primary)]/10 flex flex-col items-center justify-center shrink-0">
+                  <span className="text-xs font-bold text-[var(--primary)]">{i.feelingScore}</span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <span className="text-sm text-[var(--on-surface)] font-medium">{i.firstName || i.memorableElement || "Anonyme"}</span>
+                  <div className="flex gap-1 mt-0.5">
+                    <Badge className={TYPE_COLORS[i.type]}>{APPROACH_LABELS[i.type]}</Badge>
+                    <Badge className={RESULT_COLORS[i.result]}>{RESULT_LABELS[i.result]}</Badge>
+                  </div>
+                  {i.location && <p className="text-[10px] text-[var(--outline)] mt-0.5">{i.location}</p>}
+                </div>
+                {i.result === "close" && (
+                  <Badge className="bg-emerald-400/15 text-emerald-400 shrink-0">Close</Badge>
+                )}
+                <svg className="w-4 h-4 text-[var(--outline)] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" /></svg>
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-[var(--outline)] text-center py-4">Aucune interaction ce jour.</p>
+        )}
+      </Modal>
 
       {/* Bulk delete modal */}
       <Modal open={showBulkDelete} onClose={() => setShowBulkDelete(false)} title="Supprimer les interactions">

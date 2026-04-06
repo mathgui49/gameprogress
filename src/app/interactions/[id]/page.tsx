@@ -90,12 +90,20 @@ export default function InteractionDetailPage({ params }: { params: Promise<{ id
       {/* Scores grid */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
         <Card className="text-center !p-4">
-          <p className="text-[10px] text-[var(--outline)] uppercase tracking-wider mb-1">Ressenti</p>
+          <p className="text-[10px] text-[var(--outline)] uppercase tracking-wider mb-1">Ressenti interaction</p>
           <p className="text-2xl font-bold text-[var(--primary)]">{interaction.feelingScore}<span className="text-sm text-[var(--outline)]">/10</span></p>
+          <div className="w-full bg-[var(--surface-high)] rounded-full h-1.5 mt-2">
+            <div className="h-1.5 rounded-full bg-[var(--primary)]" style={{ width: `${(interaction.feelingScore / 10) * 100}%` }} />
+          </div>
         </Card>
         <Card className="text-center !p-4">
-          <p className="text-[10px] text-[var(--outline)] uppercase tracking-wider mb-1">Note fille</p>
+          <p className="text-[10px] text-[var(--outline)] uppercase tracking-wider mb-1">Attractivite fille</p>
           <p className="text-2xl font-bold text-[var(--tertiary)]">{interaction.womanScore ?? "-"}<span className="text-sm text-[var(--outline)]">/10</span></p>
+          {interaction.womanScore != null && (
+            <div className="w-full bg-[var(--surface-high)] rounded-full h-1.5 mt-2">
+              <div className="h-1.5 rounded-full bg-[var(--tertiary)]" style={{ width: `${(interaction.womanScore / 10) * 100}%` }} />
+            </div>
+          )}
         </Card>
         <Card className="text-center !p-4">
           <p className="text-[10px] text-[var(--outline)] uppercase tracking-wider mb-1">Duree</p>

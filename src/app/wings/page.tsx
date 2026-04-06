@@ -25,6 +25,7 @@ import { formatDate, formatRelative, computeAge } from "@/lib/utils";
 import { useSubscription } from "@/hooks/useSubscription";
 import { LimitReachedBanner } from "@/components/ui/PremiumGate";
 import { FREE_LIMITS } from "@/lib/premium";
+import { Avatar } from "@/components/ui/Avatar";
 
 type Tab = "wings" | "discover" | "map" | "invitations" | "chat";
 
@@ -87,26 +88,35 @@ export default function WingsPage() {
   const [showSharedSessions, setShowSharedSessions] = useState<string | null>(null);
   const [sharedSessions, setSharedSessions] = useState<Session[]>([]);
 
-  // Load wing statuses
-  useEffect(() => {
-    if (wingUserIds.length === 0) return;
-    fetchWingStatusesAction(wingUserIds).then(setWingStatuses);
-  }, [wingUserIds.length]);
+  // Load wing statuses + pending profiles in parallel
+  const pendingReceivedIds = useMemo(() => pendingReceived.map((r) => r.fromUserId).join(","), [pendingReceived]);
+  const pendingSentIds = useMemo(() => pendingSent.map((r) => r.toUserId).join(","), [pendingSent]);
 
-  // Resolve profiles for pending requests
   useEffect(() => {
-    const allIds = [
-      ...pendingReceived.map((r) => r.fromUserId),
-      ...pendingSent.map((r) => r.toUserId),
-    ];
-    const uniqueIds = [...new Set(allIds)].filter((id) => !pendingProfiles[id]);
-    if (uniqueIds.length === 0) return;
-    fetchProfilesByIdsAction(uniqueIds).then((profiles) => {
-      const map: Record<string, PublicProfile> = { ...pendingProfiles };
-      profiles.forEach((p: PublicProfile) => { map[p.userId] = p; });
-      setPendingProfiles(map);
-    });
-  }, [pendingReceived, pendingSent]);
+    const promises: Promise<void>[] = [];
+
+    // Wing statuses
+    if (wingUserIds.length > 0) {
+      promises.push(fetchWingStatusesAction(wingUserIds).then(setWingStatuses));
+    }
+
+    // Pending profiles
+    const allIds = [...new Set([
+      ...pendingReceivedIds.split(",").filter(Boolean),
+      ...pendingSentIds.split(",").filter(Boolean),
+    ])].filter((id) => !pendingProfiles[id]);
+    if (allIds.length > 0) {
+      promises.push(
+        fetchProfilesByIdsAction(allIds).then((profiles) => {
+          const map: Record<string, PublicProfile> = { ...pendingProfiles };
+          profiles.forEach((p: PublicProfile) => { map[p.userId] = p; });
+          setPendingProfiles(map);
+        })
+      );
+    }
+
+    Promise.all(promises);
+  }, [wingUserIds.length, pendingReceivedIds, pendingSentIds]);
 
   // Scroll to bottom of chat
   useEffect(() => {
@@ -317,9 +327,7 @@ export default function WingsPage() {
                       <div className="flex items-center gap-3">
                         <Link href={`/wings/${encodeURIComponent(wing.username)}`} className="flex items-center gap-3 flex-1 min-w-0">
                           <div className="relative">
-                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#c084fc]/20 to-[#818cf8]/20 flex items-center justify-center">
-                              <span className="text-sm font-bold text-[var(--primary)]">{wing.firstName?.[0]?.toUpperCase() || wing.username?.[0]?.toUpperCase()}</span>
-                            </div>
+                            <Avatar src={wing.profilePhoto} name={wing.firstName || wing.username} size="md" />
                             {/* Status dot */}
                             <div className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-[var(--surface)] ${WING_STATUS_COLORS[status]}`} />
                           </div>
@@ -414,9 +422,7 @@ export default function WingsPage() {
                       <Card hover className="!p-3">
                         <div className="flex items-center gap-3">
                           <div className="relative">
-                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#c084fc]/20 to-[#818cf8]/20 flex items-center justify-center">
-                              <span className="text-sm font-bold text-[var(--primary)]">{wing.firstName?.[0]?.toUpperCase() || wing.username?.[0]?.toUpperCase()}</span>
-                            </div>
+                            <Avatar src={wing.profilePhoto} name={wing.firstName || wing.username} size="md" />
                             <div className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-[var(--surface)] ${WING_STATUS_COLORS[(wingStatuses[wing.userId] as WingStatus) || "offline"]}`} />
                           </div>
                           <div className="flex-1 min-w-0">
@@ -447,9 +453,7 @@ export default function WingsPage() {
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
                 </button>
                 <div className="relative">
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#c084fc]/20 to-[#818cf8]/20 flex items-center justify-center">
-                    <span className="text-xs font-bold text-[var(--primary)]">{chatPartnerProfile?.firstName?.[0]?.toUpperCase() || "?"}</span>
-                  </div>
+                  <Avatar src={chatPartnerProfile?.profilePhoto} name={chatPartnerProfile?.firstName || chatPartnerProfile?.username} size="sm" />
                   <div className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-[var(--surface)] ${WING_STATUS_COLORS[(wingStatuses[chatWith] as WingStatus) || "offline"]}`} />
                 </div>
                 <div>
@@ -573,7 +577,7 @@ export default function WingsPage() {
                   return (
                     <div key={req.id} className="flex items-center justify-between p-3 rounded-xl bg-[var(--surface-low)] border border-[var(--border)]">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#c084fc]/20 to-[#818cf8]/20 flex items-center justify-center"><span className="text-xs font-bold text-[var(--primary)]">{p?.firstName?.[0]?.toUpperCase() || "?"}</span></div>
+                        <Avatar src={p?.profilePhoto} name={p?.firstName} size="sm" />
                         <div>
                           <p className="text-sm text-[var(--on-surface)]">{p?.firstName || "—"}{age && showAge ? <span className="text-[var(--outline)] ml-1">{age} ans</span> : ""}</p>
                           <p className="text-[10px] text-[var(--outline)]">@{p?.username || "—"} · {formatDate(req.createdAt)}</p>
@@ -600,7 +604,7 @@ export default function WingsPage() {
                   return (
                     <div key={req.id} className="flex items-center justify-between p-3 rounded-xl bg-[var(--surface-low)] border border-[var(--border)]">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-[var(--surface-high)] flex items-center justify-center"><span className="text-xs font-bold text-[var(--outline)]">{p?.firstName?.[0]?.toUpperCase() || "?"}</span></div>
+                        <Avatar src={p?.profilePhoto} name={p?.firstName} size="sm" />
                         <div>
                           <p className="text-sm text-[var(--on-surface)]">{p?.firstName || "—"}</p>
                           <p className="text-[10px] text-[var(--outline)]">@{p?.username || "—"} · {formatDate(req.createdAt)}</p>
@@ -724,9 +728,7 @@ function ProfileCard({ profile, isWing, hasPending, onInvite }: {
     <div>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#c084fc]/20 to-[#818cf8]/20 flex items-center justify-center">
-            <span className="text-xs font-bold text-[var(--primary)]">{profile.firstName?.[0]?.toUpperCase() || profile.username?.[0]?.toUpperCase()}</span>
-          </div>
+          <Avatar src={profile.profilePhoto} name={profile.firstName || profile.username} size="md" />
           <div>
             <p className="text-sm font-medium text-[var(--on-surface)]">{profile.firstName || profile.username}</p>
             <p className="text-[10px] text-[var(--outline)]">@{profile.username}{profile.location ? ` · ${profile.location}` : ""}</p>

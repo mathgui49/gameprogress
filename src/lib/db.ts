@@ -147,6 +147,16 @@ export async function findProfileByUsername(username: string) {
   return fromRow<any>(data);
 }
 
+export async function checkIsWing(userId: string, targetUserId: string): Promise<boolean> {
+  const { data } = await supabase
+    .from("wing_requests")
+    .select("id")
+    .eq("status", "accepted")
+    .or(`and(from_user_id.eq.${userId},to_user_id.eq.${targetUserId}),and(from_user_id.eq.${targetUserId},to_user_id.eq.${userId})`)
+    .limit(1);
+  return (data?.length ?? 0) > 0;
+}
+
 export async function fetchWingRequests(userId: string) {
   const { data: sent, error: e1 } = await supabase
     .from("wing_requests")
@@ -193,6 +203,17 @@ export async function fetchSessionsByUserId(userId: string) {
     .eq("user_id", userId)
     .order("created_at", { ascending: false });
   if (error) { console.error("fetch sessions:", error); return []; }
+  return (data || []).map((r) => fromRow<any>(r));
+}
+
+export async function fetchPublicSessionsByUserId(userId: string) {
+  const { data, error } = await supabase
+    .from("sessions")
+    .select("*")
+    .eq("user_id", userId)
+    .eq("is_public", true)
+    .order("created_at", { ascending: false });
+  if (error) { console.error("fetch public sessions by user:", error); return []; }
   return (data || []).map((r) => fromRow<any>(r));
 }
 
@@ -803,14 +824,19 @@ export interface CommunityBenchmarks {
 }
 
 export async function fetchCommunityBenchmarks(): Promise<CommunityBenchmarks> {
-  // Get all interactions (aggregate only, no personal data exposed)
+  // Sample recent interactions only (last 90 days, capped at 5000 rows)
+  const ninetyDaysAgo = new Date(Date.now() - 90 * 86400000).toISOString();
+
   const { data: allInteractions } = await supabase
     .from("interactions")
-    .select("result, feeling_score, user_id, created_at");
+    .select("result, feeling_score, user_id, created_at")
+    .gte("created_at", ninetyDaysAgo)
+    .limit(5000);
 
   const { data: allGam } = await supabase
     .from("gamification")
-    .select("level, user_id");
+    .select("level, user_id")
+    .limit(1000);
 
   const interactions = allInteractions || [];
   const gamData = allGam || [];
@@ -855,11 +881,31 @@ const ALL_TABLES = [
 ];
 
 export async function clearAllUserData(userId: string) {
-  await Promise.all(
+  const results = await Promise.allSettled(
     ALL_TABLES.map((table) =>
       supabase.from(table).delete().eq("user_id", userId)
     )
   );
+  const failures = results.filter((r) => r.status === "rejected");
+  if (failures.length > 0) {
+    console.error(`clearAllUserData: ${failures.length}/${ALL_TABLES.length} tables failed`, failures);
+  }
+}
+
+export async function exportAllUserData(userId: string): Promise<Record<string, unknown[]>> {
+  const exportTables = [
+    "interactions", "contacts", "sessions", "wings", "missions", "journal_entries",
+    "gamification", "public_profiles", "wing_meta", "wing_challenges",
+    "journal_collections", "journal_drafts",
+  ];
+  const result: Record<string, unknown[]> = {};
+  await Promise.all(
+    exportTables.map(async (table) => {
+      const { data } = await supabase.from(table).select("*").eq("user_id", userId);
+      result[table] = (data || []).map((r: any) => fromRow(r));
+    })
+  );
+  return result;
 }
 
 // ─── Admin ──────────────────────────────────────────────

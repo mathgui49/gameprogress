@@ -4,7 +4,7 @@ import { useState, useMemo, useEffect, useCallback } from "react";
 import { useSessions } from "@/hooks/useSessions";
 import { useInteractions } from "@/hooks/useInteractions";
 import { usePublicProfile } from "@/hooks/usePublicProfile";
-import { fetchSessionParticipantsWithProfilesAction, fetchPublicSessionsAction } from "@/actions/db";
+import { fetchSessionParticipantsWithProfilesAction, fetchPublicSessionsAction, joinPublicSessionAction } from "@/actions/db";
 import { formatDate } from "@/lib/utils";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -558,25 +558,39 @@ export default function SessionsPage() {
           <p className="text-xs text-[var(--on-surface-variant)] mb-3">Sessions publiques a venir que tu peux rejoindre</p>
           <div className="space-y-2">
             {nearbySessions.slice(0, 5).map((s) => (
-              <Link key={s.id} href={`/sessions/${s.id}`}>
-                <Card hover className="!p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="text-sm font-semibold text-[var(--on-surface)]">{s.title || "Session"}</h3>
-                      <p className="text-xs text-[var(--outline)]">
-                        {formatDate(s.date)} {s.location && `· ${s.location}`}
-                        {s.distanceKm !== null && <span className="text-[var(--primary)]"> · {s.distanceKm} km</span>}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <CountdownBadge date={s.date} />
-                      {s.maxParticipants > 0 && (
-                        <span className="text-[10px] text-[var(--outline)]">{s.maxParticipants} places</span>
-                      )}
-                    </div>
+              <Card key={s.id} hover className="!p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-sm font-semibold text-[var(--on-surface)]">{s.title || "Session"}</h3>
+                    <p className="text-xs text-[var(--outline)]">
+                      {formatDate(s.date)} {s.location && `· ${s.location}`}
+                      {s.distanceKm !== null && <span className="text-[var(--primary)]"> · {s.distanceKm} km</span>}
+                    </p>
                   </div>
-                </Card>
-              </Link>
+                  <div className="flex items-center gap-2">
+                    <CountdownBadge date={s.date} />
+                    {s.maxParticipants > 0 && (
+                      <span className="text-[10px] text-[var(--outline)]">{s.maxParticipants} places</span>
+                    )}
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 mt-3">
+                  <Link href={`/sessions/${s.id}`} className="flex-1">
+                    <Button variant="secondary" size="sm" className="w-full">
+                      <span className="flex items-center justify-center gap-1.5">
+                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" /></svg>
+                        Plus d&apos;infos
+                      </span>
+                    </Button>
+                  </Link>
+                  <Button size="sm" onClick={async (e: React.MouseEvent) => { e.stopPropagation(); await joinPublicSessionAction(s.id); window.location.reload(); }}>
+                    <span className="flex items-center gap-1.5">
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" /></svg>
+                      Rejoindre
+                    </span>
+                  </Button>
+                </div>
+              </Card>
             ))}
           </div>
         </div>

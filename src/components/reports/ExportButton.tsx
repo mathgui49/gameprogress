@@ -2,6 +2,7 @@
 
 import { useState, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/Button";
+import { useSubscription } from "@/hooks/useSubscription";
 
 interface ExportButtonProps {
   targetRef: React.RefObject<HTMLDivElement | null>;
@@ -11,6 +12,7 @@ export function ExportButton({ targetRef }: ExportButtonProps) {
   const [open, setOpen] = useState(false);
   const [exporting, setExporting] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const { isPremium } = useSubscription();
 
   const capture = useCallback(async () => {
     if (!targetRef.current) return null;
@@ -77,8 +79,9 @@ export function ExportButton({ targetRef }: ExportButtonProps) {
       <Button
         variant="secondary"
         size="sm"
-        onClick={() => setOpen(!open)}
-        disabled={exporting}
+        onClick={() => isPremium && setOpen(!open)}
+        disabled={exporting || !isPremium}
+        title={isPremium ? undefined : "Export réservé à GameMax"}
       >
         <span className="flex items-center gap-2">
           {exporting ? (

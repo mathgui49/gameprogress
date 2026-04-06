@@ -301,7 +301,7 @@ export default function JournalPage() {
       result: i.result,
       location: i.location,
       tags: i.tags,
-      // NOT exposing: firstName, memorableElement, contactMethod, contactValue, etc.
+      firstName: i.firstName,
     })),
     [interactions]
   );
@@ -322,7 +322,7 @@ export default function JournalPage() {
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" /></svg>
             </button>
           </Tooltip>
-          <Button size="sm" variant="ghost" onClick={() => setShowExportModal(true)}>
+          <Button size="sm" variant="ghost" onClick={isPremium ? () => setShowExportModal(true) : undefined} disabled={!isPremium} title={isPremium ? "Exporter" : "Export réservé à GameMax"}>
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
           </Button>
           <Button onClick={() => openEditor()} disabled={journalAtLimit}>+ Écrire{!isPremium ? ` (${monthlyEntryCount}/${FREE_LIMITS.journalEntriesPerMonth})` : ""}</Button>
@@ -332,7 +332,7 @@ export default function JournalPage() {
       {/* Limit banner for free users */}
       {!isPremium && (
         <div className="mb-4">
-          <LimitReachedBanner current={monthlyEntryCount} limit={FREE_LIMITS.journalEntriesPerMonth} itemName="entrées journal" />
+          <LimitReachedBanner current={monthlyEntryCount} limit={FREE_LIMITS.journalEntriesPerMonth} itemName="rédactions" />
         </div>
       )}
 
@@ -368,7 +368,7 @@ export default function JournalPage() {
             <button key={v} onClick={() => setFilterVisibility(filterVisibility === v ? null : v)}
               className={`text-[10px] px-2 py-1 rounded-full transition-all ${
                 filterVisibility === v
-                  ? v === "private" ? "bg-[var(--outline-variant)]/20 text-[var(--on-surface-variant)]" : v === "wings" ? "bg-[var(--tertiary)]/20 text-[var(--tertiary)]" : "bg-emerald-400/20 text-emerald-400"
+                  ? v === "private" ? "bg-[var(--on-surface)]/15 text-[var(--on-surface)] font-medium" : v === "wings" ? "bg-[var(--tertiary)]/20 text-[var(--tertiary)] font-medium" : "bg-emerald-400/20 text-emerald-400 font-medium"
                   : "bg-[var(--surface-low)] text-[var(--outline)]"
               }`}>
               {VISIBILITY_LABELS[v]}
@@ -586,7 +586,7 @@ export default function JournalPage() {
             <div
               ref={editorRef}
               contentEditable
-              className="min-h-[200px] max-h-[400px] overflow-y-auto px-4 py-3 text-sm text-[var(--on-surface)] focus:outline-none journal-content"
+              className="min-h-[120px] sm:min-h-[200px] max-h-[250px] sm:max-h-[400px] overflow-y-auto px-3 sm:px-4 py-3 text-sm text-[var(--on-surface)] focus:outline-none journal-content"
               data-placeholder="Écris ton post ici..."
               suppressContentEditableWarning
               onInput={handleEditorInput}
@@ -594,7 +594,7 @@ export default function JournalPage() {
           </div>
 
           {/* Voice + File */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <VoiceInput onResult={handleVoiceResult} />
             <input ref={fileInputRef} type="file" multiple accept="image/*,.pdf,.doc,.docx,.txt,.mp3,.wav,.m4a" onChange={handleFileSelect} className="hidden" />
             <button type="button" onClick={() => fileInputRef.current?.click()} className="flex items-center gap-2 text-xs px-3 py-2 rounded-xl bg-[var(--surface-high)] text-[var(--on-surface-variant)] hover:bg-[var(--surface-bright)] transition-colors border border-[var(--border)]">
@@ -619,19 +619,24 @@ export default function JournalPage() {
             </div>
           )}
 
-          {/* Link interactions */}
-          <div>
-            <p className="text-xs text-[var(--on-surface-variant)] mb-2">Lier des interactions (optionnel)</p>
-            <p className="text-[10px] text-[var(--outline)] mb-2">Les infos personnelles de la fille ne seront jamais visibles par tes wings ou le public.</p>
-            <div className="max-h-[120px] overflow-y-auto space-y-1">
-              {safeInteractions.slice(0, 20).map((i: any) => (
-                <button key={i.id} onClick={() => setLinkedInteractionIds((prev) => prev.includes(i.id) ? prev.filter((x) => x !== i.id) : [...prev, i.id])}
-                  className={`w-full text-left px-3 py-1.5 rounded-lg text-xs transition-all ${linkedInteractionIds.includes(i.id) ? "bg-[var(--primary)]/15 text-[var(--primary)] border border-[var(--primary)]/30" : "bg-[var(--surface-low)] text-[var(--on-surface-variant)] hover:bg-[var(--surface-bright)]"}`}>
-                  {formatDate(i.date)} · {i.type} · {i.result}{i.location ? ` · ${i.location}` : ""}
-                </button>
-              ))}
+          {/* Link interactions — collapsible */}
+          <details className="group">
+            <summary className="flex items-center gap-2 cursor-pointer text-xs text-[var(--on-surface-variant)] hover:text-[var(--on-surface)] transition-colors">
+              <svg className="w-3.5 h-3.5 transition-transform group-open:rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
+              Lier des interactions ({linkedInteractionIds.length} sélectionnée{linkedInteractionIds.length > 1 ? "s" : ""})
+            </summary>
+            <div className="mt-2">
+              <p className="text-[10px] text-[var(--outline)] mb-2">Les infos personnelles ne seront jamais visibles par tes wings ou le public.</p>
+              <div className="max-h-[120px] overflow-y-auto space-y-1">
+                {safeInteractions.slice(0, 20).map((i: any) => (
+                  <button key={i.id} onClick={() => setLinkedInteractionIds((prev) => prev.includes(i.id) ? prev.filter((x) => x !== i.id) : [...prev, i.id])}
+                    className={`w-full text-left px-3 py-1.5 rounded-lg text-xs transition-all ${linkedInteractionIds.includes(i.id) ? "bg-[var(--primary)]/15 text-[var(--primary)] border border-[var(--primary)]/30" : "bg-[var(--surface-low)] text-[var(--on-surface-variant)] hover:bg-[var(--surface-bright)]"}`}>
+                    {formatDateShort(i.date)} · {i.firstName || i.result}{i.location ? ` · ${i.location}` : ""}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
+          </details>
 
           {/* Tag */}
           <div>
@@ -654,7 +659,7 @@ export default function JournalPage() {
                 <button key={v} onClick={() => setVisibility(v)}
                   className={`text-xs px-3 py-1.5 rounded-full transition-all ${
                     visibility === v
-                      ? v === "private" ? "bg-[var(--outline-variant)]/20 text-[var(--on-surface-variant)]" : v === "wings" ? "bg-[var(--tertiary)]/20 text-[var(--tertiary)]" : "bg-emerald-400/20 text-emerald-400"
+                      ? v === "private" ? "bg-[var(--on-surface)]/15 text-[var(--on-surface)] font-medium ring-1 ring-[var(--on-surface)]/20" : v === "wings" ? "bg-[var(--tertiary)]/20 text-[var(--tertiary)] font-medium ring-1 ring-[var(--tertiary)]/30" : "bg-emerald-400/20 text-emerald-400 font-medium ring-1 ring-emerald-400/30"
                       : "bg-[var(--surface-high)] text-[var(--on-surface-variant)] hover:bg-[var(--surface-bright)]"
                   }`}>
                   {VISIBILITY_LABELS[v]}

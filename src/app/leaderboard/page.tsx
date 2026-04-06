@@ -13,6 +13,8 @@ import { useWingRequests } from "@/hooks/useWingRequests";
 import { fetchLeaderboardWithXpDetailsAction } from "@/actions/db";
 import { useSubscription } from "@/hooks/useSubscription";
 import { BlurredPremium, UpgradeCard } from "@/components/ui/PremiumGate";
+import { useToast } from "@/hooks/useToast";
+import Link from "next/link";
 
 interface LeaderboardEntry {
   userId: string;
@@ -43,7 +45,8 @@ const XP_CATEGORY_LABELS: Record<string, string> = {
 export default function LeaderboardPage() {
   const { data: authSession } = useSession();
   const userId = authSession?.user?.email ?? "";
-  const { wingProfiles } = useWingRequests();
+  const toast = useToast();
+  const { wingProfiles, sendRequest, isWing, hasPendingTo } = useWingRequests();
   const { isPremium } = useSubscription();
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
   const [loaded, setLoaded] = useState(false);
@@ -117,7 +120,7 @@ export default function LeaderboardPage() {
         </div>
         <div className="flex items-center gap-1 p-1 bg-[var(--surface-low)] rounded-xl">
           <button onClick={() => setView("ranking")} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${view === "ranking" ? "bg-[var(--primary)]/15 text-[var(--primary)]" : "text-[var(--outline)] hover:text-[var(--on-surface-variant)]"}`}>Classement</button>
-          <button onClick={() => setView("progression")} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${view === "progression" ? "bg-emerald-400/15 text-emerald-400" : "text-[var(--outline)] hover:text-[var(--on-surface-variant)]"}`}>Progression</button>
+          <button onClick={() => setView("progression")} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${view === "progression" ? "bg-emerald-400/15 text-emerald-400" : "text-[var(--outline)] hover:text-[var(--on-surface-variant)]"}`}>Évolution</button>
         </div>
       </div>
 
@@ -212,7 +215,7 @@ export default function LeaderboardPage() {
       ) : displayEntries.length === 0 ? (
         <EmptyState
           icon={<svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 01-.982-3.172M9.497 14.25a7.454 7.454 0 00.981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 007.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M18.75 4.236c.982.143 1.954.317 2.916.52A6.003 6.003 0 0016.27 9.728M18.75 4.236V4.5c0 2.108-.966 3.99-2.48 5.228m0 0a6.023 6.023 0 01-2.52.587 6.023 6.023 0 01-2.52-.587" /></svg>}
-          title={view === "progression" ? "Aucune progression cette semaine" : scope === "wings" ? "Aucun wing classé" : "Aucun joueur"}
+          title={view === "progression" ? "Aucune évolution cette semaine" : scope === "wings" ? "Aucun wing classé" : "Aucun joueur"}
           description={view === "progression" ? "Personne n'a gagné d'XP cette semaine." : scope === "wings" ? "Invite des wings pour voir le classement entre amis." : "Aucun profil public avec des stats de gamification."}
         />
       ) : (
@@ -220,7 +223,7 @@ export default function LeaderboardPage() {
           {/* Progression view header */}
           {view === "progression" && (
             <div className="flex items-center gap-2 mb-2">
-              <Badge className="bg-emerald-400/15 text-emerald-400">Top progressions cette semaine</Badge>
+              <Badge className="bg-emerald-400/15 text-emerald-400">Top évolutions cette semaine</Badge>
             </div>
           )}
 
@@ -345,6 +348,24 @@ export default function LeaderboardPage() {
                   <p className="text-sm font-medium text-amber-400">{detailUser.streak} jours de streak</p>
                   <p className="text-[10px] text-[var(--outline)]">Jours consécutifs d&apos;activité</p>
                 </div>
+              </div>
+            )}
+
+            {/* Actions: profile + wing invite */}
+            {detailUser.userId !== userId && (
+              <div className="flex gap-2 pt-2 border-t border-[var(--border)]">
+                <Link href={`/wings/${detailUser.userId}`} className="flex-1">
+                  <Button variant="secondary" className="w-full">Voir le profil</Button>
+                </Link>
+                {isWing(detailUser.userId) ? (
+                  <Button disabled className="flex-1">Déjà wing</Button>
+                ) : hasPendingTo(detailUser.userId) ? (
+                  <Button disabled className="flex-1">Invitation envoyée</Button>
+                ) : (
+                  <Button className="flex-1" onClick={() => { sendRequest(detailUser.userId); toast.show("Invitation wing envoyée !"); }}>
+                    Inviter en wing
+                  </Button>
+                )}
               </div>
             )}
           </div>

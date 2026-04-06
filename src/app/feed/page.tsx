@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
+import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -28,6 +29,7 @@ import { useWingRequests } from "@/hooks/useWingRequests";
 import type { PublicProfile, SessionComment, ReactionType, PostComment } from "@/types";
 import { JOURNAL_TAG_LABELS, JOURNAL_TAG_COLORS, REACTION_EMOJIS } from "@/types";
 import { useToast } from "@/hooks/useToast";
+import { Avatar } from "@/components/ui/Avatar";
 
 // ─── Types ────────────────────────────────────────────
 interface FeedItem {
@@ -141,7 +143,7 @@ function ReactionPicker({
 function PostComposer({ onPost, userProfile }: { onPost: () => void; userProfile?: PublicProfile | null }) {
   const [open, setOpen] = useState(false);
   const [content, setContent] = useState("");
-  const [visibility, setVisibility] = useState<"wings" | "public">("public");
+  const [visibility, setVisibility] = useState<"wings" | "public">("wings");
   const [images, setImages] = useState<string[]>([]);
   const [posting, setPosting] = useState(false);
   const editorRef = useRef<HTMLDivElement>(null);
@@ -200,9 +202,7 @@ function PostComposer({ onPost, userProfile }: { onPost: () => void; userProfile
     return (
       <Card className="!p-3 mb-4 cursor-pointer hover:bg-[var(--surface-bright)]/50 transition-colors" onClick={() => setOpen(true)}>
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#c084fc]/20 to-[#818cf8]/20 flex items-center justify-center shrink-0">
-            <span className="text-xs font-bold text-[var(--primary)]">{userProfile?.firstName?.[0]?.toUpperCase() || "?"}</span>
-          </div>
+          <Avatar src={userProfile?.profilePhoto} name={userProfile?.firstName} size="sm" />
           <span className="text-sm text-[var(--outline)]">Partage quelque chose...</span>
         </div>
       </Card>
@@ -212,9 +212,7 @@ function PostComposer({ onPost, userProfile }: { onPost: () => void; userProfile
   return (
     <Card className="!p-4 mb-4 ring-1 ring-[var(--primary)]/20">
       <div className="flex items-center gap-3 mb-3">
-        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#c084fc]/20 to-[#818cf8]/20 flex items-center justify-center shrink-0">
-          <span className="text-xs font-bold text-[var(--primary)]">{userProfile?.firstName?.[0]?.toUpperCase() || "?"}</span>
-        </div>
+        <Avatar src={userProfile?.profilePhoto} name={userProfile?.firstName} size="sm" />
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium text-[var(--on-surface)]">{userProfile?.firstName || "Toi"}</p>
         </div>
@@ -379,9 +377,7 @@ function CommentsSection({
           ) : (
             comments.map((c) => (
               <div key={c.id} className="flex gap-2">
-                <div className="w-6 h-6 rounded-md bg-[var(--primary)]/10 flex items-center justify-center shrink-0">
-                  <span className="text-[9px] font-bold text-[var(--primary)]">{c.profile?.firstName?.[0]?.toUpperCase() || "?"}</span>
-                </div>
+                <Avatar src={c.profile?.profilePhoto} name={c.profile?.firstName} size="xs" />
                 <div className="flex-1 min-w-0">
                   <p className="text-[10px] text-[var(--outline)]">{c.profile?.firstName || "Anonyme"} · {formatRelative(c.createdAt)}</p>
                   <p className="text-xs text-[var(--on-surface-variant)] break-words">{c.content}</p>
@@ -495,13 +491,13 @@ function AuthorHeader({ profile, createdAt, badge, isPinned }: { profile: Public
   if (!profile) return null;
   return (
     <div className="flex items-center gap-2.5 mb-3">
-      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#c084fc]/20 to-[#818cf8]/20 flex items-center justify-center">
-        <span className="text-xs font-bold text-[var(--primary)]">{profile.firstName?.[0]?.toUpperCase() || "?"}</span>
-      </div>
-      <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-[var(--on-surface)]">{profile.firstName || profile.username}</p>
-        <p className="text-[10px] text-[var(--outline)]">@{profile.username}{profile.location ? ` · ${profile.location}` : ""}</p>
-      </div>
+      <Link href={`/wings/${profile.userId}`} className="flex items-center gap-2.5 flex-1 min-w-0">
+        <Avatar src={profile.profilePhoto} name={profile.firstName || profile.username} size="sm" />
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-medium text-[var(--on-surface)] hover:text-[var(--primary)] transition-colors">{profile.firstName || profile.username}</p>
+          <p className="text-[10px] text-[var(--outline)]">@{profile.username}{profile.location ? ` · ${profile.location}` : ""}</p>
+        </div>
+      </Link>
       {isPinned && (
         <span className="text-[10px] px-2 py-0.5 rounded-full bg-[var(--secondary)]/10 text-[var(--secondary)] flex items-center gap-1">
           <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2z" /></svg>
@@ -692,8 +688,6 @@ export default function FeedPage() {
     <div
       ref={feedRef}
       className="px-4 py-6 lg:px-8 lg:py-8 max-w-2xl mx-auto animate-fade-in"
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
     >
       {/* Header */}
       <div className="mb-6">

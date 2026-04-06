@@ -14,6 +14,8 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import type { PublicProfile, WingStatus, MessageGroup } from "@/types";
 import { WING_STATUS_LABELS, WING_STATUS_COLORS } from "@/types";
 import { formatRelative } from "@/lib/utils";
+import { useToast } from "@/hooks/useToast";
+import { Avatar } from "@/components/ui/Avatar";
 
 type ChatTarget = { type: "dm"; userId: string } | { type: "group"; groupId: string };
 
@@ -26,6 +28,7 @@ export default function MessagesPage() {
   } = useMessages();
   const { wingProfiles } = useWingRequests();
 
+  const toast = useToast();
   const [chatTarget, setChatTarget] = useState<ChatTarget | null>(null);
   const [chatInput, setChatInput] = useState("");
   const [wingStatuses, setWingStatuses] = useState<Record<string, string>>({});
@@ -66,12 +69,18 @@ export default function MessagesPage() {
 
   const handleSend = async () => {
     if (!chatInput.trim() || !chatTarget) return;
-    if (chatTarget.type === "dm") {
-      await send(chatTarget.userId, null, chatInput);
-    } else {
-      await send(null, chatTarget.groupId, chatInput);
-    }
+    const content = chatInput.trim();
     setChatInput("");
+    let id: string | null = null;
+    if (chatTarget.type === "dm") {
+      id = await send(chatTarget.userId, null, content);
+    } else {
+      id = await send(null, chatTarget.groupId, content);
+    }
+    if (!id) {
+      setChatInput(content); // restore on failure
+      toast.show("Erreur lors de l'envoi du message", "error");
+    }
   };
 
   const handleCreateGroup = async () => {
@@ -168,13 +177,7 @@ export default function MessagesPage() {
                       <Card hover className="!p-3">
                         <div className="flex items-center gap-3">
                           <div className="relative">
-                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#c084fc]/20 to-[#818cf8]/20 flex items-center justify-center overflow-hidden">
-                              {wing.profilePhoto ? (
-                                <img src={wing.profilePhoto} alt="" className="w-full h-full object-cover" />
-                              ) : (
-                                <span className="text-sm font-bold text-[var(--primary)]">{wing.firstName?.[0]?.toUpperCase() || wing.username?.[0]?.toUpperCase()}</span>
-                              )}
-                            </div>
+                            <Avatar src={wing.profilePhoto} name={wing.firstName || wing.username} size="md" />
                             <div className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-[var(--surface)] ${WING_STATUS_COLORS[status]}`} />
                           </div>
                           <div className="flex-1 min-w-0">
@@ -213,13 +216,7 @@ export default function MessagesPage() {
             {chatTarget.type === "dm" ? (
               <>
                 <div className="relative">
-                  <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[#c084fc]/20 to-[#818cf8]/20 flex items-center justify-center overflow-hidden">
-                    {getProfileFor(chatTarget.userId)?.profilePhoto ? (
-                      <img src={getProfileFor(chatTarget.userId)!.profilePhoto!} alt="" className="w-full h-full object-cover" />
-                    ) : (
-                      <span className="text-xs font-bold text-[var(--primary)]">{getProfileFor(chatTarget.userId)?.firstName?.[0]?.toUpperCase() || "?"}</span>
-                    )}
-                  </div>
+                  <Avatar src={getProfileFor(chatTarget.userId)?.profilePhoto} name={getProfileFor(chatTarget.userId)?.firstName} size="sm" className="!w-9 !h-9" />
                   <div className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-[var(--surface)] ${WING_STATUS_COLORS[(wingStatuses[chatTarget.userId] as WingStatus) || "offline"]}`} />
                 </div>
                 <div>
@@ -252,8 +249,8 @@ export default function MessagesPage() {
               return (
                 <div key={msg.id} className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
                   {!isMe && chatTarget.type === "group" && (
-                    <div className="w-6 h-6 rounded-full bg-[var(--surface-high)] flex items-center justify-center mr-2 shrink-0 mt-1">
-                      <span className="text-[8px] font-bold text-[var(--primary)]">{senderProfile?.firstName?.[0]?.toUpperCase() || "?"}</span>
+                    <div className="mr-2 shrink-0 mt-1">
+                      <Avatar src={senderProfile?.profilePhoto} name={senderProfile?.firstName} size="xs" />
                     </div>
                   )}
                   <div className={`max-w-[75%] px-3 py-2 rounded-2xl text-sm ${
@@ -299,9 +296,7 @@ export default function MessagesPage() {
               <button key={wing.userId}
                 onClick={() => setSelectedMembers((prev) => prev.includes(wing.userId) ? prev.filter((id) => id !== wing.userId) : [...prev, wing.userId])}
                 className={`w-full text-left flex items-center gap-3 p-2 rounded-lg transition-all ${selectedMembers.includes(wing.userId) ? "bg-[var(--primary)]/15 border border-[var(--primary)]/30" : "hover:bg-[var(--surface-bright)]"}`}>
-                <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#c084fc]/20 to-[#818cf8]/20 flex items-center justify-center">
-                  <span className="text-[10px] font-bold text-[var(--primary)]">{wing.firstName?.[0]?.toUpperCase()}</span>
-                </div>
+                <Avatar src={wing.profilePhoto} name={wing.firstName || wing.username} size="sm" className="!w-7 !h-7" />
                 <span className="text-xs text-[var(--on-surface)]">{wing.firstName || wing.username}</span>
                 {selectedMembers.includes(wing.userId) && (
                   <svg className="w-4 h-4 text-[var(--primary)] ml-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>

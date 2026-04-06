@@ -12,12 +12,12 @@ import { uploadImageAction } from "@/actions/db";
 
 type PrivacyOption = "off" | "wings" | "public";
 
-const PRIVACY_GROUPS: { label: string; hint: string; publicKey: keyof PrivacySettings; wingsKey?: keyof PrivacySettings; noPublic?: boolean }[] = [
-  { label: "Age", hint: "Afficher ton age sur ton profil", publicKey: "shareAgePublic", wingsKey: "shareAgeWings" },
-  { label: "Classement", hint: "Apparaitre dans le classement", publicKey: "showInLeaderboardPublic", wingsKey: "showInLeaderboardWings" },
-  { label: "Statistiques", hint: "Partager tes stats", publicKey: "shareStatsWings", noPublic: true },
-  { label: "Rapports", hint: "Partager tes rapports", publicKey: "shareReportsWithWings", noPublic: true },
-  { label: "Liste Wings", hint: "Visible dans Decouvrir", publicKey: "showInWingList" },
+const PRIVACY_GROUPS: { label: string; hint: string; publicKey: keyof PrivacySettings; wingsKey?: keyof PrivacySettings; noWings?: boolean }[] = [
+  { label: "Age", hint: "Afficher ton âge sur ton profil", publicKey: "shareAgePublic", wingsKey: "shareAgeWings" },
+  { label: "Ville", hint: "Afficher ta ville sur ton profil", publicKey: "shareLocationPublic", wingsKey: "shareLocationWings" },
+  { label: "Classement", hint: "Apparaître dans le classement", publicKey: "showInLeaderboardPublic", wingsKey: "showInLeaderboardWings" },
+  { label: "Statistiques", hint: "Partager tes stats de progression", publicKey: "shareStatsPublic", wingsKey: "shareStatsWings" },
+  { label: "Apparaître dans Découvrir", hint: "Les autres utilisateurs peuvent te trouver", publicKey: "showInDiscover", noWings: true },
 ];
 
 export default function ProfilPage() {
@@ -29,22 +29,25 @@ export default function ProfilPage() {
   const privacy = profile?.privacy ?? DEFAULT_PRIVACY;
 
   const getGroupValue = (g: typeof PRIVACY_GROUPS[number]): PrivacyOption => {
-    if (!g.noPublic && privacy[g.publicKey]) return "public";
-    if (g.noPublic && privacy[g.publicKey]) return "wings";
+    if (privacy[g.publicKey]) return "public";
     if (g.wingsKey && privacy[g.wingsKey]) return "wings";
     return "off";
   };
 
   const setGroupValue = (g: typeof PRIVACY_GROUPS[number], v: PrivacyOption) => {
-    if (g.noPublic) {
-      // Only off/wings for these groups
-      const updates: Partial<PrivacySettings> = { [g.publicKey]: v === "wings" };
-      save({ privacy: { ...privacy, ...updates } });
-    } else {
-      const updates: Partial<PrivacySettings> = { [g.publicKey]: v === "public" };
-      if (g.wingsKey) updates[g.wingsKey] = v === "wings" || v === "public";
-      save({ privacy: { ...privacy, ...updates } });
+    const updates: Partial<PrivacySettings> = { [g.publicKey]: v === "public" };
+    if (g.wingsKey) updates[g.wingsKey] = v === "wings" || v === "public";
+    save({ privacy: { ...privacy, ...updates } });
+    flash();
+  };
+
+  const setAllPrivacy = (pub: boolean) => {
+    const updates: Partial<PrivacySettings> = {};
+    for (const g of PRIVACY_GROUPS) {
+      updates[g.publicKey] = pub;
+      if (g.wingsKey) updates[g.wingsKey] = pub;
     }
+    save({ privacy: { ...privacy, ...updates } });
     flash();
   };
 
@@ -54,7 +57,7 @@ export default function ProfilPage() {
     <div className="px-4 py-6 lg:px-8 lg:py-8 max-w-2xl mx-auto animate-fade-in">
       <div className="mb-8">
         <h1 className="text-2xl lg:text-3xl font-[family-name:var(--font-grotesk)] font-bold tracking-tight mb-1"><span className="bg-gradient-to-r from-[#c084fc] to-[#818cf8] bg-clip-text text-transparent">Profil</span></h1>
-        <p className="text-sm text-[var(--on-surface-variant)]">Configure ton profil public visible par les autres joueurs</p>
+        <p className="text-sm text-[var(--on-surface-variant)]">Configure ton profil public visible par les autres gamers</p>
       </div>
 
       <Card className="mb-4">
@@ -122,7 +125,11 @@ export default function ProfilPage() {
               <p className="text-[10px] text-[var(--outline)]">Les autres utilisateurs pourront te trouver dans Découvrir</p>
             </div>
             <button
-              onClick={() => { save({ isPublic: !(profile?.isPublic) }); flash(); }}
+              onClick={() => {
+                const next = !(profile?.isPublic);
+                save({ isPublic: next });
+                setAllPrivacy(next);
+              }}
               className={`relative w-11 h-6 rounded-full transition-colors ${profile?.isPublic ? "bg-[var(--primary)]" : "bg-[var(--outline-variant)]"}`}
             >
               <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white transition-transform ${profile?.isPublic ? "translate-x-5" : ""}`} />
@@ -140,8 +147,8 @@ export default function ProfilPage() {
             const current = getGroupValue(g);
             const options: { value: PrivacyOption; label: string; activeClass: string }[] = [
               { value: "off", label: "Privé", activeClass: "bg-[var(--outline-variant)]/20 text-[var(--on-surface-variant)]" },
-              ...(g.wingsKey ? [{ value: "wings" as PrivacyOption, label: "Wings", activeClass: "bg-[var(--tertiary)]/20 text-[var(--tertiary)]" }] : []),
-              ...(!g.noPublic ? [{ value: "public" as PrivacyOption, label: "Public", activeClass: "bg-emerald-400/20 text-emerald-400" }] : []),
+              ...(!g.noWings && g.wingsKey ? [{ value: "wings" as PrivacyOption, label: "Wings", activeClass: "bg-[var(--tertiary)]/20 text-[var(--tertiary)]" }] : []),
+              { value: "public", label: "Public", activeClass: "bg-emerald-400/20 text-emerald-400" },
             ];
             return (
               <div key={g.publicKey}>

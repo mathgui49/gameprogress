@@ -8,9 +8,11 @@ import { InstallPrompt } from "@/components/layout/InstallPrompt";
 import { Tutorial } from "@/components/layout/Tutorial";
 import { TopBar } from "@/components/layout/TopBar";
 import { AnnouncementBar } from "@/components/layout/AnnouncementBar";
+import { AnimatedBackground } from "@/components/layout/AnimatedBackground";
 import { AuthProvider } from "@/components/layout/AuthProvider";
 import { ToastProvider } from "@/components/ui/Toast";
 import { OfflineBanner } from "@/components/layout/OfflineBanner";
+import { GlobalSearch } from "@/components/ui/GlobalSearch";
 import { PageTabs } from "@/components/layout/PageTabs";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
@@ -70,10 +72,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:px-4 focus:py-2 focus:bg-[var(--primary)] focus:text-white focus:rounded-[12px] focus:text-sm">
           Aller au contenu
         </a>
+        <AnimatedBackground />
         <AuthProvider>
           <ToastProvider>
             <AnnouncementBar />
-            <div className="flex min-h-screen">
+            <div className="flex min-h-screen relative z-[1]">
               <Sidebar />
               <main id="main-content" className="flex-1 min-w-0 pb-20 lg:pb-0">
                 <TopBar />
@@ -86,6 +89,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <InstallPrompt />
             <Tutorial />
             <OfflineBanner />
+            <GlobalSearch />
           </ToastProvider>
         </AuthProvider>
       </body>

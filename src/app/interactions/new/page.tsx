@@ -7,15 +7,20 @@ import { useContacts } from "@/hooks/useContacts";
 import { useSessions } from "@/hooks/useSessions";
 import { useGamification } from "@/hooks/useGamification";
 import { useToast } from "@/hooks/useToast";
+import { useSubscription } from "@/hooks/useSubscription";
+import { FREE_LIMITS } from "@/lib/premium";
 import { InteractionForm } from "@/components/interactions/InteractionForm";
 
 export default function NewInteractionPage() {
   const router = useRouter();
   const { add } = useInteractions();
-  const { add: addContact } = useContacts();
+  const { add: addContact, contacts } = useContacts();
   const { allSessions, addInteraction: linkToSession } = useSessions();
   const { addInteractionXP, updateStreak } = useGamification();
   const toast = useToast();
+  const { isPremium } = useSubscription();
+  const activeContactCount = contacts.filter((c) => c.status !== "archived").length;
+  const contactAtLimit = !isPremium && activeContactCount >= FREE_LIMITS.activeContacts;
 
   // Auto-detect active session: session between -30min and +4h from now
   const autoSession = useMemo(() => {
@@ -62,8 +67,8 @@ export default function NewInteractionPage() {
           const hasWing = autoSession ? autoSession.wings.length > 0 : false;
           addInteractionXP(data.result as "close" | "neutral" | "rejection", interaction.id, hasWing);
           updateStreak();
-          // Auto-create contact on close (pipeline)
-          if (data.result === "close") {
+          // Auto-create contact on close (pipeline) — respect free plan limit
+          if (data.result === "close" && !contactAtLimit) {
             await addContact({
               firstName: data.firstName || data.memorableElement || "Inconnue",
               sourceInteractionId: interaction.id,

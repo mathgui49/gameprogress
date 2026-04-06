@@ -15,6 +15,7 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Tooltip } from "@/components/ui/Tooltip";
 import { formatRelative } from "@/lib/utils";
+import { useTheme } from "@/hooks/useTheme";
 import type { Session } from "@/types";
 
 interface SessionInvite {
@@ -97,6 +98,7 @@ export function TopBar() {
   const { pendingReceived } = useWingRequests();
   const { profile: publicProfile } = usePublicProfile();
   const { totalUnread: msgUnread } = useMessages();
+  const { theme, toggle: toggleTheme } = useTheme();
 
   // Use profile photo from public profile, fall back to Google auth image
   const avatarUrl = publicProfile?.profilePhoto || authSession?.user?.image || null;
@@ -199,13 +201,24 @@ export function TopBar() {
     <>
       {/* ═══ Mobile Header: logo | title | icons ═══ */}
       <div className="lg:hidden grid grid-cols-[auto_1fr_auto] items-center px-4 pt-4 pb-2">
-        {/* Left: Logo — links to landing page */}
-        <div className="flex items-center">
+        {/* Left: Logo + Theme toggle */}
+        <div className="flex items-center gap-1.5">
           <Link href="/landing">
             <div className="w-8 h-8 rounded-[10px] border border-[var(--primary)]/30 flex items-center justify-center animate-logo-pulse">
               <Image src="/logo.webp" alt="GameProgress" width={20} height={20} className="rounded-[5px]" priority />
             </div>
           </Link>
+          <button
+            onClick={toggleTheme}
+            aria-label={theme === "dark" ? "Mode clair" : "Mode sombre"}
+            className="p-1.5 rounded-[10px] text-[var(--outline)] hover:text-[var(--on-surface-variant)] hover:bg-[var(--border)] transition-colors"
+          >
+            {theme === "dark" ? (
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" /></svg>
+            ) : (
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" /></svg>
+            )}
+          </button>
         </div>
 
         {/* Center: Page title */}
@@ -215,6 +228,15 @@ export function TopBar() {
 
         {/* Right: Icons */}
         <div className="flex items-center gap-0.5 justify-end">
+          <Link
+            href="/calendrier"
+            aria-label="Calendrier"
+            className="relative p-2 rounded-[12px] text-[var(--outline)] hover:text-[var(--on-surface-variant)] hover:bg-[var(--border)] transition-colors"
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+            </svg>
+          </Link>
           <Link
             href="/messages"
             aria-label="Messages"
@@ -264,6 +286,20 @@ export function TopBar() {
 
       {/* ═══ Desktop TopBar: right-aligned icons ═══ */}
       <div className="hidden lg:flex items-center justify-end gap-1 px-8 pt-6">
+        <Tooltip text={theme === "dark" ? "Mode clair" : "Mode sombre"} position="bottom">
+          <button
+            onClick={toggleTheme}
+            aria-label={theme === "dark" ? "Mode clair" : "Mode sombre"}
+            className="p-2 rounded-[12px] text-[var(--outline)] hover:text-[var(--on-surface-variant)] hover:bg-[var(--border)] transition-colors"
+          >
+            {theme === "dark" ? (
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" /></svg>
+            ) : (
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" /></svg>
+            )}
+          </button>
+        </Tooltip>
+
         <Tooltip text="Messages" position="bottom">
           <Link
             href="/messages"

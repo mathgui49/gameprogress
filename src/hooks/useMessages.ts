@@ -46,21 +46,26 @@ export function useMessages() {
   }, []);
 
   const send = useCallback(async (toUserId: string | null, groupId: string | null, content: string) => {
-    const id = await sendMessageAction(toUserId, groupId, content);
-    if (id) {
-      const msg: Message = {
-        id,
-        fromUserId: userId,
-        toUserId: toUserId ?? "",
-        groupId,
-        content,
-        createdAt: new Date().toISOString(),
-        readAt: null,
-      };
-      setCurrentMessages((prev) => [msg, ...prev]);
-      loadConversations();
+    try {
+      const id = await sendMessageAction(toUserId, groupId, content);
+      if (id) {
+        const msg: Message = {
+          id,
+          fromUserId: userId,
+          toUserId: toUserId ?? "",
+          groupId,
+          content,
+          createdAt: new Date().toISOString(),
+          readAt: null,
+        };
+        setCurrentMessages((prev) => [msg, ...prev]);
+        loadConversations();
+      }
+      return id;
+    } catch (err) {
+      console.error("Failed to send message:", err);
+      return null;
     }
-    return id;
   }, [userId, loadConversations]);
 
   const createGroup = useCallback(async (name: string, memberIds: string[]) => {

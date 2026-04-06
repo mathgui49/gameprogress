@@ -3,7 +3,7 @@ import { Tooltip } from "@/components/ui/Tooltip";
 
 interface StatsCardProps {
   label: string;
-  value: string | number;
+  value: string | number | React.ReactNode;
   subtitle?: string;
   accent?: boolean;
   icon?: React.ReactNode;

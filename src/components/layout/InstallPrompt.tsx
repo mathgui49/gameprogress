@@ -1,10 +1,12 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { usePathname } from "next/navigation";
 import { getItem, setItem, STORAGE_KEYS } from "@/lib/storage";
 import { Button } from "@/components/ui/Button";
 
 export function InstallPrompt() {
+  const pathname = usePathname();
   const [show, setShow] = useState(false);
   const [installEvent, setInstallEvent] = useState<Event | null>(null);
   const [isMobile, setIsMobile] = useState(false);
@@ -12,6 +14,8 @@ export function InstallPrompt() {
   const [isStandalone, setIsStandalone] = useState(false);
 
   useEffect(() => {
+    // Don't show on landing or login pages
+    if (pathname === "/landing" || pathname === "/login") return;
     // Don't show if already dismissed or already installed
     const dismissed = getItem<boolean>(STORAGE_KEYS.ONBOARDED, false);
     const standalone = window.matchMedia("(display-mode: standalone)").matches
@@ -40,7 +44,7 @@ export function InstallPrompt() {
       window.removeEventListener("beforeinstallprompt", handler);
       clearTimeout(timer);
     };
-  }, []);
+  }, [pathname]);
 
   const dismiss = useCallback(() => {
     setShow(false);

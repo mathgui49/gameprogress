@@ -310,6 +310,9 @@ export interface PrivacySettings {
   shareStatsWings: boolean;
   shareAgePublic: boolean;
   shareAgeWings: boolean;
+  shareLocationPublic: boolean;
+  shareLocationWings: boolean;
+  showInDiscover: boolean;
 }
 
 export const DEFAULT_PRIVACY: PrivacySettings = {
@@ -317,10 +320,13 @@ export const DEFAULT_PRIVACY: PrivacySettings = {
   showInLeaderboardPublic: true,
   showInLeaderboardWings: true,
   shareReportsWithWings: false,
-  shareStatsPublic: false,
+  shareStatsPublic: true,
   shareStatsWings: true,
-  shareAgePublic: false,
+  shareAgePublic: true,
   shareAgeWings: true,
+  shareLocationPublic: true,
+  shareLocationWings: true,
+  showInDiscover: true,
 };
 
 export interface PublicProfile {
@@ -382,7 +388,7 @@ export const TYPE_COLORS: Record<ApproachType, string> = {
 
 export const STATUS_LABELS: Record<ContactStatus, string> = {
   new: "Close",
-  contacted: "Contacté",
+  contacted: "Contactée",
   replied: "Répondu",
   date_planned: "Date planifié",
   first_date: "Premier date",

@@ -1,11 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useInteractions } from "@/hooks/useInteractions";
 import { useContacts } from "@/hooks/useContacts";
 import { useGamification } from "@/hooks/useGamification";
+import { useSubscription } from "@/hooks/useSubscription";
+import { useSessions } from "@/hooks/useSessions";
+import { FREE_LIMITS, countThisMonth } from "@/lib/premium";
 import type { ApproachType, ResultType, ContactMethod } from "@/types";
 import { VoiceInput } from "@/components/ui/VoiceInput";
 import { Tooltip } from "@/components/ui/Tooltip";
@@ -22,11 +25,20 @@ export function QuickAddButton() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [showQuick, setShowQuick] = useState(false);
-  const { add } = useInteractions();
+  const { add, interactions } = useInteractions();
   const { addInteractionXP, updateStreak } = useGamification();
+  const { isPremium } = useSubscription();
+  const { sessions } = useSessions();
 
   if (pathname === "/login" || pathname === "/landing") return null;
-  const { add: addContact } = useContacts();
+  const { add: addContact, contacts } = useContacts();
+  const activeContactCount = contacts.filter((c) => c.status !== "archived").length;
+  const contactAtLimit = !isPremium && activeContactCount >= FREE_LIMITS.activeContacts;
+
+  const interactionCount = useMemo(() => countThisMonth(interactions), [interactions]);
+  const sessionCount = useMemo(() => countThisMonth(sessions), [sessions]);
+  const interactionAtLimit = !isPremium && interactionCount >= FREE_LIMITS.interactionsPerMonth;
+  const sessionAtLimit = !isPremium && sessionCount >= FREE_LIMITS.sessionsPerMonth;
 
   const [qName, setQName] = useState("");
   const [qLocation, setQLocation] = useState("");
@@ -52,7 +64,7 @@ export function QuickAddButton() {
     });
     addInteractionXP(qResult as "close" | "neutral" | "rejection", interaction.id);
     updateStreak();
-    if (qResult === "close") {
+    if (qResult === "close" && !contactAtLimit) {
       await addContact({ firstName: qName || "Inconnue", sourceInteractionId: interaction.id, method: qContactMethod || "other", methodValue: qContactValue || "", status: "new", tags: [], notes: "" });
     }
     resetQuick();
@@ -66,27 +78,43 @@ export function QuickAddButton() {
       {open && !showQuick && (
         <div className="absolute bottom-16 right-0 flex flex-col gap-2 animate-scale-in">
           <button
-            onClick={() => { setOpen(false); setShowQuick(true); }}
-            className="flex items-center gap-3 px-4 py-2.5 glass-card text-sm text-emerald-400 hover:text-emerald-300 hover:border-emerald-400/20 transition-all shadow-lg whitespace-nowrap"
+            onClick={() => { if (interactionAtLimit) return; setOpen(false); setShowQuick(true); }}
+            className={`flex items-center gap-3 px-4 py-2.5 glass-card text-sm transition-all shadow-lg whitespace-nowrap ${interactionAtLimit ? "text-[var(--outline)] opacity-50 cursor-not-allowed" : "text-emerald-400 hover:text-emerald-300 hover:border-emerald-400/20"}`}
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
             </svg>
-            Interaction rapide
+            Interaction rapide{interactionAtLimit ? " (limite)" : ""}
           </button>
-          {ACTIONS.map((a) => (
-            <Link
-              key={a.href}
-              href={a.href}
-              onClick={() => setOpen(false)}
-              className="flex items-center gap-3 px-4 py-2.5 glass-card text-sm text-[var(--on-surface-variant)] hover:text-[var(--on-surface)] hover:border-[var(--glass-border-hover)] transition-all shadow-lg whitespace-nowrap"
-            >
-              <svg className="w-4 h-4 text-[var(--primary)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d={a.icon} />
-              </svg>
-              {a.label}
-            </Link>
-          ))}
+          {ACTIONS.map((a) => {
+            const isInteraction = a.href === "/interactions/new";
+            const isSession = a.href === "/sessions/new";
+            const isMission = a.href.startsWith("/missions");
+            const blocked = (isInteraction && interactionAtLimit) || (isSession && sessionAtLimit) || (isMission && !isPremium);
+            return blocked ? (
+              <span
+                key={a.href}
+                className="flex items-center gap-3 px-4 py-2.5 glass-card text-sm text-[var(--outline)] opacity-50 cursor-not-allowed shadow-lg whitespace-nowrap"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d={a.icon} />
+                </svg>
+                {a.label} (limite)
+              </span>
+            ) : (
+              <Link
+                key={a.href}
+                href={a.href}
+                onClick={() => setOpen(false)}
+                className="flex items-center gap-3 px-4 py-2.5 glass-card text-sm text-[var(--on-surface-variant)] hover:text-[var(--on-surface)] hover:border-[var(--glass-border-hover)] transition-all shadow-lg whitespace-nowrap"
+              >
+                <svg className="w-4 h-4 text-[var(--primary)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d={a.icon} />
+                </svg>
+                {a.label}
+              </Link>
+            );
+          })}
         </div>
       )}
 
@@ -159,10 +187,14 @@ export function QuickAddButton() {
                 <VoiceInput onResult={(t) => setQNote((prev) => prev ? `${prev} ${t}` : t)} />
               </div>
 
-              <button onClick={submitQuick}
-                className="w-full py-2.5 rounded-[14px] bg-gradient-to-r from-[#c084fc] to-[#f472b6] text-sm font-semibold text-white hover:opacity-90 hover:shadow-[0_0_20px_-4px_var(--neon-purple)] transition-all">
-                Enregistrer
-              </button>
+              {interactionAtLimit ? (
+                <p className="text-xs text-center text-[var(--error)] bg-[var(--error)]/10 rounded-xl px-3 py-2">Limite du plan gratuit atteinte ({FREE_LIMITS.interactionsPerMonth}/{FREE_LIMITS.interactionsPerMonth}). Passe a GameMax pour continuer.</p>
+              ) : (
+                <button onClick={submitQuick}
+                  className="w-full py-2.5 rounded-[14px] bg-gradient-to-r from-[#c084fc] to-[#f472b6] text-sm font-semibold text-white hover:opacity-90 hover:shadow-[0_0_20px_-4px_var(--neon-purple)] transition-all">
+                  Enregistrer
+                </button>
+              )}
             </div>
           )}
         </div>

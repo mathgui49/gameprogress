@@ -177,7 +177,7 @@ export default function LandingPage() {
             <a href="#pricing" className="text-sm text-[#a09bb2] hover:text-[#c084fc] transition-colors">Tarifs</a>
             <a href="#guide" className="text-sm text-[#a09bb2] hover:text-[#c084fc] transition-colors">Guide</a>
           </div>
-          <Link href="/login" className="px-5 py-2 rounded-[14px] bg-gradient-to-r from-[#c084fc] to-[#f472b6] text-sm font-semibold text-white hover:opacity-90 hover:shadow-[0_0_24px_-4px_rgba(192,132,252,0.5)] transition-all hover:scale-105 active:scale-95">
+          <Link href="/" className="px-5 py-2 rounded-[14px] bg-gradient-to-r from-[#c084fc] to-[#f472b6] text-sm font-semibold text-white hover:opacity-90 hover:shadow-[0_0_24px_-4px_rgba(192,132,252,0.5)] transition-all hover:scale-105 active:scale-95">
             Commencer
           </Link>
         </div>
@@ -222,7 +222,7 @@ export default function LandingPage() {
 
           <Section delay={300}>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
-              <Link href="/login" className="group px-8 py-3.5 rounded-[14px] bg-gradient-to-r from-[#c084fc] to-[#f472b6] text-base font-semibold text-white hover:shadow-[0_0_32px_-4px_rgba(192,132,252,0.5)] transition-all hover:scale-105 active:scale-95 flex items-center gap-2">
+              <Link href="/" className="group px-8 py-3.5 rounded-[14px] bg-gradient-to-r from-[#c084fc] to-[#f472b6] text-base font-semibold text-white hover:shadow-[0_0_32px_-4px_rgba(192,132,252,0.5)] transition-all hover:scale-105 active:scale-95 flex items-center gap-2">
                 Commencer maintenant
                 <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
               </Link>
@@ -629,14 +629,14 @@ export default function LandingPage() {
                   <span className="text-4xl font-[family-name:var(--font-grotesk)] font-bold text-[#f0eef5]">0&euro;</span>
                   <span className="text-sm text-[#8a839e]">/mois</span>
                 </div>
-                <Link href="/login" className="block w-full text-center px-6 py-3 rounded-[12px] bg-[rgba(192,132,252,0.08)] border border-[rgba(192,132,252,0.12)] text-[#c084fc] text-sm font-semibold hover:bg-[rgba(192,132,252,0.15)] transition-all mb-6">
+                <Link href="/" className="block w-full text-center px-6 py-3 rounded-[12px] bg-[rgba(192,132,252,0.08)] border border-[rgba(192,132,252,0.12)] text-[#c084fc] text-sm font-semibold hover:bg-[rgba(192,132,252,0.15)] transition-all mb-6">
                   Commencer
                 </Link>
                 <ul className="space-y-3">
                   {[
                     "15 interactions/mois",
                     "5 contacts actifs",
-                    "3 entrées journal/mois",
+                    "3 rédactions journal/mois",
                     "2 sessions/mois",
                     "3 wings maximum",
                     "XP, niveaux et streaks",
@@ -677,7 +677,7 @@ export default function LandingPage() {
                 {billingCycle === "monthly" && (
                   <p className="text-xs text-[#8a839e] mb-4">Moins cher qu&apos;un kebab</p>
                 )}
-                <Link href="/login" className="block w-full text-center px-6 py-3 rounded-[12px] bg-gradient-to-r from-[#c084fc] to-[#f472b6] text-white text-sm font-semibold hover:shadow-[0_0_24px_-4px_rgba(192,132,252,0.5)] transition-all hover:scale-[1.02] active:scale-[0.98] mb-6">
+                <Link href="/" className="block w-full text-center px-6 py-3 rounded-[12px] bg-gradient-to-r from-[#c084fc] to-[#f472b6] text-white text-sm font-semibold hover:shadow-[0_0_24px_-4px_rgba(192,132,252,0.5)] transition-all hover:scale-[1.02] active:scale-[0.98] mb-6">
                   Passer à {PLAN_NAME_PRO}
                 </Link>
                 <ul className="space-y-3">
@@ -832,7 +832,7 @@ export default function LandingPage() {
                 Invite un ami avec ton lien de parrainage. Il obtient <strong className="text-[#34d399]">7 jours de {PLAN_NAME_PRO}</strong> et toi aussi.
                 S&apos;il souscrit, tu gagnes <strong className="text-[#34d399]">1 mois offert</strong>.
               </p>
-              <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 rounded-[14px] bg-gradient-to-r from-[#34d399] to-[#818cf8] text-white text-sm font-semibold hover:shadow-[0_0_24px_-4px_rgba(52,211,153,0.4)] transition-all hover:scale-105 active:scale-95">
+              <Link href="/" className="inline-flex items-center gap-2 px-6 py-3 rounded-[14px] bg-gradient-to-r from-[#34d399] to-[#818cf8] text-white text-sm font-semibold hover:shadow-[0_0_24px_-4px_rgba(52,211,153,0.4)] transition-all hover:scale-105 active:scale-95">
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM3 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 019.374 21c-2.331 0-4.512-.645-6.374-1.766z" />
                 </svg>
@@ -858,7 +858,7 @@ export default function LandingPage() {
             <p className="text-sm text-[#8a839e] mb-10">
               Plan gratuit pour démarrer, puis {PLAN_NAME_PRO} à {PRICE_MONTHLY}&euro;/mois pour tout débloquer. Moins cher qu&apos;un kebab.
             </p>
-            <Link href="/login" className="group inline-flex items-center gap-2 px-10 py-4 rounded-[14px] bg-gradient-to-r from-[#c084fc] to-[#f472b6] text-lg font-semibold text-white hover:shadow-[0_0_48px_-8px_rgba(192,132,252,0.5)] transition-all hover:scale-105 active:scale-95 animate-neon-pulse">
+            <Link href="/" className="group inline-flex items-center gap-2 px-10 py-4 rounded-[14px] bg-gradient-to-r from-[#c084fc] to-[#f472b6] text-lg font-semibold text-white hover:shadow-[0_0_48px_-8px_rgba(192,132,252,0.5)] transition-all hover:scale-105 active:scale-95 animate-neon-pulse">
               S&apos;inscrire maintenant
               <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
             </Link>

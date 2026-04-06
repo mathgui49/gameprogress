@@ -10,7 +10,7 @@ export function AnnouncementBar() {
   const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {
-    fetchAnnouncementAction().then(setAnnouncement);
+    fetchAnnouncementAction().then(setAnnouncement).catch(() => {});
   }, []);
 
   if (pathname === "/login" || pathname === "/landing" || !announcement || dismissed) return null;

@@ -394,6 +394,94 @@ select {
   background: var(--border);
 }
 
+/* ─── Animated background orbs ──────────────────────── */
+.animated-bg-container {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.animated-bg-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(120px);
+  opacity: 0.12;
+  will-change: transform;
+}
+.animated-bg-orb-1 {
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(192, 132, 252, 0.5), transparent 70%);
+  top: -10%;
+  left: -5%;
+  animation: orbFloat1 25s ease-in-out infinite;
+}
+.animated-bg-orb-2 {
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(244, 114, 182, 0.5), transparent 70%);
+  bottom: -15%;
+  right: -10%;
+  animation: orbFloat2 30s ease-in-out infinite;
+}
+.animated-bg-orb-3 {
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(129, 140, 248, 0.35), transparent 70%);
+  top: 40%;
+  left: 50%;
+  animation: orbFloat3 20s ease-in-out infinite;
+}
+
+@keyframes orbFloat1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(80px, 60px) scale(1.1); }
+  50% { transform: translate(40px, 120px) scale(0.95); }
+  75% { transform: translate(-30px, 50px) scale(1.05); }
+}
+@keyframes orbFloat2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(-60px, -80px) scale(1.08); }
+  50% { transform: translate(-100px, -40px) scale(0.92); }
+  75% { transform: translate(-20px, -100px) scale(1.04); }
+}
+@keyframes orbFloat3 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(60px, -50px) scale(1.06); }
+  66% { transform: translate(-40px, 30px) scale(0.94); }
+}
+
+[data-theme="light"] .animated-bg-orb {
+  opacity: 0.06;
+}
+[data-theme="light"] .animated-bg-orb-1 {
+  background: radial-gradient(circle, rgba(124, 58, 237, 0.4), transparent 70%);
+}
+[data-theme="light"] .animated-bg-orb-2 {
+  background: radial-gradient(circle, rgba(190, 24, 93, 0.4), transparent 70%);
+}
+[data-theme="light"] .animated-bg-orb-3 {
+  background: radial-gradient(circle, rgba(79, 70, 229, 0.3), transparent 70%);
+}
+
+/* ─── Reduced motion ─────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .glass, .glass-heavy, .glass-card {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+  .animated-bg-container {
+    display: none;
+  }
+}
+
 /* ─── Print styles ────────────────────────────────────── */
 @media print {
   body { background: var(--bg) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }

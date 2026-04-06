@@ -3,24 +3,39 @@
 import { useState, useMemo } from "react";
 import { useSession } from "next-auth/react";
 import { useSessions } from "@/hooks/useSessions";
+import { useInteractions } from "@/hooks/useInteractions";
 import { useMissions } from "@/hooks/useMissions";
 import { useContacts } from "@/hooks/useContacts";
+import { useSubscription } from "@/hooks/useSubscription";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
-import type { Session, Mission, Reminder } from "@/types";
+import Link from "next/link";
+import type { Session, Mission, Reminder, Interaction } from "@/types";
 
 type CalendarView = "month" | "week" | "day";
+
+type EventType = "session" | "reminder" | "mission_deadline" | "interaction" | "plan_date" | "public_session";
 
 interface CalendarEvent {
   id: string;
   title: string;
   date: string;
-  type: "session" | "reminder" | "mission_deadline";
+  type: EventType;
   color: string;
   editable: boolean;
-  source: Session | Mission | Reminder;
+  source: Session | Mission | Reminder | Interaction | null;
 }
+
+type Layer = "sessions" | "interactions" | "reminders" | "missions" | "plan_dates" | "public_sessions";
+
+const LAYER_CONFIG: { key: Layer; label: string; color: string }[] = [
+  { key: "sessions", label: "Sessions", color: "bg-[var(--primary)]" },
+  { key: "interactions", label: "Interactions", color: "bg-[#f472b6]" },
+  { key: "reminders", label: "Rappels", color: "bg-amber-400" },
+  { key: "missions", label: "Missions", color: "bg-emerald-400" },
+  { key: "plan_dates", label: "Plan", color: "bg-cyan-400" },
+];
 
 const WEEKDAYS = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"];
 const MONTHS = ["Janvier", "Fevrier", "Mars", "Avril", "Mai", "Juin", "Juillet", "Aout", "Septembre", "Octobre", "Novembre", "Decembre"];
@@ -43,12 +58,24 @@ export default function CalendrierPage() {
   const { data: authSession } = useSession();
   const userId = authSession?.user?.email ?? "";
   const { allSessions: sessions, update: updateSession } = useSessions();
+  const { interactions } = useInteractions();
   const { missions } = useMissions();
   const { contacts } = useContacts();
+  const { isPremium, subscription } = useSubscription();
 
   const [view, setView] = useState<CalendarView>("month");
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
+  const [activeLayers, setActiveLayers] = useState<Set<Layer>>(new Set(["sessions", "interactions", "reminders", "missions", "plan_dates"]));
+
+  const toggleLayer = (layer: Layer) => {
+    setActiveLayers((prev) => {
+      const next = new Set(prev);
+      if (next.has(layer)) next.delete(layer);
+      else next.add(layer);
+      return next;
+    });
+  };
 
   // Collect all reminders from contacts
   const allReminders = useMemo(() => {
@@ -64,49 +91,97 @@ export default function CalendrierPage() {
     const items: CalendarEvent[] = [];
 
     // Sessions
-    sessions.forEach((s) => {
-      const isOwn = true; // all sessions in useSessions are the user's own
-      items.push({
-        id: `session-${s.id}`,
-        title: s.title || "Session",
-        date: s.date,
-        type: "session",
-        color: s.isPublic ? "bg-[var(--primary)]/15 text-[var(--primary)] border-[var(--primary)]/20" : "bg-[var(--tertiary)]/15 text-[var(--tertiary)] border-[#818cf8]/20",
-        editable: isOwn,
-        source: s,
+    if (activeLayers.has("sessions")) {
+      sessions.forEach((s) => {
+        items.push({
+          id: `session-${s.id}`,
+          title: s.title || "Session",
+          date: s.date,
+          type: "session",
+          color: s.isPublic ? "bg-[var(--primary)]/15 text-[var(--primary)] border-[var(--primary)]/20" : "bg-[var(--tertiary)]/15 text-[var(--tertiary)] border-[#818cf8]/20",
+          editable: true,
+          source: s,
+        });
       });
-    });
+    }
+
+    // Interactions
+    if (activeLayers.has("interactions")) {
+      interactions.forEach((i) => {
+        items.push({
+          id: `interaction-${i.id}`,
+          title: i.firstName || i.result || "Interaction",
+          date: i.date,
+          type: "interaction",
+          color: "bg-[#f472b6]/15 text-[#f472b6] border-[#f472b6]/20",
+          editable: false,
+          source: i,
+        });
+      });
+    }
 
     // Reminders
-    allReminders.forEach((r) => {
-      if (r.done) return;
-      items.push({
-        id: `reminder-${r.id}`,
-        title: r.label,
-        date: r.date,
-        type: "reminder",
-        color: "bg-amber-400/15 text-amber-400 border-amber-400/20",
-        editable: true,
-        source: r,
+    if (activeLayers.has("reminders")) {
+      allReminders.forEach((r) => {
+        if (r.done) return;
+        items.push({
+          id: `reminder-${r.id}`,
+          title: r.label,
+          date: r.date,
+          type: "reminder",
+          color: "bg-amber-400/15 text-amber-400 border-amber-400/20",
+          editable: true,
+          source: r,
+        });
       });
-    });
+    }
 
     // Mission deadlines
-    missions.forEach((m) => {
-      if (!m.deadline || m.completed) return;
-      items.push({
-        id: `mission-${m.id}`,
-        title: `Mission: ${m.title}`,
-        date: m.deadline,
-        type: "mission_deadline",
-        color: "bg-emerald-400/15 text-emerald-400 border-emerald-400/20",
-        editable: true,
-        source: m,
+    if (activeLayers.has("missions")) {
+      missions.forEach((m) => {
+        if (!m.deadline || m.completed) return;
+        items.push({
+          id: `mission-${m.id}`,
+          title: `Mission: ${m.title}`,
+          date: m.deadline,
+          type: "mission_deadline",
+          color: "bg-emerald-400/15 text-emerald-400 border-emerald-400/20",
+          editable: true,
+          source: m,
+        });
       });
-    });
+    }
+
+    // Plan dates
+    if (activeLayers.has("plan_dates")) {
+      const now = new Date();
+      if (!isPremium) {
+        // Free plan: show monthly renewal (1st of each month)
+        const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+        items.push({
+          id: "plan-renewal",
+          title: "Renouvellement quotas gratuit",
+          date: new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 1).toISOString(),
+          type: "plan_date",
+          color: "bg-cyan-400/15 text-cyan-400 border-cyan-400/20",
+          editable: false,
+          source: null,
+        });
+      } else if (subscription?.currentPeriodEnd) {
+        items.push({
+          id: "plan-end",
+          title: "Fin d'abonnement GameMax",
+          date: subscription.currentPeriodEnd,
+          type: "plan_date",
+          color: "bg-cyan-400/15 text-cyan-400 border-cyan-400/20",
+          editable: false,
+          source: null,
+        });
+      }
+    }
 
     return items;
-  }, [sessions, allReminders, missions]);
+  }, [sessions, interactions, allReminders, missions, activeLayers, isPremium, subscription]);
 
   // Navigation
   const navigate = (dir: -1 | 1) => {
@@ -150,7 +225,7 @@ export default function CalendrierPage() {
       onClick={(ev) => { ev.stopPropagation(); setSelectedEvent(e); }}
       className={`block w-full text-left rounded-md border px-1.5 py-0.5 truncate transition-colors hover:brightness-125 ${e.color} ${compact ? "text-[8px]" : "text-[10px]"}`}
     >
-      {!compact && <span className="mr-1">{e.type === "session" ? "📅" : e.type === "reminder" ? "⏰" : "🎯"}</span>}
+      {!compact && <span className="mr-1">{e.type === "session" || e.type === "public_session" ? "📅" : e.type === "reminder" ? "⏰" : e.type === "interaction" ? "💬" : e.type === "plan_date" ? "💳" : "🎯"}</span>}
       {e.title}
     </button>
   );
@@ -188,11 +263,19 @@ export default function CalendrierPage() {
         ))}
       </div>
 
-      {/* Legend */}
-      <div className="flex items-center gap-4 mb-4">
-        <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-[var(--primary)]" /><span className="text-[10px] text-[var(--on-surface-variant)]">Sessions</span></div>
-        <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-amber-400" /><span className="text-[10px] text-[var(--on-surface-variant)]">Rappels</span></div>
-        <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-emerald-400" /><span className="text-[10px] text-[var(--on-surface-variant)]">Deadlines</span></div>
+      {/* Layer toggles (calques) */}
+      <div className="flex items-center gap-2 mb-4 flex-wrap">
+        {LAYER_CONFIG.map((l) => (
+          <button key={l.key} onClick={() => toggleLayer(l.key)}
+            className={`flex items-center gap-1.5 text-[10px] px-2.5 py-1 rounded-full transition-all ${
+              activeLayers.has(l.key)
+                ? `${l.color}/20 font-medium ring-1 ring-current`
+                : "bg-[var(--surface-high)] text-[var(--outline)] opacity-50"
+            }`}>
+            <div className={`w-2 h-2 rounded-full ${l.color} ${activeLayers.has(l.key) ? "" : "opacity-30"}`} />
+            {l.label}
+          </button>
+        ))}
       </div>
 
       {/* MONTH VIEW */}
@@ -274,7 +357,7 @@ export default function CalendrierPage() {
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <span>{e.type === "session" ? "📅" : e.type === "reminder" ? "⏰" : "🎯"}</span>
+                      <span>{e.type === "session" || e.type === "public_session" ? "📅" : e.type === "reminder" ? "⏰" : e.type === "interaction" ? "💬" : e.type === "plan_date" ? "💳" : "🎯"}</span>
                       <span className="text-sm font-medium">{e.title}</span>
                     </div>
                     <span className="text-[10px] opacity-70">{formatTime(e.date)}</span>
@@ -292,7 +375,7 @@ export default function CalendrierPage() {
           <div className="space-y-3">
             <div className="flex items-center gap-2">
               <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${selectedEvent.color}`}>
-                {selectedEvent.type === "session" ? "Session" : selectedEvent.type === "reminder" ? "Rappel" : "Deadline mission"}
+                {selectedEvent.type === "session" ? "Session" : selectedEvent.type === "interaction" ? "Interaction" : selectedEvent.type === "reminder" ? "Rappel" : selectedEvent.type === "plan_date" ? "Plan" : selectedEvent.type === "public_session" ? "Session publique" : "Deadline mission"}
               </span>
             </div>
             <p className="text-sm text-[var(--on-surface-variant)]">
@@ -305,6 +388,16 @@ export default function CalendrierPage() {
                 {(selectedEvent.source as Session).location && <p>Lieu : {(selectedEvent.source as Session).location}</p>}
                 {(selectedEvent.source as Session).address && <p>Adresse : {(selectedEvent.source as Session).address}</p>}
                 {(selectedEvent.source as Session).notes && <p>Notes : {(selectedEvent.source as Session).notes}</p>}
+              </div>
+            )}
+
+            {selectedEvent.type === "interaction" && selectedEvent.source && (
+              <div className="space-y-2 text-xs text-[var(--on-surface-variant)]">
+                <p>Résultat : {(selectedEvent.source as Interaction).result}</p>
+                {(selectedEvent.source as Interaction).location && <p>Lieu : {(selectedEvent.source as Interaction).location}</p>}
+                <Link href={`/interactions/${(selectedEvent.source as Interaction).id}`} className="text-[var(--primary)] hover:underline text-xs">
+                  Voir le détail
+                </Link>
               </div>
             )}
 

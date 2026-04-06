@@ -5,6 +5,55 @@ const DB_VERSION = 2;
 const CACHE_STORE = "cache";
 const QUEUE_STORE = "syncQueue";
 
+// ─── Simple encryption for cached data ──────────────────
+// Uses AES-GCM with a key derived from a stable seed (user session).
+// This protects data at rest on shared/stolen devices.
+
+let _cryptoKey: CryptoKey | null = null;
+
+/** Derive an AES-GCM key from a passphrase (e.g. user email hash). */
+async function getCryptoKey(seed: string): Promise<CryptoKey> {
+  if (_cryptoKey) return _cryptoKey;
+  const enc = new TextEncoder();
+  const keyMaterial = await crypto.subtle.importKey("raw", enc.encode(seed), "PBKDF2", false, ["deriveKey"]);
+  _cryptoKey = await crypto.subtle.deriveKey(
+    { name: "PBKDF2", salt: enc.encode("gameprogress-salt"), iterations: 100_000, hash: "SHA-256" },
+    keyMaterial,
+    { name: "AES-GCM", length: 256 },
+    false,
+    ["encrypt", "decrypt"],
+  );
+  return _cryptoKey;
+}
+
+async function encryptData(data: string, seed: string): Promise<ArrayBuffer> {
+  const key = await getCryptoKey(seed);
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const encrypted = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, new TextEncoder().encode(data));
+  // Prepend IV to ciphertext
+  const result = new Uint8Array(iv.length + encrypted.byteLength);
+  result.set(iv, 0);
+  result.set(new Uint8Array(encrypted), iv.length);
+  return result.buffer;
+}
+
+async function decryptData(buffer: ArrayBuffer, seed: string): Promise<string> {
+  const key = await getCryptoKey(seed);
+  const arr = new Uint8Array(buffer);
+  const iv = arr.slice(0, 12);
+  const ciphertext = arr.slice(12);
+  const decrypted = await crypto.subtle.decrypt({ name: "AES-GCM", iv }, key, ciphertext);
+  return new TextDecoder().decode(decrypted);
+}
+
+/** Encryption seed — set by the app once session is available. */
+let _encryptionSeed: string | null = null;
+
+export function setEncryptionSeed(seed: string) {
+  _encryptionSeed = seed;
+  _cryptoKey = null; // Re-derive key for new seed
+}
+
 export interface SyncEntry {
   id: string;
   action: "insert" | "update" | "upsert" | "delete";
@@ -47,13 +96,24 @@ function openDb(): Promise<IDBDatabase> {
 export async function getCachedData<T>(key: string): Promise<T[] | null> {
   try {
     const db = await openDb();
-    return new Promise((resolve) => {
+    const raw: unknown = await new Promise((resolve) => {
       const tx = db.transaction(CACHE_STORE, "readonly");
       const store = tx.objectStore(CACHE_STORE);
       const req = store.get(key);
       req.onsuccess = () => resolve(req.result ?? null);
       req.onerror = () => resolve(null);
     });
+    if (raw === null || raw === undefined) return null;
+    // Encrypted data is stored as ArrayBuffer
+    if (_encryptionSeed && raw instanceof ArrayBuffer) {
+      try {
+        const json = await decryptData(raw, _encryptionSeed);
+        return JSON.parse(json) as T[];
+      } catch {
+        return null; // Decryption failed (e.g. different seed) — treat as cache miss
+      }
+    }
+    return raw as T[];
   } catch {
     return null;
   }
@@ -62,10 +122,18 @@ export async function getCachedData<T>(key: string): Promise<T[] | null> {
 export async function setCachedData<T>(key: string, data: T[]): Promise<void> {
   try {
     const db = await openDb();
+    let storeValue: T[] | ArrayBuffer = data;
+    if (_encryptionSeed) {
+      try {
+        storeValue = await encryptData(JSON.stringify(data), _encryptionSeed);
+      } catch {
+        storeValue = data; // Fallback to unencrypted if crypto fails
+      }
+    }
     return new Promise((resolve) => {
       const tx = db.transaction(CACHE_STORE, "readwrite");
       const store = tx.objectStore(CACHE_STORE);
-      store.put(data, key);
+      store.put(storeValue, key);
       tx.oncomplete = () => resolve();
       tx.onerror = () => resolve();
     });

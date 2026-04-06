@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 interface VoiceInputProps {
@@ -11,6 +11,12 @@ interface VoiceInputProps {
 export function VoiceInput({ onResult, className = "" }: VoiceInputProps) {
   const [listening, setListening] = useState(false);
   const recognitionRef = useRef<any>(null);
+  const onResultRef = useRef(onResult);
+
+  // Keep the ref in sync so the recognition callback always uses the latest onResult
+  useEffect(() => {
+    onResultRef.current = onResult;
+  }, [onResult]);
 
   const supported = typeof window !== "undefined" && ("SpeechRecognition" in window || "webkitSpeechRecognition" in window);
 
@@ -29,7 +35,7 @@ export function VoiceInput({ onResult, className = "" }: VoiceInputProps) {
 
     recognition.onresult = (event: any) => {
       const text = event.results[0][0].transcript;
-      onResult(text);
+      onResultRef.current(text);
       setListening(false);
     };
 
@@ -39,7 +45,7 @@ export function VoiceInput({ onResult, className = "" }: VoiceInputProps) {
     recognitionRef.current = recognition;
     recognition.start();
     setListening(true);
-  }, [listening, onResult]);
+  }, [listening]);
 
   if (!supported) return null;
 

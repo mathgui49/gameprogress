@@ -20,6 +20,7 @@ import { formatDate, formatRelative } from "@/lib/utils";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
+import { Input, TextArea } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
 import { MapPicker } from "@/components/ui/MapPicker";
 import Link from "next/link";
@@ -88,12 +89,19 @@ export default function SessionDetailPage({ params }: { params: Promise<{ id: st
   const router = useRouter();
   const { data: authSession } = useSession();
   const currentUserId = authSession?.user?.email ?? "";
-  const { getById, toggleGoal, addInteraction, remove, loaded } = useSessions();
+  const { getById, toggleGoal, addInteraction, remove, update, loaded } = useSessions();
   const { interactions, add: addNewInteraction } = useInteractions();
   const { isWing } = useWingRequests();
   const { entries: journalEntries, add: addJournalEntry } = useJournal();
   const [showDelete, setShowDelete] = useState(false);
   const [showAddInteraction, setShowAddInteraction] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [editTitle, setEditTitle] = useState("");
+  const [editLocation, setEditLocation] = useState("");
+  const [editNotes, setEditNotes] = useState("");
+  const [editDate, setEditDate] = useState("");
+  const [editIsPublic, setEditIsPublic] = useState(false);
+  const [editMaxParticipants, setEditMaxParticipants] = useState(0);
   const [showFieldReport, setShowFieldReport] = useState(false);
   const [frVisibility, setFrVisibility] = useState<Visibility>("private");
   const [participants, setParticipants] = useState<ParticipantWithProfile[]>([]);
@@ -249,6 +257,7 @@ export default function SessionDetailPage({ params }: { params: Promise<{ id: st
               </span>
             </Button>
           )}
+          {isOwner && <Button variant="secondary" size="sm" onClick={() => { setEditTitle(session.title || ""); setEditLocation(session.location || ""); setEditNotes(session.notes || ""); setEditDate(new Date(session.date).toISOString().slice(0, 16)); setEditIsPublic(session.isPublic); setEditMaxParticipants(session.maxParticipants); setEditing(true); }}>Modifier</Button>}
           {isOwner && <Button variant="danger" size="sm" onClick={() => setShowDelete(true)}>Supprimer</Button>}
         </div>
       </div>
@@ -518,7 +527,7 @@ export default function SessionDetailPage({ params }: { params: Promise<{ id: st
                 <button key={v} onClick={() => setFrVisibility(v)}
                   className={`text-xs px-3 py-1.5 rounded-full transition-all ${
                     frVisibility === v
-                      ? v === "private" ? "bg-[var(--outline-variant)]/20 text-[var(--on-surface-variant)]" : v === "wings" ? "bg-[var(--tertiary)]/20 text-[var(--tertiary)]" : "bg-emerald-400/20 text-emerald-400"
+                      ? v === "private" ? "bg-[var(--on-surface)]/15 text-[var(--on-surface)] font-medium ring-1 ring-[var(--on-surface)]/20" : v === "wings" ? "bg-[var(--tertiary)]/20 text-[var(--tertiary)] font-medium ring-1 ring-[var(--tertiary)]/30" : "bg-emerald-400/20 text-emerald-400 font-medium ring-1 ring-emerald-400/30"
                       : "bg-[var(--surface-high)] text-[var(--on-surface-variant)] hover:bg-[var(--surface-bright)]"
                   }`}>
                   {v === "private" ? "Prive" : v === "wings" ? "Wings" : "Public"}
@@ -533,6 +542,34 @@ export default function SessionDetailPage({ params }: { params: Promise<{ id: st
             setShowFieldReport(false);
           }}>Publier le Field Report</Button>
         </div>
+      </Modal>
+
+      {/* Edit session modal */}
+      <Modal open={editing} onClose={() => setEditing(false)} title="Modifier la session">
+        <form onSubmit={async (e) => { e.preventDefault(); await update(id, { title: editTitle, location: editLocation, notes: editNotes, date: new Date(editDate).toISOString(), isPublic: editIsPublic, maxParticipants: editMaxParticipants }); setEditing(false); }} className="space-y-4">
+          <Input label="Titre" value={editTitle} onChange={(e) => setEditTitle(e.target.value)} placeholder="Titre de la session" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Input label="Date" type="datetime-local" value={editDate} onChange={(e) => setEditDate(e.target.value)} />
+            <Input label="Lieu" value={editLocation} onChange={(e) => setEditLocation(e.target.value)} placeholder="Lieu" />
+          </div>
+          <TextArea label="Notes" value={editNotes} onChange={(e) => setEditNotes(e.target.value)} placeholder="Notes..." rows={3} />
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-[var(--on-surface)] font-medium">Session publique</p>
+              <p className="text-[10px] text-[var(--outline)]">Visible par tous</p>
+            </div>
+            <button type="button" onClick={() => setEditIsPublic(!editIsPublic)} className={`relative w-11 h-6 rounded-full transition-colors ${editIsPublic ? "bg-[var(--primary)]" : "bg-[var(--outline-variant)]"}`}>
+              <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white transition-transform ${editIsPublic ? "translate-x-5" : ""}`} />
+            </button>
+          </div>
+          {editIsPublic && (
+            <Input label="Places max (0 = illimite)" type="number" min={0} value={String(editMaxParticipants)} onChange={(e) => setEditMaxParticipants(Number(e.target.value))} />
+          )}
+          <div className="flex items-center gap-3 pt-2">
+            <Button type="submit">Enregistrer</Button>
+            <Button type="button" variant="ghost" onClick={() => setEditing(false)}>Annuler</Button>
+          </div>
+        </form>
       </Modal>
 
       <Modal open={showDelete} onClose={() => setShowDelete(false)} title="Supprimer la session">

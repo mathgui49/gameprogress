@@ -74,7 +74,7 @@ export const PLAN_FEATURES: PlanFeature[] = [
   // Tracking
   { name: "Interactions par mois", free: "15", pro: "Illimitées", category: "tracking" },
   { name: "Contacts actifs (Pipeline)", free: "5", pro: "Illimités", category: "tracking" },
-  { name: "Entrées journal par mois", free: "3", pro: "Illimitées", category: "tracking" },
+  { name: "Rédactions journal par mois", free: "3", pro: "Illimitées", category: "tracking" },
   { name: "Sessions par mois", free: "2", pro: "Illimitées", category: "tracking" },
   { name: "Collections & journal collaboratif", free: false, pro: true, category: "tracking" },
   { name: "Partage de journal", free: false, pro: true, category: "tracking" },

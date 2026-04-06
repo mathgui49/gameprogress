@@ -13,6 +13,7 @@ import { JOURNAL_TAG_LABELS, JOURNAL_TAG_COLORS } from "@/types";
 import { Tooltip } from "@/components/ui/Tooltip";
 import { BadgeIcon } from "@/components/ui/BadgeIcon";
 import { BADGE_CATEGORIES } from "@/lib/seed";
+import { Avatar } from "@/components/ui/Avatar";
 import { formatDate, formatRelative, computeAge } from "@/lib/utils";
 import { findProfileByUsernameAction, fetchUserPublicPostsAction, fetchUserPublicJournalAction, fetchUserGamificationAction, fetchUserLeaderboardRankAction, fetchUserBadgesAction, fetchSessionsByUserIdAction } from "@/actions/db";
 import type { Badge as BadgeType } from "@/types";
@@ -93,13 +94,7 @@ export default function WingProfilePage() {
       <Card className="mb-4 mt-4">
         <div className="flex items-start gap-4">
           {/* Photo */}
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[var(--primary)]/20 to-[var(--tertiary)]/20 flex items-center justify-center overflow-hidden shrink-0">
-            {profile.profilePhoto ? (
-              <img src={profile.profilePhoto} alt="" className="w-full h-full object-cover" />
-            ) : (
-              <span className="text-2xl font-bold text-[var(--primary)]">{profile.firstName?.[0]?.toUpperCase() || profile.username?.[0]?.toUpperCase()}</span>
-            )}
-          </div>
+          <Avatar src={profile.profilePhoto} name={profile.firstName || profile.username} size="xl" className="!rounded-2xl" />
 
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">

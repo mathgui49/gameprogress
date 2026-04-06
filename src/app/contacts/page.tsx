@@ -110,6 +110,16 @@ function ContactCard({
       onDragStart={onDragStart}
     >
       <div className="flex items-center gap-2">
+        {/* Mobile drag handle — opens status picker on tap */}
+        {draggable && (
+          <button
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowMenu(!showMenu); }}
+            className="md:hidden shrink-0 w-6 h-8 flex items-center justify-center rounded-md text-[var(--outline)]/50 active:bg-[var(--surface-bright)] touch-manipulation"
+            aria-label="Déplacer"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" /></svg>
+          </button>
+        )}
         {bulkMode && (
           <button
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); onToggle(); }}
@@ -122,12 +132,21 @@ function ContactCard({
           <Card hover className={`!p-3 ${stale ? "border border-amber-500/20" : ""}`}>
             <div className="flex items-start justify-between mb-1.5">
               <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#c084fc]/20 to-[#818cf8]/20 flex items-center justify-center">
-                  <span className="text-[10px] font-bold text-[var(--primary)]">{contact.firstName[0]?.toUpperCase() || "?"}</span>
+                <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#c084fc]/20 to-[#818cf8]/20 flex items-center justify-center relative">
+                  <svg className="w-4 h-4 text-[var(--primary)]/30 absolute" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                  <span className="text-[10px] font-bold text-[var(--primary)] relative z-10">{contact.firstName[0]?.toUpperCase() || "?"}</span>
                 </div>
                 <div>
                   <p className="text-xs font-semibold text-[var(--on-surface)]">{contact.firstName}</p>
-                  <p className="text-[9px] text-[var(--outline)]">{contact.method === "instagram" ? contact.methodValue : contact.methodValue || "—"}</p>
+                  {contact.method === "instagram" && contact.methodValue ? (
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[9px] text-[var(--outline)]">{contact.methodValue}</span>
+                      <a href={`https://instagram.com/${contact.methodValue.replace("@", "")}`} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="text-[8px] text-[#E1306C] hover:underline">profil</a>
+                      <a href={`https://ig.me/m/${contact.methodValue.replace("@", "")}`} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="text-[8px] text-[#E1306C] hover:underline">DM</a>
+                    </div>
+                  ) : (
+                    <p className="text-[9px] text-[var(--outline)]">{contact.methodValue || "—"}</p>
+                  )}
                 </div>
               </div>
               {/* Quick status menu */}
@@ -139,7 +158,7 @@ function ContactCard({
                   <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M6.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM12.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM18.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" /></svg>
                 </button>
                 {showMenu && (
-                  <div className="absolute right-0 top-full mt-1 bg-[var(--surface-high)] border border-[var(--border)] rounded-xl shadow-lg py-1 z-40 min-w-[130px] animate-fade-in max-h-[240px] overflow-y-auto">
+                  <div className="absolute right-0 bottom-full mb-1 bg-[var(--surface-high)] border border-[var(--border)] rounded-xl shadow-lg py-1 z-50 min-w-[130px] animate-fade-in max-h-[240px] overflow-y-auto">
                     {ALL_STATUSES.map((s) => (
                       <button
                         key={s}
@@ -170,6 +189,7 @@ function ContactCard({
               <span className={`text-[9px] ${stale ? "text-amber-400 font-medium" : "text-[var(--outline)]"}`}>
                 {stale ? `${inactiveDays}j sans activite` : timeSinceLabel(contact.lastInteractionDate)}
               </span>
+              <Badge className={`!text-[8px] !px-1.5 !py-0 ${STATUS_COLORS[contact.status]}`}>{STATUS_LABELS[contact.status]}</Badge>
             </div>
           </Card>
         </Link>
@@ -357,7 +377,7 @@ export default function ContactsPage() {
           <p className="text-sm text-[var(--on-surface-variant)]">Suis tes contacts du close jusqu&apos;au date — {contacts.filter((c) => c.status !== "archived").length} actif{contacts.filter((c) => c.status !== "archived").length > 1 ? "s" : ""}</p>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={exportCSV} className="p-2 rounded-lg hover:bg-[var(--surface-bright)] text-[var(--outline)] transition-colors" title="Exporter CSV">
+          <button onClick={isPremium ? exportCSV : undefined} className={`p-2 rounded-lg transition-colors ${isPremium ? "hover:bg-[var(--surface-bright)] text-[var(--outline)]" : "text-[var(--outline)]/40 cursor-not-allowed"}`} title={isPremium ? "Exporter CSV" : "Export réservé à GameMax"}>
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
           </button>
           <Button onClick={() => setShowNew(true)} disabled={contactAtLimit}>+ Contact{!isPremium ? ` (${activeContacts.length}/${FREE_LIMITS.activeContacts})` : ""}</Button>

@@ -47,12 +47,18 @@ export function InteractionCard({ interaction }: { interaction: Interaction }) {
           <div className="flex flex-col items-end gap-2 shrink-0">
             <Badge className={RESULT_COLORS[interaction.result]}>{RESULT_LABELS[interaction.result]}</Badge>
             <div className="flex items-center gap-1.5">
-              <div className="w-8 h-8 rounded-lg bg-[var(--primary)]/10 flex flex-col items-center justify-center" title="Ressenti">
-                <span className="text-xs font-bold text-[var(--primary)]">{interaction.feelingScore}</span>
+              <div className="flex flex-col items-center gap-0.5" title="Ressenti">
+                <div className="w-8 h-8 rounded-lg bg-[var(--primary)]/10 flex flex-col items-center justify-center">
+                  <span className="text-xs font-bold text-[var(--primary)]">{interaction.feelingScore}</span>
+                </div>
+                <span className="text-[8px] text-[var(--outline)] leading-none">Ressenti</span>
               </div>
               {interaction.womanScore != null && interaction.womanScore > 0 && (
-                <div className="w-8 h-8 rounded-lg bg-[var(--tertiary)]/10 flex flex-col items-center justify-center" title="Note fille">
-                  <span className="text-xs font-bold text-[var(--tertiary)]">{interaction.womanScore}</span>
+                <div className="flex flex-col items-center gap-0.5" title="Note fille">
+                  <div className="w-8 h-8 rounded-lg bg-[var(--tertiary)]/10 flex flex-col items-center justify-center">
+                    <span className="text-xs font-bold text-[var(--tertiary)]">{interaction.womanScore}</span>
+                  </div>
+                  <span className="text-[8px] text-[var(--outline)] leading-none">Fille</span>
                 </div>
               )}
             </div>

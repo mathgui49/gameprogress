@@ -75,7 +75,7 @@ export function BenchmarkCard({ benchmarks, userCloseRate, userAvgFeeling, userL
           Vs communauté
         </h2>
         <span className="text-[10px] text-[var(--outline)] bg-[var(--surface-highest)] px-2 py-0.5 rounded-full">
-          {benchmarks.totalUsers} joueur{benchmarks.totalUsers > 1 ? "s" : ""}
+          {benchmarks.totalUsers} gamer{benchmarks.totalUsers > 1 ? "s" : ""}
         </span>
       </div>
       <div className="space-y-4">

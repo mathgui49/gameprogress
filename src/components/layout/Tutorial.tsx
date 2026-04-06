@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import { getItem, setItem } from "@/lib/storage";
 
 const TUTORIAL_KEY = "gp_tutorial_done";
@@ -70,16 +71,19 @@ const STEPS: TutorialStep[] = [
 ];
 
 export function Tutorial() {
+  const pathname = usePathname();
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState(0);
 
   useEffect(() => {
+    if (pathname === "/landing" || pathname === "/login") return;
     const done = getItem<boolean>(TUTORIAL_KEY, false);
     if (!done) {
       const timer = setTimeout(() => setOpen(true), 800);
       return () => clearTimeout(timer);
     }
-  }, []);
+  }, [pathname]);
 
   const finish = useCallback(() => {
     setOpen(false);
@@ -151,7 +155,7 @@ export function Tutorial() {
 
           {/* Navigation */}
           <div className="flex items-center gap-3">
-            {!isFirst && (
+            {!isFirst && !isLast && (
               <button
                 onClick={prev}
                 className="flex-1 px-4 py-2.5 text-sm font-medium rounded-xl border border-[var(--border)] text-[var(--on-surface-variant)] hover:bg-[var(--surface-high)] transition-colors"
@@ -159,12 +163,29 @@ export function Tutorial() {
                 Precedent
               </button>
             )}
-            <button
-              onClick={next}
-              className="flex-1 px-4 py-2.5 text-sm font-medium rounded-xl bg-gradient-to-r from-[var(--primary)] to-[var(--tertiary)] text-white shadow-lg hover:shadow-xl transition-all hover:scale-[1.02] active:scale-[0.98]"
-            >
-              {isLast ? "C'est parti !" : "Suivant"}
-            </button>
+            {isLast ? (
+              <>
+                <button
+                  onClick={() => { finish(); router.push("/guide"); }}
+                  className="flex-1 px-4 py-2.5 text-sm font-medium rounded-xl border border-[var(--border)] text-[var(--on-surface-variant)] hover:bg-[var(--surface-high)] transition-colors"
+                >
+                  Voir le guide
+                </button>
+                <button
+                  onClick={finish}
+                  className="flex-1 px-4 py-2.5 text-sm font-medium rounded-xl bg-gradient-to-r from-[var(--primary)] to-[var(--tertiary)] text-white shadow-lg hover:shadow-xl transition-all hover:scale-[1.02] active:scale-[0.98]"
+                >
+                  C&apos;est parti !
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={next}
+                className="flex-1 px-4 py-2.5 text-sm font-medium rounded-xl bg-gradient-to-r from-[var(--primary)] to-[var(--tertiary)] text-white shadow-lg hover:shadow-xl transition-all hover:scale-[1.02] active:scale-[0.98]"
+              >
+                Suivant
+              </button>
+            )}
           </div>
 
           {/* Dots */}

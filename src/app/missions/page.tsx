@@ -79,7 +79,7 @@ export default function MissionsPage() {
       </div>
 
       {missions.length === 0 ? (
-        <EmptyState icon={<IconTarget size={28} />} title="Aucune mission" description="Crée ta première mission pour commencer à gagner de l'XP." action={<Button onClick={() => setShowNew(true)}>Créer une mission</Button>} />
+        <EmptyState icon={<IconTarget size={28} />} title="Aucune mission" description={isPremium ? "Crée ta première mission pour commencer à gagner de l'XP." : "Les missions personnalisées sont réservées à GameMax. Les missions automatiques apparaissent chaque jour."} action={isPremium ? <Button onClick={() => setShowNew(true)}>Créer une mission</Button> : undefined} />
       ) : (
         <>
           {active.length > 0 && (

@@ -55,7 +55,7 @@ const contactMethodOptionsClose = [
 const SUGGESTED_TAGS = ["daygame", "nightgame", "groupe", "solo", "street", "cafe", "bar", "transport", "parc", "soiree"];
 
 // ─── Swipe-friendly score slider ──────────────────────
-function ScoreSlider({ label, value, onChange, color }: { label: string; value: number; onChange: (v: number) => void; color: string }) {
+function ScoreSlider({ label, value, onChange, color }: { label: string; value: number | null; onChange: (v: number | null) => void; color: string }) {
   const trackRef = useRef<HTMLDivElement>(null);
 
   const handlePointerMove = useCallback((e: React.PointerEvent) => {
@@ -69,25 +69,59 @@ function ScoreSlider({ label, value, onChange, color }: { label: string; value: 
     onChange(score);
   }, [onChange]);
 
+  const handleWheel = useCallback((e: React.WheelEvent) => {
+    e.preventDefault();
+    const current = value ?? 0;
+    if (e.deltaY < 0) onChange(Math.min(10, current + 1));
+    else if (e.deltaY > 0) onChange(Math.max(1, current - 1));
+  }, [onChange, value]);
+
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    const current = value ?? 0;
+    if (e.key === "ArrowRight" || e.key === "ArrowUp") {
+      e.preventDefault();
+      onChange(Math.min(10, current + 1));
+    } else if (e.key === "ArrowLeft" || e.key === "ArrowDown") {
+      e.preventDefault();
+      onChange(Math.max(1, current - 1));
+    } else if (e.key === "Home") {
+      e.preventDefault();
+      onChange(1);
+    } else if (e.key === "End") {
+      e.preventDefault();
+      onChange(10);
+    }
+  }, [onChange, value]);
+
   return (
     <div>
       <div className="flex items-center justify-between mb-2">
-        <label className="text-xs font-medium text-[var(--on-surface-variant)]">{label}</label>
-        <span className={`text-sm font-bold ${color}`}>{value}/10</span>
+        <label id={`label-${label}`} className="text-xs font-medium text-[var(--on-surface-variant)]">{label}</label>
+        <span className={`text-sm font-bold ${value != null ? color : "text-[var(--outline)]"}`}>{value != null ? `${value}/10` : "— / 10"}</span>
       </div>
       <div
         ref={trackRef}
-        className="flex items-center gap-1 touch-none select-none"
+        role="slider"
+        aria-label={label}
+        aria-valuenow={value ?? 0}
+        aria-valuemin={1}
+        aria-valuemax={10}
+        tabIndex={0}
+        className="flex items-center gap-1 touch-none select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)]/50 rounded-lg"
         onPointerDown={(e) => { (e.target as HTMLElement).setPointerCapture(e.pointerId); handlePointerMove(e); }}
         onPointerMove={handlePointerMove}
+        onWheel={handleWheel}
+        onKeyDown={handleKeyDown}
       >
         {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
           <button
             key={n}
             type="button"
+            tabIndex={-1}
+            aria-label={`Score ${n}`}
             onClick={() => onChange(n)}
-            className={`flex-1 h-8 rounded-lg transition-all text-xs font-medium pointer-events-none ${
-              n <= value
+            className={`flex-1 h-10 min-w-[28px] rounded-lg transition-all text-xs font-medium pointer-events-none ${
+              value != null && n <= value
                 ? `${color.includes("f472b6") ? "bg-[#f472b6]/20 text-[var(--secondary)]" : "bg-[var(--primary)]/20 text-[var(--primary)]"}`
                 : "bg-[var(--surface-high)] text-[var(--outline)]"
             }`}
@@ -109,8 +143,8 @@ export function InteractionForm({ initial, defaultLocation, defaultSessionId, on
   const [type, setType] = useState<ApproachType | "">(initial?.type ?? "");
   const [result, setResult] = useState<ResultType | "">(initial?.result ?? "");
   const [duration, setDuration] = useState<DurationType | "">(initial?.duration ?? "");
-  const [feelingScore, setFeelingScore] = useState(initial?.feelingScore ?? 5);
-  const [womanScore, setWomanScore] = useState(initial?.womanScore ?? 5);
+  const [feelingScore, setFeelingScore] = useState<number | null>(initial?.feelingScore ?? null);
+  const [womanScore, setWomanScore] = useState<number | null>(initial?.womanScore ?? null);
   const [objection, setObjection] = useState<ObjectionType | null>(initial?.objection ?? null);
   const [objectionCustom, setObjectionCustom] = useState(initial?.objectionCustom ?? "");
   const [discussionTopics, setDiscussionTopics] = useState(initial?.discussionTopics ?? "");
@@ -162,7 +196,6 @@ export function InteractionForm({ initial, defaultLocation, defaultSessionId, on
     const input = document.createElement("input");
     input.type = "file";
     input.accept = "image/*";
-    input.capture = "environment";
     input.onchange = async (e) => {
       const file = (e.target as HTMLInputElement).files?.[0];
       if (!file || file.size > 5 * 1024 * 1024) return;
@@ -199,8 +232,8 @@ export function InteractionForm({ initial, defaultLocation, defaultSessionId, on
         type: type || "direct",
         result: result || "neutral",
         duration: duration || "medium",
-        feelingScore,
-        womanScore,
+        feelingScore: feelingScore ?? 5,
+        womanScore: womanScore ?? 5,
         confidenceScore: 0,
         objection, objectionCustom,
         discussionTopics, feedback,
@@ -352,8 +385,10 @@ export function InteractionForm({ initial, defaultLocation, defaultSessionId, on
         </div>
       </div>
 
-      {/* Discussion topics */}
-      <TextArea label="Sujets de discussion" id="topics" placeholder="Elements sur lesquels rebondir par message..." rows={2} value={discussionTopics} onChange={(e) => setDiscussionTopics(e.target.value)} />
+      {/* Discussion topics — only for close */}
+      {result === "close" && (
+        <TextArea label="Sujets de discussion" id="topics" placeholder="Elements sur lesquels rebondir par message..." rows={2} value={discussionTopics} onChange={(e) => setDiscussionTopics(e.target.value)} />
+      )}
 
       {/* Notes & Feedback */}
       <div>
