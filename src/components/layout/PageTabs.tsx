@@ -15,8 +15,8 @@ const TAB_GROUPS: Record<string, { title: string; tabs: TabItem[] }> = {
     title: "Game",
     tabs: [
       { href: "/interactions", label: "Interactions" },
-      { href: "/sessions", label: "Sessions" },
       { href: "/contacts", label: "Pipeline" },
+      { href: "/sessions", label: "Sessions" },
     ],
   },
   social: {
