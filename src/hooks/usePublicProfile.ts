@@ -92,7 +92,8 @@ export function usePublicProfile() {
     []
   );
 
-  const isProfileComplete = !!(profile?.firstName?.trim() && profile?.username?.trim());
+  // Don't show "incomplete" flash while profile is still loading
+  const isProfileComplete = !loaded || !!(profile?.firstName?.trim() && profile?.username?.trim());
 
   return { profile, loaded, saving, save, isProfileComplete, discoverProfiles, findByUsername };
 }
