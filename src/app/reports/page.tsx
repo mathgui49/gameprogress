@@ -209,32 +209,30 @@ export default function ReportsPage() {
   return (
     <div ref={reportRef} className="px-4 py-6 lg:px-8 lg:py-8 max-w-5xl mx-auto animate-fade-in print:max-w-none print:px-6 print:py-4 print:text-[10px]">
       {/* Header */}
-      <div className="flex items-center justify-between mb-8 flex-wrap gap-3">
-        <div>
-          <h1 className="text-2xl font-[family-name:var(--font-grotesk)] font-bold tracking-tight mb-1">
+      <div className="mb-8">
+        <div className="flex items-center justify-between mb-1">
+          <h1 className="text-2xl font-[family-name:var(--font-grotesk)] font-bold tracking-tight">
             <span className="bg-gradient-to-r from-[#f59e0b] to-[#c084fc] bg-clip-text text-transparent">
               Statistiques
             </span>
           </h1>
-          <p className="text-sm text-[var(--on-surface-variant)]">Analyse détaillée de tes performances — <span className="capitalize">{periodDescription}</span></p>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="flex bg-[var(--surface-highest)] rounded-lg p-0.5 flex-wrap">
-            {(["week", "month", "3months", "year", "custom"] as Period[]).map((p) => (
-              <button
-                key={p}
-                onClick={() => setPeriod(p)}
-                className={`px-3 py-1.5 text-xs rounded-md transition-all ${
-                  period === p
-                    ? "bg-[var(--primary)] text-white font-semibold"
-                    : "text-[var(--on-surface-variant)] hover:text-[var(--on-surface)]"
-                }`}
-              >
-                {periodLabels[p]}
-              </button>
-            ))}
-          </div>
           <ExportButton targetRef={reportRef} />
+        </div>
+        <p className="text-sm text-[var(--on-surface-variant)] mb-3">Analyse détaillée de tes performances — <span className="capitalize">{periodDescription}</span></p>
+        <div className="flex bg-[var(--surface-highest)] rounded-lg p-0.5 w-fit">
+          {(["week", "month", "3months", "year", "custom"] as Period[]).map((p) => (
+            <button
+              key={p}
+              onClick={() => setPeriod(p)}
+              className={`px-3 py-1.5 text-xs rounded-md transition-all ${
+                period === p
+                  ? "bg-[var(--primary)] text-white font-semibold"
+                  : "text-[var(--on-surface-variant)] hover:text-[var(--on-surface)]"
+              }`}
+            >
+              {periodLabels[p]}
+            </button>
+          ))}
         </div>
       </div>
 

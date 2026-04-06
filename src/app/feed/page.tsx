@@ -84,10 +84,12 @@ function ReactionPicker({
   reactions,
   userReaction,
   onReact,
+  disabled,
 }: {
   reactions: Record<string, number>;
   userReaction: string | null;
   onReact: (r: ReactionType) => void;
+  disabled?: boolean;
 }) {
   const [showPicker, setShowPicker] = useState(false);
   const total = Object.values(reactions).reduce((a, b) => a + b, 0);
@@ -95,11 +97,13 @@ function ReactionPicker({
   return (
     <div className="relative flex items-center gap-1.5">
       <button
-        onClick={() => setShowPicker(!showPicker)}
+        onClick={() => !disabled && setShowPicker(!showPicker)}
         className={`flex items-center gap-1 text-xs px-2 py-1 rounded-full transition-all ${
-          userReaction
-            ? "bg-[var(--primary)]/15 text-[var(--primary)]"
-            : "text-[var(--outline)] hover:bg-[var(--surface-bright)]"
+          disabled
+            ? "text-[var(--outline-variant)] cursor-not-allowed opacity-50"
+            : userReaction
+              ? "bg-[var(--primary)]/15 text-[var(--primary)]"
+              : "text-[var(--outline)] hover:bg-[var(--surface-bright)]"
         }`}
       >
         {userReaction ? REACTION_EMOJIS[userReaction as ReactionType] : "+"} {total > 0 && total}
@@ -320,10 +324,12 @@ function CommentsSection({
   itemType,
   itemId,
   commentCount,
+  disabled,
 }: {
   itemType: "session" | "post";
   itemId: string;
   commentCount: number;
+  disabled?: boolean;
 }) {
   const [expanded, setExpanded] = useState(false);
   const [comments, setComments] = useState<(SessionComment & { profile?: PublicProfile })[]>([]);
@@ -387,19 +393,23 @@ function CommentsSection({
               </div>
             ))
           )}
-          <div className="flex gap-2 mt-2">
-            <input
-              ref={inputRef}
-              placeholder="Commenter..."
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleSend()}
-              className="flex-1 bg-[var(--surface-high)] border border-[var(--border)] rounded-lg px-3 py-1.5 text-xs text-[var(--on-surface)] placeholder:text-[var(--outline)] outline-none focus:ring-1 focus:ring-[var(--primary)]/30"
-            />
-            <Button size="sm" onClick={handleSend} disabled={!newComment.trim()}>
-              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" /></svg>
-            </Button>
-          </div>
+          {disabled ? (
+            <p className="text-[10px] text-amber-500 mt-2">Complete ton profil (prénom + nom d&apos;utilisateur) pour commenter.</p>
+          ) : (
+            <div className="flex gap-2 mt-2">
+              <input
+                ref={inputRef}
+                placeholder="Commenter..."
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleSend()}
+                className="flex-1 bg-[var(--surface-high)] border border-[var(--border)] rounded-lg px-3 py-1.5 text-xs text-[var(--on-surface)] placeholder:text-[var(--outline)] outline-none focus:ring-1 focus:ring-[var(--primary)]/30"
+              />
+              <Button size="sm" onClick={handleSend} disabled={!newComment.trim()}>
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" /></svg>
+              </Button>
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -777,11 +787,11 @@ export default function FeedPage() {
                     {item.data.notes && <p className="text-xs text-[var(--on-surface-variant)] mt-2 line-clamp-3">{item.data.notes}</p>}
                   </div>
                   <div className="flex items-center gap-4 pt-2 border-t border-[var(--border)]">
-                    <button onClick={() => handleSessionLike(item.data.id)} className="flex items-center gap-1.5 text-[var(--outline)] hover:text-[var(--secondary)] transition-colors">
+                    <button onClick={() => isProfileComplete && handleSessionLike(item.data.id)} className={`flex items-center gap-1.5 transition-colors ${isProfileComplete ? "text-[var(--outline)] hover:text-[var(--secondary)]" : "text-[var(--outline-variant)] cursor-not-allowed opacity-50"}`}>
                       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" /></svg>
                       <span className="text-xs">{item.likeCount || 0}</span>
                     </button>
-                    <CommentsSection itemType="session" itemId={item.data.id} commentCount={item.commentCount || 0} />
+                    <CommentsSection itemType="session" itemId={item.data.id} commentCount={item.commentCount || 0} disabled={!isProfileComplete} />
                     <div className="ml-auto">
                       <ShareButton title={item.data.title || "Session"} text={`${item.profile?.firstName || "Quelqu'un"} a fait une session : ${item.data.title || ""}${item.data.location ? ` a ${item.data.location}` : ""}`} />
                     </div>
@@ -869,9 +879,10 @@ export default function FeedPage() {
                     <ReactionPicker
                       reactions={item.reactions || {}}
                       userReaction={item.userReaction || null}
-                      onReact={(r) => handleReaction(item.data.id, r)}
+                      onReact={(r) => isProfileComplete && handleReaction(item.data.id, r)}
+                      disabled={!isProfileComplete}
                     />
-                    <CommentsSection itemType="post" itemId={item.data.id} commentCount={item.commentCount || 0} />
+                    <CommentsSection itemType="post" itemId={item.data.id} commentCount={item.commentCount || 0} disabled={!isProfileComplete} />
                     <div className="ml-auto">
                       <ShareButton title="Post" text={item.data.content?.slice(0, 100) || ""} />
                     </div>
