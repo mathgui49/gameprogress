@@ -240,6 +240,22 @@ export default function ContactsPage() {
   );
   const [showStaleSuggest, setShowStaleSuggest] = useState(false);
 
+  // Progressive rendering for list view
+  const INITIAL_VISIBLE = 30;
+  const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE);
+  useEffect(() => {
+    const handleScroll = () => {
+      if (viewMode !== "list") return;
+      const scrollY = window.scrollY + window.innerHeight;
+      const docHeight = document.documentElement.scrollHeight;
+      if (scrollY >= docHeight - 400) setVisibleCount((c) => c + 20);
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [viewMode]);
+  // Reset visible count when filters change
+  useEffect(() => { setVisibleCount(INITIAL_VISIBLE); }, [searchQuery, filterStatus, filterMethod, showArchived]);
+
   // DnD state
   const [dragContactId, setDragContactId] = useState<string | null>(null);
   const [dragOverStatus, setDragOverStatus] = useState<ContactStatus | null>(null);
@@ -544,7 +560,7 @@ export default function ContactsPage() {
       ) : (
         /* ── LIST VIEW ── */
         <div className="space-y-2">
-          {filtered.map((c, idx) => (
+          {filtered.slice(0, visibleCount).map((c, idx) => (
             <div key={c.id} className="animate-slide-up" style={{ animationDelay: `${Math.min(idx, 10) * 30}ms` }}>
               <ContactCard
                 contact={c}
@@ -555,6 +571,9 @@ export default function ContactsPage() {
               />
             </div>
           ))}
+          {filtered.length > visibleCount && (
+            <p className="text-center text-xs text-[var(--outline)] py-2">Scroll pour voir plus ({filtered.length - visibleCount} restants)</p>
+          )}
         </div>
       )}
 

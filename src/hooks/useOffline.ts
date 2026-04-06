@@ -169,8 +169,7 @@ export function useOfflineSync(userId: string) {
       }
     };
     init();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [processQueue]);
 
   // Auto-sync when coming back online
   useEffect(() => {

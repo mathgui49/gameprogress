@@ -54,6 +54,7 @@ const TABS: { key: FeedScope; label: string }[] = [
 ];
 
 const PAGE_SIZE = 20;
+const MAX_FEED_ITEMS = 200;
 
 // ─── Skeleton ─────────────────────────────────────────
 function SkeletonCard() {
@@ -648,7 +649,10 @@ export default function FeedPage() {
       if (reset) {
         setFeed(data);
       } else {
-        setFeed((prev) => [...prev, ...data]);
+        setFeed((prev) => {
+          const merged = [...prev, ...data];
+          return merged.length > MAX_FEED_ITEMS ? merged.slice(-MAX_FEED_ITEMS) : merged;
+        });
       }
       offsetRef.current = (reset ? 0 : offsetRef.current) + data.length;
       setHasMore(data.length >= PAGE_SIZE);
@@ -684,17 +688,28 @@ export default function FeedPage() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [loadFeed, loadingMore, hasMore]);
 
-  // Session like handler
+  // Session like handler (optimistic)
   const handleSessionLike = async (sessionId: string) => {
+    setFeed((prev) =>
+      prev.map((item) =>
+        item.type === "session" && item.data.id === sessionId
+          ? { ...item, likeCount: (item.likeCount || 0) + 1 }
+          : item
+      )
+    );
     await toggleSessionLikeAction(sessionId);
-    loadFeed(true);
   };
 
-  // Post reaction handler
+  // Post reaction handler (optimistic)
   const handleReaction = async (postId: string, reaction: ReactionType) => {
+    setFeed((prev) =>
+      prev.map((item) =>
+        item.type === "post" && item.data.id === postId
+          ? { ...item, reactions: { ...item.reactions, [reaction]: ((item.reactions?.[reaction]) || 0) + 1 } }
+          : item
+      )
+    );
     await togglePostReactionAction(postId, reaction);
-    // Optimistic: reload
-    loadFeed(true);
   };
 
   return (

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useMemo } from "react";
+import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useMessages } from "@/hooks/useMessages";
 import { useWingRequests } from "@/hooks/useWingRequests";
@@ -36,6 +37,9 @@ export default function MessagesPage() {
   const [chatInput, setChatInput] = useState("");
   const [wingStatuses, setWingStatuses] = useState<Record<string, string>>({});
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
+  const shouldAutoScroll = useRef(true);
+  const prevMessageCount = useRef(0);
 
   // Create group modal
   const [showCreateGroup, setShowCreateGroup] = useState(false);
@@ -48,24 +52,44 @@ export default function MessagesPage() {
 
   const wingUserIds = useMemo(() => wingProfiles.map((p) => p.userId), [wingProfiles]);
 
+  // Fetch wing statuses on mount + poll every 30s to stay up-to-date
   useEffect(() => {
     if (wingUserIds.length === 0) return;
-    fetchWingStatusesAction(wingUserIds).then(setWingStatuses);
-  }, [wingUserIds.length]);
+    const fetchStatuses = () => fetchWingStatusesAction(wingUserIds).then(setWingStatuses);
+    fetchStatuses();
+    const interval = setInterval(fetchStatuses, 30_000);
+    return () => clearInterval(interval);
+  }, [wingUserIds.join(",")]);
 
+  // Only auto-scroll on conversation open or after sending a message
   useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    const isNewConversation = prevMessageCount.current === 0 && currentMessages.length > 0;
+    const isNewMessage = currentMessages.length > prevMessageCount.current && prevMessageCount.current > 0;
+    prevMessageCount.current = currentMessages.length;
+
+    if (isNewConversation) {
+      // Instant scroll on conversation open
+      chatEndRef.current?.scrollIntoView({ behavior: "instant" });
+      shouldAutoScroll.current = true;
+    } else if (isNewMessage && shouldAutoScroll.current) {
+      // Smooth scroll only if user is near the bottom
+      chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
   }, [currentMessages]);
 
   const getProfileFor = (uid: string): PublicProfile | undefined =>
     wingProfiles.find((p) => p.userId === uid);
 
   const handleOpenDm = (uid: string) => {
+    prevMessageCount.current = 0;
+    shouldAutoScroll.current = true;
     setChatTarget({ type: "dm", userId: uid });
     openConversation(uid);
   };
 
   const handleOpenGroup = (groupId: string) => {
+    prevMessageCount.current = 0;
+    shouldAutoScroll.current = true;
     setChatTarget({ type: "group", groupId });
     openGroupChat(groupId);
   };
@@ -231,7 +255,7 @@ export default function MessagesPage() {
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
             </button>
             {chatTarget.type === "dm" ? (
-              <>
+              <Link href={`/wings/${chatTarget.userId}`} className="flex items-center gap-3 hover:opacity-80 transition-opacity">
                 <div className="relative">
                   <Avatar src={getProfileFor(chatTarget.userId)?.profilePhoto} name={getProfileFor(chatTarget.userId)?.firstName} size="sm" className="!w-9 !h-9" />
                   <div className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-[var(--surface)] ${WING_STATUS_COLORS[(wingStatuses[chatTarget.userId] as WingStatus) || "offline"]}`} />
@@ -240,7 +264,7 @@ export default function MessagesPage() {
                   <p className="text-sm font-semibold text-[var(--on-surface)]">{getChatTitle()}</p>
                   <p className="text-[10px] text-[var(--outline)]">{WING_STATUS_LABELS[(wingStatuses[chatTarget.userId] as WingStatus) || "offline"]}</p>
                 </div>
-              </>
+              </Link>
             ) : (
               <>
                 <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-cyan-400/20 to-[var(--primary)]/20 flex items-center justify-center">
@@ -259,7 +283,15 @@ export default function MessagesPage() {
           </div>
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto space-y-2 px-1 mb-3">
+          <div
+            ref={chatContainerRef}
+            className="flex-1 overflow-y-auto space-y-2 px-1 mb-3"
+            onScroll={() => {
+              const el = chatContainerRef.current;
+              if (!el) return;
+              // If user is within 80px of the bottom, auto-scroll on new messages
+              shouldAutoScroll.current = el.scrollHeight - el.scrollTop - el.clientHeight < 80;
+            }}>
             {[...currentMessages].reverse().map((msg) => {
               const isMe = msg.fromUserId === userId;
               const senderProfile = !isMe ? getProfileFor(msg.fromUserId) : null;

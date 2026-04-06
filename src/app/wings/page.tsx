@@ -93,31 +93,29 @@ export default function WingsPage() {
   const pendingReceivedIds = useMemo(() => pendingReceived.map((r) => r.fromUserId).join(","), [pendingReceived]);
   const pendingSentIds = useMemo(() => pendingSent.map((r) => r.toUserId).join(","), [pendingSent]);
 
+  // Poll wing statuses every 30s
   useEffect(() => {
-    const promises: Promise<void>[] = [];
+    if (wingUserIds.length === 0) return;
+    const fetchStatuses = () => fetchWingStatusesAction(wingUserIds).then(setWingStatuses);
+    fetchStatuses();
+    const interval = setInterval(fetchStatuses, 30_000);
+    return () => clearInterval(interval);
+  }, [wingUserIds.join(",")]);
 
-    // Wing statuses
-    if (wingUserIds.length > 0) {
-      promises.push(fetchWingStatusesAction(wingUserIds).then(setWingStatuses));
-    }
-
-    // Pending profiles
+  // Fetch pending profiles
+  useEffect(() => {
     const allIds = [...new Set([
       ...pendingReceivedIds.split(",").filter(Boolean),
       ...pendingSentIds.split(",").filter(Boolean),
     ])].filter((id) => !pendingProfiles[id]);
     if (allIds.length > 0) {
-      promises.push(
-        fetchProfilesByIdsAction(allIds).then((profiles) => {
-          const map: Record<string, PublicProfile> = { ...pendingProfiles };
-          profiles.forEach((p: PublicProfile) => { map[p.userId] = p; });
-          setPendingProfiles(map);
-        })
-      );
+      fetchProfilesByIdsAction(allIds).then((profiles) => {
+        const map: Record<string, PublicProfile> = { ...pendingProfiles };
+        profiles.forEach((p: PublicProfile) => { map[p.userId] = p; });
+        setPendingProfiles(map);
+      });
     }
-
-    Promise.all(promises);
-  }, [wingUserIds.length, pendingReceivedIds, pendingSentIds]);
+  }, [pendingReceivedIds, pendingSentIds]);
 
   // Scroll to bottom of chat
   useEffect(() => {

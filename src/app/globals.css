@@ -178,19 +178,19 @@ h1, h2, h3, h4, h5, h6 {
   0%, 100% { box-shadow: 0 0 6px 0 var(--neon-purple), 0 0 18px -4px var(--neon-pink); }
   50% { box-shadow: 0 0 12px 1px var(--neon-purple), 0 0 28px -2px var(--neon-pink); }
 }
-.animate-neon-pulse { animation: neonPulse 4s ease-in-out infinite; }
+.animate-neon-pulse { animation: neonPulse 6s ease-in-out infinite; will-change: box-shadow; }
 
 @keyframes xpPulse {
   0%, 100% { box-shadow: 0 0 0 0 rgba(192,132,252,0.2); }
   50% { box-shadow: 0 0 16px 3px rgba(192,132,252,0.1); }
 }
-.animate-xp-pulse { animation: xpPulse 2.5s ease-in-out infinite; }
+.animate-xp-pulse { animation: xpPulse 4s ease-in-out infinite; will-change: box-shadow; }
 
 @keyframes logoPulse {
   0%, 100% { filter: drop-shadow(0 0 4px var(--neon-purple)) brightness(1); }
   50% { filter: drop-shadow(0 0 10px var(--neon-purple)) brightness(1.1); }
 }
-.animate-logo-pulse { animation: logoPulse 4s ease-in-out infinite; }
+.animate-logo-pulse { animation: logoPulse 6s ease-in-out infinite; will-change: filter; }
 
 @keyframes glowBorder {
   0%, 100% { border-color: rgba(192,132,252,0.08); }
@@ -201,7 +201,15 @@ h1, h2, h3, h4, h5, h6 {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-2px); }
 }
-.animate-float { animation: subtleFloat 3s ease-in-out infinite; }
+.animate-float { animation: subtleFloat 4s ease-in-out infinite; will-change: transform; }
+
+/* Pause infinite animations when not visible (saves CPU/GPU) */
+@media (prefers-reduced-motion: reduce) {
+  .animate-neon-pulse,
+  .animate-xp-pulse,
+  .animate-logo-pulse,
+  .animate-float { animation: none; }
+}
 
 /* ─── Glass effects ──────────────────────────────────── */
 .glass {

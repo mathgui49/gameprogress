@@ -46,48 +46,6 @@ function AnimatedNumber({ value, duration = 800 }: { value: number; duration?: n
   return <>{display}</>;
 }
 
-/* ─── Tips ticker ───────────────────────────────────────── */
-const TIPS = [
-  "Astuce : Après un rejet, note ce que tu as appris — chaque rejet est un pas vers le progrès.",
-  "Astuce : Varie tes approches (direct, indirect, situationnel) pour développer ta polyvalence.",
-  "Astuce : Utilise le journal pour capturer tes émotions après chaque session.",
-  "Astuce : Fixe-toi une mission simple pour cette semaine — la régularité bat l'intensité.",
-  "Astuce : Reviens voir ta progression chaque semaine pour mesurer ton évolution.",
-  "Astuce : Les wings sont plus efficaces que le solo — invite un ami !",
-  "Astuce : Définis des objectifs avant chaque session pour rester concentré.",
-  "Astuce : Un streak de 7 jours te donne un bonus XP de +40% sur les interactions.",
-];
-
-function TipsTicker() {
-  const [idx, setIdx] = useState(0);
-  const [fade, setFade] = useState(true);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setFade(false);
-      setTimeout(() => {
-        setIdx((i) => (i + 1) % TIPS.length);
-        setFade(true);
-      }, 400);
-    }, 6000);
-    return () => clearInterval(interval);
-  }, []);
-
-  return (
-    <div className="relative overflow-hidden rounded-xl bg-[var(--surface-low)] border border-[var(--border)] px-4 py-3">
-      <div className="flex items-center gap-3">
-        <div className="w-7 h-7 rounded-lg bg-[var(--primary)]/10 flex items-center justify-center shrink-0">
-          <svg className="w-3.5 h-3.5 text-[var(--primary)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-          </svg>
-        </div>
-        <p className={`text-xs text-[var(--on-surface-variant)] transition-opacity duration-400 ${fade ? "opacity-100" : "opacity-0"}`}>
-          {TIPS[idx]}
-        </p>
-      </div>
-    </div>
-  );
-}
 
 export default function DashboardPage() {
   const { interactions, loaded } = useInteractions();
@@ -390,9 +348,6 @@ export default function DashboardPage() {
               </div>
             </Card>
           )}
-
-          {/* Tips ticker */}
-          <TipsTicker />
 
           {/* Quick add */}
           <Link href="/interactions/new">
