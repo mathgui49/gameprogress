@@ -32,6 +32,7 @@ export default function NewSessionPage() {
   const [lat, setLat] = useState<number>(48.8566);
   const [lng, setLng] = useState<number>(2.3522);
   const [isPublic, setIsPublic] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [maxParticipants, setMaxParticipants] = useState(0);
 
   const toggleWing = (wingUserId: string) => {
@@ -65,6 +66,8 @@ export default function NewSessionPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submitting) return;
+    setSubmitting(true);
     const goals = goalsText.split("\n").filter(Boolean).map((text) => ({ text: text.trim(), done: false }));
     const appWingNames = selectedWingIds.map((id) => {
       const p = wingProfiles.find((wp: PublicProfile) => wp.userId === id);
@@ -195,7 +198,7 @@ export default function NewSessionPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-[var(--on-surface)] font-medium">Session publique</p>
-              <p className="text-[10px] text-[var(--outline)]">Visible dans le feed, d&apos;autres joueurs peuvent rejoindre</p>
+              <p className="text-[10px] text-[var(--outline)]">Visible dans le feed, d&apos;autres gamers peuvent rejoindre</p>
             </div>
             <button
               type="button"
@@ -211,7 +214,7 @@ export default function NewSessionPage() {
         </div>
 
         <div className="flex items-center gap-3 pt-2">
-          <Button type="submit" size="lg">Créer la session</Button>
+          <Button type="submit" size="lg" disabled={submitting}>{submitting ? "Création..." : "Créer la session"}</Button>
           <Button type="button" variant="ghost" size="lg" onClick={() => router.back()}>Annuler</Button>
         </div>
       </form>

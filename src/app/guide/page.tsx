@@ -171,7 +171,7 @@ const GUIDE_FEATURES: GuideFeature[] = [
   },
   {
     title: "Classement & Leaderboard",
-    description: "Compare-toi aux autres joueurs par XP, niveau, streak ou progression hebdomadaire. Filtre par ville.",
+    description: "Compare-toi aux autres gamers par XP, niveau, streak ou progression hebdomadaire. Filtre par ville.",
     details: [
       "Classement global et wings seulement",
       "Tri par XP, XP hebdo, streak, niveau",

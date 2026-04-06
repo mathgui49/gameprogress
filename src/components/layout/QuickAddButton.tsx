@@ -48,6 +48,7 @@ export function QuickAddButton() {
   const [qContactMethod, setQContactMethod] = useState<ContactMethod | null>(null);
   const [qContactValue, setQContactValue] = useState("");
   const [saved, setSaved] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   const resetQuick = () => {
     setQName(""); setQLocation(""); setQType("direct"); setQResult("neutral"); setQNote("");
@@ -55,6 +56,8 @@ export function QuickAddButton() {
   };
 
   const submitQuick = async () => {
+    if (submitting) return;
+    setSubmitting(true);
     const interaction = await add({
       firstName: qName, memorableElement: "", note: qNote, location: qLocation,
       type: qType, result: qResult, duration: "medium", feelingScore: 7,
@@ -68,6 +71,7 @@ export function QuickAddButton() {
       await addContact({ firstName: qName || "Inconnue", sourceInteractionId: interaction.id, method: qContactMethod || "other", methodValue: qContactValue || "", status: "new", tags: [], notes: "" });
     }
     resetQuick();
+    setSubmitting(false);
     setSaved(true);
     setTimeout(() => { setSaved(false); setShowQuick(false); }, 1200);
   };
@@ -190,9 +194,9 @@ export function QuickAddButton() {
               {interactionAtLimit ? (
                 <p className="text-xs text-center text-[var(--error)] bg-[var(--error)]/10 rounded-xl px-3 py-2">Limite du plan gratuit atteinte ({FREE_LIMITS.interactionsPerMonth}/{FREE_LIMITS.interactionsPerMonth}). Passe a GameMax pour continuer.</p>
               ) : (
-                <button onClick={submitQuick}
-                  className="w-full py-2.5 rounded-[14px] bg-gradient-to-r from-[#c084fc] to-[#f472b6] text-sm font-semibold text-white hover:opacity-90 hover:shadow-[0_0_20px_-4px_var(--neon-purple)] transition-all">
-                  Enregistrer
+                <button onClick={submitQuick} disabled={submitting}
+                  className="w-full py-2.5 rounded-[14px] bg-gradient-to-r from-[#c084fc] to-[#f472b6] text-sm font-semibold text-white hover:opacity-90 hover:shadow-[0_0_20px_-4px_var(--neon-purple)] transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                  {submitting ? "Enregistrement..." : "Enregistrer"}
                 </button>
               )}
             </div>

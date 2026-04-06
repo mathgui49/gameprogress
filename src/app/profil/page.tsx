@@ -1,11 +1,10 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { usePublicProfile } from "@/hooks/usePublicProfile";
 import type { PrivacySettings } from "@/types";
 import { DEFAULT_PRIVACY } from "@/types";
 import { Card } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
 import { Input, TextArea } from "@/components/ui/Input";
 import { MapPicker } from "@/components/ui/MapPicker";
 import { uploadImageAction } from "@/actions/db";
@@ -13,8 +12,6 @@ import { uploadImageAction } from "@/actions/db";
 type PrivacyOption = "off" | "wings" | "public";
 
 const PRIVACY_GROUPS: { label: string; hint: string; publicKey: keyof PrivacySettings; wingsKey?: keyof PrivacySettings; noWings?: boolean }[] = [
-  { label: "Age", hint: "Afficher ton âge sur ton profil", publicKey: "shareAgePublic", wingsKey: "shareAgeWings" },
-  { label: "Ville", hint: "Afficher ta ville sur ton profil", publicKey: "shareLocationPublic", wingsKey: "shareLocationWings" },
   { label: "Classement", hint: "Apparaître dans le classement", publicKey: "showInLeaderboardPublic", wingsKey: "showInLeaderboardWings" },
   { label: "Statistiques", hint: "Partager tes stats de progression", publicKey: "shareStatsPublic", wingsKey: "shareStatsWings" },
   { label: "Apparaître dans Découvrir", hint: "Les autres utilisateurs peuvent te trouver", publicKey: "showInDiscover", noWings: true },
@@ -53,6 +50,8 @@ export default function ProfilPage() {
 
   if (!loaded) return <div className="flex items-center justify-center h-screen"><div className="w-8 h-8 border-2 border-[var(--primary)]/30 border-t-[var(--primary)] rounded-full animate-spin" /></div>;
 
+  const hasLocation = !!(profile?.location?.trim());
+
   return (
     <div className="px-4 py-6 lg:px-8 lg:py-8 max-w-2xl mx-auto animate-fade-in">
       <div className="mb-8">
@@ -60,9 +59,19 @@ export default function ProfilPage() {
         <p className="text-sm text-[var(--on-surface-variant)]">Configure ton profil public visible par les autres gamers</p>
       </div>
 
+      {/* Saved toast */}
+      {saved && (
+        <div className="fixed top-4 right-4 z-50 animate-fade-in">
+          <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl glass-card shadow-lg border border-emerald-400/20">
+            <svg className="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+            <span className="text-xs font-medium text-emerald-400">Sauvegardé</span>
+          </div>
+        </div>
+      )}
+
       <Card className="mb-4">
         <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-[var(--on-surface)] mb-4">Profil public</h2>
-        <p className="text-xs text-[var(--on-surface-variant)] mb-4">Visible par les autres utilisateurs dans l&apos;onglet Wings.</p>
+        <p className="text-xs text-[var(--on-surface-variant)] mb-4">Les informations renseignées ci-dessous seront visibles par les autres utilisateurs. Laisse un champ vide pour ne pas l&apos;afficher.</p>
         <div className="space-y-4">
           {/* Profile photo */}
           <div>
@@ -102,13 +111,13 @@ export default function ProfilPage() {
                     Retirer la photo
                   </button>
                 )}
-                <p className="text-[10px] text-[var(--outline)]">Max 500 Ko. Seule cette photo sera visible par les autres.</p>
+                <p className="text-[10px] text-[var(--outline)]">Max 5 Mo. Seule cette photo sera visible par les autres.</p>
               </div>
             </div>
           </div>
 
           <Input label="Nom d'utilisateur" id="pu" placeholder="ex: mathieu_75" value={profile?.username ?? ""} onChange={(e) => { save({ username: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, "") }); flash(); }} />
-          <Input label="Prenom" id="pfn" placeholder="Ton prenom" value={profile?.firstName ?? ""} onChange={(e) => { save({ firstName: e.target.value }); flash(); }} />
+          <Input label="Prénom" id="pfn" placeholder="Ton prénom" value={profile?.firstName ?? ""} onChange={(e) => { save({ firstName: e.target.value }); flash(); }} />
           <Input label="Date de naissance" id="pbd" type="date" value={profile?.birthDate ?? ""} onChange={(e) => { save({ birthDate: e.target.value || null }); flash(); }} />
           <MapPicker
             label="Ville"
@@ -117,8 +126,9 @@ export default function ProfilPage() {
             address={profile?.location ?? ""}
             onAddressChange={(loc) => { save({ location: loc }); flash(); }}
             onCoordsChange={(newLat, newLng) => { save({ lat: newLat, lng: newLng }); flash(); }}
+            hideMap={!hasLocation}
           />
-          <TextArea label="Bio" id="pbio" placeholder="Quelques mots sur toi et ta game..." rows={2} value={profile?.bio ?? ""} onChange={(e) => { save({ bio: e.target.value }); flash(); }} />
+          <TextArea label="Bio" id="pbio" placeholder="Quelques mots sur toi et ton game..." rows={2} value={profile?.bio ?? ""} onChange={(e) => { save({ bio: e.target.value }); flash(); }} />
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-[var(--on-surface-variant)]">Profil visible publiquement</p>
@@ -136,12 +146,12 @@ export default function ProfilPage() {
             </button>
           </div>
         </div>
-        {saved && <p className="text-xs text-emerald-400 mt-2 animate-fade-in">Sauvegardé !</p>}
       </Card>
 
       <Card>
         <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-[var(--on-surface)] mb-4">Confidentialité</h2>
-        <p className="text-xs text-[var(--on-surface-variant)] mb-5">Choisis ce que tu partages et avec qui.</p>
+        <p className="text-xs text-[var(--on-surface-variant)] mb-2">Choisis ce que tu partages et avec qui.</p>
+        <p className="text-[10px] text-[var(--outline)] mb-5">Tes stats entrent toujours dans le calcul anonyme de la moyenne communautaire, même en mode privé.</p>
         <div className="space-y-5">
           {PRIVACY_GROUPS.map((g) => {
             const current = getGroupValue(g);

@@ -92,6 +92,7 @@ export default function JournalPage() {
 
   // Editor state
   const [showNew, setShowNew] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [tag, setTag] = useState<JournalTag | null>(null);
   const [visibility, setVisibility] = useState<Visibility>("private");
@@ -234,18 +235,20 @@ export default function JournalPage() {
   }, [draftId, editingId, tag, visibility, linkedInteractionIds, selectedCollectionId, autoSaveDraft]);
 
   const handleSave = async () => {
+    if (submitting) return;
     const content = editorRef.current?.innerHTML?.trim() || "";
     if (!content || content === "<br>") return;
+    setSubmitting(true);
     if (editingId) {
       update(editingId, content, tag, visibility, linkedInteractionIds, selectedCollectionId);
     } else {
       add(content, tag, visibility, "entry", null, attachments, linkedInteractionIds, selectedCollectionId, isCollaborative);
       const wordCount = content.replace(/<[^>]*>/g, " ").split(/\s+/).filter(Boolean).length;
       addXP(wordCount > 200 ? XP.journal_entry_long : XP.journal_entry, "Entrée journal", "journal");
-      // Remove draft after publishing
       if (draftId) removeDraft(draftId);
     }
     toast.show(editingId ? "Entrée modifiée" : "Entrée publiée !");
+    setSubmitting(false);
     setShowNew(false);
     setEditingId(null);
     setAttachments([]);
@@ -694,7 +697,7 @@ export default function JournalPage() {
             </label>
           )}
 
-          <Button onClick={handleSave}>{editingId ? "Modifier" : "Publier"}</Button>
+          <Button onClick={handleSave} disabled={submitting}>{submitting ? "Publication..." : editingId ? "Modifier" : "Publier"}</Button>
         </div>
       </Modal>
 

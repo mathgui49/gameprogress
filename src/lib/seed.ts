@@ -236,7 +236,7 @@ export const BADGE_CATEGORIES: BadgeCategory[] = [
     description: "Niveau atteint grâce à l'XP accumulée",
     tiers: [
       { threshold: 5, name: "Apprenti", icon: "star", description: "A atteint le niveau 5" },
-      { threshold: 10, name: "Confirmé", icon: "star-fill", description: "Niveau 10 — joueur confirmé" },
+      { threshold: 10, name: "Confirmé", icon: "star-fill", description: "Niveau 10 — gamer confirmé" },
       { threshold: 20, name: "Expert", icon: "gem", description: "Niveau 20 — expertise reconnue" },
       { threshold: 50, name: "Maître du Game", icon: "crown", description: "Niveau 50 — maître absolu" },
     ],

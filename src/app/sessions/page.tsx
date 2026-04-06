@@ -16,6 +16,7 @@ import { MapView } from "@/components/ui/MapView";
 import { useSubscription } from "@/hooks/useSubscription";
 import { LimitReachedBanner } from "@/components/ui/PremiumGate";
 import { FREE_LIMITS, countThisMonth } from "@/lib/premium";
+import { Modal } from "@/components/ui/Modal";
 import type { MapMarker } from "@/components/ui/MapView";
 import type { Session } from "@/types";
 import Link from "next/link";
@@ -95,7 +96,7 @@ function ActiveTimer({ date }: { date: string }) {
 }
 
 export default function SessionsPage() {
-  const { sessions, invitedSessions, allSessions, loaded } = useSessions();
+  const { sessions, invitedSessions, allSessions, loaded, remove } = useSessions();
   const { interactions } = useInteractions();
   const { profile: userProfile } = usePublicProfile();
   const { isPremium } = useSubscription();
@@ -108,6 +109,8 @@ export default function SessionsPage() {
   const [participantCounts, setParticipantCounts] = useState<Record<string, { count: number; names: string[]; photos: (string | null)[] }>>({});
   const [publicSessions, setPublicSessions] = useState<Session[]>([]);
   const [publicLoaded, setPublicLoaded] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const invitedIds = useMemo(() => new Set(invitedSessions.map((s) => s.id)), [invitedSessions]);
   const ownIds = useMemo(() => new Set(sessions.map((s) => s.id)), [sessions]);
@@ -446,8 +449,8 @@ export default function SessionsPage() {
             const pInfo = participantCounts[s.id];
             const isFuture = new Date(s.date).getTime() > Date.now();
             return (
-              <Link key={s.id} href={`/sessions/${s.id}`}>
-                <Card hover className="!p-4">
+              <Card key={s.id} hover className="!p-4">
+                <Link href={`/sessions/${s.id}`} className="block">
                   <div className="flex items-start justify-between mb-2">
                     <div>
                       <div className="flex items-center gap-2 mb-0.5 flex-wrap">
@@ -498,8 +501,22 @@ export default function SessionsPage() {
                       </div>
                     )}
                   </div>
-                </Card>
-              </Link>
+                </Link>
+                {/* Delete button — only for own sessions */}
+                {ownIds.has(s.id) && (
+                  <div className="flex justify-end mt-2 pt-2 border-t border-[var(--border)]">
+                    <button
+                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); setDeleteTarget(s.id); }}
+                      className="text-[10px] text-[var(--outline)] hover:text-[var(--error)] transition-colors flex items-center gap-1"
+                    >
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                      </svg>
+                      Supprimer
+                    </button>
+                  </div>
+                )}
+              </Card>
             );
           })}
         </div>
@@ -595,6 +612,27 @@ export default function SessionsPage() {
           </div>
         </div>
       )}
+
+      {/* Delete confirmation modal */}
+      <Modal open={!!deleteTarget} onClose={() => setDeleteTarget(null)} title="Supprimer la session">
+        <p className="text-sm text-[var(--on-surface-variant)] mb-4">Es-tu sûr de vouloir supprimer cette session ? Cette action est irréversible.</p>
+        <div className="flex gap-2">
+          <Button variant="secondary" className="flex-1" onClick={() => setDeleteTarget(null)}>Annuler</Button>
+          <Button
+            className="flex-1 !bg-[var(--error)] hover:!opacity-90"
+            disabled={deleting}
+            onClick={async () => {
+              if (!deleteTarget) return;
+              setDeleting(true);
+              await remove(deleteTarget);
+              setDeleting(false);
+              setDeleteTarget(null);
+            }}
+          >
+            {deleting ? "Suppression..." : "Supprimer"}
+          </Button>
+        </div>
+      </Modal>
     </div>
   );
 }

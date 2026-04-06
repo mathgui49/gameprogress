@@ -23,12 +23,13 @@ export function useSubscription() {
 
   const isPremium = subscription?.status === "active";
 
-  const checkout = async () => {
+  const checkout = async (billingOrEvent?: "monthly" | "yearly" | unknown) => {
+    const billing: "monthly" | "yearly" = (billingOrEvent === "monthly" || billingOrEvent === "yearly") ? billingOrEvent : "monthly";
     // Server reads userId from session — no need to send it
     const res = await fetch("/api/stripe/checkout", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({}),
+      body: JSON.stringify({ billing }),
     });
     const { url } = await res.json();
     if (url) window.location.href = url;

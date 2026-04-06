@@ -6,6 +6,9 @@ import * as db from "@/lib/db";
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? "";
 
 // ─── Rate limiting (server actions) ───────────────────
+// WARNING: In-memory rate limiting resets on each serverless cold start.
+// For production at scale, migrate to Redis (e.g. Upstash) or Vercel KV.
+// This still provides protection within a single instance lifetime.
 const rateBuckets = new Map<string, { count: number; resetAt: number }>();
 
 // Cleanup stale entries every 5 min
@@ -34,9 +37,11 @@ function checkRate(userId: string, action: string, limit = 30, windowSec = 60) {
 }
 
 // ─── Sanitization ─────────────────────────────────────
-/** Strip HTML/script tags from all string values in an object (deep) */
+import DOMPurify from "isomorphic-dompurify";
+
+/** Strip all HTML from string values in an object (deep). Uses DOMPurify for robust XSS protection. */
 function sanitizeObj<T>(obj: T): T {
-  if (typeof obj === "string") return obj.replace(/<[^>]*>/g, "").trim() as unknown as T;
+  if (typeof obj === "string") return DOMPurify.sanitize(obj, { ALLOWED_TAGS: [] }).trim() as unknown as T;
   if (Array.isArray(obj)) return obj.map(sanitizeObj) as unknown as T;
   if (obj && typeof obj === "object" && !(obj instanceof Date)) {
     const out: Record<string, unknown> = {};
@@ -201,8 +206,12 @@ export async function findProfileByUsernameAction(username: string) {
 // ─── Sessions ──────────────────────────────────────────
 
 export async function fetchSessionsByUserIdAction(targetUserId: string) {
-  await getAuthUserId();
-  return db.fetchSessionsByUserId(targetUserId);
+  const userId = await getAuthUserId();
+  // Own data: return all sessions. Other users: only public sessions.
+  if (targetUserId === userId) {
+    return db.fetchSessionsByUserId(targetUserId);
+  }
+  return db.fetchPublicSessionsByUserId(targetUserId);
 }
 
 export async function fetchAcceptedSessionsForUserAction() {
@@ -360,13 +369,16 @@ export async function addPostCommentAction(postId: string, content: string) {
 // ─── User public data ──────────────────────────────────
 
 export async function fetchUserPublicPostsAction(targetUserId: string, viewerIsWing: boolean) {
-  await getAuthUserId();
-  return db.fetchUserPublicPosts(targetUserId, viewerIsWing);
+  const userId = await getAuthUserId();
+  // Verify wing relationship server-side instead of trusting client
+  const isActuallyWing = viewerIsWing ? await db.checkIsWing(userId, targetUserId) : false;
+  return db.fetchUserPublicPosts(targetUserId, isActuallyWing);
 }
 
 export async function fetchUserPublicJournalAction(targetUserId: string, viewerIsWing: boolean) {
-  await getAuthUserId();
-  return db.fetchUserPublicJournal(targetUserId, viewerIsWing);
+  const userId = await getAuthUserId();
+  const isActuallyWing = viewerIsWing ? await db.checkIsWing(userId, targetUserId) : false;
+  return db.fetchUserPublicJournal(targetUserId, isActuallyWing);
 }
 
 export async function fetchUserGamificationAction(targetUserId: string) {
@@ -389,6 +401,12 @@ export async function fetchUserLeaderboardRankAction(targetUserId: string) {
 export async function clearAllUserDataAction() {
   const userId = await getAuthUserId();
   await db.clearAllUserData(userId);
+}
+
+export async function exportAllUserDataAction() {
+  const userId = await getAuthUserId();
+  checkRate(userId, "export", 3, 300);
+  return db.exportAllUserData(userId);
 }
 
 export async function deleteAccountAction() {
@@ -772,8 +790,9 @@ export async function fetchReferralCodeAction(): Promise<string> {
 }
 
 export async function fetchReferralStatsAction() {
-  const _userId = await getAuthUserId();
-  // TODO: Implement with referrals table
+  await getAuthUserId();
+  // STUB: Returns placeholder data until referrals table is created.
+  // Do not expose real user data or logic here until properly implemented.
   return { referralCount: 0, convertedCount: 0, earnedDays: 0 };
 }
 
@@ -781,13 +800,13 @@ export async function fetchReferralStatsAction() {
 
 export async function fetchAmbassadorCodeAction(): Promise<string | null> {
   const userId = await getAuthUserId();
-  // Generate ambassador code
+  // STUB: Deterministic code from user ID. Replace with DB lookup when ambassadors table is ready.
   const code = "AMB-" + btoa(userId).replace(/[^a-zA-Z0-9]/g, "").slice(0, 6).toUpperCase();
   return code;
 }
 
 export async function fetchAmbassadorStatsAction() {
-  const _userId = await getAuthUserId();
-  // TODO: Implement with ambassadors table
+  await getAuthUserId();
+  // STUB: Returns placeholder data until ambassadors table is created.
   return { totalReferrals: 0, activeSubscribers: 0, totalEarnings: 0, monthlyEarnings: 0, isApproved: false };
 }

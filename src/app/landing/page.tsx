@@ -120,7 +120,7 @@ const SHOWCASE_TABS = [
   { key: "dashboard", label: "Dashboard", desc: "Tableau de bord complet avec XP, streak, stats du jour et activité récente. Tout est visible en un coup d'oeil pour rester motivé." },
   { key: "progression", label: "Progression", desc: "Score de compétence calculé automatiquement, rang évolutif, collection de badges et milestones à débloquer." },
   { key: "missions", label: "Missions", desc: "Crée des missions personnalisées avec suivi automatique ou manuel. Deadline, XP reward, progression en temps réel." },
-  { key: "leaderboard", label: "Classement", desc: "Compare-toi aux autres joueurs. Classement par XP, niveau ou streak. Filtre par ville pour un défi local." },
+  { key: "leaderboard", label: "Classement", desc: "Compare-toi aux autres gamers. Classement par XP, niveau ou streak. Filtre par ville pour un défi local." },
   { key: "pipeline", label: "Pipeline", desc: "CRM intégré pour gérer tes contacts : du premier close au date, suis chaque étape avec des rappels intelligents." },
 ];
 

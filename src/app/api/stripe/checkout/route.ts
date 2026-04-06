@@ -36,10 +36,15 @@ export async function POST(req: NextRequest) {
   const origin = req.headers.get("origin") || "";
   const safeOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
 
+  const { billing } = await req.json().catch(() => ({ billing: "monthly" }));
+  const priceId = billing === "yearly"
+    ? (process.env.STRIPE_PRICE_YEARLY_ID || process.env.STRIPE_PRICE_ID!)
+    : process.env.STRIPE_PRICE_ID!;
+
   const checkoutSession = await getStripe().checkout.sessions.create({
     customer: customerId,
     mode: "subscription",
-    line_items: [{ price: process.env.STRIPE_PRICE_ID!, quantity: 1 }],
+    line_items: [{ price: priceId, quantity: 1 }],
     success_url: `${safeOrigin}/settings?checkout=success`,
     cancel_url: `${safeOrigin}/settings?checkout=cancel`,
     metadata: { userId },

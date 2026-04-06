@@ -180,8 +180,9 @@ export default function MissionsPage() {
           <Input label="Objectif (nombre)" type="number" min="1" value={target} onChange={(e) => setTarget(e.target.value)} />
           <Input label="Deadline (optionnel)" type="date" value={deadline} onChange={(e) => setDeadline(e.target.value)} />
 
-          <Button disabled={!title.trim()} onClick={() => {
-            add(title, desc, "custom", Number(target) || 3, 20, trackingType, deadline || null);
+          <Button disabled={!title.trim()} onClick={async (e) => {
+            const btn = e.currentTarget; if (btn.disabled) return; btn.disabled = true;
+            await add(title, desc, "custom", Number(target) || 3, 20, trackingType, deadline || null);
             setTitle(""); setDesc(""); setTarget("3"); setTrackingType("interactions"); setDeadline(""); setShowNew(false);
           }}>
             Créer

@@ -104,7 +104,7 @@ export default function AbonnementPage() {
         <Card className="text-center !p-6 border-[var(--border)]">
           <p className="text-sm font-medium text-[var(--on-surface-variant)] mb-2">Mensuel</p>
           <p className="text-3xl font-[family-name:var(--font-grotesk)] font-bold text-[var(--on-surface)]">{PRICE_MONTHLY}€<span className="text-sm font-normal text-[var(--outline)]">/mois</span></p>
-          <Button onClick={checkout} className="w-full mt-4">Commencer</Button>
+          <Button onClick={() => checkout("monthly")} className="w-full mt-4">Commencer</Button>
         </Card>
 
         {/* Yearly */}
@@ -115,7 +115,7 @@ export default function AbonnementPage() {
           <p className="text-sm font-medium text-[var(--on-surface-variant)] mb-2">Annuel</p>
           <p className="text-3xl font-[family-name:var(--font-grotesk)] font-bold text-[var(--on-surface)]">{PRICE_MONTHLY_EQUIVALENT}€<span className="text-sm font-normal text-[var(--outline)]">/mois</span></p>
           <p className="text-[10px] text-[var(--outline)] mt-1">Facturé {PRICE_YEARLY}€/an</p>
-          <Button onClick={checkout} className="w-full mt-4">Commencer</Button>
+          <Button onClick={() => checkout("yearly")} className="w-full mt-4">Commencer</Button>
         </Card>
       </div>
 

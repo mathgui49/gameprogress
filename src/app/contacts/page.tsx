@@ -567,10 +567,11 @@ export default function ContactsPage() {
           <Select label="Type de contact" options={[{ value: "instagram", label: "Instagram" }, { value: "phone", label: "Telephone" }, { value: "other", label: "Autre" }]} value={newMethod} onChange={(e) => setNewMethod(e.target.value as ContactMethod)} />
           <Input label="Valeur" placeholder={newMethod === "instagram" ? "@pseudo" : "06..."} value={newValue} onChange={(e) => setNewValue(e.target.value)} />
           <Select label="Statut" options={PIPELINE_ORDER.map((s) => ({ value: s, label: STATUS_LABELS[s] }))} value={newStatus} onChange={(e) => setNewStatus(e.target.value as ContactStatus)} />
-          <Button disabled={!newName.trim()} onClick={() => {
-            add({ firstName: newName.trim(), sourceInteractionId: "", method: newMethod, methodValue: newValue, status: newStatus, tags: [], notes: "" });
+          <Button disabled={!newName.trim()} onClick={async (e) => {
+            const btn = e.currentTarget; if (btn.disabled) return; btn.disabled = true;
+            await add({ firstName: newName.trim(), sourceInteractionId: "", method: newMethod, methodValue: newValue, status: newStatus, tags: [], notes: "" });
             setNewName(""); setNewValue(""); setNewStatus("new"); setShowNew(false);
-          }}>Creer</Button>
+          }}>Créer</Button>
         </div>
       </Modal>
 
