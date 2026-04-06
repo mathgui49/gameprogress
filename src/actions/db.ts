@@ -37,11 +37,15 @@ function checkRate(userId: string, action: string, limit = 30, windowSec = 60) {
 }
 
 // ─── Sanitization ─────────────────────────────────────
-import DOMPurify from "isomorphic-dompurify";
 
-/** Strip all HTML from string values in an object (deep). Uses DOMPurify for robust XSS protection. */
+/** Strip all HTML tags from a string. */
+function stripHtml(s: string): string {
+  return s.replace(/<[^>]*>/g, "").trim();
+}
+
+/** Strip all HTML from string values in an object (deep). */
 function sanitizeObj<T>(obj: T): T {
-  if (typeof obj === "string") return DOMPurify.sanitize(obj, { ALLOWED_TAGS: [] }).trim() as unknown as T;
+  if (typeof obj === "string") return stripHtml(obj) as unknown as T;
   if (Array.isArray(obj)) return obj.map(sanitizeObj) as unknown as T;
   if (obj && typeof obj === "object" && !(obj instanceof Date)) {
     const out: Record<string, unknown> = {};

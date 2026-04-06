@@ -22,6 +22,7 @@ export function useSubscription() {
   );
 
   const isPremium = subscription?.status === "active";
+  const isBeta = subscription?.stripeCustomerId === "beta" && isPremium;
 
   const checkout = async (billingOrEvent?: "monthly" | "yearly" | unknown) => {
     const billing: "monthly" | "yearly" = (billingOrEvent === "monthly" || billingOrEvent === "yearly") ? billingOrEvent : "monthly";
@@ -45,5 +46,5 @@ export function useSubscription() {
     if (url) window.location.href = url;
   };
 
-  return { subscription, isPremium, loaded: !isLoading, checkout, openPortal, refresh: mutate };
+  return { subscription, isPremium, isBeta, loaded: !isLoading, checkout, openPortal, refresh: mutate };
 }

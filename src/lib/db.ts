@@ -813,6 +813,47 @@ export async function upsertSubscription(userId: string, fields: Partial<Record<
   if (error) console.error("upsert subscription:", error);
 }
 
+// ─── Beta testers ──────────────────────────────────────
+
+const BETA_MAX = 20;
+
+export async function countBetaTesters(): Promise<number> {
+  const { count, error } = await supabase
+    .from("subscriptions")
+    .select("*", { count: "exact", head: true })
+    .eq("stripe_customer_id", "beta");
+  if (error) { console.error("count beta:", error); return 0; }
+  return count ?? 0;
+}
+
+export async function joinBeta(userId: string): Promise<{ ok: boolean; reason?: string }> {
+  // Check if already subscribed
+  const existing = await fetchSubscription(userId);
+  if (existing?.status === "active") return { ok: false, reason: "already_active" };
+  if (existing?.stripeCustomerId === "beta") return { ok: false, reason: "already_beta" };
+
+  // Check capacity
+  const count = await countBetaTesters();
+  if (count >= BETA_MAX) return { ok: false, reason: "full" };
+
+  // Create beta subscription (1 year)
+  const oneYear = new Date();
+  oneYear.setFullYear(oneYear.getFullYear() + 1);
+
+  await upsertSubscription(userId, {
+    stripeCustomerId: "beta",
+    stripeSubscriptionId: null,
+    status: "active",
+    currentPeriodEnd: oneYear.toISOString(),
+  });
+
+  return { ok: true };
+}
+
+export function isBetaTester(sub: Subscription | null): boolean {
+  return sub?.stripeCustomerId === "beta" && sub?.status === "active";
+}
+
 // ─── Community benchmarks (anonymous) ──────────────────
 
 export interface CommunityBenchmarks {

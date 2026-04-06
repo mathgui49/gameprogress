@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/Button";
 import { Tooltip } from "@/components/ui/Tooltip";
 import { formatRelative } from "@/lib/utils";
 import { useTheme } from "@/hooks/useTheme";
+import { useSubscription } from "@/hooks/useSubscription";
 import type { Session } from "@/types";
 
 interface SessionInvite {
@@ -100,6 +101,7 @@ export function TopBar() {
   const { profile: publicProfile } = usePublicProfile();
   const { totalUnread: msgUnread } = useMessages();
   const { theme, toggle: toggleTheme } = useTheme();
+  const { isBeta } = useSubscription();
 
   // Use profile photo from public profile, fall back to Google auth image
   const avatarUrl = publicProfile?.profilePhoto || authSession?.user?.image || null;
@@ -403,6 +405,18 @@ export function TopBar() {
                   </Link>
                 );
               })}
+              {isBeta && (
+                <Link
+                  href="/beta/programme"
+                  onClick={() => setShowAccount(false)}
+                  className={`flex items-center gap-3 px-3 py-2 rounded-[12px] text-sm transition-colors ${pathname === "/beta/programme" ? "text-[var(--primary)] bg-[var(--border)]" : "text-[var(--on-surface-variant)] hover:bg-[var(--border)] hover:text-[var(--on-surface)]"}`}
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0112 15a9.065 9.065 0 00-6.23.693L5 14.5m14.8.8l1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0112 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
+                  </svg>
+                  Programme Beta
+                </Link>
+              )}
             </div>
 
             {/* Admin */}
