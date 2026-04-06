@@ -1,9 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import { usePublicProfile } from "@/hooks/usePublicProfile";
-import type { PrivacySettings } from "@/types";
+import type { PrivacySettings, PublicProfile } from "@/types";
 import { DEFAULT_PRIVACY } from "@/types";
 import { Card } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
 import { Input, TextArea } from "@/components/ui/Input";
 import { MapPicker } from "@/components/ui/MapPicker";
 import { uploadImageAction } from "@/actions/db";
@@ -18,6 +20,34 @@ const PRIVACY_GROUPS: { label: string; hint: string; publicKey: keyof PrivacySet
 
 export default function ProfilPage() {
   const { profile, loaded, saving, save } = usePublicProfile();
+
+  // Local draft state for the form
+  const [draft, setDraft] = useState<Partial<Omit<PublicProfile, "userId" | "createdAt">> | null>(null);
+  const [saved, setSaved] = useState(false);
+
+  // Initialize draft from profile when loaded
+  const d = draft ?? {
+    username: profile?.username ?? "",
+    firstName: profile?.firstName ?? "",
+    birthDate: profile?.birthDate ?? null,
+    location: profile?.location ?? "",
+    lat: profile?.lat ?? null,
+    lng: profile?.lng ?? null,
+    bio: profile?.bio ?? "",
+  };
+
+  const updateDraft = (updates: Partial<typeof d>) => {
+    setDraft({ ...d, ...updates });
+    setSaved(false);
+  };
+
+  const handleSave = () => {
+    save(d, true);
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2500);
+  };
+
+  const isDirty = draft !== null;
 
   const privacy = profile?.privacy ?? DEFAULT_PRIVACY;
 
@@ -35,7 +65,7 @@ export default function ProfilPage() {
 
   if (!loaded) return <div className="flex items-center justify-center h-screen"><div className="w-8 h-8 border-2 border-[var(--primary)]/30 border-t-[var(--primary)] rounded-full animate-spin" /></div>;
 
-  const hasLocation = !!(profile?.location?.trim());
+  const hasLocation = !!((d.location as string)?.trim());
 
   return (
     <div className="px-4 py-6 lg:px-8 lg:py-8 max-w-2xl mx-auto animate-fade-in">
@@ -44,12 +74,12 @@ export default function ProfilPage() {
         <p className="text-sm text-[var(--on-surface-variant)]">Configure ton profil public visible par les autres gamers</p>
       </div>
 
-      {/* Save indicator */}
-      {saving && (
+      {/* Saved toast */}
+      {saved && (
         <div className="fixed top-4 right-4 z-50 animate-fade-in">
-          <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl glass-card shadow-lg border border-amber-400/20">
-            <div className="w-3.5 h-3.5 border-2 border-amber-400/30 border-t-amber-400 rounded-full animate-spin" />
-            <span className="text-xs font-medium text-amber-400">Sauvegarde...</span>
+          <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl glass-card shadow-lg border border-emerald-400/20">
+            <svg className="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+            <span className="text-xs font-medium text-emerald-400">Profil sauvegardé</span>
           </div>
         </div>
       )}
@@ -66,7 +96,7 @@ export default function ProfilPage() {
                 {profile?.profilePhoto ? (
                   <img src={profile.profilePhoto} alt="" className="w-full h-full object-cover" />
                 ) : (
-                  <span className="text-xl font-bold text-[var(--primary)]">{profile?.firstName?.[0]?.toUpperCase() || "?"}</span>
+                  <span className="text-xl font-bold text-[var(--primary)]">{(d.firstName as string)?.[0]?.toUpperCase() || "?"}</span>
                 )}
               </div>
               <div className="flex flex-col gap-2">
@@ -101,19 +131,23 @@ export default function ProfilPage() {
             </div>
           </div>
 
-          <Input label="Nom d'utilisateur" id="pu" placeholder="ex: mathieu_75" value={profile?.username ?? ""} onChange={(e) => save({ username: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, "") })} />
-          <Input label="Prénom" id="pfn" placeholder="Ton prénom" value={profile?.firstName ?? ""} onChange={(e) => save({ firstName: e.target.value })} />
-          <Input label="Date de naissance" id="pbd" type="date" value={profile?.birthDate ?? ""} onChange={(e) => save({ birthDate: e.target.value || null }, true)} />
+          <Input label="Nom d'utilisateur" id="pu" placeholder="ex: mathieu_75" value={(d.username as string) ?? ""} onChange={(e) => updateDraft({ username: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, "") })} />
+          <Input label="Prénom" id="pfn" placeholder="Ton prénom" value={(d.firstName as string) ?? ""} onChange={(e) => updateDraft({ firstName: e.target.value })} />
+          <Input label="Date de naissance" id="pbd" type="date" value={(d.birthDate as string) ?? ""} onChange={(e) => updateDraft({ birthDate: e.target.value || null })} />
           <MapPicker
             label="Ville"
-            lat={profile?.lat ?? 48.8566}
-            lng={profile?.lng ?? 2.3522}
-            address={profile?.location ?? ""}
-            onAddressChange={(loc) => save({ location: loc })}
-            onCoordsChange={(newLat, newLng) => save({ lat: newLat, lng: newLng }, true)}
+            lat={(d.lat as number) ?? 48.8566}
+            lng={(d.lng as number) ?? 2.3522}
+            address={(d.location as string) ?? ""}
+            onAddressChange={(loc) => updateDraft({ location: loc })}
+            onCoordsChange={(newLat, newLng) => updateDraft({ lat: newLat, lng: newLng })}
             hideMap={!hasLocation}
           />
-          <TextArea label="Bio" id="pbio" placeholder="Quelques mots sur toi et ton game..." rows={2} value={profile?.bio ?? ""} onChange={(e) => save({ bio: e.target.value })} />
+          <TextArea label="Bio" id="pbio" placeholder="Quelques mots sur toi et ton game..." rows={2} value={(d.bio as string) ?? ""} onChange={(e) => updateDraft({ bio: e.target.value })} />
+
+          <Button onClick={handleSave} disabled={saving || (!isDirty && !saved)} className="w-full">
+            {saving ? "Enregistrement..." : saved ? "Sauvegardé !" : "Enregistrer"}
+          </Button>
         </div>
       </Card>
 
