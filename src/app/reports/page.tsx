@@ -41,6 +41,23 @@ function getWeeksData(interactions: any[], numWeeks: number) {
   }).reverse();
 }
 
+function getMonthLabel(date: Date): string {
+  return date.toLocaleDateString("fr-FR", { month: "short", year: "2-digit" });
+}
+
+function getMonthsData(interactions: any[], numMonths: number) {
+  const now = new Date();
+  return Array.from({ length: numMonths }, (_, i) => {
+    const monthEnd = new Date(now.getFullYear(), now.getMonth() - i + 1, 0, 23, 59, 59);
+    const monthStart = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const monthInteractions = interactions.filter((int) => {
+      const d = new Date(int.date);
+      return d >= monthStart && d <= monthEnd;
+    });
+    return { monthStart, monthEnd, interactions: monthInteractions, label: getMonthLabel(monthStart) };
+  }).reverse();
+}
+
 export default function ReportsPage() {
   const { interactions, loaded } = useInteractions();
   const { contacts } = useContacts();
@@ -95,41 +112,54 @@ export default function ReportsPage() {
     const prevCloseRate = prevInteractions.length > 0
       ? (prevInteractions.filter((i) => i.result === "close").length / prevInteractions.length) * 100 : 0;
 
-    // Number of weeks to show based on period
+    // Decide grouping: monthly for periods > 6 months, weekly otherwise
     const periodDays = Math.ceil(periodDuration / 86400000);
-    const numWeeks = Math.max(Math.ceil(periodDays / 7), 1);
+    const useMonthly = periodDays > 180;
+    const timeGroupLabel = useMonthly ? "mois" : "semaine";
 
-    // Weekly data (period-based)
-    const weeks = getWeeksData(periodInteractions, numWeeks);
+    // Build time-series buckets
+    type Bucket = { label: string; interactions: any[] };
+    let buckets: Bucket[];
 
-    // Close rate by week
-    const closeRateWeekly = weeks.map((w) => {
-      const total = w.interactions.length;
-      const closes = w.interactions.filter((i) => i.result === "close").length;
-      return {
+    if (useMonthly) {
+      const numMonths = Math.max(Math.ceil(periodDays / 30), 1);
+      buckets = getMonthsData(periodInteractions, numMonths).map((m) => ({
+        label: m.label,
+        interactions: m.interactions,
+      }));
+    } else {
+      const numWeeks = Math.max(Math.ceil(periodDays / 7), 1);
+      buckets = getWeeksData(periodInteractions, numWeeks).map((w) => ({
         label: getWeekLabel(w.weekStart),
-        value: total > 0 ? Math.round((closes / total) * 100) : 0,
-      };
+        interactions: w.interactions,
+      }));
+    }
+
+    // Close rate over time
+    const closeRateTimeSeries = buckets.map((b) => {
+      const total = b.interactions.length;
+      const closes = b.interactions.filter((i) => i.result === "close").length;
+      return { label: b.label, value: total > 0 ? Math.round((closes / total) * 100) : 0 };
     });
     const avgCloseRate = periodInteractions.length > 0
       ? Math.round((periodInteractions.filter((i) => i.result === "close").length / periodInteractions.length) * 100)
       : 0;
 
-    // Feeling score over time
-    const feelingWeekly = weeks.map((w) => {
-      const avg = w.interactions.length > 0
-        ? w.interactions.reduce((s, i) => s + i.feelingScore, 0) / w.interactions.length
+    // Feeling over time
+    const feelingTimeSeries = buckets.map((b) => {
+      const avg = b.interactions.length > 0
+        ? b.interactions.reduce((s, i) => s + i.feelingScore, 0) / b.interactions.length
         : 0;
-      return { label: getWeekLabel(w.weekStart), value: Math.round(avg * 10) / 10 };
+      return { label: b.label, value: Math.round(avg * 10) / 10 };
     });
     const avgFeeling = periodInteractions.length > 0
       ? periodInteractions.reduce((s, i) => s + i.feelingScore, 0) / periodInteractions.length
       : 0;
 
     // Bar chart data
-    const weeklyBars = weeks.map((w) => ({
-      label: getWeekLabel(w.weekStart),
-      value: w.interactions.length,
+    const activityBars = buckets.map((b) => ({
+      label: b.label,
+      value: b.interactions.length,
     }));
 
     // Result breakdown (period)
@@ -172,12 +202,12 @@ export default function ReportsPage() {
 
     return {
       periodInteractions, prevInteractions, pCloses, prevCloses, pAvgFeel, pCloseRate, prevCloseRate,
-      closeRateWeekly, avgCloseRate,
-      feelingWeekly, avgFeeling,
-      weeklyBars,
+      closeRateTimeSeries, avgCloseRate,
+      feelingTimeSeries, avgFeeling,
+      activityBars, timeGroupLabel,
       closes, neutrals, rejections,
       direct, indirect, situational,
-      heatmapData, heatmapWeeks: numWeeks, unlockedBadges,
+      heatmapData, heatmapWeeks: Math.max(Math.ceil(periodDays / 7), 1), unlockedBadges,
       skillScore, skillRank,
       bestDay: dayNames[bestDayIdx],
     };
@@ -302,17 +332,17 @@ export default function ReportsPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
         <Card>
           <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-[var(--on-surface)] mb-4">
-            Interactions par semaine
+            Interactions par {analytics.timeGroupLabel}
           </h2>
-          <BarChart data={analytics.weeklyBars} height={160} />
+          <BarChart data={analytics.activityBars} height={160} />
         </Card>
 
         <Card>
           <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-[var(--on-surface)] mb-4">
-            Taux de close par semaine
+            Taux de close par {analytics.timeGroupLabel}
           </h2>
           <LineChart
-            data={analytics.closeRateWeekly}
+            data={analytics.closeRateTimeSeries}
             color="#10b981"
             suffix="%"
             avgLine={analytics.avgCloseRate}
@@ -328,7 +358,7 @@ export default function ReportsPage() {
             Ressenti dans le temps
           </h2>
           <LineChart
-            data={analytics.feelingWeekly}
+            data={analytics.feelingTimeSeries}
             color="#c084fc"
             avgLine={analytics.avgFeeling}
             height={160}
