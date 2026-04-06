@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import dynamic from "next/dynamic";
 
 const MapPickerInner = dynamic(() => import("./MapPickerInner"), {
@@ -23,13 +23,15 @@ interface MapPickerProps {
   label?: string;
   readOnly?: boolean;
   hideMap?: boolean;
+  initialSearch?: string;
 }
 
-export function MapPicker({ lat, lng, address, onAddressChange, onCoordsChange, label, readOnly, hideMap }: MapPickerProps) {
+export function MapPicker({ lat, lng, address, onAddressChange, onCoordsChange, label, readOnly, hideMap, initialSearch }: MapPickerProps) {
   const [searching, setSearching] = useState(false);
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const initialSearchDone = useRef(false);
 
   const searchAddress = useCallback(async (query: string) => {
     if (!query.trim() || query.trim().length < 3) { setSuggestions([]); return; }
@@ -45,6 +47,14 @@ export function MapPicker({ lat, lng, address, onAddressChange, onCoordsChange, 
       setSearching(false);
     }
   }, []);
+
+  // Auto-search on mount when initialSearch is provided
+  useEffect(() => {
+    if (initialSearch && !initialSearchDone.current) {
+      initialSearchDone.current = true;
+      searchAddress(initialSearch);
+    }
+  }, [initialSearch, searchAddress]);
 
   const reverseGeocode = useCallback(async (newLat: number, newLng: number) => {
     try {

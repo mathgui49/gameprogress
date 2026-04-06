@@ -66,6 +66,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="fr" className={`${inter.variable} ${grotesk.variable}`}>
       <head>
         <link rel="apple-touch-icon" href="/icon-192.png" />
+        <script dangerouslySetInnerHTML={{ __html: `(function(){var t=localStorage.getItem('gameprogress-theme')||'light';document.documentElement.setAttribute('data-theme',t)})()` }} />
         <script dangerouslySetInnerHTML={{ __html: `if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js'))}` }} />
       </head>
       <body className="font-[family-name:var(--font-inter)] antialiased">

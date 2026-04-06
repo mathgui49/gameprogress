@@ -26,6 +26,8 @@ import {
 } from "@/actions/db";
 import { formatRelative } from "@/lib/utils";
 import { useWingRequests } from "@/hooks/useWingRequests";
+import { usePublicProfile } from "@/hooks/usePublicProfile";
+import { ProfileIncompleteNotice } from "@/components/ui/ProfileIncompleteNotice";
 import type { PublicProfile, SessionComment, ReactionType, PostComment } from "@/types";
 import { JOURNAL_TAG_LABELS, JOURNAL_TAG_COLORS, REACTION_EMOJIS } from "@/types";
 import { useToast } from "@/hooks/useToast";
@@ -571,6 +573,7 @@ export default function FeedPage() {
   const { data: authSession } = useSession();
   const userId = authSession?.user?.email ?? "";
   const { wingProfiles } = useWingRequests();
+  const { isProfileComplete } = usePublicProfile();
   const wingIds = wingProfiles.map((w) => w.userId);
 
   const [feed, setFeed] = useState<FeedItem[]>([]);
@@ -697,6 +700,8 @@ export default function FeedPage() {
         <p className="text-sm text-[var(--on-surface-variant)]">Partage et découvre l&apos;activité de tes wings et de la communauté</p>
       </div>
 
+      {!isProfileComplete && <ProfileIncompleteNotice />}
+
       {/* Pull to refresh indicator */}
       {refreshing && (
         <div className="flex justify-center mb-4 animate-fade-in">
@@ -734,7 +739,7 @@ export default function FeedPage() {
       )}
 
       {/* Post composer */}
-      <PostComposer onPost={() => { toast.show("Post publié !"); loadFeed(true); }} userProfile={myProfile} />
+      {isProfileComplete && <PostComposer onPost={() => { toast.show("Post publié !"); loadFeed(true); }} userProfile={myProfile} />}
 
       {/* Feed content */}
       {loading ? (

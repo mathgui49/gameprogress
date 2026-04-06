@@ -6,6 +6,8 @@ import { useSession } from "next-auth/react";
 import { useSessions } from "@/hooks/useSessions";
 import { useInteractions } from "@/hooks/useInteractions";
 import { useWingRequests } from "@/hooks/useWingRequests";
+import { usePublicProfile } from "@/hooks/usePublicProfile";
+import { ProfileIncompleteNotice } from "@/components/ui/ProfileIncompleteNotice";
 import { useJournal } from "@/hooks/useJournal";
 import {
   fetchSessionParticipantsWithProfilesAction,
@@ -92,6 +94,7 @@ export default function SessionDetailPage({ params }: { params: Promise<{ id: st
   const { getById, toggleGoal, addInteraction, remove, update, loaded } = useSessions();
   const { interactions, add: addNewInteraction } = useInteractions();
   const { isWing } = useWingRequests();
+  const { isProfileComplete } = usePublicProfile();
   const { entries: journalEntries, add: addJournalEntry } = useJournal();
   const [showDelete, setShowDelete] = useState(false);
   const [showAddInteraction, setShowAddInteraction] = useState(false);
@@ -238,7 +241,10 @@ export default function SessionDetailPage({ params }: { params: Promise<{ id: st
             {isFuture && !isActive && <Badge className="bg-cyan-400/15 text-cyan-400">Planifiee</Badge>}
             {isPast && <Badge className="bg-[var(--outline-variant)]/15 text-[var(--on-surface-variant)]">Archivee</Badge>}
           </div>
-          <p className="text-sm text-[var(--on-surface-variant)]">{formatDate(session.date)} {session.location && `\u00b7 ${session.location}`}</p>
+          <p className="text-sm text-[var(--on-surface-variant)]">
+            {formatDate(session.date)} {session.location && `\u00b7 ${session.location}`}
+            {session.estimatedDuration && ` \u00b7 ${Math.floor(session.estimatedDuration / 60) > 0 ? `${Math.floor(session.estimatedDuration / 60)}h` : ""}${session.estimatedDuration % 60 > 0 ? `${String(session.estimatedDuration % 60).padStart(2, "0")}min` : ""}`}
+          </p>
           {session.address && <p className="text-xs text-[var(--outline)] mt-0.5">{session.address}</p>}
         </div>
         <div className="flex items-center gap-2 shrink-0">
@@ -280,12 +286,13 @@ export default function SessionDetailPage({ params }: { params: Promise<{ id: st
               <Button variant="ghost" size="sm" onClick={handleLeave} disabled={leaving}>
                 {leaving ? "..." : "Quitter"}
               </Button>
-            ) : (
+            ) : isProfileComplete ? (
               <Button size="sm" onClick={handleJoin} disabled={joining || isFull}>
                 {joining ? "..." : isFull ? "Complet" : "Rejoindre"}
               </Button>
-            )}
+            ) : null}
           </div>
+          {!isProfileComplete && !isParticipant && <div className="mt-3"><ProfileIncompleteNotice /></div>}
         </Card>
       )}
 

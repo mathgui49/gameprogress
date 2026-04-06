@@ -4,6 +4,8 @@ import { useState, useRef, useEffect, useMemo } from "react";
 import { useSession } from "next-auth/react";
 import { useMessages } from "@/hooks/useMessages";
 import { useWingRequests } from "@/hooks/useWingRequests";
+import { usePublicProfile } from "@/hooks/usePublicProfile";
+import { ProfileIncompleteNotice } from "@/components/ui/ProfileIncompleteNotice";
 import { fetchWingStatusesAction, renameMessageGroupAction } from "@/actions/db";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -27,6 +29,7 @@ export default function MessagesPage() {
     openConversation, openGroupChat, send, createGroup, refresh,
   } = useMessages();
   const { wingProfiles } = useWingRequests();
+  const { isProfileComplete } = usePublicProfile();
 
   const toast = useToast();
   const [chatTarget, setChatTarget] = useState<ChatTarget | null>(null);
@@ -108,6 +111,20 @@ export default function MessagesPage() {
   };
 
   if (!loaded) return <div className="flex items-center justify-center h-screen"><div className="w-8 h-8 border-2 border-[var(--primary)]/30 border-t-[var(--primary)] rounded-full animate-spin" /></div>;
+
+  if (!isProfileComplete) {
+    return (
+      <div className="px-4 py-6 lg:px-8 lg:py-8 max-w-3xl mx-auto animate-fade-in">
+        <div className="mb-6">
+          <h1 className="text-2xl font-[family-name:var(--font-grotesk)] font-bold tracking-tight mb-1">
+            <span className="bg-gradient-to-r from-[#818cf8] to-[#67e8f9] bg-clip-text text-transparent">Messages</span>
+          </h1>
+          <p className="text-sm text-[var(--on-surface-variant)]">Tes conversations</p>
+        </div>
+        <ProfileIncompleteNotice />
+      </div>
+    );
+  }
 
   return (
     <div className="px-4 py-6 lg:px-8 lg:py-8 max-w-3xl mx-auto animate-fade-in">

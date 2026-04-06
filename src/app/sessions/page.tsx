@@ -463,6 +463,7 @@ export default function SessionsPage() {
                       <p className="text-xs text-[var(--outline)]">
                         {formatDate(s.date)} {s.location && `· ${s.location}`}
                         {s.distanceKm !== null && ` · ${s.distanceKm} km`}
+                        {s.estimatedDuration && ` · ${Math.floor(s.estimatedDuration / 60) > 0 ? `${Math.floor(s.estimatedDuration / 60)}h` : ""}${s.estimatedDuration % 60 > 0 ? `${String(s.estimatedDuration % 60).padStart(2, "0")}min` : ""}`}
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
@@ -490,7 +491,10 @@ export default function SessionsPage() {
                             )
                           ))}
                         </div>
-                        <span className="text-[10px] text-[var(--outline)]">{pInfo.count} participant{pInfo.count > 1 ? "s" : ""}</span>
+                        <span className="text-[10px] text-[var(--outline)]">
+                          {pInfo.count} participant{pInfo.count > 1 ? "s" : ""}
+                          {s.maxParticipants > 0 && ` · ${Math.max(0, s.maxParticipants - pInfo.count)} place${Math.max(0, s.maxParticipants - pInfo.count) > 1 ? "s" : ""} restante${Math.max(0, s.maxParticipants - pInfo.count) > 1 ? "s" : ""}`}
+                        </span>
                       </div>
                     )}
                     {s.wings.length > 0 && (
@@ -586,9 +590,16 @@ export default function SessionsPage() {
                   </div>
                   <div className="flex items-center gap-2">
                     <CountdownBadge date={s.date} />
-                    {s.maxParticipants > 0 && (
-                      <span className="text-[10px] text-[var(--outline)]">{s.maxParticipants} places</span>
-                    )}
+                    {(() => {
+                      const pCount = participantCounts[s.id]?.count ?? 0;
+                      if (s.maxParticipants > 0) {
+                        const remaining = Math.max(0, s.maxParticipants - pCount);
+                        return remaining > 0
+                          ? <span className="text-[10px] text-emerald-400">{remaining} place{remaining > 1 ? "s" : ""} restante{remaining > 1 ? "s" : ""}</span>
+                          : <Badge className="bg-[#fb7185]/15 text-[#fb7185]">Complet</Badge>;
+                      }
+                      return null;
+                    })()}
                   </div>
                 </div>
                 <div className="flex items-center gap-2 mt-3">
@@ -600,12 +611,18 @@ export default function SessionsPage() {
                       </span>
                     </Button>
                   </Link>
-                  <Button size="sm" onClick={async (e: React.MouseEvent) => { e.stopPropagation(); await joinPublicSessionAction(s.id); window.location.reload(); }}>
-                    <span className="flex items-center gap-1.5">
-                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" /></svg>
-                      Rejoindre
-                    </span>
-                  </Button>
+                  {(() => {
+                    const pCount = participantCounts[s.id]?.count ?? 0;
+                    const isFull = s.maxParticipants > 0 && pCount >= s.maxParticipants;
+                    return (
+                      <Button size="sm" disabled={isFull} onClick={async (e: React.MouseEvent) => { e.stopPropagation(); await joinPublicSessionAction(s.id); window.location.reload(); }}>
+                        <span className="flex items-center gap-1.5">
+                          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" /></svg>
+                          {isFull ? "Complet" : "Rejoindre"}
+                        </span>
+                      </Button>
+                    );
+                  })()}
                 </div>
               </Card>
             ))}

@@ -130,7 +130,7 @@ export async function deleteRow(table: string, id: string, userId?: string) {
 // Custom queries for social features
 
 export async function searchPublicProfiles(location?: string) {
-  let query = supabase.from("public_profiles").select("*").eq("is_public", true);
+  let query = supabase.from("public_profiles").select("*").eq("is_public", true).neq("first_name", "").neq("username", "");
   if (location) query = query.ilike("location", `%${location}%`);
   const { data, error } = await query.order("created_at", { ascending: false });
   if (error) { console.error("search profiles:", error); return []; }
@@ -239,6 +239,23 @@ export async function joinPublicSession(sessionId: string, userId: string) {
     .eq("user_id", userId)
     .single();
   if (existing) return; // already joined
+
+  // Check max participants limit
+  const { data: sessionData } = await supabase
+    .from("sessions")
+    .select("max_participants")
+    .eq("id", sessionId)
+    .single();
+  const maxP = sessionData?.max_participants ?? 0;
+  if (maxP > 0) {
+    const { count } = await supabase
+      .from("session_participants")
+      .select("id", { count: "exact", head: true })
+      .eq("session_id", sessionId)
+      .eq("status", "accepted");
+    if ((count ?? 0) >= maxP) throw new Error("Cette session est complète.");
+  }
+
   await supabase.from("session_participants").insert({
     id: crypto.randomUUID(),
     session_id: sessionId,
@@ -331,8 +348,8 @@ export async function addSessionComment(sessionId: string, userId: string, conte
 // ─── Leaderboard ────────────────────────────────────────
 
 export async function fetchLeaderboard(location?: string) {
-  // Get all public profiles
-  let query = supabase.from("public_profiles").select("*").eq("is_public", true);
+  // Get all public profiles with completed profile (firstName + username)
+  let query = supabase.from("public_profiles").select("*").eq("is_public", true).neq("first_name", "").neq("username", "");
   if (location) query = query.ilike("location", `%${location}%`);
   const { data: profiles } = await query;
   if (!profiles || profiles.length === 0) return [];
@@ -1412,7 +1429,7 @@ export async function addCollaborativeContribution(journalEntryId: string, autho
 // ─── Leaderboard Extended ──────────────────────────────
 
 export async function fetchLeaderboardWithXpDetails(location?: string) {
-  let query = supabase.from("public_profiles").select("*").eq("is_public", true);
+  let query = supabase.from("public_profiles").select("*").eq("is_public", true).neq("first_name", "").neq("username", "");
   if (location) query = query.ilike("location", `%${location}%`);
   const { data: profiles } = await query;
   if (!profiles || profiles.length === 0) return [];

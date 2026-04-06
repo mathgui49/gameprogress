@@ -158,6 +158,14 @@ export async function deleteRowAction(table: string, id: string) {
   await db.deleteRow(table, id, userId);
 }
 
+// ─── Profile completion check ─────────────────────────
+async function requireCompleteProfile(userId: string) {
+  const profile = await db.fetchOne("public_profiles", userId);
+  if (!profile || !(profile as any).firstName?.trim() || !(profile as any).username?.trim()) {
+    throw new Error("Profil incomplet : renseigne ton prénom et ton nom d'utilisateur avant de continuer.");
+  }
+}
+
 // ─── Wing requests ─────────────────────────────────────
 
 export async function fetchWingRequestsAction() {
@@ -167,6 +175,7 @@ export async function fetchWingRequestsAction() {
 
 export async function sendWingRequestAction(toUserId: string) {
   const userId = await getAuthUserId();
+  await requireCompleteProfile(userId);
   checkRate(userId, "wingRequest", 10, 60);
   if (toUserId === userId) return;
   const row = db.toRow({
@@ -286,6 +295,7 @@ export async function fetchPublicSessionsAction() {
 
 export async function joinPublicSessionAction(sessionId: string) {
   const userId = await getAuthUserId();
+  await requireCompleteProfile(userId);
   await db.joinPublicSession(sessionId, userId);
 }
 
@@ -313,6 +323,7 @@ export async function createPostAction(post: {
   linkedSessionId: string | null;
 }) {
   const userId = await getAuthUserId();
+  await requireCompleteProfile(userId);
   checkRate(userId, "createPost", 10, 60);
   assertString(post.content, "content", 10000);
   assertEnum(post.visibility, "visibility", ["wings", "public"] as const);
@@ -588,6 +599,7 @@ export async function fetchGroupMessagesAction(groupId: string) {
 
 export async function sendMessageAction(toUserId: string | null, groupId: string | null, content: string) {
   const userId = await getAuthUserId();
+  await requireCompleteProfile(userId);
   checkRate(userId, "sendMessage", 30, 60);
   assertString(content, "content", 5000);
   if (toUserId) assertString(toUserId, "toUserId", 200);

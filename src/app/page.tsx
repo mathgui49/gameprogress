@@ -13,6 +13,7 @@ import { ActivityFeed } from "@/components/dashboard/ActivityFeed";
 import { Card } from "@/components/ui/Card";
 import { Tooltip } from "@/components/ui/Tooltip";
 import { IconMapPin, IconBarChart, IconSparkles, IconStar, IconFlame, IconUsers, IconPlus, IconTarget, IconCalendar, IconPenLine, IconTrendingUp, IconAward } from "@/components/ui/Icons";
+import { BadgeIcon } from "@/components/ui/BadgeIcon";
 import { BenchmarkCard } from "@/components/dashboard/BenchmarkCard";
 import { useBenchmarks } from "@/hooks/useBenchmarks";
 import Link from "next/link";
@@ -388,8 +389,8 @@ export default function DashboardPage() {
                 {unlockedBadges.slice(0, 5).map((b) => (
                   <Tooltip key={b.id} text={b.description} position="top">
                     <div className="flex flex-col items-center gap-1 shrink-0">
-                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#c084fc]/15 to-[#f472b6]/15 flex items-center justify-center text-lg animate-float" style={{ animationDelay: `${Math.random() * 2}s` }}>
-                        {b.icon === "star-fill" ? "⭐" : b.icon === "flame" ? "🔥" : b.icon === "target" ? "🎯" : b.icon === "heart" ? "❤️" : b.icon === "trophy" ? "🏆" : b.icon === "shield" ? "🛡️" : b.icon === "zap" ? "⚡" : "🏅"}
+                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#c084fc]/15 to-[#f472b6]/15 flex items-center justify-center animate-float" style={{ animationDelay: `${Math.random() * 2}s` }}>
+                        <BadgeIcon icon={b.icon} size={20} />
                       </div>
                       <span className="text-[9px] text-[var(--outline)] text-center max-w-[60px] truncate">{b.name}</span>
                     </div>

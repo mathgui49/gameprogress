@@ -255,6 +255,7 @@ export interface Session {
   interactionIds: string[];
   isPublic: boolean;
   maxParticipants: number;
+  estimatedDuration: number | null; // in minutes
   createdAt: string;
 }
 

@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { usePublicProfile } from "@/hooks/usePublicProfile";
 import type { PrivacySettings } from "@/types";
 import { DEFAULT_PRIVACY } from "@/types";
@@ -18,10 +17,7 @@ const PRIVACY_GROUPS: { label: string; hint: string; publicKey: keyof PrivacySet
 ];
 
 export default function ProfilPage() {
-  const { profile, loaded, save } = usePublicProfile();
-  const [saved, setSaved] = useState(false);
-
-  const flash = () => { setSaved(true); setTimeout(() => setSaved(false), 2000); };
+  const { profile, loaded, saving, save } = usePublicProfile();
 
   const privacy = profile?.privacy ?? DEFAULT_PRIVACY;
 
@@ -34,18 +30,7 @@ export default function ProfilPage() {
   const setGroupValue = (g: typeof PRIVACY_GROUPS[number], v: PrivacyOption) => {
     const updates: Partial<PrivacySettings> = { [g.publicKey]: v === "public" };
     if (g.wingsKey) updates[g.wingsKey] = v === "wings" || v === "public";
-    save({ privacy: { ...privacy, ...updates } });
-    flash();
-  };
-
-  const setAllPrivacy = (pub: boolean) => {
-    const updates: Partial<PrivacySettings> = {};
-    for (const g of PRIVACY_GROUPS) {
-      updates[g.publicKey] = pub;
-      if (g.wingsKey) updates[g.wingsKey] = pub;
-    }
-    save({ privacy: { ...privacy, ...updates } });
-    flash();
+    save({ privacy: { ...privacy, ...updates } }, true);
   };
 
   if (!loaded) return <div className="flex items-center justify-center h-screen"><div className="w-8 h-8 border-2 border-[var(--primary)]/30 border-t-[var(--primary)] rounded-full animate-spin" /></div>;
@@ -59,12 +44,12 @@ export default function ProfilPage() {
         <p className="text-sm text-[var(--on-surface-variant)]">Configure ton profil public visible par les autres gamers</p>
       </div>
 
-      {/* Saved toast */}
-      {saved && (
+      {/* Save indicator */}
+      {saving && (
         <div className="fixed top-4 right-4 z-50 animate-fade-in">
-          <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl glass-card shadow-lg border border-emerald-400/20">
-            <svg className="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
-            <span className="text-xs font-medium text-emerald-400">Sauvegardé</span>
+          <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl glass-card shadow-lg border border-amber-400/20">
+            <div className="w-3.5 h-3.5 border-2 border-amber-400/30 border-t-amber-400 rounded-full animate-spin" />
+            <span className="text-xs font-medium text-amber-400">Sauvegarde...</span>
           </div>
         </div>
       )}
@@ -97,7 +82,7 @@ export default function ProfilPage() {
                       const reader = new FileReader();
                       reader.onload = async () => {
                         const url = await uploadImageAction(reader.result as string, "profiles");
-                        if (url) { save({ profilePhoto: url }); flash(); }
+                        if (url) { save({ profilePhoto: url }, true); }
                       };
                       reader.readAsDataURL(file);
                     }}
@@ -107,7 +92,7 @@ export default function ProfilPage() {
                   </span>
                 </label>
                 {profile?.profilePhoto && (
-                  <button onClick={() => { save({ profilePhoto: null }); flash(); }} className="text-[10px] text-[var(--error)] hover:underline text-left">
+                  <button onClick={() => { save({ profilePhoto: null }, true); }} className="text-[10px] text-[var(--error)] hover:underline text-left">
                     Retirer la photo
                   </button>
                 )}
@@ -116,35 +101,19 @@ export default function ProfilPage() {
             </div>
           </div>
 
-          <Input label="Nom d'utilisateur" id="pu" placeholder="ex: mathieu_75" value={profile?.username ?? ""} onChange={(e) => { save({ username: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, "") }); flash(); }} />
-          <Input label="Prénom" id="pfn" placeholder="Ton prénom" value={profile?.firstName ?? ""} onChange={(e) => { save({ firstName: e.target.value }); flash(); }} />
-          <Input label="Date de naissance" id="pbd" type="date" value={profile?.birthDate ?? ""} onChange={(e) => { save({ birthDate: e.target.value || null }); flash(); }} />
+          <Input label="Nom d'utilisateur" id="pu" placeholder="ex: mathieu_75" value={profile?.username ?? ""} onChange={(e) => save({ username: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, "") })} />
+          <Input label="Prénom" id="pfn" placeholder="Ton prénom" value={profile?.firstName ?? ""} onChange={(e) => save({ firstName: e.target.value })} />
+          <Input label="Date de naissance" id="pbd" type="date" value={profile?.birthDate ?? ""} onChange={(e) => save({ birthDate: e.target.value || null }, true)} />
           <MapPicker
             label="Ville"
             lat={profile?.lat ?? 48.8566}
             lng={profile?.lng ?? 2.3522}
             address={profile?.location ?? ""}
-            onAddressChange={(loc) => { save({ location: loc }); flash(); }}
-            onCoordsChange={(newLat, newLng) => { save({ lat: newLat, lng: newLng }); flash(); }}
+            onAddressChange={(loc) => save({ location: loc })}
+            onCoordsChange={(newLat, newLng) => save({ lat: newLat, lng: newLng }, true)}
             hideMap={!hasLocation}
           />
-          <TextArea label="Bio" id="pbio" placeholder="Quelques mots sur toi et ton game..." rows={2} value={profile?.bio ?? ""} onChange={(e) => { save({ bio: e.target.value }); flash(); }} />
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-[var(--on-surface-variant)]">Profil visible publiquement</p>
-              <p className="text-[10px] text-[var(--outline)]">Les autres utilisateurs pourront te trouver dans Découvrir</p>
-            </div>
-            <button
-              onClick={() => {
-                const next = !(profile?.isPublic);
-                save({ isPublic: next });
-                setAllPrivacy(next);
-              }}
-              className={`relative w-11 h-6 rounded-full transition-colors ${profile?.isPublic ? "bg-[var(--primary)]" : "bg-[var(--outline-variant)]"}`}
-            >
-              <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white transition-transform ${profile?.isPublic ? "translate-x-5" : ""}`} />
-            </button>
-          </div>
+          <TextArea label="Bio" id="pbio" placeholder="Quelques mots sur toi et ton game..." rows={2} value={profile?.bio ?? ""} onChange={(e) => save({ bio: e.target.value })} />
         </div>
       </Card>
 

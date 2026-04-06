@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { usePublicProfile } from "@/hooks/usePublicProfile";
+import { ProfileIncompleteNotice } from "@/components/ui/ProfileIncompleteNotice";
 import { useWingRequests } from "@/hooks/useWingRequests";
 import { useMessages } from "@/hooks/useMessages";
 import { useWingMeta } from "@/hooks/useWingMeta";
@@ -32,7 +33,7 @@ type Tab = "wings" | "discover" | "map" | "invitations" | "chat";
 export default function WingsPage() {
   const { data: authSession } = useSession();
   const userId = authSession?.user?.email ?? "";
-  const { profile: myProfile, discoverProfiles, findByUsername } = usePublicProfile();
+  const { profile: myProfile, isProfileComplete, discoverProfiles, findByUsername } = usePublicProfile();
   const {
     wingProfiles, loaded, pendingReceived, pendingSent,
     sendRequest, acceptRequest, declineRequest, isWing, hasPendingTo,
@@ -183,6 +184,18 @@ export default function WingsPage() {
   };
 
   if (!loaded) return <div className="flex items-center justify-center h-screen"><div className="w-8 h-8 border-2 border-[var(--primary)]/30 border-t-[var(--primary)] rounded-full animate-spin" /></div>;
+
+  if (!isProfileComplete) {
+    return (
+      <div className="px-4 py-6 lg:px-8 lg:py-8 max-w-3xl mx-auto animate-fade-in">
+        <div className="mb-6">
+          <h1 className="text-2xl font-[family-name:var(--font-grotesk)] font-bold tracking-tight mb-1"><span className="bg-gradient-to-r from-[#818cf8] to-[#34d399] bg-clip-text text-transparent">Wings</span></h1>
+          <p className="text-sm text-[var(--on-surface-variant)]">Tes partenaires de game</p>
+        </div>
+        <ProfileIncompleteNotice />
+      </div>
+    );
+  }
 
   // Build map markers
   const mapMarkers: MapMarker[] = [

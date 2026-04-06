@@ -7,11 +7,11 @@ type Theme = "dark" | "light";
 const STORAGE_KEY = "gameprogress-theme";
 
 export function useTheme() {
-  const [theme, setThemeState] = useState<Theme>("dark");
+  const [theme, setThemeState] = useState<Theme>("light");
 
   useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEY) as Theme | null;
-    const initial = stored || "dark";
+    const initial = stored || "light";
     setThemeState(initial);
     document.documentElement.setAttribute("data-theme", initial);
   }, []);
