@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
 import type { Message, MessageGroup } from "@/types";
 import {
@@ -17,6 +17,8 @@ export function useMessages() {
   const [unreadCounts, setUnreadCounts] = useState<Record<string, number>>({});
   const [currentMessages, setCurrentMessages] = useState<Message[]>([]);
   const [loaded, setLoaded] = useState(false);
+  const activeChatRef = useRef<{ type: "dm" | "group"; id: string } | null>(null);
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const loadConversations = useCallback(async () => {
     if (!userId) return;
@@ -33,17 +35,45 @@ export function useMessages() {
 
   useEffect(() => { loadConversations(); }, [loadConversations]);
 
+  // Poll for new messages when a conversation is open
+  const startPolling = useCallback((type: "dm" | "group", id: string) => {
+    if (pollRef.current) clearInterval(pollRef.current);
+    activeChatRef.current = { type, id };
+    pollRef.current = setInterval(async () => {
+      const chat = activeChatRef.current;
+      if (!chat) return;
+      const msgs = chat.type === "dm"
+        ? await fetchMessagesAction(chat.id)
+        : await fetchGroupMessagesAction(chat.id);
+      setCurrentMessages(msgs);
+      if (chat.type === "dm") {
+        await markMessagesReadAction(chat.id);
+        setUnreadCounts((prev) => ({ ...prev, [chat.id]: 0 }));
+      }
+    }, 5000);
+  }, []);
+
+  const stopPolling = useCallback(() => {
+    if (pollRef.current) { clearInterval(pollRef.current); pollRef.current = null; }
+    activeChatRef.current = null;
+  }, []);
+
+  // Cleanup on unmount
+  useEffect(() => () => { stopPolling(); }, [stopPolling]);
+
   const openConversation = useCallback(async (otherUserId: string) => {
     const messages = await fetchMessagesAction(otherUserId);
     setCurrentMessages(messages);
     await markMessagesReadAction(otherUserId);
     setUnreadCounts((prev) => ({ ...prev, [otherUserId]: 0 }));
-  }, []);
+    startPolling("dm", otherUserId);
+  }, [startPolling]);
 
   const openGroupChat = useCallback(async (groupId: string) => {
     const messages = await fetchGroupMessagesAction(groupId);
     setCurrentMessages(messages);
-  }, []);
+    startPolling("group", groupId);
+  }, [startPolling]);
 
   const send = useCallback(async (toUserId: string | null, groupId: string | null, content: string) => {
     try {
