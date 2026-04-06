@@ -297,6 +297,7 @@ export interface Wing {
 // ─── Profile ──────────────────────────────────────────────
 export interface UserProfile {
   name: string;
+  email: string;
   gameObjectives: string;
   idealWoman: string;
   createdAt: string;

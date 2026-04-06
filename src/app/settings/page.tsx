@@ -62,19 +62,22 @@ export default function SettingsPage() {
   }, []);
 
   const [draftName, setDraftName] = useState<string | null>(null);
+  const [draftEmail, setDraftEmail] = useState<string | null>(null);
   const [draftObjectives, setDraftObjectives] = useState<string | null>(null);
   const [draftIdealWoman, setDraftIdealWoman] = useState<string | null>(null);
   const [profileSaved, setProfileSaved] = useState(false);
 
-  const profileDirty = draftName !== null || draftObjectives !== null || draftIdealWoman !== null;
+  const profileDirty = draftName !== null || draftEmail !== null || draftObjectives !== null || draftIdealWoman !== null;
 
-  const handleSaveProfile = () => {
+  const handleSaveProfile = async () => {
     const updates: Record<string, string> = {};
     if (draftName !== null) updates.name = draftName;
+    if (draftEmail !== null) updates.email = draftEmail;
     if (draftObjectives !== null) updates.gameObjectives = draftObjectives;
     if (draftIdealWoman !== null) updates.idealWoman = draftIdealWoman;
-    updateProfile(updates);
+    await updateProfile(updates);
     setDraftName(null);
+    setDraftEmail(null);
     setDraftObjectives(null);
     setDraftIdealWoman(null);
     setProfileSaved(true);
@@ -114,6 +117,7 @@ export default function SettingsPage() {
         <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-[var(--on-surface)] mb-4">Profil privé</h2>
         <div className="space-y-4">
           <Input label="Nom" id="pn" placeholder="Ton prénom ou pseudo" value={draftName ?? profile.name} onChange={(e) => setDraftName(e.target.value)} />
+          <Input label="Email" id="pe" type="email" placeholder="Ton email" value={draftEmail ?? profile.email ?? ""} onChange={(e) => setDraftEmail(e.target.value)} />
           <TextArea label="Objectifs game" id="go" placeholder="Tes objectifs en game (ex: 10 dates ce mois, oser les directs...)" rows={3} value={draftObjectives ?? profile.gameObjectives ?? ""} onChange={(e) => setDraftObjectives(e.target.value)} />
           <TextArea label="Femme idéale" id="iw" placeholder="Décris le type de femme que tu recherches..." rows={3} value={draftIdealWoman ?? profile.idealWoman ?? ""} onChange={(e) => setDraftIdealWoman(e.target.value)} />
           <Button onClick={handleSaveProfile} disabled={!profileDirty && !profileSaved} className="w-full">

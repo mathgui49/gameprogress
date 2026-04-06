@@ -77,9 +77,10 @@ export async function fetchOne<T>(table: string, userId: string): Promise<T | nu
     .from(table)
     .select("*")
     .eq("user_id", userId)
-    .single();
-  if (error || !data) return null;
-  return fromRow<T>(data);
+    .order("created_at", { ascending: false })
+    .limit(1);
+  if (error || !data || data.length === 0) return null;
+  return fromRow<T>(data[0]);
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -115,11 +116,36 @@ const USER_KEYED_TABLES = new Set(["profiles", "gamification", "public_profiles"
 export async function upsertRow(table: string, userId: string, obj: any) {
   const row = toRow(obj);
   row.user_id = userId;
-  const opts = USER_KEYED_TABLES.has(table) ? { onConflict: "user_id" } : undefined;
-  const { error } = await supabase.from(table).upsert(row, opts);
-  if (error) {
-    console.error(`upsert ${table}:`, error);
-    throw new Error(`Upsert failed: ${error.message}`);
+
+  if (USER_KEYED_TABLES.has(table)) {
+    // For user-keyed tables: check if row exists, then update or insert
+    const { data: existing } = await supabase
+      .from(table)
+      .select("user_id")
+      .eq("user_id", userId)
+      .limit(1);
+
+    if (existing && existing.length > 0) {
+      // Update existing row — remove id to avoid conflicts
+      const { id: _id, ...updateRow } = row as any;
+      const { error } = await supabase.from(table).update(updateRow).eq("user_id", userId);
+      if (error) {
+        console.error(`update ${table}:`, error);
+        throw new Error(`Update failed: ${error.message}`);
+      }
+    } else {
+      const { error } = await supabase.from(table).insert(row);
+      if (error) {
+        console.error(`insert ${table}:`, error);
+        throw new Error(`Insert failed: ${error.message}`);
+      }
+    }
+  } else {
+    const { error } = await supabase.from(table).upsert(row);
+    if (error) {
+      console.error(`upsert ${table}:`, error);
+      throw new Error(`Upsert failed: ${error.message}`);
+    }
   }
 }
 
