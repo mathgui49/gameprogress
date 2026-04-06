@@ -7,7 +7,7 @@ const config: CapacitorConfig = {
   server: {
     // Mode live server : l'app charge directement ton site Vercel
     // Change cette URL si ton domaine custom est différent
-    url: "https://game-progress-nine.vercel.app",
+    url: "https://gameprogress.vercel.app",
     cleartext: false,
   },
   android: {
