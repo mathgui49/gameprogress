@@ -204,11 +204,11 @@ export function TopBar() {
       <div className="lg:hidden grid grid-cols-[auto_1fr_auto] items-center px-4 pt-4 pb-2">
         {/* Left: Logo + Theme toggle */}
         <div className="flex items-center gap-1.5">
-          <Link href="/landing">
+          <a href="/landing">
             <div className="w-8 h-8 rounded-[10px] border border-[var(--primary)]/30 flex items-center justify-center animate-logo-pulse">
               <Image src="/logo.webp" alt="GameProgress" width={20} height={20} className="rounded-[5px]" priority />
             </div>
-          </Link>
+          </a>
           <button
             onClick={toggleTheme}
             aria-label={theme === "dark" ? "Mode clair" : "Mode sombre"}

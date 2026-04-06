@@ -47,14 +47,14 @@ export function Sidebar() {
     <aside className="hidden lg:flex flex-col w-[230px] min-h-screen glass-heavy border-r border-[var(--glass-border)]">
       {/* Logo — links to landing page */}
       <div className="px-5 py-6">
-        <Link href="/landing" className="flex items-center gap-3 group">
+        <a href="/landing" className="flex items-center gap-3 group">
           <div className="w-9 h-9 rounded-[12px] border-2 border-[var(--primary)]/40 flex items-center justify-center animate-logo-pulse group-hover:border-[var(--primary)]/70 transition-colors">
             <Image src="/logo.webp" alt="GameProgress" width={22} height={22} className="rounded-[6px]" priority />
           </div>
           <span className="text-[15px] font-[family-name:var(--font-grotesk)] font-bold text-[var(--on-surface)] tracking-tight">
             GameProgress
           </span>
-        </Link>
+        </a>
       </div>
 
       {/* Nav with sections */}
