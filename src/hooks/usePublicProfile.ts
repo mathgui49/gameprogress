@@ -22,16 +22,8 @@ export function usePublicProfile() {
   useEffect(() => {
     if (!userId) return;
     fetchOneAction<PublicProfile>("public_profiles").then((data) => {
-      // Auto-set Google profile photo as default if no custom photo exists
-      if (data && !data.profilePhoto && googleImage) {
-        const updated = { ...data, profilePhoto: googleImage };
-        setProfile(updated);
-        latestRef.current = updated;
-        upsertRowAction("public_profiles", updated);
-      } else {
-        setProfile(data);
-        latestRef.current = data;
-      }
+      setProfile(data);
+      latestRef.current = data;
       setLoaded(true);
     });
   }, [userId, googleImage]);
