@@ -27,10 +27,7 @@ export function usePublicProfile() {
         const updated = { ...data, profilePhoto: googleImage };
         setProfile(updated);
         latestRef.current = updated;
-        const payload = Object.fromEntries(
-          Object.entries(updated).filter(([, v]) => v !== null)
-        );
-        upsertRowAction("public_profiles", payload);
+        upsertRowAction("public_profiles", updated);
       } else {
         setProfile(data);
         latestRef.current = data;
@@ -44,12 +41,7 @@ export function usePublicProfile() {
     return () => {
       if (debounceRef.current) {
         clearTimeout(debounceRef.current);
-        if (latestRef.current) {
-          const payload = Object.fromEntries(
-            Object.entries(latestRef.current).filter(([, v]) => v !== null)
-          );
-          upsertRowAction("public_profiles", payload);
-        }
+        if (latestRef.current) upsertRowAction("public_profiles", latestRef.current);
       }
     };
   }, []);
@@ -74,24 +66,15 @@ export function usePublicProfile() {
         };
         latestRef.current = next;
 
-        // Strip null values to avoid sending them to Supabase
-        // (e.g. profilePhoto: null causes upsert to fail)
-        const payload = Object.fromEntries(
-          Object.entries(next).filter(([, v]) => v !== null)
-        );
-
         if (debounceRef.current) clearTimeout(debounceRef.current);
 
         if (immediate) {
           setSaving(true);
-          upsertRowAction("public_profiles", payload).finally(() => setSaving(false));
+          upsertRowAction("public_profiles", next).finally(() => setSaving(false));
         } else {
           setSaving(true);
           debounceRef.current = setTimeout(() => {
-            const latestPayload = Object.fromEntries(
-              Object.entries(latestRef.current!).filter(([, v]) => v !== null)
-            );
-            upsertRowAction("public_profiles", latestPayload).finally(() => setSaving(false));
+            upsertRowAction("public_profiles", latestRef.current!).finally(() => setSaving(false));
             debounceRef.current = null;
           }, DEBOUNCE_MS);
         }
