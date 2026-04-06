@@ -109,12 +109,23 @@ export default function ProfilPage() {
                       const file = e.target.files?.[0];
                       if (!file) return;
                       if (file.size > 5_000_000) { alert("Photo trop lourde (max 5 Mo)"); return; }
-                      const reader = new FileReader();
-                      reader.onload = async () => {
-                        const url = await uploadImageAction(reader.result as string, "profiles");
+                      // Compress to 256x256 JPEG before upload
+                      const img = new window.Image();
+                      img.onload = async () => {
+                        const canvas = document.createElement("canvas");
+                        const size = 256;
+                        canvas.width = size;
+                        canvas.height = size;
+                        const ctx = canvas.getContext("2d")!;
+                        const min = Math.min(img.width, img.height);
+                        const sx = (img.width - min) / 2;
+                        const sy = (img.height - min) / 2;
+                        ctx.drawImage(img, sx, sy, min, min, 0, 0, size, size);
+                        const compressed = canvas.toDataURL("image/jpeg", 0.8);
+                        const url = await uploadImageAction(compressed, "profiles");
                         if (url) { save({ profilePhoto: url }, true); }
                       };
-                      reader.readAsDataURL(file);
+                      img.src = URL.createObjectURL(file);
                     }}
                   />
                   <span className="text-xs px-3 py-1.5 rounded-lg bg-[var(--surface-high)] border border-[var(--border)] text-[var(--on-surface-variant)] hover:bg-[var(--surface-bright)] transition-colors cursor-pointer">
