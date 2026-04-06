@@ -248,7 +248,7 @@ export default function MessagesPage() {
         </>
       ) : (
         /* Chat view — full height, input fixed at bottom */
-        <div className="fixed inset-0 z-30 flex flex-col bg-[var(--background)]">
+        <div className="fixed inset-0 lg:left-[230px] z-30 flex flex-col bg-[var(--bg)]">
           {/* Header */}
           <div className="flex items-center gap-3 px-4 py-3 border-b border-[var(--border)] shrink-0">
             <button onClick={() => setChatTarget(null)} className="p-1 text-[var(--outline)] hover:text-[var(--on-surface)]">
@@ -319,7 +319,7 @@ export default function MessagesPage() {
           </div>
 
           {/* Input — fixed at bottom */}
-          <div className="shrink-0 px-4 py-3 border-t border-[var(--border)] bg-[var(--background)]">
+          <div className="shrink-0 px-4 py-3 border-t border-[var(--border)] bg-[var(--bg)]">
             <div className="flex gap-2 max-w-3xl mx-auto">
               <Input
                 value={chatInput}
