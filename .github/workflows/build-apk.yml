@@ -1,13 +1,16 @@
 name: Build APK
 
 on:
-  workflow_dispatch: # Lance manuellement depuis GitHub
+  workflow_dispatch:
   push:
     branches: [main]
     paths:
       - "capacitor.config.ts"
       - "resources/**"
       - ".github/workflows/build-apk.yml"
+
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -47,9 +50,26 @@ jobs:
         working-directory: android
         run: ./gradlew assembleDebug
 
-      - name: Upload APK
+      - name: Rename APK
+        run: cp android/app/build/outputs/apk/debug/app-debug.apk GameProgress.apk
+
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: GameProgress-debug
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          path: GameProgress.apk
           retention-days: 30
+
+      - name: Create/Update latest release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: GameProgress APK
+          body: |
+            Dernière version de GameProgress pour Android.
+            Télécharge le fichier **GameProgress.apk** et installe-le sur ton téléphone.
+          files: GameProgress.apk
+          prerelease: false
+          make_latest: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
