@@ -19,7 +19,7 @@ import { useSubscription } from "@/hooks/useSubscription";
 import { UpgradeCard } from "@/components/ui/PremiumGate";
 import { PLAN_NAME_PRO } from "@/lib/premium";
 
-type Period = "month" | "quarter" | "all";
+type Period = "week" | "month" | "3months" | "year" | "custom";
 
 function getWeekLabel(date: Date): string {
   const d = new Date(date);
@@ -47,6 +47,8 @@ export default function ReportsPage() {
   const gam = useGamification();
   const { completed: completedMissions } = useMissions();
   const [period, setPeriod] = useState<Period>("month");
+  const [customStart, setCustomStart] = useState("");
+  const [customEnd, setCustomEnd] = useState("");
   const reportRef = useRef<HTMLDivElement>(null);
   const { benchmarks } = useBenchmarks();
   const { isPremium } = useSubscription();
@@ -54,48 +56,54 @@ export default function ReportsPage() {
   const analytics = useMemo(() => {
     if (!loaded) return null;
 
-    const now = new Date();
-    const currentMonth = now.getMonth();
-    const currentYear = now.getFullYear();
-
     // Period filtering
-    const getPeriodStart = (p: Period) => {
-      const d = new Date();
-      if (p === "month") { d.setMonth(d.getMonth() - 1); return d; }
-      if (p === "quarter") { d.setMonth(d.getMonth() - 3); return d; }
-      return new Date(0);
+    const getPeriodRange = (p: Period): { start: Date; end: Date } => {
+      const end = new Date();
+      const start = new Date();
+      if (p === "week") { start.setDate(start.getDate() - 7); }
+      else if (p === "month") { start.setMonth(start.getMonth() - 1); }
+      else if (p === "3months") { start.setMonth(start.getMonth() - 3); }
+      else if (p === "year") { start.setFullYear(start.getFullYear() - 1); }
+      else if (p === "custom" && customStart && customEnd) {
+        return { start: new Date(customStart), end: new Date(customEnd + "T23:59:59") };
+      }
+      return { start, end };
     };
 
-    const periodStart = getPeriodStart(period);
-    const periodInteractions = interactions.filter((i) => new Date(i.date) >= periodStart);
-
-    // This month / last month
-    const thisMonth = interactions.filter((i) => {
+    const { start: periodStart, end: periodEnd } = getPeriodRange(period);
+    const periodInteractions = interactions.filter((i) => {
       const d = new Date(i.date);
-      return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
-    });
-    const lastMonth = interactions.filter((i) => {
-      const d = new Date(i.date);
-      const lm = currentMonth === 0 ? 11 : currentMonth - 1;
-      const ly = currentMonth === 0 ? currentYear - 1 : currentYear;
-      return d.getMonth() === lm && d.getFullYear() === ly;
+      return d >= periodStart && d <= periodEnd;
     });
 
-    // Key metrics
-    const tmCloses = thisMonth.filter((i) => i.result === "close").length;
-    const lmCloses = lastMonth.filter((i) => i.result === "close").length;
-    const tmAvgFeel = thisMonth.length > 0
-      ? thisMonth.reduce((s, i) => s + i.feelingScore, 0) / thisMonth.length
+    // Previous period for comparison
+    const periodDuration = periodEnd.getTime() - periodStart.getTime();
+    const prevStart = new Date(periodStart.getTime() - periodDuration);
+    const prevEnd = new Date(periodStart.getTime());
+    const prevInteractions = interactions.filter((i) => {
+      const d = new Date(i.date);
+      return d >= prevStart && d < prevEnd;
+    });
+
+    // Key metrics (current period vs previous period)
+    const pCloses = periodInteractions.filter((i) => i.result === "close").length;
+    const prevCloses = prevInteractions.filter((i) => i.result === "close").length;
+    const pAvgFeel = periodInteractions.length > 0
+      ? periodInteractions.reduce((s, i) => s + i.feelingScore, 0) / periodInteractions.length
       : 0;
-    const tmCloseRate = thisMonth.length > 0 ? (tmCloses / thisMonth.length) * 100 : 0;
-    const lmCloseRate = lastMonth.length > 0
-      ? (lastMonth.filter((i) => i.result === "close").length / lastMonth.length) * 100 : 0;
+    const pCloseRate = periodInteractions.length > 0 ? (pCloses / periodInteractions.length) * 100 : 0;
+    const prevCloseRate = prevInteractions.length > 0
+      ? (prevInteractions.filter((i) => i.result === "close").length / prevInteractions.length) * 100 : 0;
 
-    // Weekly data (12 weeks)
-    const weeks = getWeeksData(interactions, 12);
+    // Number of weeks to show based on period
+    const periodDays = Math.ceil(periodDuration / 86400000);
+    const numWeeks = Math.max(Math.ceil(periodDays / 7), 1);
 
-    // Close rate by week (8 weeks)
-    const closeRateWeekly = getWeeksData(interactions, 8).map((w) => {
+    // Weekly data (period-based)
+    const weeks = getWeeksData(periodInteractions, numWeeks);
+
+    // Close rate by week
+    const closeRateWeekly = weeks.map((w) => {
       const total = w.interactions.length;
       const closes = w.interactions.filter((i) => i.result === "close").length;
       return {
@@ -103,22 +111,22 @@ export default function ReportsPage() {
         value: total > 0 ? Math.round((closes / total) * 100) : 0,
       };
     });
-    const avgCloseRate = interactions.length > 0
-      ? Math.round((interactions.filter((i) => i.result === "close").length / interactions.length) * 100)
+    const avgCloseRate = periodInteractions.length > 0
+      ? Math.round((periodInteractions.filter((i) => i.result === "close").length / periodInteractions.length) * 100)
       : 0;
 
-    // Feeling score over time (8 weeks)
-    const feelingWeekly = getWeeksData(interactions, 8).map((w) => {
+    // Feeling score over time
+    const feelingWeekly = weeks.map((w) => {
       const avg = w.interactions.length > 0
         ? w.interactions.reduce((s, i) => s + i.feelingScore, 0) / w.interactions.length
         : 0;
       return { label: getWeekLabel(w.weekStart), value: Math.round(avg * 10) / 10 };
     });
-    const avgFeeling = interactions.length > 0
-      ? interactions.reduce((s, i) => s + i.feelingScore, 0) / interactions.length
+    const avgFeeling = periodInteractions.length > 0
+      ? periodInteractions.reduce((s, i) => s + i.feelingScore, 0) / periodInteractions.length
       : 0;
 
-    // Bar chart data (12 weeks)
+    // Bar chart data
     const weeklyBars = weeks.map((w) => ({
       label: getWeekLabel(w.weekStart),
       value: w.interactions.length,
@@ -134,47 +142,46 @@ export default function ReportsPage() {
     const indirect = periodInteractions.filter((i) => i.type === "indirect").length;
     const situational = periodInteractions.filter((i) => i.type === "situational").length;
 
-    // Heatmap
+    // Heatmap (period-filtered)
     const heatmapData: Record<string, number> = {};
-    interactions.forEach((i) => {
+    periodInteractions.forEach((i) => {
       const key = new Date(i.date).toISOString().slice(0, 10);
       heatmapData[key] = (heatmapData[key] || 0) + 1;
     });
 
-    // Badges this month
+    // Badges in period
     const unlockedBadges = gam.badges.filter((b) => {
       if (!b.unlockedAt) return false;
       const d = new Date(b.unlockedAt);
-      return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+      return d >= periodStart && d <= periodEnd;
     });
 
-    // Skill score
-    const total = interactions.length;
-    const allCloses = interactions.filter((i) => i.result === "close").length;
+    // Skill score (period-based)
+    const total = periodInteractions.length;
+    const allCloses = periodInteractions.filter((i) => i.result === "close").length;
     const cr = total > 0 ? allCloses / total : 0;
-    const af = total > 0 ? interactions.reduce((s, i) => s + i.feelingScore, 0) / total : 0;
+    const af = total > 0 ? periodInteractions.reduce((s, i) => s + i.feelingScore, 0) / total : 0;
     const skillScore = computeSkillScore({ totalInteractions: total, closeRate: cr, avgFeelingScore: af, streak: gam.streak });
     const skillRank = getSkillRank(skillScore);
 
-    // Best day of week
+    // Best day of week (period-based)
     const dayTotals = [0, 0, 0, 0, 0, 0, 0];
-    interactions.forEach((i) => { dayTotals[new Date(i.date).getDay()]++; });
+    periodInteractions.forEach((i) => { dayTotals[new Date(i.date).getDay()]++; });
     const bestDayIdx = dayTotals.indexOf(Math.max(...dayTotals));
     const dayNames = ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"];
 
     return {
-      thisMonth, lastMonth, tmCloses, lmCloses, tmAvgFeel, tmCloseRate, lmCloseRate,
+      periodInteractions, prevInteractions, pCloses, prevCloses, pAvgFeel, pCloseRate, prevCloseRate,
       closeRateWeekly, avgCloseRate,
       feelingWeekly, avgFeeling,
       weeklyBars,
       closes, neutrals, rejections,
       direct, indirect, situational,
-      heatmapData, unlockedBadges,
+      heatmapData, heatmapWeeks: numWeeks, unlockedBadges,
       skillScore, skillRank,
       bestDay: dayNames[bestDayIdx],
-      periodInteractions,
     };
-  }, [interactions, loaded, period, gam]);
+  }, [interactions, loaded, period, customStart, customEnd, gam]);
 
   if (!loaded || !analytics) {
     return (
@@ -184,16 +191,20 @@ export default function ReportsPage() {
     );
   }
 
-  const now = new Date();
-  const monthName = now.toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
+  const periodLabels: Record<Period, string> = { week: "1 sem.", month: "1 mois", "3months": "3 mois", year: "1 an", custom: "Perso." };
+
+  const periodDescription = (() => {
+    if (period === "custom" && customStart && customEnd) {
+      return `${new Date(customStart).toLocaleDateString("fr-FR", { day: "numeric", month: "short" })} — ${new Date(customEnd).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" })}`;
+    }
+    return periodLabels[period];
+  })();
 
   const diff = (curr: number, prev: number) => {
     if (prev === 0) return curr > 0 ? "+∞" : "=";
     const pct = Math.round(((curr - prev) / prev) * 100);
     return pct >= 0 ? `+${pct}%` : `${pct}%`;
   };
-
-  const periodLabels: Record<Period, string> = { month: "Ce mois", quarter: "3 mois", all: "Tout" };
 
   return (
     <div ref={reportRef} className="px-4 py-6 lg:px-8 lg:py-8 max-w-5xl mx-auto animate-fade-in print:max-w-none print:px-6 print:py-4 print:text-[10px]">
@@ -205,11 +216,11 @@ export default function ReportsPage() {
               Rapport & Analytics
             </span>
           </h1>
-          <p className="text-sm text-[var(--on-surface-variant)]">Analyse detaillee de tes performances et tendances — <span className="capitalize">{monthName}</span></p>
+          <p className="text-sm text-[var(--on-surface-variant)]">Analyse détaillée de tes performances — <span className="capitalize">{periodDescription}</span></p>
         </div>
         <div className="flex items-center gap-2">
-          <div className="flex bg-[var(--surface-highest)] rounded-lg p-0.5">
-            {(["month", "quarter", "all"] as Period[]).map((p) => (
+          <div className="flex bg-[var(--surface-highest)] rounded-lg p-0.5 flex-wrap">
+            {(["week", "month", "3months", "year", "custom"] as Period[]).map((p) => (
               <button
                 key={p}
                 onClick={() => setPeriod(p)}
@@ -227,6 +238,26 @@ export default function ReportsPage() {
         </div>
       </div>
 
+      {/* Custom date range picker */}
+      {period === "custom" && (
+        <div className="flex items-center gap-3 mb-6 flex-wrap">
+          <label className="text-xs text-[var(--on-surface-variant)]">Du</label>
+          <input
+            type="date"
+            value={customStart}
+            onChange={(e) => setCustomStart(e.target.value)}
+            className="text-xs px-3 py-1.5 rounded-lg bg-[var(--surface-high)] border border-[var(--border)] text-[var(--on-surface)] outline-none focus:border-[var(--primary)]"
+          />
+          <label className="text-xs text-[var(--on-surface-variant)]">au</label>
+          <input
+            type="date"
+            value={customEnd}
+            onChange={(e) => setCustomEnd(e.target.value)}
+            className="text-xs px-3 py-1.5 rounded-lg bg-[var(--surface-high)] border border-[var(--border)] text-[var(--on-surface)] outline-none focus:border-[var(--primary)]"
+          />
+        </div>
+      )}
+
       {/* Upgrade hint for free users */}
       {!isPremium && (
         <div className="mb-6 px-4 py-3 rounded-xl bg-[var(--primary)]/5 border border-[var(--primary)]/10 flex items-center gap-3">
@@ -238,10 +269,10 @@ export default function ReportsPage() {
       {/* Key metrics */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-6">
         {[
-          { label: "Interactions", val: analytics.thisMonth.length, prev: analytics.lastMonth.length, accent: true },
-          { label: "Closes", val: analytics.tmCloses, prev: analytics.lmCloses, accent: true },
-          { label: "Taux close", val: `${Math.round(analytics.tmCloseRate)}%`, prev: Math.round(analytics.lmCloseRate), numVal: Math.round(analytics.tmCloseRate), accent: false, showDiff: true },
-          { label: "Ressenti moy.", val: analytics.tmAvgFeel > 0 ? analytics.tmAvgFeel.toFixed(1) : "—", prev: null, accent: false },
+          { label: "Interactions", val: analytics.periodInteractions.length, prev: analytics.prevInteractions.length, accent: true },
+          { label: "Closes", val: analytics.pCloses, prev: analytics.prevCloses, accent: true },
+          { label: "Taux close", val: `${Math.round(analytics.pCloseRate)}%`, prev: Math.round(analytics.prevCloseRate), numVal: Math.round(analytics.pCloseRate), accent: false, showDiff: true },
+          { label: "Ressenti moy.", val: analytics.pAvgFeel > 0 ? analytics.pAvgFeel.toFixed(1) : "—", prev: null, accent: false },
           { label: "Jour favori", val: analytics.bestDay, prev: null, accent: false },
         ].map((m) => (
           <Card key={m.label} className="!p-4">
@@ -249,12 +280,12 @@ export default function ReportsPage() {
             <p className={`text-2xl font-bold ${m.accent ? "text-[var(--primary)]" : "text-[var(--on-surface)]"}`}>{m.val}</p>
             {m.prev !== null && !m.showDiff && (
               <p className={`text-[10px] mt-1 ${(m.val as number) >= m.prev ? "text-emerald-400" : "text-[#fb7185]"}`}>
-                {diff(m.val as number, m.prev)} vs mois dernier
+                {diff(m.val as number, m.prev)} vs période préc.
               </p>
             )}
             {m.showDiff && m.prev !== null && (
               <p className={`text-[10px] mt-1 ${(m.numVal ?? 0) >= m.prev ? "text-emerald-400" : "text-[#fb7185]"}`}>
-                {diff(m.numVal ?? 0, m.prev)} vs mois dernier
+                {diff(m.numVal ?? 0, m.prev)} vs période préc.
               </p>
             )}
           </Card>
@@ -264,9 +295,9 @@ export default function ReportsPage() {
       {/* Heatmap */}
       <Card className="mb-6">
         <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-[var(--on-surface)] mb-4">
-          Activité (12 semaines)
+          Activité ({period === "custom" ? "période" : periodLabels[period]})
         </h2>
-        <HeatmapChart data={analytics.heatmapData} weeks={12} />
+        <HeatmapChart data={analytics.heatmapData} weeks={analytics.heatmapWeeks} />
       </Card>
 
       {/* Charts row 1: Activity bar + Close rate line */}
@@ -392,10 +423,10 @@ export default function ReportsPage() {
 
         <Card>
           <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-[var(--on-surface)] mb-3">
-            Badges ce mois
+            Badges (période)
           </h2>
           {analytics.unlockedBadges.length === 0 ? (
-            <p className="text-xs text-[var(--outline)]">Aucun nouveau badge ce mois-ci</p>
+            <p className="text-xs text-[var(--outline)]">Aucun nouveau badge sur cette période</p>
           ) : (
             <div className="space-y-2">
               {analytics.unlockedBadges.map((b) => (
@@ -419,8 +450,8 @@ export default function ReportsPage() {
         <div className="mb-6">
           <BenchmarkCard
             benchmarks={benchmarks}
-            userCloseRate={Math.round(analytics.tmCloseRate)}
-            userAvgFeeling={analytics.tmAvgFeel}
+            userCloseRate={Math.round(analytics.pCloseRate)}
+            userAvgFeeling={analytics.pAvgFeel}
             userLevel={gam.level}
           />
         </div>

@@ -177,7 +177,7 @@ export default function AdminPage() {
               { label: "Interactions", value: stats.interactions, color: "text-[var(--secondary)]" },
               { label: "Contacts", value: stats.contacts, color: "text-[var(--tertiary)]" },
               { label: "Sessions", value: stats.sessions, color: "text-cyan-400" },
-              { label: "Entrées journal", value: stats.journal_entries, color: "text-amber-400" },
+              { label: "Posts journal", value: stats.journal_entries, color: "text-amber-400" },
               { label: "Posts", value: stats.posts, color: "text-emerald-400" },
               { label: "Missions", value: stats.missions, color: "text-[var(--primary)]" },
             ].map((s) => (

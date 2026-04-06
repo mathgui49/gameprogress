@@ -35,7 +35,7 @@ type LeaderboardView = "ranking" | "progression";
 const XP_CATEGORY_LABELS: Record<string, string> = {
   "Interaction": "Approches",
   "Close": "Closes",
-  "Entrée journal": "Journal",
+  "Post journal": "Journal",
   "Mission complétée": "Missions",
   "Contact ajouté": "Contacts",
   "Streak bonus": "Streak",

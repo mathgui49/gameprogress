@@ -244,10 +244,10 @@ export default function JournalPage() {
     } else {
       add(content, tag, visibility, "entry", null, attachments, linkedInteractionIds, selectedCollectionId, isCollaborative);
       const wordCount = content.replace(/<[^>]*>/g, " ").split(/\s+/).filter(Boolean).length;
-      addXP(wordCount > 200 ? XP.journal_entry_long : XP.journal_entry, "Entrée journal", "journal");
+      addXP(wordCount > 200 ? XP.journal_entry_long : XP.journal_entry, "Post journal", "journal");
       if (draftId) removeDraft(draftId);
     }
-    toast.show(editingId ? "Entrée modifiée" : "Entrée publiée !");
+    toast.show(editingId ? "Post modifié" : "Post publié !");
     setSubmitting(false);
     setShowNew(false);
     setEditingId(null);
@@ -317,7 +317,7 @@ export default function JournalPage() {
       <div className="flex items-center justify-between mb-4">
         <div>
           <h1 className="text-2xl font-[family-name:var(--font-grotesk)] font-bold tracking-tight mb-1"><span className="bg-gradient-to-r from-[#67e8f9] to-[#c084fc] bg-clip-text text-transparent">Journal</span></h1>
-          <p className="text-sm text-[var(--on-surface-variant)]">{entries.length} entrée{entries.length > 1 ? "s" : ""}{drafts.length > 0 ? ` · ${drafts.length} brouillon${drafts.length > 1 ? "s" : ""}` : ""}</p>
+          <p className="text-sm text-[var(--on-surface-variant)]">{entries.length} post{entries.length > 1 ? "s" : ""}{drafts.length > 0 ? ` · ${drafts.length} brouillon${drafts.length > 1 ? "s" : ""}` : ""}</p>
         </div>
         <div className="flex items-center gap-2">
           <Tooltip text="Mode écriture (sombre)" position="bottom">
@@ -412,7 +412,7 @@ export default function JournalPage() {
       {/* VIEW: List */}
       {viewMode === "list" && (
         displayEntries.length === 0 ? (
-          <EmptyState icon={<IconPenLine size={28} />} title="Journal vide" description={searchQuery || filterTag ? "Aucune entrée ne correspond aux filtres." : "Commence à écrire pour suivre tes ressentis."} action={!searchQuery && !filterTag ? <Button onClick={() => openEditor()}>Première entrée</Button> : undefined} />
+          <EmptyState icon={<IconPenLine size={28} />} title="Journal vide" description={searchQuery || filterTag ? "Aucun post ne correspond aux filtres." : "Commence à écrire pour suivre tes ressentis."} action={!searchQuery && !filterTag ? <Button onClick={() => openEditor()}>Premier post</Button> : undefined} />
         ) : (
           <div className="space-y-3">
             {displayEntries.map((entry, idx) => {
@@ -556,7 +556,7 @@ export default function JournalPage() {
 
           {collections.length === 0 ? (
             <EmptyState icon={<svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12.75V12A2.25 2.25 0 014.5 9.75h15A2.25 2.25 0 0121.75 12v.75m-8.69-6.44l-2.12-2.12a1.5 1.5 0 00-1.061-.44H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9a2.25 2.25 0 00-2.25-2.25h-5.379a1.5 1.5 0 01-1.06-.44z" /></svg>}
-              title="Aucune collection" description="Crée des dossiers pour organiser tes entrées par thème."
+              title="Aucune collection" description="Crée des dossiers pour organiser tes posts par thème."
               action={<Button onClick={() => setShowCollectionModal(true)}>Créer une collection</Button>}
             />
           ) : (
@@ -567,7 +567,7 @@ export default function JournalPage() {
                     <div>
                       <p className="text-sm font-semibold text-[var(--on-surface)]">{col.name}</p>
                       {col.description && <p className="text-xs text-[var(--on-surface-variant)] mt-0.5">{col.description}</p>}
-                      <p className="text-[10px] text-[var(--outline)] mt-1">{col.entryIds.length} entrée{col.entryIds.length > 1 ? "s" : ""}</p>
+                      <p className="text-[10px] text-[var(--outline)] mt-1">{col.entryIds.length} post{col.entryIds.length > 1 ? "s" : ""}</p>
                     </div>
                     <button onClick={(e) => { e.stopPropagation(); removeCollection(col.id); }} className="text-[var(--outline)] hover:text-[#fb7185]">
                       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" /></svg>
@@ -581,7 +581,7 @@ export default function JournalPage() {
       )}
 
       {/* ─── EDITOR MODAL ─────────────────────────────── */}
-      <Modal open={showNew} onClose={() => { setShowNew(false); setEditingId(null); setAttachments([]); setDraftId(null); }} title={editingId ? "Modifier l'entrée" : "Nouvelle entrée"}>
+      <Modal open={showNew} onClose={() => { setShowNew(false); setEditingId(null); setAttachments([]); setDraftId(null); }} title={editingId ? "Modifier le post" : "Nouveau post"}>
         <div className="space-y-4">
           {/* Rich editor */}
           <div className="rounded-xl border border-[var(--border)] overflow-hidden bg-[var(--surface-high)]">
@@ -693,7 +693,7 @@ export default function JournalPage() {
           {visibility !== "private" && (
             <label className="flex items-center gap-2 cursor-pointer">
               <input type="checkbox" checked={isCollaborative} onChange={(e) => setIsCollaborative(e.target.checked)} className="rounded" />
-              <span className="text-xs text-[var(--on-surface-variant)]">Permettre les contributions (entrée collaborative)</span>
+              <span className="text-xs text-[var(--on-surface-variant)]">Permettre les contributions (post collaboratif)</span>
             </label>
           )}
 
@@ -702,9 +702,9 @@ export default function JournalPage() {
       </Modal>
 
       {/* Share Modal */}
-      <Modal open={!!shareEntryId} onClose={() => { setShareEntryId(null); setShareLink(null); setShareExpiry(""); }} title="Partager l'entrée">
+      <Modal open={!!shareEntryId} onClose={() => { setShareEntryId(null); setShareLink(null); setShareExpiry(""); }} title="Partager le post">
         <div className="space-y-3">
-          <p className="text-xs text-[var(--on-surface-variant)]">Génère un lien de partage pour cette entrée.</p>
+          <p className="text-xs text-[var(--on-surface-variant)]">Génère un lien de partage pour ce post.</p>
           <Input type="date" value={shareExpiry} onChange={(e) => setShareExpiry(e.target.value)} placeholder="Expiration (optionnel)" />
           <p className="text-[10px] text-[var(--outline)]">Laisse vide pour un lien permanent.</p>
           {!shareLink && <Button onClick={() => shareEntryId && handleShare(shareEntryId)}>Générer le lien</Button>}
@@ -756,7 +756,7 @@ export default function JournalPage() {
       {/* Export Modal */}
       <Modal open={showExportModal} onClose={() => setShowExportModal(false)} title="Exporter le journal">
         <div className="space-y-3">
-          <p className="text-xs text-[var(--on-surface-variant)]">Exporte toutes tes entrées dans le format de ton choix.</p>
+          <p className="text-xs text-[var(--on-surface-variant)]">Exporte tous tes posts dans le format de ton choix.</p>
           <div className="flex gap-3">
             <Button onClick={() => handleExport("markdown")} className="flex-1">
               <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" /></svg>

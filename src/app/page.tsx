@@ -14,6 +14,7 @@ import { Card } from "@/components/ui/Card";
 import { Tooltip } from "@/components/ui/Tooltip";
 import { IconMapPin, IconBarChart, IconSparkles, IconStar, IconFlame, IconUsers, IconPlus, IconTarget, IconCalendar, IconPenLine, IconTrendingUp, IconAward } from "@/components/ui/Icons";
 import { BadgeIcon } from "@/components/ui/BadgeIcon";
+import { DonutChart } from "@/components/charts/DonutChart";
 import { BenchmarkCard } from "@/components/dashboard/BenchmarkCard";
 import { useBenchmarks } from "@/hooks/useBenchmarks";
 import Link from "next/link";
@@ -290,31 +291,21 @@ export default function DashboardPage() {
             )}
           </Card>
 
-          {/* Progression */}
+          {/* Types d'approche */}
           <Card>
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-[var(--on-surface)]">Progression</h2>
-              <Link href="/progression" className="text-xs text-[var(--primary)] hover:text-[var(--primary-dim)] transition-colors">Voir</Link>
+              <h2 className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-[var(--on-surface)]">Types d&apos;approche</h2>
+              <Link href="/reports" className="text-xs text-[var(--primary)] hover:text-[var(--primary-dim)] transition-colors">Voir</Link>
             </div>
-            <div className="space-y-3">
-              {(["direct", "indirect", "situational"] as const).map((t) => {
-                const count = interactions.filter((i) => i.type === t).length;
-                const pct = interactions.length > 0 ? Math.round((count / interactions.length) * 100) : 0;
-                const labels = { direct: "Direct", indirect: "Indirect", situational: "Situationnel" };
-                const gradients = { direct: "from-[#c084fc] to-[#f472b6]", indirect: "from-[#818cf8] to-[#67e8f9]", situational: "from-[#67e8f9] to-[#34d399]" };
-                return (
-                  <div key={t}>
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-xs text-[var(--on-surface-variant)]">{labels[t]}</span>
-                      <span className="text-[10px] text-[var(--outline)]">{count} ({pct}%)</span>
-                    </div>
-                    <div className="w-full h-1.5 rounded-full bg-[var(--surface-highest)]">
-                      <div className={`h-full rounded-full bg-gradient-to-r ${gradients[t]} transition-all duration-500`} style={{ width: `${pct}%` }} />
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+            <DonutChart
+              segments={[
+                { label: "Direct", value: interactions.filter((i) => i.type === "direct").length, color: "#c084fc" },
+                { label: "Indirect", value: interactions.filter((i) => i.type === "indirect").length, color: "#818cf8" },
+                { label: "Situationnel", value: interactions.filter((i) => i.type === "situational").length, color: "#22d3ee" },
+              ]}
+              centerValue={String(interactions.length)}
+              centerLabel="total"
+            />
           </Card>
 
           {/* Upcoming sessions */}
@@ -368,7 +359,7 @@ export default function DashboardPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-base font-[family-name:var(--font-grotesk)] font-semibold text-[var(--on-surface)]">Journal</p>
-                    <p className="text-xs text-[var(--outline)]">{journalEntries.length} entrée{journalEntries.length > 1 ? "s" : ""}</p>
+                    <p className="text-xs text-[var(--outline)]">{journalEntries.length} post{journalEntries.length > 1 ? "s" : ""}</p>
                   </div>
                   <div className="w-10 h-10 rounded-xl bg-[var(--secondary)]/10 flex items-center justify-center text-[var(--secondary)]">
                     <IconPenLine size={20} />

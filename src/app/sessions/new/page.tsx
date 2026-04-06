@@ -107,6 +107,7 @@ export default function NewSessionPage() {
       isPublic,
       maxParticipants,
       estimatedDuration,
+      endedAt: null,
     });
 
     // Send invites to selected wings (app users only)

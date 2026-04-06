@@ -141,17 +141,18 @@ export default function SessionsPage() {
     }).catch(() => setPublicLoaded(true));
   }, []);
 
-  // Nearby public sessions (not mine, not joined, future)
+  // Nearby public sessions (not mine, not joined, future, within 50km)
   const nearbySessions = useMemo(() => {
     const myIds = new Set([...Array.from(ownIds), ...Array.from(invitedIds)]);
+    const userLat = userProfile?.lat;
+    const userLng = userProfile?.lng;
     return publicSessions
       .filter((s) => !myIds.has(s.id) && new Date(s.date).getTime() > Date.now())
       .map((s) => {
-        const userLat = userProfile?.lat;
-        const userLng = userProfile?.lng;
         const distanceKm = (userLat && userLng && s.lat && s.lng) ? Math.round(haversineKm(userLat, userLng, s.lat, s.lng)) : null;
         return { ...s, distanceKm };
       })
+      .filter((s) => s.distanceKm !== null && s.distanceKm <= 50)
       .sort((a, b) => (a.distanceKm ?? 9999) - (b.distanceKm ?? 9999));
   }, [publicSessions, ownIds, invitedIds, userProfile]);
 
@@ -163,8 +164,12 @@ export default function SessionsPage() {
       const userLat = userProfile?.lat;
       const userLng = userProfile?.lng;
       const distanceKm = (userLat && userLng && s.lat && s.lng) ? Math.round(haversineKm(userLat, userLng, s.lat, s.lng)) : null;
-      const isPast = new Date(s.date).getTime() < Date.now() - 4 * 3600 * 1000;
-      const isActive = !isPast && new Date(s.date).getTime() <= Date.now();
+      const sTime = new Date(s.date).getTime();
+      const autoEnd = s.estimatedDuration
+        ? sTime + (s.estimatedDuration + 60) * 60 * 1000
+        : sTime + 4 * 3600 * 1000;
+      const isPast = !!s.endedAt || (sTime <= Date.now() && Date.now() > autoEnd);
+      const isActive = !isPast && sTime <= Date.now();
       return { ...s, category, distanceKm, isPast, isActive };
     });
   }, [allSessions, invitedIds, userProfile]);
@@ -458,7 +463,7 @@ export default function SessionsPage() {
                         <Badge className={categoryColor(s.category)}>{categoryLabel(s.category)}</Badge>
                         {s.isActive && <Badge className="bg-emerald-400/15 text-emerald-400">En cours</Badge>}
                         {isFuture && !s.isActive && <Badge className="bg-cyan-400/15 text-cyan-400">Planifiée</Badge>}
-                        {s.isPast && <Badge className="bg-[var(--outline-variant)]/15 text-[var(--on-surface-variant)]">Archivée</Badge>}
+                        {s.isPast && <Badge className="bg-[var(--outline-variant)]/15 text-[var(--on-surface-variant)]">Terminée</Badge>}
                       </div>
                       <p className="text-xs text-[var(--outline)]">
                         {formatDate(s.date)} {s.location && `· ${s.location}`}

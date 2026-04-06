@@ -12,7 +12,16 @@ import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import Link from "next/link";
 import { fetchPublicSessionsAction } from "@/actions/db";
+import { usePublicProfile } from "@/hooks/usePublicProfile";
 import type { Session, Mission, Reminder, Interaction } from "@/types";
+
+function haversineKm(lat1: number, lon1: number, lat2: number, lon2: number) {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
 
 type CalendarView = "month" | "week" | "day";
 
@@ -64,6 +73,7 @@ export default function CalendrierPage() {
   const { missions } = useMissions();
   const { contacts } = useContacts();
   const { isPremium, subscription } = useSubscription();
+  const { profile: userProfile } = usePublicProfile();
 
   const [view, setView] = useState<CalendarView>("month");
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -159,11 +169,15 @@ export default function CalendrierPage() {
       });
     }
 
-    // Public sessions (exclude own sessions already shown)
+    // Public sessions (exclude own, within 50km)
     if (activeLayers.has("public_sessions")) {
       const ownSessionIds = new Set(sessions.map((s) => s.id));
+      const uLat = userProfile?.lat;
+      const uLng = userProfile?.lng;
       publicSessions.forEach((s) => {
         if (ownSessionIds.has(s.id)) return;
+        if (!uLat || !uLng || !s.lat || !s.lng) return;
+        if (haversineKm(uLat, uLng, s.lat, s.lng) > 50) return;
         items.push({
           id: `public-session-${s.id}`,
           title: s.title || "Session publique",
@@ -205,7 +219,7 @@ export default function CalendrierPage() {
     }
 
     return items;
-  }, [sessions, interactions, allReminders, missions, publicSessions, activeLayers, isPremium, subscription]);
+  }, [sessions, interactions, allReminders, missions, publicSessions, activeLayers, isPremium, subscription, userProfile]);
 
   // Navigation
   const navigate = (dir: -1 | 1) => {

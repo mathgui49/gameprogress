@@ -662,7 +662,14 @@ export async function fetchActivityFeed(
       if (wingIds.includes(item.data?.userId ?? item.data?.user_id ?? "")) return true;
       // Always show own content
       if ((item.data?.userId ?? item.data?.user_id) === userId) return true;
-      // For public content: filter by profile proximity
+      // For sessions: filter by session location
+      if (item.type === "session") {
+        const sLat = item.data?.lat;
+        const sLng = item.data?.lng;
+        if (sLat == null || sLng == null) return false;
+        return haversineKm(options.userLat!, options.userLng!, sLat, sLng) <= MAX_KM;
+      }
+      // For other public content: filter by profile proximity
       const pLat = item.profile?.lat;
       const pLng = item.profile?.lng;
       if (pLat == null || pLng == null) return true; // no location = show anyway

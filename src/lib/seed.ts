@@ -45,7 +45,7 @@ export function generateSeedMissions(): Mission[] {
   return [
     { id: generateId(), title: "3 interactions aujourd'hui", description: "Fais 3 interactions dans la journée", type: "daily", trackingType: "interactions", target: 3, current: 0, xpReward: 30, completed: false, deadline: null, createdAt: new Date().toISOString(), completedAt: null },
     { id: generateId(), title: "1 close cette semaine", description: "Obtiens au moins un close", type: "weekly", trackingType: "closes", target: 1, current: 0, xpReward: 25, completed: false, deadline: null, createdAt: new Date().toISOString(), completedAt: null },
-    { id: generateId(), title: "Écrire dans le journal", description: "Fais une entrée dans ton journal", type: "daily", trackingType: "journal", target: 1, current: 0, xpReward: 15, completed: false, deadline: null, createdAt: new Date().toISOString(), completedAt: null },
+    { id: generateId(), title: "Écrire dans le journal", description: "Fais un post dans ton journal", type: "daily", trackingType: "journal", target: 1, current: 0, xpReward: 15, completed: false, deadline: null, createdAt: new Date().toISOString(), completedAt: null },
     { id: generateId(), title: "10 interactions cette semaine", description: "Objectif hebdomadaire", type: "weekly", trackingType: "interactions", target: 10, current: 0, xpReward: 50, completed: false, deadline: null, createdAt: new Date().toISOString(), completedAt: null },
   ];
 }
@@ -77,8 +77,8 @@ export function generateDefaultBadges(): Badge[] {
     { id: "b9", name: "Première session", description: "A créé sa première session", icon: "calendar", condition: "sessions >= 1", unlockedAt: null },
     { id: "b10", name: "10 sessions", description: "A créé 10 sessions", icon: "calendar-check", condition: "sessions >= 10", unlockedAt: null },
     // Journal
-    { id: "b11", name: "Première entrée", description: "A écrit sa première entrée journal", icon: "pen", condition: "journal >= 1", unlockedAt: null },
-    { id: "b12", name: "Journal régulier", description: "A écrit 20 entrées journal", icon: "book", condition: "journal >= 20", unlockedAt: null },
+    { id: "b11", name: "Premier post", description: "A écrit son premier post journal", icon: "pen", condition: "journal >= 1", unlockedAt: null },
+    { id: "b12", name: "Journal régulier", description: "A écrit 20 posts journal", icon: "book", condition: "journal >= 20", unlockedAt: null },
     // Social
     { id: "b13", name: "Premier wing", description: "A ajouté son premier wing", icon: "handshake", condition: "wings >= 1", unlockedAt: null },
     { id: "b14", name: "Équipe de wings", description: "A ajouté 5 wings", icon: "users", condition: "wings >= 5", unlockedAt: null },
@@ -108,8 +108,8 @@ export function generateDefaultMilestones(): Milestone[] {
     { id: "m9", name: "5 sessions", target: 5, current: 0, icon: "📅", unlockedAt: null },
     { id: "m10", name: "20 sessions", target: 20, current: 0, icon: "📆", unlockedAt: null },
     // Journal
-    { id: "m11", name: "10 entrées journal", target: 10, current: 0, icon: "📝", unlockedAt: null },
-    { id: "m12", name: "50 entrées journal", target: 50, current: 0, icon: "📖", unlockedAt: null },
+    { id: "m11", name: "10 posts journal", target: 10, current: 0, icon: "📝", unlockedAt: null },
+    { id: "m12", name: "50 posts journal", target: 50, current: 0, icon: "📖", unlockedAt: null },
     // Social
     { id: "m13", name: "3 wings", target: 3, current: 0, icon: "🤝", unlockedAt: null },
     // Streak
@@ -202,12 +202,12 @@ export const BADGE_CATEGORIES: BadgeCategory[] = [
   },
   {
     id: "journal", label: "Journal", key: "journal",
-    description: "Entrées rédigées dans le journal personnel",
+    description: "Posts rédigés dans le journal personnel",
     tiers: [
-      { threshold: 1, name: "Première Note", icon: "pen", description: "A écrit sa première entrée" },
-      { threshold: 10, name: "Chroniqueur", icon: "book", description: "10 entrées journal rédigées" },
-      { threshold: 20, name: "Écrivain", icon: "medal", description: "20 entrées — un vrai écrivain" },
-      { threshold: 50, name: "Philosophe du Game", icon: "star-fill", description: "50 entrées — philosophe du game" },
+      { threshold: 1, name: "Première Note", icon: "pen", description: "A écrit son premier post" },
+      { threshold: 10, name: "Chroniqueur", icon: "book", description: "10 posts journal rédigés" },
+      { threshold: 20, name: "Écrivain", icon: "medal", description: "20 posts — un vrai écrivain" },
+      { threshold: 50, name: "Philosophe du Game", icon: "star-fill", description: "50 posts — philosophe du game" },
     ],
   },
   {

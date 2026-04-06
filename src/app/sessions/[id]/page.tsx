@@ -145,7 +145,11 @@ export default function SessionDetailPage({ params }: { params: Promise<{ id: st
   const sessionTime = new Date(session.date).getTime();
   const now = Date.now();
   const isFuture = sessionTime > now;
-  const isPast = sessionTime < now - 4 * 3600 * 1000;
+  // Session is past if manually ended, or if estimated duration + 1h buffer has passed, or fallback 4h
+  const autoEndTime = session.estimatedDuration
+    ? sessionTime + (session.estimatedDuration + 60) * 60 * 1000
+    : sessionTime + 4 * 3600 * 1000;
+  const isPast = !!session.endedAt || (!isFuture && now > autoEndTime);
   const isActive = !isFuture && !isPast;
   const isSameDay = isFuture && new Date(session.date).toDateString() === new Date().toDateString();
   const sessionInteractions = interactions.filter((i) => session.interactionIds.includes(i.id));
@@ -215,9 +219,16 @@ export default function SessionDetailPage({ params }: { params: Promise<{ id: st
       {/* Active timer banner */}
       {isActive && (
         <Card className="mb-4 !p-4 border-emerald-400/30 bg-emerald-400/5">
-          <div className="flex items-center justify-between">
-            <p className="text-xs text-emerald-400 uppercase tracking-wider font-semibold">Session en cours</p>
-            <ActiveTimer date={session.date} />
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <div className="flex items-center gap-3">
+              <p className="text-xs text-emerald-400 uppercase tracking-wider font-semibold">Session en cours</p>
+              <ActiveTimer date={session.date} />
+            </div>
+            {isOwner && (
+              <Button size="sm" variant="secondary" onClick={() => update(session.id, { endedAt: new Date().toISOString() })}>
+                Session terminée
+              </Button>
+            )}
           </div>
         </Card>
       )}
@@ -232,22 +243,20 @@ export default function SessionDetailPage({ params }: { params: Promise<{ id: st
         </Card>
       )}
 
-      <div className="flex items-start justify-between mb-6">
-        <div>
-          <div className="flex items-center gap-2 mb-1 flex-wrap">
-            <h1 className="text-2xl font-bold text-[var(--on-surface)]">{session.title || "Session"}</h1>
-            {session.isPublic && <Badge className="bg-emerald-400/15 text-emerald-400">Publique</Badge>}
-            {isActive && <Badge className="bg-emerald-400/15 text-emerald-400">En cours</Badge>}
-            {isFuture && !isActive && <Badge className="bg-cyan-400/15 text-cyan-400">Planifiee</Badge>}
-            {isPast && <Badge className="bg-[var(--outline-variant)]/15 text-[var(--on-surface-variant)]">Archivee</Badge>}
-          </div>
-          <p className="text-sm text-[var(--on-surface-variant)]">
-            {formatDate(session.date)} {session.location && `\u00b7 ${session.location}`}
-            {session.estimatedDuration && ` \u00b7 ${Math.floor(session.estimatedDuration / 60) > 0 ? `${Math.floor(session.estimatedDuration / 60)}h` : ""}${session.estimatedDuration % 60 > 0 ? `${String(session.estimatedDuration % 60).padStart(2, "0")}min` : ""}`}
-          </p>
-          {session.address && <p className="text-xs text-[var(--outline)] mt-0.5">{session.address}</p>}
+      <div className="mb-6">
+        <div className="flex items-center gap-2 mb-1 flex-wrap">
+          <h1 className="text-2xl font-bold text-[var(--on-surface)]">{session.title || "Session"}</h1>
+          {session.isPublic && <Badge className="bg-emerald-400/15 text-emerald-400">Publique</Badge>}
+          {isActive && <Badge className="bg-emerald-400/15 text-emerald-400">En cours</Badge>}
+          {isFuture && !isActive && <Badge className="bg-cyan-400/15 text-cyan-400">Planifiee</Badge>}
+          {isPast && <Badge className="bg-[var(--outline-variant)]/15 text-[var(--on-surface-variant)]">Terminée</Badge>}
         </div>
-        <div className="flex items-center gap-2 shrink-0">
+        <p className="text-sm text-[var(--on-surface-variant)]">
+          {formatDate(session.date)} {session.location && `\u00b7 ${session.location}`}
+          {session.estimatedDuration && ` \u00b7 ${Math.floor(session.estimatedDuration / 60) > 0 ? `${Math.floor(session.estimatedDuration / 60)}h` : ""}${session.estimatedDuration % 60 > 0 ? `${String(session.estimatedDuration % 60).padStart(2, "0")}min` : ""}`}
+        </p>
+        {session.address && <p className="text-xs text-[var(--outline)] mt-0.5">{session.address}</p>}
+        <div className="flex items-center gap-2 flex-wrap mt-3">
           {/* Share */}
           <button onClick={handleShare} className="p-2 rounded-xl hover:bg-[var(--surface-high)] transition-all text-[var(--on-surface-variant)] hover:text-[var(--primary)]" title="Partager">
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z" /></svg>
@@ -259,7 +268,7 @@ export default function SessionDetailPage({ params }: { params: Promise<{ id: st
                   <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
                   <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
                 </svg>
-                Rejoindre
+                S&apos;y rendre
               </span>
             </Button>
           )}

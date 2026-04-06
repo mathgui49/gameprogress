@@ -142,7 +142,7 @@ export const MISSION_TRACKING_LABELS: Record<MissionTrackingType, string> = {
   closes: "Closes",
   sessions: "Sessions",
   dates: "Dates",
-  journal: "Entrées journal",
+  journal: "Posts journal",
   contacts: "Contacts",
   custom: "Personnalisé",
 };
@@ -256,6 +256,7 @@ export interface Session {
   isPublic: boolean;
   maxParticipants: number;
   estimatedDuration: number | null; // in minutes
+  endedAt: string | null;
   createdAt: string;
 }
 

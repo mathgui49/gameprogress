@@ -802,7 +802,7 @@ export default function FeedPage() {
                   </div>
                   <p className="text-sm text-[var(--on-surface-variant)] leading-relaxed line-clamp-5 whitespace-pre-wrap">{item.data.content}</p>
                   <div className="flex items-center gap-4 pt-2 mt-3 border-t border-[var(--border)]">
-                    <ShareButton title="Journal" text={`${item.profile?.firstName || "Quelqu'un"} a partagé une entrée de journal`} />
+                    <ShareButton title="Journal" text={`${item.profile?.firstName || "Quelqu'un"} a partagé un post de journal`} />
                   </div>
                 </Card>
               )}
