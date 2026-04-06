@@ -40,7 +40,7 @@ export default function MapPickerInner({ lat, lng, onSelect, zoom = 13 }: {
     <MapContainer
       center={[lat, lng]}
       zoom={zoom}
-      className="h-full w-full rounded-xl"
+      className="h-full w-full rounded-xl isolate z-0"
       style={{ minHeight: "250px" }}
     >
       <TileLayer

@@ -50,7 +50,7 @@ export default function MapViewInner({ markers, center = [48.8566, 2.3522], zoom
     <MapContainer
       center={center}
       zoom={zoom}
-      className={`h-full w-full rounded-xl ${className ?? ""}`}
+      className={`h-full w-full rounded-xl isolate z-0 ${className ?? ""}`}
       style={{ minHeight: "300px" }}
     >
       <TileLayer
