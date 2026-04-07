@@ -150,9 +150,115 @@ export default function MessagesPage() {
     );
   }
 
+  // Chat view — rendered as a full-screen overlay outside the page container
+  if (chatTarget) {
+    return (
+      <>
+        <div className="fixed inset-0 lg:left-[230px] z-50 flex flex-col" style={{ height: "100dvh", background: "var(--bg)" }}>
+          {/* Header */}
+          <div className="flex items-center gap-3 px-4 py-3 border-b border-[var(--border)] shrink-0 bg-[var(--bg)]">
+            <button onClick={() => setChatTarget(null)} className="p-1 text-[var(--outline)] hover:text-[var(--on-surface)]">
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
+            </button>
+            {chatTarget.type === "dm" ? (
+              <Link href={`/wings/${chatTarget.userId}`} className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+                <div className="relative">
+                  <Avatar src={getProfileFor(chatTarget.userId)?.profilePhoto} name={getProfileFor(chatTarget.userId)?.firstName} size="sm" className="!w-9 !h-9" />
+                  <div className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-[var(--surface)] ${WING_STATUS_COLORS[(wingStatuses[chatTarget.userId] as WingStatus) || "offline"]}`} />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-[var(--on-surface)]">{getChatTitle()}</p>
+                  <p className="text-[10px] text-[var(--outline)]">{WING_STATUS_LABELS[(wingStatuses[chatTarget.userId] as WingStatus) || "offline"]}</p>
+                </div>
+              </Link>
+            ) : (
+              <>
+                <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-cyan-400/20 to-[var(--primary)]/20 flex items-center justify-center">
+                  <svg className="w-5 h-5 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" /></svg>
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-[var(--on-surface)]">{getChatTitle()}</p>
+                  <p className="text-[10px] text-[var(--outline)]">{groups.find((g) => g.id === chatTarget.groupId)?.memberIds.length || 0} membres</p>
+                </div>
+                <button onClick={() => { setShowRenameGroup(chatTarget.groupId); setRenameInput(getChatTitle()); }} className="p-1.5 rounded-lg hover:bg-[var(--surface-bright)] text-[var(--outline)]" title="Renommer">
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487z" /></svg>
+                </button>
+              </>
+            )}
+          </div>
+
+          {/* Messages area — takes all remaining space */}
+          <div
+            ref={chatContainerRef}
+            className="flex-1 min-h-0 overflow-y-auto space-y-2 px-4 py-3"
+            onScroll={() => {
+              const el = chatContainerRef.current;
+              if (!el) return;
+              shouldAutoScroll.current = el.scrollHeight - el.scrollTop - el.clientHeight < 80;
+            }}>
+            {[...currentMessages].reverse().map((msg) => {
+              const isMe = msg.fromUserId === userId;
+              const senderProfile = !isMe ? getProfileFor(msg.fromUserId) : null;
+              return (
+                <div key={msg.id} className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
+                  {!isMe && chatTarget.type === "group" && (
+                    <div className="mr-2 shrink-0 mt-1">
+                      <Avatar src={senderProfile?.profilePhoto} name={senderProfile?.firstName} size="xs" />
+                    </div>
+                  )}
+                  <div className={`max-w-[75%] px-3 py-2 rounded-2xl text-sm ${
+                    isMe
+                      ? "bg-[var(--primary)] text-white rounded-br-md"
+                      : "bg-[var(--surface-high)] text-[var(--on-surface)] rounded-bl-md"
+                  }`}>
+                    {!isMe && chatTarget.type === "group" && (
+                      <p className={`text-[10px] font-medium mb-0.5 text-[var(--primary)]`}>{senderProfile?.firstName || "?"}</p>
+                    )}
+                    <p>{msg.content}</p>
+                    <p className={`text-[9px] mt-1 ${isMe ? "text-white/60" : "text-[var(--outline)]"}`}>{formatRelative(msg.createdAt)}</p>
+                  </div>
+                </div>
+              );
+            })}
+            <div ref={chatEndRef} />
+          </div>
+
+          {/* Input — pinned at bottom */}
+          <div className="shrink-0 px-4 py-3 border-t border-[var(--border)] bg-[var(--bg)] safe-area-bottom">
+            <div className="flex gap-2 max-w-3xl mx-auto">
+              <Input
+                value={chatInput}
+                onChange={(e) => setChatInput(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleSend()}
+                placeholder="Message..."
+                className="flex-1"
+              />
+              <Button onClick={handleSend}>
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" /></svg>
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Rename Group Modal */}
+        <Modal open={!!showRenameGroup} onClose={() => setShowRenameGroup(null)} title="Renommer le groupe">
+          <div className="space-y-3">
+            <p className="text-xs text-[var(--on-surface-variant)]">Tous les membres du groupe peuvent renommer la discussion.</p>
+            <Input value={renameInput} onChange={(e) => setRenameInput(e.target.value)} placeholder="Nouveau nom..." />
+            <Button onClick={async () => {
+              if (!renameInput.trim() || !showRenameGroup) return;
+              await renameMessageGroupAction(showRenameGroup, renameInput.trim());
+              refresh();
+              setShowRenameGroup(null);
+            }}>Renommer</Button>
+          </div>
+        </Modal>
+      </>
+    );
+  }
+
   return (
     <div className="px-4 py-6 lg:px-8 lg:py-8 max-w-3xl mx-auto animate-fade-in">
-      {!chatTarget ? (
         <>
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
@@ -246,95 +352,6 @@ export default function MessagesPage() {
             )}
           </div>
         </>
-      ) : (
-        /* Chat view — full height, input fixed at bottom */
-        <div className="fixed inset-0 lg:left-[230px] z-50 flex flex-col bg-[var(--bg)]">
-          {/* Header */}
-          <div className="flex items-center gap-3 px-4 py-3 border-b border-[var(--border)] shrink-0">
-            <button onClick={() => setChatTarget(null)} className="p-1 text-[var(--outline)] hover:text-[var(--on-surface)]">
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
-            </button>
-            {chatTarget.type === "dm" ? (
-              <Link href={`/wings/${chatTarget.userId}`} className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-                <div className="relative">
-                  <Avatar src={getProfileFor(chatTarget.userId)?.profilePhoto} name={getProfileFor(chatTarget.userId)?.firstName} size="sm" className="!w-9 !h-9" />
-                  <div className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-[var(--surface)] ${WING_STATUS_COLORS[(wingStatuses[chatTarget.userId] as WingStatus) || "offline"]}`} />
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-[var(--on-surface)]">{getChatTitle()}</p>
-                  <p className="text-[10px] text-[var(--outline)]">{WING_STATUS_LABELS[(wingStatuses[chatTarget.userId] as WingStatus) || "offline"]}</p>
-                </div>
-              </Link>
-            ) : (
-              <>
-                <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-cyan-400/20 to-[var(--primary)]/20 flex items-center justify-center">
-                  <svg className="w-5 h-5 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" /></svg>
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm font-semibold text-[var(--on-surface)]">{getChatTitle()}</p>
-                  <p className="text-[10px] text-[var(--outline)]">{groups.find((g) => g.id === chatTarget.groupId)?.memberIds.length || 0} membres</p>
-                </div>
-                {/* Rename button for group */}
-                <button onClick={() => { setShowRenameGroup(chatTarget.groupId); setRenameInput(getChatTitle()); }} className="p-1.5 rounded-lg hover:bg-[var(--surface-bright)] text-[var(--outline)]" title="Renommer">
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487z" /></svg>
-                </button>
-              </>
-            )}
-          </div>
-
-          {/* Messages */}
-          <div
-            ref={chatContainerRef}
-            className="flex-1 overflow-y-auto space-y-2 px-4 py-3"
-            onScroll={() => {
-              const el = chatContainerRef.current;
-              if (!el) return;
-              shouldAutoScroll.current = el.scrollHeight - el.scrollTop - el.clientHeight < 80;
-            }}>
-            {[...currentMessages].reverse().map((msg) => {
-              const isMe = msg.fromUserId === userId;
-              const senderProfile = !isMe ? getProfileFor(msg.fromUserId) : null;
-              return (
-                <div key={msg.id} className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
-                  {!isMe && chatTarget.type === "group" && (
-                    <div className="mr-2 shrink-0 mt-1">
-                      <Avatar src={senderProfile?.profilePhoto} name={senderProfile?.firstName} size="xs" />
-                    </div>
-                  )}
-                  <div className={`max-w-[75%] px-3 py-2 rounded-2xl text-sm ${
-                    isMe
-                      ? "bg-[var(--primary)] text-white rounded-br-md"
-                      : "bg-[var(--surface-high)] text-[var(--on-surface)] rounded-bl-md"
-                  }`}>
-                    {!isMe && chatTarget.type === "group" && (
-                      <p className={`text-[10px] font-medium mb-0.5 ${isMe ? "text-white/70" : "text-[var(--primary)]"}`}>{senderProfile?.firstName || "?"}</p>
-                    )}
-                    <p>{msg.content}</p>
-                    <p className={`text-[9px] mt-1 ${isMe ? "text-white/60" : "text-[var(--outline)]"}`}>{formatRelative(msg.createdAt)}</p>
-                  </div>
-                </div>
-              );
-            })}
-            <div ref={chatEndRef} />
-          </div>
-
-          {/* Input — fixed at bottom */}
-          <div className="shrink-0 px-4 py-3 border-t border-[var(--border)] bg-[var(--bg)]">
-            <div className="flex gap-2 max-w-3xl mx-auto">
-              <Input
-                value={chatInput}
-                onChange={(e) => setChatInput(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleSend()}
-                placeholder="Message..."
-                className="flex-1"
-              />
-              <Button onClick={handleSend}>
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" /></svg>
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Create Group Modal */}
       <Modal open={showCreateGroup} onClose={() => { setShowCreateGroup(false); setGroupName(""); setSelectedMembers([]); }} title="Nouveau groupe">
@@ -358,19 +375,6 @@ export default function MessagesPage() {
         </div>
       </Modal>
 
-      {/* Rename Group Modal */}
-      <Modal open={!!showRenameGroup} onClose={() => setShowRenameGroup(null)} title="Renommer le groupe">
-        <div className="space-y-3">
-          <p className="text-xs text-[var(--on-surface-variant)]">Tous les membres du groupe peuvent renommer la discussion.</p>
-          <Input value={renameInput} onChange={(e) => setRenameInput(e.target.value)} placeholder="Nouveau nom..." />
-          <Button onClick={async () => {
-            if (!renameInput.trim() || !showRenameGroup) return;
-            await renameMessageGroupAction(showRenameGroup, renameInput.trim());
-            refresh();
-            setShowRenameGroup(null);
-          }}>Renommer</Button>
-        </div>
-      </Modal>
     </div>
   );
 }
