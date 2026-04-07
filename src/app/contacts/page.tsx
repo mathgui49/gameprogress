@@ -277,6 +277,10 @@ export default function ContactsPage() {
   const [dragContactId, setDragContactId] = useState<string | null>(null);
   const [dragOverStatus, setDragOverStatus] = useState<ContactStatus | null>(null);
 
+  // Touch DnD state
+  const touchDragRef = useRef<{ contactId: string; startY: number; startX: number; ghost: HTMLDivElement | null } | null>(null);
+  const columnRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+
   // ─── Filter logic ───────────────────────────────────
   const filtered = useMemo(() => {
     let result = contacts;
@@ -326,6 +330,54 @@ export default function ContactsPage() {
   };
 
   const handleDragEnd = () => { setDragContactId(null); setDragOverStatus(null); };
+
+  // ─── Touch DnD handlers (mobile) ───────────────────
+  const handleTouchDragStart = (contactId: string, contactName: string) => (e: React.TouchEvent) => {
+    if (bulkMode) return;
+    const touch = e.touches[0];
+    // Create ghost element
+    const ghost = document.createElement("div");
+    ghost.textContent = contactName;
+    ghost.className = "fixed px-3 py-2 rounded-xl bg-[var(--primary)] text-white text-xs font-medium shadow-lg pointer-events-none";
+    ghost.style.zIndex = "99999";
+    ghost.style.left = `${touch.clientX - 40}px`;
+    ghost.style.top = `${touch.clientY - 20}px`;
+    ghost.style.opacity = "0.9";
+    document.body.appendChild(ghost);
+    touchDragRef.current = { contactId, startX: touch.clientX, startY: touch.clientY, ghost };
+    setDragContactId(contactId);
+  };
+
+  const handleTouchDragMove = useCallback((e: React.TouchEvent) => {
+    const td = touchDragRef.current;
+    if (!td) return;
+    const touch = e.touches[0];
+    if (td.ghost) {
+      td.ghost.style.left = `${touch.clientX - 40}px`;
+      td.ghost.style.top = `${touch.clientY - 20}px`;
+    }
+    // Detect which column the finger is over
+    let foundStatus: ContactStatus | null = null;
+    columnRefs.current.forEach((el, status) => {
+      const rect = el.getBoundingClientRect();
+      if (touch.clientX >= rect.left && touch.clientX <= rect.right && touch.clientY >= rect.top && touch.clientY <= rect.bottom) {
+        foundStatus = status as ContactStatus;
+      }
+    });
+    setDragOverStatus(foundStatus);
+  }, []);
+
+  const handleTouchDragEnd = useCallback(async () => {
+    const td = touchDragRef.current;
+    if (!td) return;
+    if (td.ghost) td.ghost.remove();
+    if (dragOverStatus && td.contactId) {
+      await updateStatus(td.contactId, dragOverStatus);
+    }
+    touchDragRef.current = null;
+    setDragContactId(null);
+    setDragOverStatus(null);
+  }, [dragOverStatus, updateStatus]);
 
   // ─── Bulk handlers ──────────────────────────────────
   const toggleSelect = (id: string) => {
@@ -542,6 +594,7 @@ export default function ContactsPage() {
             return (
               <div
                 key={status}
+                ref={(el) => { if (el) columnRefs.current.set(status, el); }}
                 className={`md:min-w-[240px] md:max-w-[260px] md:flex-shrink-0 transition-all ${dragOverStatus === status ? "ring-2 ring-[var(--primary)]/30 rounded-xl" : ""}`}
                 onDragOver={handleDragOver(status)}
                 onDragLeave={() => setDragOverStatus(null)}
@@ -557,7 +610,13 @@ export default function ContactsPage() {
                       Glisser ici
                     </div>
                   ) : items.map((contact) => (
-                    <div key={contact.id} className="min-w-[220px] md:min-w-0">
+                    <div
+                      key={contact.id}
+                      className={`min-w-[220px] md:min-w-0 touch-manipulation ${dragContactId === contact.id ? "opacity-50" : ""}`}
+                      onTouchStart={handleTouchDragStart(contact.id, contact.firstName)}
+                      onTouchMove={handleTouchDragMove}
+                      onTouchEnd={handleTouchDragEnd}
+                    >
                       <ContactCard
                         contact={contact}
                         onQuickStatus={handleQuickStatus}
