@@ -16,15 +16,15 @@ interface DonutChartProps {
 
 export function DonutChart({
   segments,
-  size = 140,
-  thickness = 18,
+  size = 150,
+  thickness = 20,
   centerLabel,
   centerValue,
 }: DonutChartProps) {
   const total = segments.reduce((s, seg) => s + seg.value, 0);
   if (total === 0) {
     return (
-      <div className="flex items-center justify-center text-xs text-[var(--outline)]" style={{ width: size, height: size }}>
+      <div className="flex flex-col items-center justify-center text-xs text-[var(--outline)] py-6">
         Aucune donnée
       </div>
     );
@@ -33,21 +33,23 @@ export function DonutChart({
   const radius = (size - thickness) / 2;
   const circumference = 2 * Math.PI * radius;
   const center = size / 2;
+  const gap = 3; // gap between segments in svg units
 
   let cumulativeOffset = 0;
 
   return (
-    <div className="flex items-center gap-6">
-      <div className="relative" style={{ width: size, height: size }}>
-        <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+    <div className="flex flex-col sm:flex-row items-center gap-5">
+      <div className="relative shrink-0" style={{ width: size, height: size }}>
+        <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="drop-shadow-sm">
           {/* Background circle */}
           <circle cx={center} cy={center} r={radius} fill="none"
-            stroke="var(--surface-highest)" strokeWidth={thickness} />
+            stroke="var(--surface-highest)" strokeWidth={thickness} opacity="0.5" />
           {/* Segments */}
-          {segments.map((seg, i) => {
+          {segments.filter((s) => s.value > 0).map((seg, i) => {
             const pct = seg.value / total;
-            const dashLength = pct * circumference;
-            const dashOffset = -cumulativeOffset * circumference;
+            const gapPct = gap / circumference;
+            const dashLength = Math.max(pct * circumference - gap, 0);
+            const dashOffset = -(cumulativeOffset * circumference + gap / 2);
             cumulativeOffset += pct;
             return (
               <circle
@@ -60,29 +62,37 @@ export function DonutChart({
                 strokeDashoffset={dashOffset}
                 strokeLinecap="round"
                 transform={`rotate(-90 ${center} ${center})`}
-                className="transition-all duration-500"
+                className="transition-all duration-700"
+                style={{ filter: `drop-shadow(0 0 4px ${seg.color}30)` }}
               />
             );
           })}
         </svg>
         {(centerLabel || centerValue) && (
           <div className="absolute inset-0 flex flex-col items-center justify-center">
-            {centerValue && <span className="text-xl font-bold text-[var(--on-surface)]">{centerValue}</span>}
-            {centerLabel && <span className="text-[10px] text-[var(--outline)]">{centerLabel}</span>}
+            {centerValue && <span className="text-2xl font-bold text-[var(--on-surface)] font-[family-name:var(--font-grotesk)]">{centerValue}</span>}
+            {centerLabel && <span className="text-[10px] text-[var(--outline)] uppercase tracking-wider">{centerLabel}</span>}
           </div>
         )}
       </div>
-      <div className="flex flex-col gap-2">
-        {segments.map((seg, i) => (
-          <div key={i} className="flex items-center gap-2">
-            <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: seg.color }} />
-            <span className="text-xs text-[var(--on-surface-variant)]">{seg.label}</span>
-            <span className="text-xs font-semibold text-[var(--on-surface)] ml-auto">{seg.value}</span>
-            <span className="text-[10px] text-[var(--outline)]">
-              ({Math.round((seg.value / total) * 100)}%)
-            </span>
-          </div>
-        ))}
+
+      {/* Legend */}
+      <div className="flex flex-col gap-2.5 min-w-0">
+        {segments.map((seg, i) => {
+          const pct = total > 0 ? Math.round((seg.value / total) * 100) : 0;
+          return (
+            <div key={i} className="flex items-center gap-2.5">
+              <div className="w-3 h-3 rounded-[4px] shrink-0" style={{ backgroundColor: seg.color, boxShadow: `0 0 6px ${seg.color}40` }} />
+              <div className="flex items-baseline gap-2 min-w-0 flex-1">
+                <span className="text-xs text-[var(--on-surface-variant)] truncate">{seg.label}</span>
+                <div className="flex items-baseline gap-1 ml-auto shrink-0">
+                  <span className="text-sm font-bold text-[var(--on-surface)] tabular-nums">{seg.value}</span>
+                  <span className="text-[10px] text-[var(--outline)] tabular-nums">({pct}%)</span>
+                </div>
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
