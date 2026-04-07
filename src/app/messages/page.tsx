@@ -113,10 +113,20 @@ export default function MessagesPage() {
 
   const handleCreateGroup = async () => {
     if (!groupName.trim() || selectedMembers.length === 0) return;
-    await createGroup(groupName, selectedMembers);
-    setShowCreateGroup(false);
-    setGroupName("");
-    setSelectedMembers([]);
+    try {
+      const id = await createGroup(groupName, selectedMembers);
+      if (id) {
+        setShowCreateGroup(false);
+        setGroupName("");
+        setSelectedMembers([]);
+        toast.show("Groupe créé !", "success");
+      } else {
+        toast.show("Erreur lors de la création du groupe", "error");
+      }
+    } catch (err) {
+      console.error("Create group error:", err);
+      toast.show("Erreur lors de la création du groupe", "error");
+    }
   };
 
   const getChatTitle = (): string => {
