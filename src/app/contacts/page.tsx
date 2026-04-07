@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useMemo, useEffect, useRef, useCallback } from "react";
+import { useState, useMemo, useEffect, useRef, useCallback, Fragment } from "react";
+import { createPortal } from "react-dom";
 import { useContacts } from "@/hooks/useContacts";
 import { useInteractions } from "@/hooks/useInteractions";
 import { useGamification } from "@/hooks/useGamification";
@@ -91,13 +92,27 @@ function ContactCard({
   onDragStart?: (e: React.DragEvent) => void;
 }) {
   const [showMenu, setShowMenu] = useState(false);
+  const [menuPos, setMenuPos] = useState<{ top: number; left: number } | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
   const inactiveDays = daysSince(contact.lastInteractionDate);
   const stale = inactiveDays >= 5 && contact.status !== "archived";
 
+  const openMenu = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (showMenu) { setShowMenu(false); return; }
+    const btn = (e.currentTarget as HTMLElement);
+    const rect = btn.getBoundingClientRect();
+    // Position above the button, aligned right
+    setMenuPos({ top: rect.top, left: rect.right - 130 });
+    setShowMenu(true);
+  };
+
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setShowMenu(false);
+      if (menuRef.current && !menuRef.current.contains(e.target as Node) &&
+          triggerRef.current && !triggerRef.current.contains(e.target as Node)) setShowMenu(false);
     };
     if (showMenu) document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
@@ -113,7 +128,7 @@ function ContactCard({
         {/* Mobile drag handle — opens status picker on tap */}
         {draggable && (
           <button
-            onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowMenu(!showMenu); }}
+            onClick={openMenu}
             className="md:hidden shrink-0 w-6 h-8 flex items-center justify-center rounded-md text-[var(--outline)]/50 active:bg-[var(--surface-bright)] touch-manipulation"
             aria-label="Déplacer"
           >
@@ -150,15 +165,16 @@ function ContactCard({
                 </div>
               </div>
               {/* Quick status menu */}
-              <div ref={menuRef} className="relative">
+              <div className="relative">
                 <button
-                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowMenu(!showMenu); }}
+                  ref={triggerRef}
+                  onClick={openMenu}
                   className="p-1 rounded-md hover:bg-[var(--surface-bright)] text-[var(--outline)] transition-colors"
                 >
                   <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M6.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM12.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM18.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" /></svg>
                 </button>
-                {showMenu && (
-                  <div className="absolute right-0 bottom-full mb-1 bg-[var(--surface-high)] border border-[var(--border)] rounded-xl shadow-lg py-1 z-50 min-w-[130px] animate-fade-in max-h-[240px] overflow-y-auto">
+                {showMenu && typeof document !== "undefined" && createPortal(
+                  <div ref={menuRef} className="fixed bg-[var(--surface-high)] border border-[var(--border)] rounded-xl shadow-lg py-1 min-w-[130px] animate-fade-in max-h-[240px] overflow-y-auto" style={{ top: Math.max(8, (menuPos?.top ?? 0) - 240), left: menuPos?.left ?? 0, zIndex: 9999 }}>
                     {ALL_STATUSES.map((s) => (
                       <button
                         key={s}
@@ -168,7 +184,8 @@ function ContactCard({
                         {STATUS_LABELS[s]}
                       </button>
                     ))}
-                  </div>
+                  </div>,
+                  document.body,
                 )}
               </div>
             </div>
