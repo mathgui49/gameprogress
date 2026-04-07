@@ -104,6 +104,7 @@ export default function AbonnementPage() {
         <Card className="text-center !p-6 border-[var(--border)]">
           <p className="text-sm font-medium text-[var(--on-surface-variant)] mb-2">Mensuel</p>
           <p className="text-3xl font-[family-name:var(--font-grotesk)] font-bold text-[var(--on-surface)]">{PRICE_MONTHLY}€<span className="text-sm font-normal text-[var(--outline)]">/mois</span></p>
+          <p className="text-[10px] text-amber-400/80 mt-1">Prix de lancement</p>
           <Button onClick={() => checkout("monthly")} className="w-full mt-4">Commencer</Button>
         </Card>
 
@@ -115,6 +116,7 @@ export default function AbonnementPage() {
           <p className="text-sm font-medium text-[var(--on-surface-variant)] mb-2">Annuel</p>
           <p className="text-3xl font-[family-name:var(--font-grotesk)] font-bold text-[var(--on-surface)]">{PRICE_MONTHLY_EQUIVALENT}€<span className="text-sm font-normal text-[var(--outline)]">/mois</span></p>
           <p className="text-[10px] text-[var(--outline)] mt-1">Facturé {PRICE_YEARLY}€/an</p>
+          <p className="text-[9px] text-emerald-400/70 mt-0.5">Sécurise ce prix — les tarifs évolueront</p>
           <Button onClick={() => checkout("yearly")} className="w-full mt-4">Commencer</Button>
         </Card>
       </div>

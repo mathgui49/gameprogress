@@ -176,6 +176,7 @@ export default function LandingPage() {
             <a href="#showcase" className="text-sm text-[#a09bb2] hover:text-[#c084fc] transition-colors">Aperçu</a>
             <a href="#pricing" className="text-sm text-[#a09bb2] hover:text-[#c084fc] transition-colors">Tarifs</a>
             <a href="#guide" className="text-sm text-[#a09bb2] hover:text-[#c084fc] transition-colors">Guide</a>
+            <Link href="/faq" className="text-sm text-[#a09bb2] hover:text-[#c084fc] transition-colors">FAQ</Link>
           </div>
           <a href="/" className="px-5 py-2 rounded-[14px] bg-gradient-to-r from-[#c084fc] to-[#f472b6] text-sm font-semibold text-white hover:opacity-90 hover:shadow-[0_0_24px_-4px_rgba(192,132,252,0.5)] transition-all hover:scale-105 active:scale-95">
             Commencer
@@ -766,10 +767,13 @@ export default function LandingPage() {
                   )}
                 </div>
                 {billingCycle === "yearly" && (
-                  <p className="text-xs text-[#c084fc] mb-4">Facturé {PRICE_YEARLY}&euro;/an au lieu de {(PRICE_MONTHLY * 12).toFixed(2)}&euro;</p>
+                  <>
+                    <p className="text-xs text-[#c084fc] mb-2">Facturé {PRICE_YEARLY}&euro;/an au lieu de {(PRICE_MONTHLY * 12).toFixed(2)}&euro;</p>
+                    <p className="text-[10px] text-[#34d399]/80 mb-4">Verrouille ton prix — les tarifs évolueront avec les nouvelles fonctionnalités</p>
+                  </>
                 )}
                 {billingCycle === "monthly" && (
-                  <p className="text-xs text-[#8a839e] mb-4">Moins cher qu&apos;un kebab</p>
+                  <p className="text-xs text-[#8a839e] mb-4">Prix de lancement — susceptible d&apos;évoluer</p>
                 )}
                 <a href="/" className="block w-full text-center px-6 py-3 rounded-[12px] bg-gradient-to-r from-[#c084fc] to-[#f472b6] text-white text-sm font-semibold hover:shadow-[0_0_24px_-4px_rgba(192,132,252,0.5)] transition-all hover:scale-[1.02] active:scale-[0.98] mb-6">
                   Passer à {PLAN_NAME_PRO}
@@ -950,7 +954,7 @@ export default function LandingPage() {
               Rejoins GameProgress et commence à tracker ta progression dès aujourd&apos;hui.
             </p>
             <p className="text-sm text-[#8a839e] mb-10">
-              Plan gratuit pour démarrer, puis {PLAN_NAME_PRO} à {PRICE_MONTHLY}&euro;/mois pour tout débloquer. Moins cher qu&apos;un kebab.
+              Plan gratuit pour démarrer, puis {PLAN_NAME_PRO} à {PRICE_MONTHLY}&euro;/mois pour tout débloquer. Prix de lancement, profite avant que ça change.
             </p>
             <a href="/" className="group inline-flex items-center gap-2 px-10 py-4 rounded-[14px] bg-gradient-to-r from-[#c084fc] to-[#f472b6] text-lg font-semibold text-white hover:shadow-[0_0_48px_-8px_rgba(192,132,252,0.5)] transition-all hover:scale-105 active:scale-95 animate-neon-pulse">
               S&apos;inscrire maintenant
@@ -973,6 +977,7 @@ export default function LandingPage() {
               <a href="#pricing" className="text-xs text-[#8a839e] hover:text-[#a09bb2] transition-colors">Tarifs</a>
               <Link href="/guide" className="text-xs text-[#8a839e] hover:text-[#a09bb2] transition-colors">Guide</Link>
               <a href="#how" className="text-xs text-[#8a839e] hover:text-[#a09bb2] transition-colors">Comment ça marche</a>
+              <Link href="/faq" className="text-xs text-[#8a839e] hover:text-[#a09bb2] transition-colors">FAQ</Link>
             </div>
             <div className="flex items-center gap-6">
               <a href="/cgu" className="text-xs text-[#8a839e] hover:text-[#a09bb2] transition-colors">CGU</a>
