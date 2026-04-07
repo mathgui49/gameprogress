@@ -377,12 +377,12 @@ const GUIDE_FEATURES: GuideFeature[] = [
   },
   {
     title: "Parrainage",
-    description: "Invite tes potes avec ton lien unique. Vous gagnez tous les deux 7 jours de GameMax. S'il souscrit, tu gagnes 1 mois.",
+    description: "Invite tes potes avec ton lien unique. Tu gagnes 7 jours de GameMax par inscription.",
     details: [
       "Lien de parrainage unique",
-      "7 jours GameMax pour le filleul",
-      "7 jours GameMax pour le parrain",
-      "1 mois offert si le filleul souscrit",
+      "7 jours GameMax offerts par filleul inscrit",
+      "Cumul illimité de jours offerts",
+      "Suivi des parrainages en temps réel",
     ],
     icon: "M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM3 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 019.374 21c-2.331 0-4.512-.645-6.374-1.766z",
     color: "from-[#34d399] to-[#f59e0b]",

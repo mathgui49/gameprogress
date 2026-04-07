@@ -946,18 +946,113 @@ export async function uploadImageAction(base64Data: string, folder: "photos" | "
 
 // ─── Referral System ──────────────────────────────────
 
+/** Generate a deterministic referral code from a user ID (email) */
+function generateReferralCode(userId: string): string {
+  return btoa(userId).replace(/[^a-zA-Z0-9]/g, "").slice(0, 8).toUpperCase();
+}
+
 export async function fetchReferralCodeAction(): Promise<string> {
   const userId = await getAuthUserId();
-  // Generate a deterministic code from user ID
-  const code = btoa(userId).replace(/[^a-zA-Z0-9]/g, "").slice(0, 8).toUpperCase();
-  return code;
+  return generateReferralCode(userId);
 }
 
 export async function fetchReferralStatsAction() {
-  await getAuthUserId();
-  // STUB: Returns placeholder data until referrals table is created.
-  // Do not expose real user data or logic here until properly implemented.
-  return { referralCount: 0, convertedCount: 0, earnedDays: 0 };
+  const userId = await getAuthUserId();
+  const myCode = generateReferralCode(userId);
+  const { supabaseServer } = await import("@/lib/supabase-server");
+
+  // Count referrals: profiles where referred_by matches this user's code
+  const { data, error } = await supabaseServer
+    .from("profiles")
+    .select("user_id")
+    .eq("referred_by", myCode);
+
+  const referralCount = error ? 0 : (data?.length ?? 0);
+  const earnedDays = referralCount * 7; // 7 days per referral
+  return { referralCount, convertedCount: 0, earnedDays };
+}
+
+/**
+ * Called by the filleul after first sign-up to credit the parrain with 7 days of GameMax.
+ * Stores `referred_by` on the new user's profile and extends the referrer's subscription.
+ */
+export async function claimReferralAction(referralCode: string): Promise<boolean> {
+  const userId = await getAuthUserId();
+  const code = assertString(referralCode, "referralCode", 20).trim().toUpperCase();
+  if (!code) return false;
+
+  // Don't allow self-referral
+  if (generateReferralCode(userId) === code) return false;
+
+  const { supabaseServer } = await import("@/lib/supabase-server");
+
+  // Check if already referred
+  const { data: myProfile } = await supabaseServer
+    .from("profiles")
+    .select("referred_by")
+    .eq("user_id", userId)
+    .limit(1);
+
+  if (myProfile?.[0]?.referred_by) return false; // already claimed
+
+  // Find the referrer by scanning profiles for matching code
+  const { data: allProfiles } = await supabaseServer
+    .from("profiles")
+    .select("user_id")
+    .limit(1000);
+
+  const referrerUserId = allProfiles?.find(
+    (p) => generateReferralCode(p.user_id) === code
+  )?.user_id;
+
+  if (!referrerUserId) return false;
+
+  // Store referred_by on the new user's profile
+  await supabaseServer
+    .from("profiles")
+    .update({ referred_by: code })
+    .eq("user_id", userId);
+
+  // Grant referrer 7 days of GameMax
+  const REWARD_DAYS = 7;
+  const extraMs = REWARD_DAYS * 24 * 60 * 60 * 1000;
+  const now = new Date();
+
+  const { data: refSub } = await supabaseServer
+    .from("subscriptions")
+    .select("*")
+    .eq("user_id", referrerUserId)
+    .limit(1);
+
+  if (refSub && refSub.length > 0) {
+    const currentEnd = refSub[0].current_period_end
+      ? new Date(refSub[0].current_period_end)
+      : now;
+    const base = currentEnd > now ? currentEnd : now;
+    const newEnd = new Date(base.getTime() + extraMs);
+
+    await supabaseServer
+      .from("subscriptions")
+      .update({
+        status: "active",
+        current_period_end: newEnd.toISOString(),
+        updated_at: now.toISOString(),
+      })
+      .eq("user_id", referrerUserId);
+  } else {
+    const endDate = new Date(now.getTime() + extraMs);
+    await supabaseServer.from("subscriptions").insert({
+      user_id: referrerUserId,
+      stripe_customer_id: "referral",
+      stripe_subscription_id: null,
+      status: "active",
+      current_period_end: endDate.toISOString(),
+      created_at: now.toISOString(),
+      updated_at: now.toISOString(),
+    });
+  }
+
+  return true;
 }
 
 // ─── Ambassador System ────────────────────────────────

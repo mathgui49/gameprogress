@@ -1,10 +1,23 @@
 "use client";
 
+import { useEffect, Suspense } from "react";
 import { signIn } from "next-auth/react";
+import { useSearchParams } from "next/navigation";
+
+function ReferralCapture() {
+  const searchParams = useSearchParams();
+  useEffect(() => {
+    const ref = searchParams.get("ref");
+    if (ref) localStorage.setItem("gp_referral_code", ref);
+  }, [searchParams]);
+  return null;
+}
 
 export default function LoginPage() {
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-[var(--surface-low)] px-4">
+      <Suspense><ReferralCapture /></Suspense>
       <div className="w-full max-w-sm text-center animate-fade-in">
         {/* Logo */}
         <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#c084fc] to-[#f472b6] flex items-center justify-center mx-auto mb-6 shadow-[0_0_24px_-4px_var(--neon-purple)]">

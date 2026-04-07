@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import type { UserProfile } from "@/types";
-import { fetchOneAction, upsertRowAction } from "@/actions/db";
+import { fetchOneAction, upsertRowAction, claimReferralAction } from "@/actions/db";
 
 const DEFAULT_PROFILE: UserProfile = {
   name: "",
@@ -46,6 +46,15 @@ export function useProfile() {
         };
         setProfile(initial);
         upsertRowAction("profiles", initial);
+
+        // Process referral if one was saved before OAuth
+        try {
+          const refCode = localStorage.getItem("gp_referral_code");
+          if (refCode) {
+            localStorage.removeItem("gp_referral_code");
+            claimReferralAction(refCode).catch(() => {});
+          }
+        } catch {}
       }
       setLoaded(true);
     });

@@ -89,7 +89,7 @@ export default function ReferralPage() {
           Parrainage
         </h1>
         <p className="text-sm text-[var(--outline)]">
-          Invite tes potes et gagnez tous les deux des jours de {PLAN_NAME_PRO}.
+          Invite tes potes et gagne {REFERRAL_PRO_DAYS} jours de {PLAN_NAME_PRO} par inscription.
         </p>
       </div>
 
@@ -107,13 +107,13 @@ export default function ReferralPage() {
             {
               step: "2",
               title: "Il s'inscrit",
-              desc: `Il obtient ${REFERRAL_PRO_DAYS}j de ${PLAN_NAME_PRO}`,
+              desc: "Il rejoint GameProgress gratuitement",
               icon: "M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z",
             },
             {
               step: "3",
-              title: "Tu gagnes aussi",
-              desc: `${REFERRAL_PRO_DAYS}j offerts, 1 mois si il souscrit`,
+              title: "Tu gagnes",
+              desc: `${REFERRAL_PRO_DAYS}j de ${PLAN_NAME_PRO} offerts !`,
               icon: "M21 11.25v8.25a1.5 1.5 0 01-1.5 1.5H5.25a1.5 1.5 0 01-1.5-1.5v-8.25M12 4.875A2.625 2.625 0 109.375 7.5H12m0-2.625V7.5m0-2.625A2.625 2.625 0 1114.625 7.5H12m0 0V21m-8.625-9.75h18c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125h-18c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z",
             },
           ].map((s) => (
