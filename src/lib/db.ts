@@ -1477,9 +1477,18 @@ export async function addCollaborativeContribution(journalEntryId: string, autho
 // ─── Leaderboard Extended ──────────────────────────────
 
 export async function fetchLeaderboardWithXpDetails(location?: string) {
-  let query = supabase.from("public_profiles").select("*").eq("is_public", true).neq("first_name", "").neq("username", "");
-  if (location) query = query.ilike("location", `%${location}%`);
-  const { data: profiles } = await query;
+  // Fetch profiles that are public OR have opted into the leaderboard via privacy settings
+  let q1 = supabase.from("public_profiles").select("*").eq("is_public", true).neq("first_name", "").neq("username", "");
+  let q2 = supabase.from("public_profiles").select("*").eq("privacy->>showInLeaderboardPublic", "true").neq("first_name", "").neq("username", "");
+  if (location) {
+    q1 = q1.ilike("location", `%${location}%`);
+    q2 = q2.ilike("location", `%${location}%`);
+  }
+  const [{ data: pub }, { data: leaderOpt }] = await Promise.all([q1, q2]);
+  const merged = new Map<string, any>();
+  for (const p of pub || []) merged.set(p.user_id, p);
+  for (const p of leaderOpt || []) merged.set(p.user_id, p);
+  const profiles = Array.from(merged.values());
   if (!profiles || profiles.length === 0) return [];
 
   const userIds = profiles.map((p: any) => p.user_id);
