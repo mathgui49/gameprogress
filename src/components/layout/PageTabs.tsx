@@ -53,29 +53,34 @@ export function PageTabs() {
 
   const group = groupKey ? TAB_GROUPS[groupKey] : null;
 
+  const touchStartY = useRef<number | null>(null);
+
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     touchStart.current = e.touches[0].clientX;
+    touchStartY.current = e.touches[0].clientY;
   }, []);
 
   const handleTouchEnd = useCallback((e: React.TouchEvent) => {
-    if (touchStart.current === null || !group) return;
-    const diff = touchStart.current - e.changedTouches[0].clientX;
-    const threshold = 60;
+    if (touchStart.current === null || touchStartY.current === null || !group) return;
+    const diffX = touchStart.current - e.changedTouches[0].clientX;
+    const diffY = touchStartY.current - e.changedTouches[0].clientY;
+    const threshold = 100; // Higher threshold to prevent accidental swipes
 
-    if (Math.abs(diff) < threshold) return;
+    touchStart.current = null;
+    touchStartY.current = null;
+
+    // Ignore if vertical movement is greater (user is scrolling, not swiping)
+    if (Math.abs(diffY) > Math.abs(diffX) * 0.5) return;
+    if (Math.abs(diffX) < threshold) return;
 
     const currentIdx = group.tabs.findIndex((t) => pathname.startsWith(t.href));
     if (currentIdx === -1) return;
 
-    if (diff > 0 && currentIdx < group.tabs.length - 1) {
-      // Swipe left -> next tab
+    if (diffX > 0 && currentIdx < group.tabs.length - 1) {
       router.push(group.tabs[currentIdx + 1].href);
-    } else if (diff < 0 && currentIdx > 0) {
-      // Swipe right -> prev tab
+    } else if (diffX < 0 && currentIdx > 0) {
       router.push(group.tabs[currentIdx - 1].href);
     }
-
-    touchStart.current = null;
   }, [group, pathname, router]);
 
   if (!group) return null;

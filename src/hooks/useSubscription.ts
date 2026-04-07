@@ -18,7 +18,7 @@ export function useSubscription() {
   const { data: subscription, isLoading, mutate } = useSWR(
     userId ? `/api/stripe/status` : null,
     fetcher,
-    { revalidateOnFocus: false, dedupingInterval: 10000 }
+    { revalidateOnFocus: false, dedupingInterval: 60000, keepPreviousData: true }
   );
 
   const isPremium = subscription?.status === "active";
