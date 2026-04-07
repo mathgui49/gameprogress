@@ -49,7 +49,7 @@ export function Sidebar() {
       <div className="px-5 py-6">
         <a href="/landing" className="flex items-center gap-3 group">
           <div className="w-9 h-9 rounded-[12px] border-2 border-[var(--primary)]/40 flex items-center justify-center animate-logo-pulse group-hover:border-[var(--primary)]/70 transition-colors">
-            <Image src="/logo.webp" alt="GameProgress" width={22} height={22} className="rounded-[6px]" priority />
+            <Image src="/logo.png" alt="GameProgress" width={22} height={22} className="rounded-[6px]" priority />
           </div>
           <span className="text-[15px] font-[family-name:var(--font-grotesk)] font-bold text-[var(--on-surface)] tracking-tight">
             GameProgress

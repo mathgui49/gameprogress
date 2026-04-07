@@ -168,7 +168,7 @@ export default function LandingPage() {
       <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrollY > 50 ? "bg-[rgba(6,5,16,0.82)] backdrop-blur-[48px] border-b border-[rgba(192,132,252,0.08)]" : ""}`}>
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Image src="/logo.webp" alt="GameProgress" width={32} height={32} className="rounded-[10px] animate-logo-pulse" priority />
+            <Image src="/logo.png" alt="GameProgress" width={32} height={32} className="rounded-[10px] animate-logo-pulse" priority />
             <span className="font-[family-name:var(--font-grotesk)] font-bold text-lg">GameProgress</span>
           </div>
           <div className="hidden md:flex items-center gap-8">
@@ -195,7 +195,7 @@ export default function LandingPage() {
         <div className="relative max-w-4xl mx-auto text-center">
           <Section>
             <div className="mb-6">
-              <Image src="/logo.webp" alt="GameProgress" width={72} height={72} className="mx-auto rounded-[18px] shadow-[0_0_40px_-8px_rgba(192,132,252,0.4)] animate-logo-pulse" priority />
+              <Image src="/logo.png" alt="GameProgress" width={72} height={72} className="mx-auto rounded-[18px] shadow-[0_0_40px_-8px_rgba(192,132,252,0.4)] animate-logo-pulse" priority />
             </div>
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[rgba(14,11,24,0.65)] backdrop-blur-[32px] border border-[rgba(192,132,252,0.1)] mb-8">
               <span className="w-2 h-2 rounded-full bg-[#34d399] animate-pulse" />
@@ -235,9 +235,8 @@ export default function LandingPage() {
           {/* Download buttons */}
           <Section delay={350}>
             <div className="flex items-center justify-center gap-3 mb-12">
-              <a
-                href="https://github.com/mathgui49/gameprogress/releases/latest/download/GameProgress.apk"
-                className="flex items-center gap-2.5 px-5 py-2.5 rounded-[12px] bg-[rgba(14,11,24,0.65)] backdrop-blur-[32px] border border-[rgba(192,132,252,0.12)] hover:border-[rgba(192,132,252,0.3)] transition-all hover:scale-105 active:scale-95"
+              <span
+                className="flex items-center gap-2.5 px-5 py-2.5 rounded-[12px] bg-[rgba(14,11,24,0.65)] backdrop-blur-[32px] border border-[rgba(192,132,252,0.12)] opacity-50 cursor-not-allowed"
               >
                 <svg className="w-5 h-5 text-[#34d399]" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M17.523 2.236l-2.07 3.587a12.14 12.14 0 00-6.906 0L6.477 2.236a.5.5 0 00-.866.5l2.02 3.5A12.01 12.01 0 002 16h20a12.01 12.01 0 00-5.63-9.764l2.02-3.5a.5.5 0 00-.867-.5zM8.5 12.75a1.25 1.25 0 110-2.5 1.25 1.25 0 010 2.5zm7 0a1.25 1.25 0 110-2.5 1.25 1.25 0 010 2.5z"/>
@@ -246,7 +245,7 @@ export default function LandingPage() {
                   <p className="text-[10px] text-[#8a839e] leading-none">Télécharger sur</p>
                   <p className="text-sm font-semibold text-[#f0eef5] leading-tight">Android</p>
                 </div>
-              </a>
+              </span>
               <button
                 type="button"
                 onClick={() => {
@@ -871,7 +870,7 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-3">
-              <Image src="/logo.webp" alt="GameProgress" width={32} height={32} className="rounded-[10px] animate-logo-pulse" />
+              <Image src="/logo.png" alt="GameProgress" width={32} height={32} className="rounded-[10px] animate-logo-pulse" />
               <span className="font-[family-name:var(--font-grotesk)] font-bold">GameProgress</span>
             </div>
             <div className="flex items-center gap-8">

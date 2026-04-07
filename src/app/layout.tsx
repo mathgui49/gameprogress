@@ -18,6 +18,7 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "sw
 const grotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-grotesk", display: "swap" });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://gameprogress.vercel.app"),
   title: {
     default: "GameProgress - Tracker de Progression Sociale",
     template: "%s | GameProgress",
@@ -64,6 +65,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="fr" className={`${inter.variable} ${grotesk.variable}`}>
       <head>
+        <link rel="icon" type="image/png" href="/favicon.png" />
         <link rel="apple-touch-icon" href="/icon-192.png" />
         <script dangerouslySetInnerHTML={{ __html: `(function(){var t=localStorage.getItem('gameprogress-theme')||'light';document.documentElement.setAttribute('data-theme',t)})()` }} />
         <script dangerouslySetInnerHTML={{ __html: `if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js'))}` }} />

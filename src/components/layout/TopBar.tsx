@@ -206,7 +206,7 @@ export function TopBar() {
         <div className="flex items-center gap-1.5">
           <a href="/landing">
             <div className="w-8 h-8 rounded-[10px] border border-[var(--primary)]/30 flex items-center justify-center animate-logo-pulse">
-              <Image src="/logo.webp" alt="GameProgress" width={20} height={20} className="rounded-[5px]" priority />
+              <Image src="/logo.png" alt="GameProgress" width={20} height={20} className="rounded-[5px]" priority />
             </div>
           </a>
           <button
