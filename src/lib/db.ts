@@ -1261,8 +1261,19 @@ export async function createMessageGroup(userId: string, name: string, memberIds
 }
 
 export async function fetchUserGroups(userId: string) {
-  const { data } = await supabase.from("message_groups").select("*").contains("member_ids", [userId]);
-  return (data || []).map((r) => fromRow<any>(r));
+  // member_ids is a jsonb array — use contains to check membership
+  const { data, error } = await supabase
+    .from("message_groups")
+    .select("*")
+    .contains("member_ids", [userId]);
+  if (error) console.error("fetchUserGroups error:", error);
+  if (data && data.length > 0) return data.map((r: any) => fromRow<any>(r));
+  // Fallback: filter with raw SQL via .or() / .filter() in case contains doesn't match
+  const { data: all } = await supabase.from("message_groups").select("*");
+  return (all || []).filter((r: any) => {
+    const m = r.member_ids;
+    return Array.isArray(m) ? m.includes(userId) : String(m).includes(userId);
+  }).map((r: any) => fromRow<any>(r));
 }
 
 export async function renameMessageGroup(userId: string, groupId: string, newName: string) {
