@@ -250,8 +250,10 @@ export default function MessagesPage() {
     }
   };
 
+  const [creatingGroup, setCreatingGroup] = useState(false);
   const handleCreateGroup = async () => {
-    if (!groupName.trim() || selectedMembers.length === 0) return;
+    if (!groupName.trim() || selectedMembers.length === 0 || creatingGroup) return;
+    setCreatingGroup(true);
     try {
       const id = await createGroup(groupName, selectedMembers);
       if (id) {
@@ -264,6 +266,8 @@ export default function MessagesPage() {
       }
     } catch {
       toast.show("Erreur", "error");
+    } finally {
+      setCreatingGroup(false);
     }
   };
 
@@ -381,13 +385,27 @@ export default function MessagesPage() {
   const handleGroupPhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || chatTarget?.type !== "group") return;
-    const reader = new FileReader();
-    reader.onload = async () => {
-      const ok = await updateGroupPhotoAction(chatTarget.groupId, reader.result as string);
+
+    // Compress image via canvas (max 400x400, JPEG 0.7)
+    const img = new window.Image();
+    img.onload = async () => {
+      const MAX = 400;
+      let w = img.width, h = img.height;
+      if (w > MAX || h > MAX) {
+        const scale = MAX / Math.max(w, h);
+        w = Math.round(w * scale);
+        h = Math.round(h * scale);
+      }
+      const canvas = document.createElement("canvas");
+      canvas.width = w;
+      canvas.height = h;
+      canvas.getContext("2d")!.drawImage(img, 0, 0, w, h);
+      const compressed = canvas.toDataURL("image/jpeg", 0.7);
+      const ok = await updateGroupPhotoAction(chatTarget.groupId, compressed);
       if (ok) { toast.show("Photo mise a jour"); refresh(); }
       else toast.show("Erreur", "error");
     };
-    reader.readAsDataURL(file);
+    img.src = URL.createObjectURL(file);
     e.target.value = "";
   };
 
@@ -1555,7 +1573,7 @@ export default function MessagesPage() {
               })}
             </div>
           )}
-          <Button onClick={handleCreateGroup} disabled={!groupName.trim() || selectedMembers.length === 0} className="w-full">
+          <Button onClick={handleCreateGroup} disabled={!groupName.trim() || selectedMembers.length === 0 || creatingGroup} className="w-full">
             Creer le groupe ({selectedMembers.length} membre{selectedMembers.length > 1 ? "s" : ""})
           </Button>
         </div>

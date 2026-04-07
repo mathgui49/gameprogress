@@ -384,15 +384,15 @@ export default function LandingPage() {
           </Section>
 
           <Section delay={100}>
-            <div className="flex justify-center mb-10">
-              <div className="inline-flex gap-1 p-1 rounded-[14px] bg-[rgba(14,11,24,0.65)] backdrop-blur-[32px] border border-[rgba(192,132,252,0.06)]" role="tablist" aria-label="Aperçu des fonctionnalités">
+            <div className="flex justify-center mb-10 overflow-x-auto no-scrollbar px-2">
+              <div className="inline-flex gap-1 p-1 rounded-[14px] bg-[rgba(14,11,24,0.65)] backdrop-blur-[32px] border border-[rgba(192,132,252,0.06)] min-w-0 shrink-0" role="tablist" aria-label="Aperçu des fonctionnalités">
                 {SHOWCASE_TABS.map((t) => (
                   <button
                     key={t.key}
                     role="tab"
                     aria-selected={activeTab === t.key}
                     onClick={() => setActiveTab(t.key)}
-                    className={`px-4 py-2.5 rounded-[10px] text-sm font-medium transition-all ${activeTab === t.key ? "bg-[rgba(192,132,252,0.12)] text-[#c084fc] shadow-[0_0_8px_-2px_rgba(192,132,252,0.3)]" : "text-[#8a839e] hover:text-[#a09bb2]"}`}
+                    className={`px-3 sm:px-4 py-2 sm:py-2.5 rounded-[10px] text-xs sm:text-sm font-medium transition-all whitespace-nowrap ${activeTab === t.key ? "bg-[rgba(192,132,252,0.12)] text-[#c084fc] shadow-[0_0_8px_-2px_rgba(192,132,252,0.3)]" : "text-[#8a839e] hover:text-[#a09bb2]"}`}
                   >
                     {t.label}
                   </button>
@@ -418,55 +418,124 @@ export default function LandingPage() {
                 <div className="rounded-[18px] bg-[rgba(14,11,24,0.65)] backdrop-blur-[32px] border border-[rgba(192,132,252,0.08)] p-5 shadow-[0_0_48px_-12px_rgba(192,132,252,0.1)]">
                   {activeTab === "dashboard" && (
                     <div className="space-y-3 animate-fade-in">
-                      <div className="grid grid-cols-2 gap-2">
-                        {[{ l: "Interactions", v: "127", c: "#c084fc" }, { l: "Close rate", v: "34%", c: "#34d399" }].map((s) => (
-                          <div key={s.l} className="rounded-[12px] bg-[rgba(14,11,24,0.5)] backdrop-blur-sm p-3 border border-[rgba(192,132,252,0.06)]">
-                            <p className="text-[9px] uppercase text-[#8a839e]">{s.l}</p>
-                            <p className="text-lg font-bold mt-1" style={{ color: s.c }}>{s.v}</p>
+                      {/* Stats hero row */}
+                      <div className="grid grid-cols-4 gap-2">
+                        {[
+                          { l: "Interactions", v: "5", sub: "aujourd'hui", c: "#c084fc" },
+                          { l: "Close rate", v: "41%", sub: "+6% vs sem.", c: "#34d399" },
+                          { l: "Streak", v: "12j", sub: "record", c: "#f59e0b" },
+                          { l: "Niveau", v: "7", sub: "1,250 XP", c: "#818cf8" },
+                        ].map((s) => (
+                          <div key={s.l} className="rounded-[14px] bg-[rgba(14,11,24,0.5)] backdrop-blur-sm p-2.5 border border-[rgba(192,132,252,0.08)]">
+                            <p className="text-[7px] uppercase tracking-wider text-[#8a839e] mb-1">{s.l}</p>
+                            <p className="text-base font-bold font-[family-name:var(--font-grotesk)]" style={{ color: s.c }}>{s.v}</p>
+                            <p className="text-[7px] text-[#8a839e] mt-0.5">{s.sub}</p>
                           </div>
                         ))}
                       </div>
-                      <div className="rounded-[12px] bg-[rgba(14,11,24,0.5)] backdrop-blur-sm p-3 border border-[rgba(192,132,252,0.06)]">
-                        <p className="text-[9px] uppercase text-[#8a839e] mb-2">ACTIVITÉ RÉCENTE</p>
-                        {["Emma - Direct - Close", "Sarah - Indirect - Neutre", "Julie - Direct - Close"].map((a, i) => (
+                      {/* XP bar */}
+                      <div className="flex items-center gap-2.5 p-2.5 rounded-[14px] bg-[rgba(14,11,24,0.5)] backdrop-blur-sm border border-[rgba(192,132,252,0.08)]">
+                        <div className="w-8 h-8 rounded-full border-2 border-[#c084fc]/50 flex items-center justify-center">
+                          <span className="text-xs font-bold text-[#c084fc]">7</span>
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex justify-between mb-1">
+                            <span className="text-[9px] text-[#a09bb2]">Niveau 7</span>
+                            <span className="text-[9px] text-[#c084fc]">62%</span>
+                          </div>
+                          <div className="w-full h-1.5 rounded-full bg-[#28203a]">
+                            <div className="h-full rounded-full bg-gradient-to-r from-[#c084fc] to-[#f472b6] w-[62%]" />
+                          </div>
+                        </div>
+                      </div>
+                      {/* Activity */}
+                      <div className="rounded-[14px] bg-[rgba(14,11,24,0.5)] backdrop-blur-sm p-3 border border-[rgba(192,132,252,0.08)]">
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className="w-5 h-5 rounded-md bg-[#c084fc]/15 flex items-center justify-center">
+                            <svg className="w-3 h-3 text-[#c084fc]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" /></svg>
+                          </div>
+                          <p className="text-[9px] uppercase tracking-wider text-[#8a839e]">Activité récente</p>
+                        </div>
+                        {[
+                          { name: "Emma", type: "Direct", result: "Close", color: "#34d399" },
+                          { name: "Sarah", type: "Indirect", result: "Neutre", color: "#f59e0b" },
+                          { name: "Julie", type: "Situationnel", result: "Close", color: "#34d399" },
+                        ].map((a, i) => (
                           <div key={i} className="flex items-center gap-2 py-1.5 border-b border-[rgba(192,132,252,0.04)] last:border-0">
-                            <div className="w-1.5 h-1.5 rounded-full bg-[#34d399]" />
-                            <span className="text-[11px] text-[#a09bb2]">{a}</span>
+                            <div className="w-5 h-5 rounded-full bg-gradient-to-br from-[#c084fc]/20 to-[#818cf8]/20 flex items-center justify-center text-[8px] font-bold text-[#c084fc]">{a.name[0]}</div>
+                            <span className="text-[10px] text-[#a09bb2] flex-1">{a.name} · {a.type}</span>
+                            <span className="text-[8px] px-1.5 py-0.5 rounded-full font-medium" style={{ backgroundColor: `${a.color}15`, color: a.color }}>{a.result}</span>
                           </div>
                         ))}
                       </div>
                     </div>
                   )}
                   {activeTab === "progression" && (
-                    <div className="space-y-3 animate-fade-in text-center">
-                      <div className="w-24 h-24 mx-auto rounded-full flex items-center justify-center relative">
-                        <div className="absolute inset-0 rounded-full" style={{ background: `conic-gradient(#c084fc 252deg, #28203a 252deg)` }} />
-                        <div className="absolute inset-[4px] rounded-full bg-[#0e0b18] flex items-center justify-center">
-                          <span className="text-2xl font-bold text-[#c084fc]">70</span>
+                    <div className="space-y-3 animate-fade-in">
+                      <div className="flex items-center gap-4 p-3 rounded-[14px] bg-[rgba(14,11,24,0.5)] border border-[rgba(192,132,252,0.08)]">
+                        <div className="w-20 h-20 rounded-full flex items-center justify-center relative shrink-0">
+                          <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
+                            <circle cx="50" cy="50" r="42" fill="none" stroke="#28203a" strokeWidth="5" />
+                            <circle cx="50" cy="50" r="42" fill="none" stroke="url(#landing-skill)" strokeWidth="5" strokeLinecap="round" strokeDasharray="184.73 263.89" />
+                            <defs><linearGradient id="landing-skill"><stop offset="0%" stopColor="#c084fc" /><stop offset="100%" stopColor="#f472b6" /></linearGradient></defs>
+                          </svg>
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <span className="text-xl font-bold text-[#c084fc] font-[family-name:var(--font-grotesk)]">70</span>
+                          </div>
+                        </div>
+                        <div className="flex-1 space-y-2">
+                          <p className="text-sm font-bold text-[#c084fc]">Avancé</p>
+                          <p className="text-[9px] text-[#8a839e]">Score global /100</p>
+                          <div className="flex flex-wrap gap-1.5">
+                            {[
+                              { l: "Close", v: "45%", c: "#34d399" },
+                              { l: "Ressenti", v: "25%", c: "#f59e0b" },
+                              { l: "Volume", v: "18%", c: "#818cf8" },
+                              { l: "Streak", v: "12%", c: "#f472b6" },
+                            ].map((s) => (
+                              <span key={s.l} className="text-[8px] px-1.5 py-0.5 rounded-full border border-[rgba(192,132,252,0.08)]" style={{ color: s.c }}>{s.l} {s.v}</span>
+                            ))}
+                          </div>
                         </div>
                       </div>
-                      <p className="text-sm font-semibold text-[#c084fc]">Avancé</p>
-                      <div className="flex justify-center gap-2">
-                        {["Close rate 40%", "Ressenti 20%", "Confiance 15%"].map((s) => (
-                          <span key={s} className="text-[9px] px-2 py-1 rounded-full bg-[rgba(14,11,24,0.5)] border border-[rgba(192,132,252,0.06)] text-[#a09bb2]">{s}</span>
-                        ))}
+                      {/* Badges grid */}
+                      <div className="rounded-[14px] bg-[rgba(14,11,24,0.5)] border border-[rgba(192,132,252,0.08)] p-3">
+                        <p className="text-[9px] uppercase tracking-wider text-[#8a839e] mb-2">Badges débloqués</p>
+                        <div className="grid grid-cols-6 gap-2">
+                          {["🎯", "🔥", "💬", "⭐", "🏆", "🛡️"].map((e, i) => (
+                            <div key={i} className="w-full aspect-square rounded-[10px] bg-gradient-to-br from-[#c084fc]/10 to-[#f472b6]/10 border border-[rgba(192,132,252,0.12)] flex items-center justify-center text-base">{e}</div>
+                          ))}
+                        </div>
                       </div>
                     </div>
                   )}
                   {activeTab === "missions" && (
                     <div className="space-y-3 animate-fade-in">
-                      {[
-                        { title: "5 closes cette semaine", pct: 60, xp: 50 },
-                        { title: "10 sessions ce mois", pct: 30, xp: 100 },
-                        { title: "Journal quotidien", pct: 85, xp: 30 },
-                      ].map((m) => (
-                        <div key={m.title} className="rounded-[12px] bg-[rgba(14,11,24,0.5)] backdrop-blur-sm p-3 border border-[rgba(192,132,252,0.06)]">
-                          <div className="flex justify-between mb-2">
-                            <span className="text-xs text-[#f0eef5]">{m.title}</span>
-                            <span className="text-[10px] text-[#c084fc]">+{m.xp} XP</span>
+                      {/* Stats */}
+                      <div className="grid grid-cols-3 gap-2">
+                        {[{ l: "En cours", v: "3", c: "#818cf8" }, { l: "Complétées", v: "12", c: "#34d399" }, { l: "XP gagné", v: "450", c: "#c084fc" }].map((s) => (
+                          <div key={s.l} className="rounded-[12px] bg-[rgba(14,11,24,0.5)] border border-[rgba(192,132,252,0.08)] p-2 text-center">
+                            <p className="text-sm font-bold font-[family-name:var(--font-grotesk)]" style={{ color: s.c }}>{s.v}</p>
+                            <p className="text-[7px] text-[#8a839e] uppercase">{s.l}</p>
                           </div>
-                          <div className="w-full h-1.5 rounded-full bg-[#28203a]">
-                            <div className="h-full rounded-full bg-gradient-to-r from-[#c084fc] to-[#f472b6]" style={{ width: `${m.pct}%` }} />
+                        ))}
+                      </div>
+                      {[
+                        { title: "5 closes cette semaine", pct: 60, xp: 50, icon: "🎯" },
+                        { title: "10 interactions / jour", pct: 80, xp: 100, icon: "💬" },
+                        { title: "Journal quotidien", pct: 85, xp: 30, icon: "📝" },
+                      ].map((m) => (
+                        <div key={m.title} className="rounded-[14px] bg-[rgba(14,11,24,0.5)] backdrop-blur-sm p-3 border border-[rgba(192,132,252,0.08)]">
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="text-sm">{m.icon}</span>
+                            <span className="text-xs text-[#f0eef5] flex-1">{m.title}</span>
+                            <span className="text-[9px] text-[#c084fc] font-semibold bg-[#c084fc]/10 px-1.5 py-0.5 rounded-md">+{m.xp} XP</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <div className="flex-1 h-2 rounded-full bg-[#28203a]">
+                              <div className="h-full rounded-full bg-gradient-to-r from-[#c084fc] to-[#f472b6]" style={{ width: `${m.pct}%` }} />
+                            </div>
+                            <span className="text-[9px] text-[#a09bb2] font-medium">{m.pct}%</span>
                           </div>
                         </div>
                       ))}
@@ -474,33 +543,59 @@ export default function LandingPage() {
                   )}
                   {activeTab === "leaderboard" && (
                     <div className="space-y-2 animate-fade-in">
-                      {[
-                        { rank: 1, name: "Alex", xp: "4,520", color: "#f59e0b" },
-                        { rank: 2, name: "Maxime", xp: "3,810", color: "#a09bb2" },
-                        { rank: 3, name: "Julien", xp: "2,950", color: "#cd7f32" },
-                        { rank: 4, name: "Toi", xp: "2,100", color: "#c084fc", highlight: true },
-                      ].map((p) => (
-                        <div key={p.rank} className={`flex items-center gap-3 p-2.5 rounded-[12px] ${(p as any).highlight ? "bg-[rgba(192,132,252,0.08)] border border-[rgba(192,132,252,0.15)]" : "bg-[rgba(14,11,24,0.5)]"}`}>
-                          <span className="w-6 text-center text-sm font-bold" style={{ color: p.color }}>{p.rank}</span>
-                          <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#c084fc]/20 to-[#818cf8]/20 flex items-center justify-center text-[10px] font-bold text-[#c084fc]">{p.name[0]}</div>
-                          <span className="flex-1 text-sm text-[#f0eef5]">{p.name}</span>
-                          <span className="text-xs text-[#a09bb2]">{p.xp} XP</span>
-                        </div>
-                      ))}
+                      {/* Top 3 podium */}
+                      <div className="flex items-end justify-center gap-3 mb-2 pb-2">
+                        {[
+                          { rank: 2, name: "Maxime", xp: "3,810", h: "h-12", color: "#a09bb2" },
+                          { rank: 1, name: "Alex", xp: "4,520", h: "h-16", color: "#f59e0b" },
+                          { rank: 3, name: "Julien", xp: "2,950", h: "h-10", color: "#cd7f32" },
+                        ].map((p) => (
+                          <div key={p.rank} className="flex flex-col items-center gap-1">
+                            <div className="w-8 h-8 rounded-full border-2 flex items-center justify-center text-[9px] font-bold" style={{ borderColor: p.color, color: p.color }}>{p.name[0]}</div>
+                            <span className="text-[9px] text-[#f0eef5]">{p.name}</span>
+                            <div className={`w-14 ${p.h} rounded-t-lg flex items-center justify-center`} style={{ backgroundColor: `${p.color}20` }}>
+                              <span className="text-xs font-bold" style={{ color: p.color }}>#{p.rank}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      {/* Current user */}
+                      <div className="flex items-center gap-3 p-2.5 rounded-[14px] bg-[rgba(192,132,252,0.08)] border border-[rgba(192,132,252,0.15)]">
+                        <span className="w-6 text-center text-sm font-bold text-[#c084fc]">4</span>
+                        <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#c084fc]/30 to-[#818cf8]/30 flex items-center justify-center text-[10px] font-bold text-[#c084fc]">T</div>
+                        <span className="flex-1 text-sm text-[#f0eef5] font-medium">Toi</span>
+                        <span className="text-xs text-[#c084fc] font-semibold">2,100 XP</span>
+                      </div>
                     </div>
                   )}
                   {activeTab === "pipeline" && (
                     <div className="space-y-2 animate-fade-in">
+                      {/* Mini kanban */}
+                      <div className="grid grid-cols-3 gap-2 mb-1">
+                        {[
+                          { stage: "Nouveau", count: 3, color: "#c084fc" },
+                          { stage: "Contacté", count: 5, color: "#f59e0b" },
+                          { stage: "Répondu", count: 2, color: "#34d399" },
+                        ].map((s) => (
+                          <div key={s.stage} className="rounded-[10px] bg-[rgba(14,11,24,0.5)] border border-[rgba(192,132,252,0.08)] p-2 text-center">
+                            <p className="text-base font-bold font-[family-name:var(--font-grotesk)]" style={{ color: s.color }}>{s.count}</p>
+                            <p className="text-[7px] text-[#8a839e] uppercase">{s.stage}</p>
+                          </div>
+                        ))}
+                      </div>
                       {[
-                        { name: "Emma", status: "Date planifié", color: "#818cf8" },
-                        { name: "Sarah", status: "Répondu", color: "#34d399" },
-                        { name: "Julie", status: "Nouveau", color: "#c084fc" },
-                        { name: "Léa", status: "Contacté", color: "#f59e0b" },
+                        { name: "Emma", status: "Date planifié", color: "#818cf8", method: "IG" },
+                        { name: "Sarah", status: "Répondu", color: "#34d399", method: "Tel" },
+                        { name: "Julie", status: "Contacté", color: "#f59e0b", method: "IG" },
+                        { name: "Léa", status: "Nouveau", color: "#c084fc", method: "Direct" },
                       ].map((c) => (
-                        <div key={c.name} className="flex items-center gap-3 p-2.5 rounded-[12px] bg-[rgba(14,11,24,0.5)]">
-                          <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#c084fc]/20 to-[#f472b6]/20 flex items-center justify-center text-[10px] font-bold text-[#c084fc]">{c.name[0]}</div>
-                          <span className="flex-1 text-sm text-[#f0eef5]">{c.name}</span>
-                          <span className="text-[10px] px-2 py-0.5 rounded-full font-medium" style={{ backgroundColor: `${c.color}15`, color: c.color }}>{c.status}</span>
+                        <div key={c.name} className="flex items-center gap-2.5 p-2.5 rounded-[14px] bg-[rgba(14,11,24,0.5)] border border-[rgba(192,132,252,0.08)]">
+                          <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#c084fc]/20 to-[#f472b6]/20 flex items-center justify-center text-[9px] font-bold text-[#c084fc]">{c.name[0]}</div>
+                          <div className="flex-1 min-w-0">
+                            <span className="text-xs text-[#f0eef5] block">{c.name}</span>
+                            <span className="text-[8px] text-[#8a839e]">via {c.method}</span>
+                          </div>
+                          <span className="text-[9px] px-2 py-0.5 rounded-full font-medium shrink-0" style={{ backgroundColor: `${c.color}15`, color: c.color }}>{c.status}</span>
                         </div>
                       ))}
                     </div>
