@@ -43,13 +43,25 @@ function stripHtml(s: string): string {
   return s.replace(/<[^>]*>/g, "").trim();
 }
 
-/** Strip all HTML from string values in an object (deep). */
-function sanitizeObj<T>(obj: T): T {
-  if (typeof obj === "string") return stripHtml(obj) as unknown as T;
-  if (Array.isArray(obj)) return obj.map(sanitizeObj) as unknown as T;
+/** Allow safe HTML tags for rich text fields (journal, posts, messages) */
+const SAFE_TAGS = /^<\/?(p|br|b|strong|i|em|u|s|del|ul|ol|li|h[1-6]|blockquote|a|span|div|sub|sup)(\s[^>]*)?\/?>/i;
+
+function sanitizeHtml(s: string): string {
+  return s.replace(/<[^>]*>/g, (tag) => SAFE_TAGS.test(tag) ? tag : "").trim();
+}
+
+// Fields that should preserve safe HTML formatting
+const HTML_FIELDS = new Set(["content", "body", "text"]);
+
+/** Strip HTML from string values in an object (deep), preserving safe tags in rich-text fields. */
+function sanitizeObj<T>(obj: T, fieldName?: string): T {
+  if (typeof obj === "string") {
+    return (fieldName && HTML_FIELDS.has(fieldName) ? sanitizeHtml(obj) : stripHtml(obj)) as unknown as T;
+  }
+  if (Array.isArray(obj)) return obj.map((item) => sanitizeObj(item, fieldName)) as unknown as T;
   if (obj && typeof obj === "object" && !(obj instanceof Date)) {
     const out: Record<string, unknown> = {};
-    for (const [k, v] of Object.entries(obj)) out[k] = sanitizeObj(v);
+    for (const [k, v] of Object.entries(obj)) out[k] = sanitizeObj(v, k);
     return out as T;
   }
   return obj;
