@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useRef, useEffect, useMemo } from "react";
+import { useState, useRef, useEffect, useMemo, useCallback } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useMessages } from "@/hooks/useMessages";
@@ -150,11 +151,10 @@ export default function MessagesPage() {
     );
   }
 
-  // Chat view — rendered as a full-screen overlay outside the page container
+  // Chat view — rendered via portal to escape parent stacking context (backdrop-filter breaks fixed positioning)
   if (chatTarget) {
-    return (
-      <>
-        <div className="fixed top-0 bottom-0 left-0 right-0 lg:left-[230px] z-50 flex flex-col bg-[var(--bg)]">
+    const chatView = (
+        <div className="fixed inset-0 lg:left-[230px] z-[9999] flex flex-col bg-[var(--bg)]">
           {/* Header */}
           <div className="flex items-center gap-3 px-4 py-3 border-b border-[var(--border)] shrink-0 bg-[var(--bg)]">
             <button onClick={() => setChatTarget(null)} className="p-1 text-[var(--outline)] hover:text-[var(--on-surface)]">
@@ -255,6 +255,7 @@ export default function MessagesPage() {
         </Modal>
       </>
     );
+    return <>{createPortal(chatView, document.body)}</>;
   }
 
   return (
