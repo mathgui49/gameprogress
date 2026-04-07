@@ -6,6 +6,9 @@ import { useInteractions } from "@/hooks/useInteractions";
 import { useContacts } from "@/hooks/useContacts";
 import { useSessions } from "@/hooks/useSessions";
 import { useJournal } from "@/hooks/useJournal";
+import { useWingChallenges } from "@/hooks/useWingChallenges";
+import { useWingRequests } from "@/hooks/useWingRequests";
+import { useToast } from "@/hooks/useToast";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -29,6 +32,35 @@ export default function MissionsPage() {
   const { entries: journal } = useJournal();
 
   const { isPremium } = useSubscription();
+  const { pendingReceived, active: activeChallenges, acceptChallenge, declineChallenge } = useWingChallenges();
+  const { wingProfiles } = useWingRequests();
+  const toast = useToast();
+
+  const getWingName = (uid: string) => wingProfiles.find((w) => w.userId === uid)?.firstName || "Wing";
+
+  const METRIC_LABELS: Record<string, string> = { approaches: "approches", closes: "closes", sessions: "sessions", custom: "personnalisé" };
+  const CHALLENGE_XP = 50;
+
+  const handleAcceptChallenge = async (challengeId: string, challenge: typeof activeChallenges[0]) => {
+    await acceptChallenge(challengeId);
+    // Create a mission for the tracking
+    const trackingMap: Record<string, MissionTrackingType> = { approaches: "interactions", closes: "closes", sessions: "sessions", custom: "custom" };
+    await add(
+      `Défi: ${challenge.title}`,
+      `Défi lancé par ${getWingName(challenge.createdBy)} — ${challenge.target} ${METRIC_LABELS[challenge.metric]}`,
+      "custom",
+      challenge.target,
+      CHALLENGE_XP,
+      trackingMap[challenge.metric] || "custom",
+      challenge.deadline
+    );
+    toast.show("Défi accepté ! Mission ajoutée.", "success");
+  };
+
+  const handleDeclineChallenge = async (challengeId: string) => {
+    await declineChallenge(challengeId);
+    toast.show("Défi refusé", "info");
+  };
 
   const [showNew, setShowNew] = useState(false);
   const [title, setTitle] = useState("");
@@ -78,7 +110,82 @@ export default function MissionsPage() {
         </div>
       </div>
 
-      {missions.length === 0 ? (
+      {/* Pending challenges received */}
+      {pendingReceived.length > 0 && (
+        <div className="mb-8">
+          <h2 className="text-sm font-medium text-amber-400 uppercase tracking-wider mb-3">Défis reçus</h2>
+          <div className="space-y-3">
+            {pendingReceived.map((c) => (
+              <Card key={c.id} className="!p-4 border-amber-400/20">
+                <div className="flex items-start justify-between mb-2">
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <p className="text-sm font-semibold text-[var(--on-surface)]">{c.title}</p>
+                      <Badge className="bg-amber-400/15 text-amber-400">Défi</Badge>
+                    </div>
+                    <p className="text-xs text-[var(--outline)]">
+                      Lancé par <span className="text-[var(--primary)]">{getWingName(c.createdBy)}</span> — {c.target} {METRIC_LABELS[c.metric]} avant le {new Date(c.deadline).toLocaleDateString("fr-FR", { day: "numeric", month: "short" })}
+                    </p>
+                  </div>
+                  <span className="text-xs font-semibold text-[var(--primary)]">+{CHALLENGE_XP} XP</span>
+                </div>
+                <div className="flex gap-2 mt-3">
+                  <Button size="sm" onClick={() => handleAcceptChallenge(c.id, c)}>Accepter le défi</Button>
+                  <Button size="sm" variant="ghost" onClick={() => handleDeclineChallenge(c.id)}>Refuser</Button>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Active challenges as missions */}
+      {activeChallenges.length > 0 && (
+        <div className="mb-8">
+          <h2 className="text-sm font-medium text-[var(--primary)] uppercase tracking-wider mb-3">Défis en cours</h2>
+          <div className="space-y-3">
+            {activeChallenges.map((c) => {
+              const isCreator = c.createdBy !== c.targetUserId;
+              const myProgress = isCreator ? c.currentCreator : c.currentTarget;
+              const opponentProgress = isCreator ? c.currentTarget : c.currentCreator;
+              const pct = Math.min((myProgress / c.target) * 100, 100);
+              const opponentName = getWingName(isCreator ? c.targetUserId : c.createdBy);
+              return (
+                <Card key={c.id} className="!p-4">
+                  <div className="flex items-start justify-between mb-2">
+                    <div>
+                      <div className="flex items-center gap-2 mb-1">
+                        <p className="text-sm font-semibold text-[var(--on-surface)]">{c.title}</p>
+                        <Badge className="bg-[var(--primary)]/15 text-[var(--primary)]">Défi vs {opponentName}</Badge>
+                      </div>
+                      <p className="text-xs text-[var(--outline)]">{c.target} {METRIC_LABELS[c.metric]} — {formatDeadline(c.deadline)}</p>
+                    </div>
+                    <span className="text-xs font-semibold text-[var(--primary)]">+{CHALLENGE_XP} XP</span>
+                  </div>
+                  <div className="space-y-1.5">
+                    <div className="flex items-center gap-3">
+                      <span className="text-[10px] text-[var(--on-surface-variant)] w-10">Toi</span>
+                      <div className="flex-1 h-2 rounded-full bg-[var(--surface-highest)] overflow-hidden">
+                        <div className="h-full rounded-full bg-gradient-to-r from-[#c084fc] to-[#f472b6] transition-all duration-500" style={{ width: `${pct}%` }} />
+                      </div>
+                      <span className="text-xs text-[var(--on-surface-variant)] w-10 text-right">{myProgress}/{c.target}</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="text-[10px] text-[var(--outline)] w-10">{opponentName}</span>
+                      <div className="flex-1 h-2 rounded-full bg-[var(--surface-highest)] overflow-hidden">
+                        <div className="h-full rounded-full bg-gradient-to-r from-[#818cf8] to-[#67e8f9] transition-all duration-500" style={{ width: `${Math.min((opponentProgress / c.target) * 100, 100)}%` }} />
+                      </div>
+                      <span className="text-xs text-[var(--outline)] w-10 text-right">{opponentProgress}/{c.target}</span>
+                    </div>
+                  </div>
+                </Card>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {missions.length === 0 && pendingReceived.length === 0 && activeChallenges.length === 0 ? (
         <EmptyState icon={<IconTarget size={28} />} title="Aucune mission" description={isPremium ? "Crée ta première mission pour commencer à gagner de l'XP." : "Les missions personnalisées sont réservées à GameMax. Les missions automatiques apparaissent chaque jour."} action={isPremium ? <Button onClick={() => setShowNew(true)}>Créer une mission</Button> : undefined} />
       ) : (
         <>

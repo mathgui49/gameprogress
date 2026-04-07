@@ -577,7 +577,7 @@ export interface WingMeta {
 }
 
 // ─── Wing Challenges ────────────────────────────────────
-export type ChallengeStatus = "active" | "completed" | "expired";
+export type ChallengeStatus = "pending" | "active" | "completed" | "expired" | "declined";
 
 export interface WingChallenge {
   id: string;
