@@ -27,6 +27,7 @@ import { useSubscription } from "@/hooks/useSubscription";
 import { LimitReachedBanner } from "@/components/ui/PremiumGate";
 import { FREE_LIMITS } from "@/lib/premium";
 import { Avatar } from "@/components/ui/Avatar";
+import { useToast } from "@/hooks/useToast";
 
 type Tab = "wings" | "discover" | "map" | "invitations" | "chat";
 
@@ -43,6 +44,7 @@ export default function WingsPage() {
   const { meta, getMetaFor, setCategory, addNote, removeNote } = useWingMeta();
   const { challenges, active: activeChallenges, create: createChallenge, getChallengesWith } = useWingChallenges();
   const { pings, sendPing, respond: respondToPing } = useWingPings(wingUserIds);
+  const toast = useToast();
   const {
     conversations, unreadCounts, currentMessages, totalUnread,
     openConversation, send: sendMessage, createGroup,
@@ -162,14 +164,23 @@ export default function WingsPage() {
 
   const handleCreateChallenge = async () => {
     if (!challengeTitle.trim() || !showChallengeModal || !challengeDeadline) return;
-    await createChallenge({
-      targetUserId: showChallengeModal,
+    const targetId = showChallengeModal;
+    const id = await createChallenge({
+      targetUserId: targetId,
       title: challengeTitle,
       description: "",
       target: challengeTarget,
       metric: challengeMetric,
       deadline: new Date(challengeDeadline).toISOString(),
     });
+    if (id) {
+      // Send an automatic message to notify the wing
+      const wingName = wingProfiles.find((w) => w.userId === targetId)?.firstName || "ton wing";
+      await sendMessage(targetId, null, `Je te lance un défi : "${challengeTitle}" — ${challengeTarget} ${challengeMetric === "approaches" ? "approches" : challengeMetric === "closes" ? "closes" : challengeMetric === "sessions" ? "sessions" : challengeMetric}. Tu relèves ?`);
+      toast.show(`Défi envoyé à ${wingName} !`, "success");
+    } else {
+      toast.show("Erreur lors de la création du défi", "error");
+    }
     setChallengeTitle(""); setChallengeTarget(10);
     setChallengeMetric("approaches"); setChallengeDeadline("");
     setShowChallengeModal(null);
