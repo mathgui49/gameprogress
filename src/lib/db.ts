@@ -1190,16 +1190,27 @@ export async function fetchGroupMessages(groupId: string, limit = 50) {
   return (data || []).map((r) => fromRow<any>(r));
 }
 
-export async function sendMessage(fromUserId: string, toUserId: string | null, groupId: string | null, content: string) {
+export async function sendMessage(
+  fromUserId: string,
+  toUserId: string | null,
+  groupId: string | null,
+  content: string,
+  opts?: { replyToId?: string; replyPreview?: string; attachmentUrl?: string; attachmentType?: string },
+) {
   const safeContent = sanitize(content, 2000);
-  if (!safeContent) return null;
+  if (!safeContent && !opts?.attachmentUrl) return null;
   const id = crypto.randomUUID();
   const { error } = await supabase.from("messages").insert({
     id,
     from_user_id: fromUserId,
     to_user_id: toUserId,
     group_id: groupId,
-    content: safeContent,
+    content: safeContent || "",
+    reply_to_id: opts?.replyToId ?? null,
+    reply_preview: opts?.replyPreview ? sanitize(opts.replyPreview, 200) : null,
+    attachment_url: opts?.attachmentUrl ?? null,
+    attachment_type: opts?.attachmentType ?? null,
+    reactions: [],
     created_at: new Date().toISOString(),
   });
   if (error) { console.error("send message:", error); return null; }
@@ -1282,6 +1293,229 @@ export async function renameMessageGroup(userId: string, groupId: string, newNam
   const { error } = await supabase.from("message_groups").update({ name: sanitize(newName, 100) }).eq("id", groupId);
   if (error) { console.error("rename group:", error); return false; }
   return true;
+}
+
+// ─── Message Reactions ────────────────────────────────
+export async function addMessageReaction(userId: string, messageId: string, emoji: string) {
+  const { data: msg } = await supabase.from("messages").select("reactions").eq("id", messageId).single();
+  if (!msg) return false;
+  const reactions = (msg.reactions as any[]) || [];
+  // Remove existing reaction from same user with same emoji
+  const filtered = reactions.filter((r: any) => !(r.userId === userId && r.emoji === emoji));
+  if (filtered.length === reactions.length) {
+    // Add new reaction
+    filtered.push({ userId, emoji });
+  }
+  // else: it was a toggle-off (removed)
+  const { error } = await supabase.from("messages").update({ reactions: filtered }).eq("id", messageId);
+  if (error) { console.error("add reaction:", error); return false; }
+  return true;
+}
+
+// ─── Message Edit / Delete ────────────────────────────
+export async function editMessage(userId: string, messageId: string, newContent: string) {
+  const safe = sanitize(newContent, 2000);
+  if (!safe) return false;
+  const { error } = await supabase.from("messages")
+    .update({ content: safe, edited_at: new Date().toISOString() })
+    .eq("id", messageId).eq("from_user_id", userId);
+  if (error) { console.error("edit message:", error); return false; }
+  return true;
+}
+
+export async function deleteMessage(userId: string, messageId: string) {
+  const { error } = await supabase.from("messages")
+    .update({ deleted_at: new Date().toISOString(), content: "" })
+    .eq("id", messageId).eq("from_user_id", userId);
+  if (error) { console.error("delete message:", error); return false; }
+  return true;
+}
+
+// ─── Pin Messages ─────────────────────────────────────
+export async function pinMessage(userId: string, messageId: string) {
+  const { error } = await supabase.from("messages")
+    .update({ pinned_at: new Date().toISOString(), pinned_by: userId })
+    .eq("id", messageId);
+  if (error) { console.error("pin message:", error); return false; }
+  return true;
+}
+
+export async function unpinMessage(messageId: string) {
+  const { error } = await supabase.from("messages")
+    .update({ pinned_at: null, pinned_by: null })
+    .eq("id", messageId);
+  if (error) { console.error("unpin message:", error); return false; }
+  return true;
+}
+
+export async function fetchPinnedMessages(chatType: "dm" | "group", chatId: string, userId?: string) {
+  let query = supabase.from("messages").select("*").not("pinned_at", "is", null);
+  if (chatType === "group") {
+    query = query.eq("group_id", chatId);
+  } else {
+    query = query
+      .is("group_id", null)
+      .or(`and(from_user_id.eq.${userId},to_user_id.eq.${chatId}),and(from_user_id.eq.${chatId},to_user_id.eq.${userId})`);
+  }
+  const { data } = await query.order("pinned_at", { ascending: false });
+  return (data || []).map((r: any) => fromRow<any>(r));
+}
+
+// ─── Search Messages ──────────────────────────────────
+export async function searchMessages(userId: string, query: string, limit = 30) {
+  const safeQ = sanitize(query, 200);
+  if (!safeQ) return [];
+  const { data: sent } = await supabase.from("messages").select("*")
+    .eq("from_user_id", userId).ilike("content", `%${safeQ}%`).is("deleted_at", null).limit(limit);
+  const { data: received } = await supabase.from("messages").select("*")
+    .eq("to_user_id", userId).ilike("content", `%${safeQ}%`).is("deleted_at", null).limit(limit);
+  const all = [...(sent || []), ...(received || [])];
+  // Deduplicate
+  const seen = new Set<string>();
+  return all.filter((m: any) => { if (seen.has(m.id)) return false; seen.add(m.id); return true; })
+    .sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+    .slice(0, limit)
+    .map((r: any) => fromRow<any>(r));
+}
+
+// ─── Forward Message ──────────────────────────────────
+export async function forwardMessage(userId: string, messageId: string, toUserId: string | null, groupId: string | null) {
+  const { data: orig } = await supabase.from("messages").select("content, attachment_url, attachment_type").eq("id", messageId).single();
+  if (!orig) return null;
+  return sendMessage(userId, toUserId, groupId, orig.content || "", {
+    attachmentUrl: orig.attachment_url,
+    attachmentType: orig.attachment_type,
+  });
+}
+
+// ─── Archive Conversations ────────────────────────────
+export async function archiveConversation(userId: string, partnerId: string) {
+  const id = crypto.randomUUID();
+  const { error } = await supabase.from("archived_conversations").upsert({
+    id,
+    user_id: userId,
+    partner_id: partnerId,
+    archived_at: new Date().toISOString(),
+  });
+  if (error) { console.error("archive conversation:", error); return false; }
+  return true;
+}
+
+export async function unarchiveConversation(userId: string, partnerId: string) {
+  const { error } = await supabase.from("archived_conversations")
+    .delete().eq("user_id", userId).eq("partner_id", partnerId);
+  if (error) { console.error("unarchive:", error); return false; }
+  return true;
+}
+
+export async function fetchArchivedConversations(userId: string) {
+  const { data } = await supabase.from("archived_conversations")
+    .select("partner_id").eq("user_id", userId);
+  return (data || []).map((r: any) => r.partner_id);
+}
+
+// ─── Message Group Management ─────────────────────────
+export async function updateGroupPhoto(userId: string, groupId: string, photoUrl: string) {
+  const { data: group } = await supabase.from("message_groups").select("created_by").eq("id", groupId).single();
+  if (!group || group.created_by !== userId) return false;
+  const { error } = await supabase.from("message_groups").update({ group_photo: photoUrl }).eq("id", groupId);
+  if (error) { console.error("update group photo:", error); return false; }
+  return true;
+}
+
+export async function deleteMessageGroup(userId: string, groupId: string) {
+  const { data: group } = await supabase.from("message_groups").select("created_by").eq("id", groupId).single();
+  if (!group || group.created_by !== userId) return false;
+  await supabase.from("messages").delete().eq("group_id", groupId);
+  const { error } = await supabase.from("message_groups").delete().eq("id", groupId);
+  if (error) { console.error("delete group:", error); return false; }
+  return true;
+}
+
+export async function addGroupMembers(userId: string, groupId: string, newMemberIds: string[]) {
+  const { data: group } = await supabase.from("message_groups").select("member_ids, created_by").eq("id", groupId).single();
+  if (!group || group.created_by !== userId) return false;
+  const existing = group.member_ids as string[];
+  const updated = [...new Set([...existing, ...newMemberIds])];
+  const { error } = await supabase.from("message_groups").update({ member_ids: updated }).eq("id", groupId);
+  if (error) { console.error("add members:", error); return false; }
+  return true;
+}
+
+export async function removeGroupMember(userId: string, groupId: string, memberId: string) {
+  const { data: group } = await supabase.from("message_groups").select("member_ids, created_by").eq("id", groupId).single();
+  if (!group || group.created_by !== userId) return false;
+  const updated = (group.member_ids as string[]).filter((id: string) => id !== memberId);
+  const { error } = await supabase.from("message_groups").update({ member_ids: updated }).eq("id", groupId);
+  if (error) { console.error("remove member:", error); return false; }
+  return true;
+}
+
+export async function leaveGroup(userId: string, groupId: string) {
+  const { data: group } = await supabase.from("message_groups").select("member_ids, name").eq("id", groupId).single();
+  if (!group) return false;
+  const members = group.member_ids as string[];
+  if (!members.includes(userId)) return false;
+  const updated = members.filter((id: string) => id !== userId);
+  if (updated.length === 0) {
+    // Last member — delete the group
+    await supabase.from("messages").delete().eq("group_id", groupId);
+    await supabase.from("message_groups").delete().eq("id", groupId);
+  } else {
+    await supabase.from("message_groups").update({ member_ids: updated }).eq("id", groupId);
+    // Send system message
+    await supabase.from("messages").insert({
+      id: crypto.randomUUID(),
+      from_user_id: userId,
+      group_id: groupId,
+      content: `a quitté le groupe`,
+      attachment_type: "system",
+      reactions: [],
+      created_at: new Date().toISOString(),
+    });
+  }
+  return true;
+}
+
+export async function addGroupMembersWithHistory(userId: string, groupId: string, newMemberIds: string[], showHistory: boolean) {
+  const { data: group } = await supabase.from("message_groups").select("member_ids, created_by").eq("id", groupId).single();
+  if (!group || group.created_by !== userId) return false;
+  const existing = group.member_ids as string[];
+  const updated = [...new Set([...existing, ...newMemberIds])];
+  const { error } = await supabase.from("message_groups").update({ member_ids: updated }).eq("id", groupId);
+  if (error) { console.error("add members:", error); return false; }
+
+  if (!showHistory) {
+    // Set a "history_hidden_before" timestamp for these new members
+    // We store this as a jsonb map on the group
+    const { data: g2 } = await supabase.from("message_groups").select("history_hidden_before").eq("id", groupId).single();
+    const hiddenMap = (g2?.history_hidden_before as Record<string, string>) || {};
+    const now = new Date().toISOString();
+    for (const mid of newMemberIds) {
+      hiddenMap[mid] = now;
+    }
+    await supabase.from("message_groups").update({ history_hidden_before: hiddenMap }).eq("id", groupId);
+  }
+
+  // System message
+  await supabase.from("messages").insert({
+    id: crypto.randomUUID(),
+    from_user_id: userId,
+    group_id: groupId,
+    content: `a ajouté ${newMemberIds.length} membre${newMemberIds.length > 1 ? "s" : ""} au groupe`,
+    attachment_type: "system",
+    reactions: [],
+    created_at: new Date().toISOString(),
+  });
+
+  return true;
+}
+
+// ─── Upload Chat Attachment ───────────────────────────
+export async function uploadChatAttachment(userId: string, base64Data: string, type: "image" | "voice") {
+  const { uploadImage } = await import("@/lib/upload");
+  // Voice notes use the same upload mechanism
+  return uploadImage(userId, base64Data, "photos");
 }
 
 // ─── Wing Status ───────────────────────────────────────

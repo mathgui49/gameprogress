@@ -510,6 +510,20 @@ export function getSkillRank(score: number): SkillRank {
 }
 
 // ─── Messages / Chat ────────────────────────────────────
+export interface MessageReaction {
+  emoji: string;
+  userId: string;
+}
+
+export interface LinkPreview {
+  url: string;
+  title?: string;
+  description?: string;
+  image?: string;
+}
+
+export type MessageAttachmentType = "image" | "voice" | "gif";
+
 export interface Message {
   id: string;
   fromUserId: string;
@@ -518,6 +532,20 @@ export interface Message {
   content: string;
   createdAt: string;
   readAt: string | null;
+  // Reply
+  replyToId: string | null;
+  replyPreview: string | null;
+  // Attachments (images, voice, gifs)
+  attachmentUrl: string | null;
+  attachmentType: MessageAttachmentType | null;
+  // Edit / Delete
+  editedAt: string | null;
+  deletedAt: string | null;
+  // Reactions (stored as jsonb)
+  reactions: MessageReaction[];
+  // Pinned
+  pinnedAt: string | null;
+  pinnedBy: string | null;
 }
 
 export interface MessageGroup {
@@ -525,6 +553,7 @@ export interface MessageGroup {
   name: string;
   createdBy: string;
   memberIds: string[];
+  groupPhoto: string | null;
   createdAt: string;
 }
 

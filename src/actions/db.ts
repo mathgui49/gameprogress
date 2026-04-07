@@ -597,14 +597,19 @@ export async function fetchGroupMessagesAction(groupId: string) {
   return db.fetchGroupMessages(groupId);
 }
 
-export async function sendMessageAction(toUserId: string | null, groupId: string | null, content: string) {
+export async function sendMessageAction(
+  toUserId: string | null,
+  groupId: string | null,
+  content: string,
+  opts?: { replyToId?: string; replyPreview?: string; attachmentUrl?: string; attachmentType?: string },
+) {
   const userId = await getAuthUserId();
   await requireCompleteProfile(userId);
   checkRate(userId, "sendMessage", 30, 60);
-  assertString(content, "content", 5000);
+  if (content) assertString(content, "content", 5000);
   if (toUserId) assertString(toUserId, "toUserId", 200);
   if (groupId) assertString(groupId, "groupId", 200);
-  return db.sendMessage(userId, toUserId, groupId, content);
+  return db.sendMessage(userId, toUserId, groupId, content, opts);
 }
 
 export async function markMessagesReadAction(fromUserId: string) {
@@ -642,6 +647,137 @@ export async function renameMessageGroupAction(groupId: string, newName: string)
   assertString(groupId, "groupId", 200);
   assertString(newName, "newName", 100);
   return db.renameMessageGroup(userId, groupId, newName);
+}
+
+// ─── Message Reactions ───────────────────────────────
+
+export async function addReactionAction(messageId: string, emoji: string) {
+  const userId = await getAuthUserId();
+  assertString(messageId, "messageId", 200);
+  assertString(emoji, "emoji", 10);
+  return db.addMessageReaction(userId, messageId, emoji);
+}
+
+// ─── Message Edit / Delete ───────────────────────────
+
+export async function editMessageAction(messageId: string, newContent: string) {
+  const userId = await getAuthUserId();
+  assertString(messageId, "messageId", 200);
+  assertString(newContent, "newContent", 5000);
+  return db.editMessage(userId, messageId, newContent);
+}
+
+export async function deleteMessageAction(messageId: string) {
+  const userId = await getAuthUserId();
+  assertString(messageId, "messageId", 200);
+  return db.deleteMessage(userId, messageId);
+}
+
+// ─── Pin Messages ────────────────────────────────────
+
+export async function pinMessageAction(messageId: string) {
+  const userId = await getAuthUserId();
+  assertString(messageId, "messageId", 200);
+  return db.pinMessage(userId, messageId);
+}
+
+export async function unpinMessageAction(messageId: string) {
+  await getAuthUserId();
+  assertString(messageId, "messageId", 200);
+  return db.unpinMessage(messageId);
+}
+
+export async function fetchPinnedMessagesAction(chatType: "dm" | "group", chatId: string) {
+  const userId = await getAuthUserId();
+  return db.fetchPinnedMessages(chatType, chatId, userId);
+}
+
+// ─── Search Messages ─────────────────────────────────
+
+export async function searchMessagesAction(query: string) {
+  const userId = await getAuthUserId();
+  assertString(query, "query", 200);
+  return db.searchMessages(userId, query);
+}
+
+// ─── Forward Message ─────────────────────────────────
+
+export async function forwardMessageAction(messageId: string, toUserId: string | null, groupId: string | null) {
+  const userId = await getAuthUserId();
+  assertString(messageId, "messageId", 200);
+  return db.forwardMessage(userId, messageId, toUserId, groupId);
+}
+
+// ─── Archive Conversations ───────────────────────────
+
+export async function archiveConversationAction(partnerId: string) {
+  const userId = await getAuthUserId();
+  assertString(partnerId, "partnerId", 200);
+  return db.archiveConversation(userId, partnerId);
+}
+
+export async function unarchiveConversationAction(partnerId: string) {
+  const userId = await getAuthUserId();
+  assertString(partnerId, "partnerId", 200);
+  return db.unarchiveConversation(userId, partnerId);
+}
+
+export async function fetchArchivedConversationsAction() {
+  const userId = await getAuthUserId();
+  return db.fetchArchivedConversations(userId);
+}
+
+// ─── Message Group Management ────────────────────────
+
+export async function updateGroupPhotoAction(groupId: string, base64: string) {
+  const userId = await getAuthUserId();
+  assertString(groupId, "groupId", 200);
+  const { uploadImage } = await import("@/lib/upload");
+  const url = await uploadImage(userId, base64, "photos");
+  if (!url) return false;
+  return db.updateGroupPhoto(userId, groupId, url);
+}
+
+export async function deleteGroupAction(groupId: string) {
+  const userId = await getAuthUserId();
+  assertString(groupId, "groupId", 200);
+  return db.deleteMessageGroup(userId, groupId);
+}
+
+export async function addGroupMembersAction(groupId: string, memberIds: string[]) {
+  const userId = await getAuthUserId();
+  assertString(groupId, "groupId", 200);
+  assertStringArray(memberIds, "memberIds", 50, 200);
+  return db.addGroupMembers(userId, groupId, memberIds);
+}
+
+export async function removeGroupMemberAction(groupId: string, memberId: string) {
+  const userId = await getAuthUserId();
+  assertString(groupId, "groupId", 200);
+  assertString(memberId, "memberId", 200);
+  return db.removeGroupMember(userId, groupId, memberId);
+}
+
+export async function leaveGroupAction(groupId: string) {
+  const userId = await getAuthUserId();
+  assertString(groupId, "groupId", 200);
+  return db.leaveGroup(userId, groupId);
+}
+
+export async function addGroupMembersWithHistoryAction(groupId: string, memberIds: string[], showHistory: boolean) {
+  const userId = await getAuthUserId();
+  assertString(groupId, "groupId", 200);
+  assertStringArray(memberIds, "memberIds", 50, 200);
+  return db.addGroupMembersWithHistory(userId, groupId, memberIds, showHistory);
+}
+
+// ─── Chat Attachment Upload ──────────────────────────
+
+export async function uploadChatAttachmentAction(base64Data: string, type: "image" | "voice") {
+  const userId = await getAuthUserId();
+  checkRate(userId, "chatUpload", 10, 60);
+  const { uploadImage } = await import("@/lib/upload");
+  return uploadImage(userId, base64Data, "photos");
 }
 
 // ─── Wing Status ──────────────────────────────────────
