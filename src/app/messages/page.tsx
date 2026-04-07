@@ -154,7 +154,7 @@ export default function MessagesPage() {
   if (chatTarget) {
     return (
       <>
-        <div className="fixed inset-0 lg:left-[230px] z-50 flex flex-col" style={{ height: "100dvh", background: "var(--bg)" }}>
+        <div className="fixed top-0 bottom-0 left-0 right-0 lg:left-[230px] z-50 flex flex-col bg-[var(--bg)]">
           {/* Header */}
           <div className="flex items-center gap-3 px-4 py-3 border-b border-[var(--border)] shrink-0 bg-[var(--bg)]">
             <button onClick={() => setChatTarget(null)} className="p-1 text-[var(--outline)] hover:text-[var(--on-surface)]">
@@ -209,7 +209,7 @@ export default function MessagesPage() {
                   <div className={`max-w-[75%] px-3 py-2 rounded-2xl text-sm ${
                     isMe
                       ? "bg-[var(--primary)] text-white rounded-br-md"
-                      : "bg-[var(--surface-high)] text-[var(--on-surface)] rounded-bl-md"
+                      : "bg-[var(--surface-bright)] text-[var(--on-surface)] rounded-bl-md border border-[var(--border)]"
                   }`}>
                     {!isMe && chatTarget.type === "group" && (
                       <p className={`text-[10px] font-medium mb-0.5 text-[var(--primary)]`}>{senderProfile?.firstName || "?"}</p>
