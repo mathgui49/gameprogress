@@ -146,7 +146,7 @@ export default function LeaderboardPage() {
               <div className="text-right">
                 <p className="text-xs text-[var(--on-surface-variant)]">XP cette semaine</p>
                 <p className={`text-sm font-semibold ${(myEntry?.weeklyXp ?? 0) > 0 ? "text-emerald-400" : "text-[var(--outline)]"}`}>
-                  +{myEntry?.weeklyXp ?? 0} XP
+                  +{Math.round(myEntry?.weeklyXp ?? 0)} XP
                 </p>
               </div>
             )}
@@ -186,7 +186,7 @@ export default function LeaderboardPage() {
               <div className="absolute -top-3 left-1/2 -translate-x-1/2 text-lg">👑</div>
             </div>
             <p className="text-sm font-bold text-[var(--on-surface)] truncate max-w-[90px]">{displayEntries[0].firstName}</p>
-            <p className="text-[10px] text-amber-400 font-medium">Niv. {displayEntries[0].level} · {displayEntries[0].xp} XP</p>
+            <p className="text-[10px] text-amber-400 font-medium">Niv. {displayEntries[0].level} · {Math.round(displayEntries[0].xp)} XP</p>
             <div className="w-24 h-32 mt-2 rounded-t-xl bg-gradient-to-t from-amber-400/20 to-amber-500/5 flex items-center justify-center border border-amber-400/20 border-b-0">
               <span className="text-3xl font-bold text-amber-400">1</span>
             </div>
@@ -241,7 +241,7 @@ export default function LeaderboardPage() {
                   {/* Rank or delta */}
                   <div className="w-10 text-center shrink-0">
                     {view === "progression" ? (
-                      <span className="text-xs font-bold text-emerald-400">+{entry.weeklyXp ?? 0}</span>
+                      <span className="text-xs font-bold text-emerald-400">+{Math.round(entry.weeklyXp ?? 0)}</span>
                     ) : (
                       <span className={`text-sm font-bold ${rank.color}`}>{rank.text}</span>
                     )}
@@ -270,7 +270,7 @@ export default function LeaderboardPage() {
                     <Tooltip text="Niveau basé sur l'XP total accumulé" position="left">
                       <p className="text-sm font-bold text-[var(--primary)]">Niv. {entry.level}</p>
                     </Tooltip>
-                    <p className="text-[10px] text-[var(--outline)]">{entry.xp} XP{entry.streak > 0 ? ` · ${entry.streak}j` : ""}</p>
+                    <p className="text-[10px] text-[var(--outline)]">{Math.round(entry.xp)} XP{entry.streak > 0 ? ` · ${entry.streak}j` : ""}</p>
                   </div>
 
                   {/* Compare button */}
@@ -305,11 +305,11 @@ export default function LeaderboardPage() {
                 <p className="text-[10px] text-[var(--outline)]">Niveau</p>
               </Card>
               <Card className="text-center !p-3">
-                <p className="text-xl font-bold text-[var(--tertiary)]">{detailUser.xp}</p>
+                <p className="text-xl font-bold text-[var(--tertiary)]">{Math.round(detailUser.xp)}</p>
                 <p className="text-[10px] text-[var(--outline)]">XP total</p>
               </Card>
               <Card className="text-center !p-3">
-                <p className="text-xl font-bold text-emerald-400">+{detailUser.weeklyXp ?? 0}</p>
+                <p className="text-xl font-bold text-emerald-400">+{Math.round(detailUser.weeklyXp ?? 0)}</p>
                 <p className="text-[10px] text-[var(--outline)]">Cette semaine</p>
               </Card>
             </div>
@@ -354,7 +354,7 @@ export default function LeaderboardPage() {
             {/* Actions: profile + wing invite */}
             {detailUser.userId !== userId && (
               <div className="flex gap-2 pt-2 border-t border-[var(--border)]">
-                <Link href={`/wings/${detailUser.userId}`} className="flex-1">
+                <Link href={`/wings/${detailUser.username || detailUser.userId}`} className="flex-1">
                   <Button variant="secondary" className="w-full">Voir le profil</Button>
                 </Link>
                 {isWing(detailUser.userId) ? (
@@ -398,8 +398,8 @@ export default function LeaderboardPage() {
             {/* Stats comparison */}
             {[
               { label: "Niveau", mine: myEntry.level, theirs: compareEntry.level },
-              { label: "XP Total", mine: myEntry.xp, theirs: compareEntry.xp },
-              { label: "XP Semaine", mine: myEntry.weeklyXp ?? 0, theirs: compareEntry.weeklyXp ?? 0 },
+              { label: "XP Total", mine: Math.round(myEntry.xp), theirs: Math.round(compareEntry.xp) },
+              { label: "XP Semaine", mine: Math.round(myEntry.weeklyXp ?? 0), theirs: Math.round(compareEntry.weeklyXp ?? 0) },
               { label: "Streak", mine: myEntry.streak, theirs: compareEntry.streak },
             ].map((stat) => {
               const iWin = stat.mine > stat.theirs;
