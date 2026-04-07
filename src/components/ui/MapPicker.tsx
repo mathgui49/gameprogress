@@ -124,7 +124,7 @@ export function MapPicker({ lat, lng, address, onAddressChange, onCoordsChange, 
             )}
           </div>
           {showSuggestions && suggestions.length > 0 && (
-            <div className="absolute z-50 w-full mt-1 rounded-xl overflow-hidden glass-card shadow-xl border border-[var(--border)]">
+            <div className="absolute z-50 w-full mt-1 rounded-xl overflow-hidden shadow-xl border border-[var(--border)] bg-[var(--surface)]">
               {suggestions.map((s, i) => {
                 const parts = s.display_name.split(",").map((p) => p.trim());
                 const main = parts[0];
