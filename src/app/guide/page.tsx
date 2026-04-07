@@ -474,7 +474,7 @@ export default function GuidePage() {
             </div>
           </div>
           <button
-            onClick={checkout}
+            onClick={() => window.location.href = "/abonnement"}
             className="shrink-0 px-5 py-2.5 rounded-[12px] bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] text-white text-sm font-semibold hover:shadow-[0_0_20px_-4px_var(--neon-purple)] transition-all hover:scale-105 active:scale-95"
           >
             Passer à {PLAN_NAME_PRO}
@@ -540,7 +540,7 @@ export default function GuidePage() {
             Passe à {PLAN_NAME_PRO} pour {PRICE_MONTHLY}&euro;/mois et accède à toutes les fonctionnalités sans limites.
           </p>
           <button
-            onClick={checkout}
+            onClick={() => window.location.href = "/abonnement"}
             className="inline-flex items-center gap-2 px-8 py-3 rounded-[14px] bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] text-white text-sm font-semibold hover:shadow-[0_0_32px_-4px_var(--neon-purple)] transition-all hover:scale-105 active:scale-95"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>

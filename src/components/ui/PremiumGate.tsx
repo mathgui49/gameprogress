@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useSubscription } from "@/hooks/useSubscription";
 import { PLAN_NAME_PRO, PRICE_MONTHLY } from "@/lib/premium";
 
@@ -30,12 +31,13 @@ export function PremiumGate({ children, fallback, feature }: PremiumGateProps) {
  * Inline upgrade card shown when a free user hits a premium feature.
  */
 export function UpgradeCard({ feature, compact }: { feature?: string; compact?: boolean }) {
-  const { checkout } = useSubscription();
+  const router = useRouter();
+  const goToPlans = () => router.push("/abonnement");
 
   if (compact) {
     return (
       <button
-        onClick={checkout}
+        onClick={goToPlans}
         className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] text-white text-xs font-semibold hover:shadow-[0_0_16px_-4px_var(--neon-purple)] transition-all hover:scale-105 active:scale-95"
       >
         <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -64,7 +66,7 @@ export function UpgradeCard({ feature, compact }: { feature?: string; compact?: 
           <span className="text-[var(--on-surface-variant)] font-medium">Moins cher qu&apos;un kebab.</span>
         </p>
         <button
-          onClick={checkout}
+          onClick={goToPlans}
           className="inline-flex items-center gap-2 px-6 py-2.5 rounded-[12px] bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] text-white text-sm font-semibold hover:shadow-[0_0_24px_-4px_var(--neon-purple)] transition-all hover:scale-105 active:scale-95"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -90,7 +92,8 @@ export function LimitReachedBanner({
   limit: number;
   itemName: string;
 }) {
-  const { checkout } = useSubscription();
+  const router = useRouter();
+  const goToPlans = () => router.push("/abonnement");
 
   if (current < limit) return null;
 
@@ -110,7 +113,7 @@ export function LimitReachedBanner({
         </p>
       </div>
       <button
-        onClick={checkout}
+        onClick={goToPlans}
         className="shrink-0 px-4 py-2 rounded-[10px] bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] text-white text-xs font-semibold hover:shadow-[0_0_16px_-4px_var(--neon-purple)] transition-all hover:scale-105 active:scale-95"
       >
         Passer {PLAN_NAME_PRO}
@@ -134,7 +137,9 @@ export function ProBadge({ className = "" }: { className?: string }) {
  * Blurred overlay for premium content previews (analytics, leaderboard, etc.)
  */
 export function BlurredPremium({ children, feature }: { children: React.ReactNode; feature?: string }) {
-  const { isPremium, loaded, checkout } = useSubscription();
+  const { isPremium, loaded } = useSubscription();
+  const router = useRouter();
+  const goToPlans = () => router.push("/abonnement");
 
   if (!loaded) return null;
   if (isPremium) return <>{children}</>;
@@ -154,7 +159,7 @@ export function BlurredPremium({ children, feature }: { children: React.ReactNod
           <p className="text-sm font-semibold text-[var(--on-surface)] mb-1">{feature || "Contenu"} {PLAN_NAME_PRO}</p>
           <p className="text-xs text-[var(--outline)] mb-3">Seulement {PRICE_MONTHLY}&euro;/mois</p>
           <button
-            onClick={checkout}
+            onClick={goToPlans}
             className="px-5 py-2 rounded-[10px] bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] text-white text-xs font-semibold hover:shadow-[0_0_16px_-4px_var(--neon-purple)] transition-all hover:scale-105 active:scale-95"
           >
             Débloquer
@@ -169,7 +174,9 @@ export function BlurredPremium({ children, feature }: { children: React.ReactNod
  * Dashboard upgrade banner — shown at top of dashboard for free users
  */
 export function DashboardUpgradeBanner() {
-  const { isPremium, loaded, checkout } = useSubscription();
+  const { isPremium, loaded } = useSubscription();
+  const router = useRouter();
+  const goToPlans = () => router.push("/abonnement");
 
   if (!loaded || isPremium) return null;
 
@@ -191,7 +198,7 @@ export function DashboardUpgradeBanner() {
         </div>
       </div>
       <button
-        onClick={checkout}
+        onClick={goToPlans}
         className="shrink-0 px-5 py-2.5 rounded-[12px] bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] text-white text-sm font-semibold hover:shadow-[0_0_20px_-4px_var(--neon-purple)] transition-all hover:scale-105 active:scale-95"
       >
         Passer à {PLAN_NAME_PRO}
