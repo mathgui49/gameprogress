@@ -266,7 +266,7 @@ export default function ReportsPage() {
       )}
 
       {/* ─── Key Metrics Hero ─── */}
-      <div className="relative rounded-[22px] overflow-hidden glass-card border border-[var(--glass-border)] mb-6">
+      <div data-pdf-section="Métriques clés" className="relative rounded-[22px] overflow-hidden glass-card border border-[var(--glass-border)] mb-6">
         <div className="absolute inset-0 bg-gradient-to-br from-[#f59e0b]/[0.03] to-[var(--primary)]/[0.03]" />
         <div className="relative grid grid-cols-2 lg:grid-cols-5">
           {metrics.map((m, i) => (
@@ -289,7 +289,7 @@ export default function ReportsPage() {
       </div>
 
       {/* ─── Heatmap ─── */}
-      <Card className="mb-6">
+      <Card data-pdf-section="Activité" className="mb-6">
         <div className="flex items-center gap-2 mb-4">
           <div className="w-8 h-8 rounded-[10px] bg-gradient-to-br from-[var(--primary)]/20 to-[var(--secondary)]/20 flex items-center justify-center">
             <svg className="w-4 h-4 text-[var(--primary)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -302,7 +302,7 @@ export default function ReportsPage() {
       </Card>
 
       {/* ─── Charts Row 1: Activity + Close Rate ─── */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+      <div data-pdf-section="Interactions & Taux de close" className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
         <Card>
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
@@ -334,7 +334,7 @@ export default function ReportsPage() {
       </div>
 
       {/* ─── Charts Row 2: Feeling + Donuts ─── */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+      <div data-pdf-section="Ressenti & Résultats" className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
         <Card>
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
@@ -372,7 +372,7 @@ export default function ReportsPage() {
       </div>
 
       {/* ─── Donut Types + Skill + Progression ─── */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+      <div data-pdf-section="Analyse & Progression" className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
         <Card>
           <div className="flex items-center gap-2 mb-4">
             <div className="w-7 h-7 rounded-lg bg-[var(--tertiary)]/15 flex items-center justify-center">
@@ -455,7 +455,7 @@ export default function ReportsPage() {
 
       {/* ─── Badges ─── */}
       {analytics.unlockedBadges.length > 0 && (
-        <Card className="mb-6">
+        <Card data-pdf-section="Badges" className="mb-6">
           <div className="flex items-center gap-2 mb-4">
             <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-amber-400/15 to-orange-400/15 flex items-center justify-center">
               <IconAward size={14} className="text-amber-400" />
@@ -490,7 +490,7 @@ export default function ReportsPage() {
       )}
 
       {/* ─── Pipeline Funnel ─── */}
-      <Card className="mb-6">
+      <Card data-pdf-section="Entonnoir de conversion" className="mb-6">
         <div className="flex items-center gap-2 mb-5">
           <div className="w-8 h-8 rounded-[10px] bg-gradient-to-br from-cyan-400/20 to-[var(--primary)]/20 flex items-center justify-center">
             <svg className="w-4 h-4 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -542,7 +542,7 @@ export default function ReportsPage() {
       </Card>
 
       {/* ─── Bottom Row: Timing + Method ─── */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div data-pdf-section="Temps & Méthodes" className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card>
           <div className="flex items-center gap-2 mb-4">
             <div className="w-7 h-7 rounded-lg bg-[var(--primary)]/15 flex items-center justify-center">

@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 
-interface CardProps {
+interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
   className?: string;
   hover?: boolean;
@@ -8,10 +8,11 @@ interface CardProps {
   glass?: boolean;
 }
 
-export function Card({ children, className, hover, onClick, glass }: CardProps) {
+export function Card({ children, className, hover, onClick, glass, ...rest }: CardProps) {
   return (
     <div
       onClick={onClick}
+      {...rest}
       className={cn(
         "rounded-[var(--radius-card)] p-5",
         glass

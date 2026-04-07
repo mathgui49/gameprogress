@@ -395,35 +395,44 @@ const GUIDE_FEATURES: GuideFeature[] = [
 function PlanBadge({ plan }: { plan: "free" | "gamemax" | "both" }) {
   if (plan === "gamemax") {
     return (
-      <span className="inline-flex items-center px-2 py-0.5 rounded-[6px] bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] text-[9px] font-bold text-white uppercase tracking-wider">
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-[6px] bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] text-[9px] font-bold text-white uppercase tracking-wider">
+        <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
+        </svg>
         {PLAN_NAME_PRO}
       </span>
     );
   }
   if (plan === "free") {
     return (
-      <span className="inline-flex items-center px-2 py-0.5 rounded-[6px] bg-[var(--surface-high)] text-[9px] font-bold text-[var(--outline)] uppercase tracking-wider">
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-[6px] bg-emerald-400/15 text-[9px] font-bold text-emerald-400 uppercase tracking-wider">
+        <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+        </svg>
         Gratuit
       </span>
     );
   }
+  // "both" = free with enhanced features in GameMax
   return (
-    <div className="flex items-center gap-1">
-      <span className="inline-flex items-center px-2 py-0.5 rounded-[6px] bg-[var(--surface-high)] text-[9px] font-bold text-[var(--outline)] uppercase tracking-wider">
-        Gratuit
-      </span>
-      <span className="inline-flex items-center px-2 py-0.5 rounded-[6px] bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] text-[9px] font-bold text-white uppercase tracking-wider">
-        {PLAN_NAME_PRO}
-      </span>
-    </div>
+    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-[6px] bg-emerald-400/15 text-[9px] font-bold text-emerald-400 uppercase tracking-wider">
+      <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+      </svg>
+      Gratuit
+    </span>
   );
 }
 
 export default function GuidePage() {
   const [filter, setFilter] = useState("all");
+  const [planFilter, setPlanFilter] = useState<"all" | "free-only" | "gamemax-only">("all");
   const { isPremium, checkout } = useSubscription();
 
   const filtered = filter === "all" ? GUIDE_FEATURES : GUIDE_FEATURES.filter((f) => f.category === filter);
+  const displayedFeatures = planFilter === "all" ? filtered
+    : planFilter === "free-only" ? filtered.filter((f) => f.plan === "free" || f.plan === "both")
+    : filtered.filter((f) => f.plan === "gamemax");
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
@@ -482,52 +491,110 @@ export default function GuidePage() {
         </div>
       )}
 
+      {/* Plan filter tabs */}
+      <div className="flex justify-center mb-6">
+        <div className="inline-flex gap-1 p-1 rounded-[12px] bg-[var(--surface-high)] border border-[var(--border)]">
+          {[
+            { key: "all", label: "Toutes", count: filtered.length },
+            { key: "free-only", label: "Gratuit", count: filtered.filter((f) => f.plan === "free" || f.plan === "both").length },
+            { key: "gamemax-only", label: PLAN_NAME_PRO, count: filtered.filter((f) => f.plan === "gamemax").length },
+          ].map((tab) => (
+            <button
+              key={tab.key}
+              onClick={() => setPlanFilter(tab.key as any)}
+              className={`px-3 py-1.5 rounded-[8px] text-xs font-medium transition-all flex items-center gap-1.5 ${
+                planFilter === tab.key
+                  ? tab.key === "gamemax-only"
+                    ? "bg-gradient-to-r from-[var(--primary)]/20 to-[var(--secondary)]/20 text-[var(--primary)] border border-[var(--primary)]/20"
+                    : "bg-[var(--glass-bg)] text-[var(--on-surface)] shadow-sm border border-[var(--glass-border)]"
+                  : "text-[var(--outline)] hover:text-[var(--on-surface-variant)]"
+              }`}
+            >
+              {tab.label}
+              <span className={`text-[9px] px-1.5 py-0.5 rounded-full ${
+                planFilter === tab.key ? "bg-[var(--primary)]/15 text-[var(--primary)]" : "bg-[var(--surface-highest)] text-[var(--outline)]"
+              }`}>
+                {tab.count}
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Feature cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {filtered.map((f) => (
-          <div
-            key={f.title}
-            className={`glass-card glass-reflect p-5 rounded-[var(--radius-card)] transition-all duration-200 hover:border-[var(--glass-border-hover)] hover:shadow-[0_8px_32px_-8px_rgba(0,0,0,0.3)] ${f.plan === "gamemax" && !isPremium ? "opacity-80" : ""}`}
-          >
-            <div className="flex items-start gap-4 mb-4">
-              <div className={`w-11 h-11 rounded-[12px] bg-gradient-to-br ${f.color} flex items-center justify-center shrink-0 shadow-lg`}>
-                <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d={f.icon} />
-                </svg>
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1 flex-wrap">
-                  <h3 className="text-sm font-[family-name:var(--font-grotesk)] font-bold text-[var(--on-surface)]">{f.title}</h3>
-                  <PlanBadge plan={f.plan} />
-                </div>
-                <p className="text-xs text-[var(--outline)] leading-relaxed">{f.description}</p>
-              </div>
-            </div>
+        {displayedFeatures.map((f) => {
+          const isLocked = f.plan === "gamemax" && !isPremium;
+          return (
+            <div
+              key={f.title}
+              className={`relative glass-card glass-reflect p-5 rounded-[var(--radius-card)] transition-all duration-200 hover:border-[var(--glass-border-hover)] hover:shadow-[0_8px_32px_-8px_rgba(0,0,0,0.3)] ${
+                isLocked ? "border-[var(--primary)]/10" : ""
+              }`}
+            >
+              {/* GameMax accent bar */}
+              {f.plan === "gamemax" && (
+                <div className="absolute top-0 left-0 right-0 h-[3px] rounded-t-[var(--radius-card)] bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)]" />
+              )}
 
-            <ul className="space-y-1.5 mb-3">
-              {f.details.map((d) => (
-                <li key={d} className="flex items-start gap-2 text-xs text-[var(--on-surface-variant)]">
-                  <svg className="w-3.5 h-3.5 text-[var(--primary)] shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+              <div className="flex items-start gap-4 mb-4">
+                <div className={`relative w-11 h-11 rounded-[12px] bg-gradient-to-br ${f.color} flex items-center justify-center shrink-0 shadow-lg ${isLocked ? "opacity-70" : ""}`}>
+                  <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d={f.icon} />
                   </svg>
-                  {d}
-                </li>
-              ))}
-            </ul>
+                  {isLocked && (
+                    <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-[var(--surface)] flex items-center justify-center">
+                      <svg className="w-2.5 h-2.5 text-[var(--primary)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                      </svg>
+                    </div>
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1 flex-wrap">
+                    <h3 className="text-sm font-[family-name:var(--font-grotesk)] font-bold text-[var(--on-surface)]">{f.title}</h3>
+                    <PlanBadge plan={f.plan} />
+                  </div>
+                  <p className="text-xs text-[var(--outline)] leading-relaxed">{f.description}</p>
+                </div>
+              </div>
 
-            {f.href && (
-              <Link
-                href={f.href}
-                className="inline-flex items-center gap-1 text-xs font-medium text-[var(--primary)] hover:text-[var(--secondary)] transition-colors"
-              >
-                Accéder
-                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-                </svg>
-              </Link>
-            )}
-          </div>
-        ))}
+              <ul className="space-y-1.5 mb-3">
+                {f.details.map((d) => (
+                  <li key={d} className="flex items-start gap-2 text-xs text-[var(--on-surface-variant)]">
+                    <svg className={`w-3.5 h-3.5 shrink-0 mt-0.5 ${f.plan === "gamemax" ? "text-[var(--primary)]" : "text-emerald-400"}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                    </svg>
+                    {d}
+                  </li>
+                ))}
+              </ul>
+
+              {f.href && !isLocked && (
+                <Link
+                  href={f.href}
+                  className="inline-flex items-center gap-1 text-xs font-medium text-[var(--primary)] hover:text-[var(--secondary)] transition-colors"
+                >
+                  Accéder
+                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                  </svg>
+                </Link>
+              )}
+              {isLocked && (
+                <button
+                  onClick={() => window.location.href = "/abonnement"}
+                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--primary)] hover:text-[var(--secondary)] transition-colors"
+                >
+                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 10.5V6.75a4.5 4.5 0 119 0v3.75M3.75 21.75h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H3.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                  </svg>
+                  Débloquer avec {PLAN_NAME_PRO}
+                </button>
+              )}
+            </div>
+          );
+        })}
       </div>
 
       {/* Bottom CTA */}
