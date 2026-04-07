@@ -21,7 +21,7 @@ import { IconUsers } from "@/components/ui/Icons";
 import { MapView } from "@/components/ui/MapView";
 import type { MapMarker } from "@/components/ui/MapView";
 import type { PublicProfile, WingStatus, WingCategory, Message, Session } from "@/types";
-import { WING_STATUS_LABELS, WING_STATUS_COLORS, WING_CATEGORY_LABELS, WING_CATEGORY_COLORS } from "@/types";
+import { WING_STATUS_LABELS, WING_STATUS_COLORS, WING_CATEGORY_LABELS, WING_CATEGORY_COLORS, DEFAULT_PRIVACY } from "@/types";
 import { formatDate, formatRelative, computeAge } from "@/lib/utils";
 import { useSubscription } from "@/hooks/useSubscription";
 import { LimitReachedBanner } from "@/components/ui/PremiumGate";
@@ -584,7 +584,8 @@ export default function WingsPage() {
                 {pendingReceived.map((req) => {
                   const p = pendingProfiles[req.fromUserId];
                   const age = computeAge(p?.birthDate);
-                  const showAge = p?.privacy?.shareAgePublic || p?.privacy?.shareAgeWings;
+                  const pPrivacy = { ...DEFAULT_PRIVACY, ...p?.privacy };
+                  const showAge = pPrivacy.shareAgePublic || pPrivacy.shareAgeWings;
                   return (
                     <div key={req.id} className="flex items-center justify-between p-3 rounded-xl bg-[var(--surface-low)] border border-[var(--border)]">
                       <div className="flex items-center gap-3">
