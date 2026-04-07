@@ -154,6 +154,7 @@ export default function MessagesPage() {
   // Chat view — rendered via portal to escape parent stacking context (backdrop-filter breaks fixed positioning)
   if (chatTarget) {
     const chatView = (
+      <>
         <div className="fixed inset-0 lg:left-[230px] z-[9999] flex flex-col bg-[var(--bg)]">
           {/* Header */}
           <div className="flex items-center gap-3 px-4 py-3 border-b border-[var(--border)] shrink-0 bg-[var(--bg)]">
@@ -255,7 +256,8 @@ export default function MessagesPage() {
         </Modal>
       </>
     );
-    return <>{createPortal(chatView, document.body)}</>;
+    if (typeof document === "undefined") return null;
+    return createPortal(chatView, document.body);
   }
 
   return (
