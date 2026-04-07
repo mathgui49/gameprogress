@@ -5,7 +5,7 @@ import { fetchSubscription } from "@/lib/db";
 import { rateLimit } from "@/lib/rateLimit";
 
 const ALLOWED_ORIGINS = [
-  "https://gameprogress.app",
+  "https://gameprogress.vercel.app",
   "http://localhost:3000",
 ];
 
