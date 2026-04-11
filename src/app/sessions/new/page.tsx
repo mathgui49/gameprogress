@@ -91,14 +91,16 @@ export default function NewSessionPage() {
     e.preventDefault();
     if (submitting || !locationConfirmed) return;
     setSubmitting(true);
+    const goals = goalsText.split("\n").filter(Boolean).map((text) => ({ text: text.trim(), done: false }));
+    const appWingNames = selectedWingIds.map((id) => {
+      const p = wingProfiles.find((wp: PublicProfile) => wp.userId === id);
+      return p?.username || p?.firstName || id;
+    });
+    const allWingNames = [...appWingNames, ...externalWings];
+
+    let session;
     try {
-      const goals = goalsText.split("\n").filter(Boolean).map((text) => ({ text: text.trim(), done: false }));
-      const appWingNames = selectedWingIds.map((id) => {
-        const p = wingProfiles.find((wp: PublicProfile) => wp.userId === id);
-        return p?.username || p?.firstName || id;
-      });
-      const allWingNames = [...appWingNames, ...externalWings];
-      const session = await add({
+      session = await add({
         title: resolveTitle(),
         date: new Date(date).toISOString(),
         location,
@@ -114,19 +116,19 @@ export default function NewSessionPage() {
         estimatedDuration,
         endedAt: null,
       });
-
-      // Send invites in background — don't block navigation
-      if (selectedWingIds.length > 0) {
-        inviteWingsToSessionAction(session.id, selectedWingIds).catch(() => {});
-      }
-
-      toast.show("Session créée !");
-      router.push("/sessions");
     } catch {
       toast.show("Erreur lors de la création");
-    } finally {
       setSubmitting(false);
+      return;
     }
+
+    // Send invites in background — don't block navigation
+    if (selectedWingIds.length > 0) {
+      inviteWingsToSessionAction(session.id, selectedWingIds).catch(() => {});
+    }
+
+    toast.show("Session créée !");
+    router.push("/sessions");
   };
 
   return (
