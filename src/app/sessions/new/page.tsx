@@ -27,7 +27,11 @@ export default function NewSessionPage() {
   const [newExternalWing, setNewExternalWing] = useState("");
   const [notes, setNotes] = useState("");
   const [goalsText, setGoalsText] = useState("");
-  const [date, setDate] = useState(new Date().toISOString().slice(0, 16));
+  const [date, setDate] = useState(() => {
+    const now = new Date();
+    const local = new Date(now.getTime() - now.getTimezoneOffset() * 60000);
+    return local.toISOString().slice(0, 16);
+  });
   const [address, setAddress] = useState("");
   const [lat, setLat] = useState<number>(48.8566);
   const [lng, setLng] = useState<number>(2.3522);
@@ -87,36 +91,42 @@ export default function NewSessionPage() {
     e.preventDefault();
     if (submitting || !locationConfirmed) return;
     setSubmitting(true);
-    const goals = goalsText.split("\n").filter(Boolean).map((text) => ({ text: text.trim(), done: false }));
-    const appWingNames = selectedWingIds.map((id) => {
-      const p = wingProfiles.find((wp: PublicProfile) => wp.userId === id);
-      return p?.username || p?.firstName || id;
-    });
-    const allWingNames = [...appWingNames, ...externalWings];
-    const session = await add({
-      title: resolveTitle(),
-      date: new Date(date).toISOString(),
-      location,
-      address,
-      lat,
-      lng,
-      wings: allWingNames,
-      notes,
-      goals,
-      interactionIds: [],
-      isPublic,
-      maxParticipants,
-      estimatedDuration,
-      endedAt: null,
-    });
+    try {
+      const goals = goalsText.split("\n").filter(Boolean).map((text) => ({ text: text.trim(), done: false }));
+      const appWingNames = selectedWingIds.map((id) => {
+        const p = wingProfiles.find((wp: PublicProfile) => wp.userId === id);
+        return p?.username || p?.firstName || id;
+      });
+      const allWingNames = [...appWingNames, ...externalWings];
+      const session = await add({
+        title: resolveTitle(),
+        date: new Date(date).toISOString(),
+        location,
+        address,
+        lat,
+        lng,
+        wings: allWingNames,
+        notes,
+        goals,
+        interactionIds: [],
+        isPublic,
+        maxParticipants,
+        estimatedDuration,
+        endedAt: null,
+      });
 
-    // Send invites to selected wings (app users only)
-    if (selectedWingIds.length > 0) {
-      await inviteWingsToSessionAction(session.id, selectedWingIds);
+      // Send invites in background — don't block navigation
+      if (selectedWingIds.length > 0) {
+        inviteWingsToSessionAction(session.id, selectedWingIds).catch(() => {});
+      }
+
+      toast.show("Session créée !");
+      router.push("/sessions");
+    } catch {
+      toast.show("Erreur lors de la création");
+    } finally {
+      setSubmitting(false);
     }
-
-    toast.show("Session créée !");
-    router.push("/sessions");
   };
 
   return (

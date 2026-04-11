@@ -207,13 +207,19 @@ export default function SessionsPage() {
   }, [categorizedSessions]);
 
   const filtered = useMemo(() => {
-    let list = categorizedSessions;
+    let list = categorizedSessions.filter((s) => !s.isPast);
     if (filter !== "all") list = list.filter((s) => s.category === filter);
     if (sort === "date_desc") list = [...list].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     else if (sort === "date_asc") list = [...list].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
     else if (sort === "proximity") list = [...list].sort((a, b) => (a.distanceKm ?? 9999) - (b.distanceKm ?? 9999));
     return list;
   }, [categorizedSessions, filter, sort]);
+
+  const pastSessions = useMemo(() => {
+    let list = categorizedSessions.filter((s) => s.isPast);
+    if (filter !== "all") list = list.filter((s) => s.category === filter);
+    return [...list].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  }, [categorizedSessions, filter]);
 
   const stats = useMemo(() => {
     const total = allSessions.length;
@@ -516,7 +522,14 @@ export default function SessionsPage() {
         </div>
       ) : view === "list" ? (
         /* ─── List View ─── */
-        <div className="space-y-3">
+        <div className="space-y-6">
+        {filtered.length > 0 && (
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-2 h-2 rounded-full bg-[var(--primary)] shadow-[0_0_6px_var(--neon-purple)]" />
+              <span className="text-xs font-semibold text-[var(--primary)] uppercase tracking-wider">Prochaines sessions</span>
+            </div>
+            <div className="space-y-3">
           {filtered.map((s) => {
             const sessionInteractions = interactions.filter((i) => s.interactionIds.includes(i.id));
             const closes = sessionInteractions.filter((i) => i.result === "close").length;
@@ -616,6 +629,98 @@ export default function SessionsPage() {
               </div>
             );
           })}
+            </div>
+          </div>
+        )}
+
+        {/* ─── Past Sessions ─── */}
+        {pastSessions.length > 0 && (
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-2 h-2 rounded-full bg-[var(--outline-variant)]" />
+              <span className="text-xs font-semibold text-[var(--outline)] uppercase tracking-wider">Passées</span>
+              <span className="text-[10px] text-[var(--outline)] ml-1">{pastSessions.length}</span>
+            </div>
+            <div className="space-y-3">
+          {pastSessions.map((s) => {
+            const sessionInteractions = interactions.filter((i) => s.interactionIds.includes(i.id));
+            const closes = sessionInteractions.filter((i) => i.result === "close").length;
+            const pInfo = participantCounts[s.id];
+            return (
+              <div key={s.id} className="rounded-[16px] glass-card border border-[var(--glass-border)] overflow-hidden opacity-70 hover:opacity-100 hover:border-[var(--outline-variant)]/30 transition-all">
+                <Link href={`/sessions/${s.id}`} className="block p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-start gap-3 min-w-0">
+                      <div className="w-10 h-10 rounded-xl bg-[var(--surface-high)] flex items-center justify-center shrink-0">
+                        <svg className="w-5 h-5 text-[var(--outline)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </div>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2 mb-0.5 flex-wrap">
+                          <h3 className="text-sm font-semibold text-[var(--on-surface)]">{s.title || "Session sans titre"}</h3>
+                          <Badge className={categoryColor(s.category)}>{categoryLabel(s.category)}</Badge>
+                        </div>
+                        <p className="text-xs text-[var(--outline)] flex items-center gap-1 flex-wrap">
+                          <span>{formatDate(s.date)}</span>
+                          {s.location && <><span className="text-[var(--border)]">·</span><span>{s.location}</span></>}
+                          {s.estimatedDuration && (
+                            <><span className="text-[var(--border)]">·</span><span>{Math.floor(s.estimatedDuration / 60) > 0 ? `${Math.floor(s.estimatedDuration / 60)}h` : ""}{s.estimatedDuration % 60 > 0 ? `${String(s.estimatedDuration % 60).padStart(2, "0")}min` : ""}</span></>
+                          )}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-xs font-medium text-[var(--on-surface-variant)] px-2 py-0.5 rounded-md bg-[var(--surface-high)]">{s.interactionIds.length} inter.</span>
+                      {closes > 0 && <span className="text-xs font-medium text-emerald-400 px-2 py-0.5 rounded-md bg-emerald-400/10">{closes} close{closes > 1 ? "s" : ""}</span>}
+                    </div>
+                  </div>
+                  {(pInfo?.count || s.wings.length > 0) && (
+                    <div className="flex items-center gap-3 mt-3 pt-3 border-t border-[var(--border)]">
+                      {pInfo && pInfo.count > 0 && (
+                        <div className="flex items-center gap-2">
+                          <div className="flex -space-x-2">
+                            {pInfo.photos.slice(0, 5).map((photo, i) => (
+                              photo ? (
+                                <img key={i} src={photo} alt="" className="w-6 h-6 rounded-full border-2 border-[var(--surface)] object-cover" />
+                              ) : (
+                                <div key={i} className="w-6 h-6 rounded-full border-2 border-[var(--surface)] bg-[var(--surface-high)] flex items-center justify-center">
+                                  <span className="text-[8px] font-bold text-[var(--outline)]">{pInfo.names[i]?.[0]?.toUpperCase() || "?"}</span>
+                                </div>
+                              )
+                            ))}
+                          </div>
+                          <span className="text-[10px] text-[var(--outline)]">{pInfo.count} participant{pInfo.count > 1 ? "s" : ""}</span>
+                        </div>
+                      )}
+                      {s.wings.length > 0 && (
+                        <div className="flex items-center gap-1">
+                          {s.wings.slice(0, 3).map((w) => <span key={w} className="text-[10px] px-2 py-0.5 rounded-full bg-[var(--tertiary)]/10 text-[var(--tertiary)] font-medium">{w}</span>)}
+                          {s.wings.length > 3 && <span className="text-[10px] text-[var(--outline)]">+{s.wings.length - 3}</span>}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </Link>
+                {ownIds.has(s.id) && (
+                  <div className="flex justify-end px-4 pb-3">
+                    <button
+                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); setDeleteTarget(s.id); }}
+                      className="text-[10px] text-[var(--outline)] hover:text-[var(--error)] transition-colors flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-[var(--error)]/5"
+                    >
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                      </svg>
+                      Supprimer
+                    </button>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+            </div>
+          </div>
+        )}
         </div>
       ) : (
         /* ─── Calendar View ─── */
